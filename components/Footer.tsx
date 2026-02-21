@@ -103,6 +103,18 @@ export default function Footer() {
                                 </Link>
                             </li>
                         ))}
+                        {siteConfig.subdomain && (
+                            <li>
+                                <a href={`https://app.scaleyourjunk.com/driver/login?company=${siteConfig.subdomain}`}
+                                    target="_blank" rel="noopener noreferrer"
+                                    style={{ color: "#64748b", textDecoration: "none", fontSize: "0.8rem" }}
+                                    onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#94a3b8")}
+                                    onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#64748b")}
+                                >
+                                    Driver Login →
+                                </a>
+                            </li>
+                        )}
                     </ul>
                 </div>
 

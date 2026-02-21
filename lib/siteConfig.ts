@@ -19,6 +19,7 @@ function parseJSON<T>(value: string | undefined, fallback: T): T {
 export const siteConfig = {
     // Core identity
     companyName: process.env.NEXT_PUBLIC_COMPANY_NAME ?? "Your Company Name",
+    subdomain: process.env.NEXT_PUBLIC_SUBDOMAIN ?? "",
     city: process.env.NEXT_PUBLIC_CITY ?? "Your City",
     state: process.env.NEXT_PUBLIC_STATE ?? "",
     serviceArea: process.env.NEXT_PUBLIC_SERVICE_AREA ?? "your area",
