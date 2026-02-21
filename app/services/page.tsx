@@ -25,7 +25,7 @@ function ServiceCard({
     return (
         <div
             style={{
-                background: "#fff",
+                background: "var(--card)",
                 borderRadius: 16,
                 padding: "2rem",
                 border: "1px solid var(--border)",
@@ -107,7 +107,7 @@ export default function ServicesPage() {
                                 alignItems: "center",
                                 gap: "0.5rem",
                                 padding: "0.4rem 1rem",
-                                borderRadius: 999,
+                                borderRadius: "var(--btn-radius)",
                                 background: "rgba(255,255,255,0.08)",
                                 border: "1px solid rgba(255,255,255,0.15)",
                                 color: "var(--brand)",
@@ -144,7 +144,7 @@ export default function ServicesPage() {
                                 style={{
                                     padding: "1rem 2rem",
                                     fontSize: "1rem",
-                                    borderRadius: 999,
+                                    borderRadius: "var(--btn-radius)",
                                     border: "2px solid rgba(255,255,255,0.3)",
                                     color: "#fff",
                                     textDecoration: "none",
@@ -183,7 +183,7 @@ export default function ServicesPage() {
                 </section>
 
                 {/* Items We Don't Accept */}
-                <section style={{ padding: "5rem 1.5rem", background: "#fff", borderTop: "1px solid var(--border)" }}>
+                <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
                     <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
                         <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🚫</div>
                         <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "2rem" }}>Items We Do Not Accept</h2>
@@ -249,7 +249,7 @@ export default function ServicesPage() {
                                 href={`tel:${phoneNumber.replace(/\D/g, "")}`}
                                 style={{
                                     padding: "1rem 2rem",
-                                    borderRadius: 999,
+                                    borderRadius: "var(--btn-radius)",
                                     border: "2px solid rgba(255,255,255,0.3)",
                                     color: "#fff",
                                     textDecoration: "none",

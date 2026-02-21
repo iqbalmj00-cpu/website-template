@@ -36,7 +36,7 @@ function ConfirmationContent() {
                 </div>
             </section>
 
-            <section style={{ padding: "3rem 1.5rem", background: "#fff" }}>
+            <section style={{ padding: "3rem 1.5rem", background: "var(--card)" }}>
                 <div style={{ maxWidth: 500, margin: "0 auto" }}>
                     <div style={{ background: "var(--background)", border: "1px solid var(--border)", borderRadius: 16, padding: "2rem", marginBottom: "2rem" }}>
                         <h2 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem" }}>Booking Details</h2>

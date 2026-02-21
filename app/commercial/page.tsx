@@ -19,7 +19,7 @@ export default function CommercialPage() {
                 <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: siteConfig.commercialImageUrl ? "1fr 1fr" : "1fr", gap: "2rem", alignItems: "center" }}>
                         <div style={{ textAlign: siteConfig.commercialImageUrl ? "left" : "center", maxWidth: siteConfig.commercialImageUrl ? undefined : 800, margin: siteConfig.commercialImageUrl ? undefined : "0 auto" }}>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: 999, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "2rem" }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "2rem" }}>
                                 🏢 Business Solutions
                             </span>
                             <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 3.5rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.5rem" }}>
@@ -54,7 +54,7 @@ export default function CommercialPage() {
                                 { icon: "🏗️", title: "Construction Sites", desc: "Ongoing debris removal for contractors. Scheduled pickups available weekly or bi-weekly." },
                                 { icon: "🏥", title: "Property Management", desc: "Turnover cleanouts, tenant moveout junk, and ongoing building maintenance support." },
                             ].map((svc) => (
-                                <div key={svc.title} style={{ background: "#fff", borderRadius: 16, padding: "2rem", border: "1px solid var(--border)" }}>
+                                <div key={svc.title} style={{ background: "var(--card)", borderRadius: 16, padding: "2rem", border: "1px solid var(--border)" }}>
                                     <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>{svc.icon}</div>
                                     <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{svc.title}</h3>
                                     <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>{svc.desc}</p>
@@ -65,7 +65,7 @@ export default function CommercialPage() {
                 </section>
 
                 {/* Why Us */}
-                <section style={{ padding: "5rem 1.5rem", background: "#fff", borderTop: "1px solid var(--border)" }}>
+                <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
                     <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
                         <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "3rem" }}>Why Businesses Choose Us</h2>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "2rem" }}>
@@ -93,8 +93,8 @@ export default function CommercialPage() {
                             Serving businesses across {city}{state ? `, ${state}` : ""}. Contact us for volume pricing.
                         </p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                            <Link href="/contact" style={{ padding: "1rem 2rem", borderRadius: 999, background: "#fff", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📧 Request a Quote</Link>
-                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: 999, border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
+                            <Link href="/contact" style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📧 Request a Quote</Link>
+                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
                         </div>
                     </div>
                 </section>

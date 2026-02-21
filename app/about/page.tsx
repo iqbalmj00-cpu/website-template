@@ -18,12 +18,12 @@ export default function AboutPage() {
 
     return (
         <>
-            <section style={{ background: "var(--navy)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "#f8fafc", marginBottom: "1rem" }}>
+                    <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
                         About {siteConfig.companyName}
                     </h1>
-                    <p style={{ color: "#94a3b8", fontSize: "1.1rem", lineHeight: 1.7 }}>
+                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7 }}>
                         {siteConfig.tagline}
                     </p>
                 </div>
@@ -54,14 +54,14 @@ export default function AboutPage() {
                 </div>
             </section>
 
-            <section style={{ padding: "5rem 1.5rem", background: "#fff" }}>
+            <section style={{ padding: "5rem 1.5rem", background: "var(--card)" }}>
                 <div style={{ maxWidth: 1200, margin: "0 auto" }}>
                     <h2 className="section-title" style={{ textAlign: "center", marginBottom: "3rem" }}>Our Values</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.5rem" }}>
                         {values.map(({ icon: Icon, title, desc }) => (
                             <div key={title} className="card" style={{ textAlign: "center" }}>
                                 <Icon size={32} style={{ color: "var(--brand)", marginBottom: "1rem" }} />
-                                <h3 style={{ fontSize: "1.1rem", color: "var(--navy)", marginBottom: "0.5rem" }}>{title}</h3>
+                                <h3 style={{ fontSize: "1.1rem", color: "var(--foreground)", marginBottom: "0.5rem" }}>{title}</h3>
                                 <p style={{ color: "var(--muted)", fontSize: "0.925rem", lineHeight: 1.65 }}>{desc}</p>
                             </div>
                         ))}
@@ -69,9 +69,9 @@ export default function AboutPage() {
                 </div>
             </section>
 
-            <section style={{ padding: "5rem 1.5rem", background: "var(--navy)", textAlign: "center" }}>
+            <section style={{ padding: "5rem 1.5rem", background: "var(--hero-bg)", textAlign: "center" }}>
                 <div style={{ maxWidth: 600, margin: "0 auto" }}>
-                    <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", color: "#f8fafc", marginBottom: "1rem" }}>
+                    <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
                         Let us do the heavy lifting.
                     </h2>
                     <Link href="/book" className="btn-primary" style={{ fontSize: "1.05rem", padding: "1rem 2rem" }}>

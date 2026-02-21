@@ -27,7 +27,7 @@ export default function BlogPage() {
                     </div>
                 </section>
 
-                <section style={{ padding: "5rem 1.5rem", background: "#fff" }}>
+                <section style={{ padding: "5rem 1.5rem", background: "var(--card)" }}>
                     <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
                         <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem", fontSize: "2rem" }}>
                             📝

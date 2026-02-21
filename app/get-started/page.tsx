@@ -51,7 +51,7 @@ export default function GetStartedPage() {
     const inputStyle = {
         width: "100%", padding: "0.875rem 1rem", borderRadius: 12,
         border: "1px solid var(--border)", fontSize: "1rem", outline: "none",
-        background: "#fff",
+        background: "var(--card)",
     };
 
     return (
@@ -74,13 +74,13 @@ export default function GetStartedPage() {
                                     </div>
                                 ))}
                             </div>
-                            <div style={{ marginTop: "2rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "#94a3b8" }}>
+                            <div style={{ marginTop: "2rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--hero-muted)" }}>
                                 <Phone size={16} style={{ color: "var(--brand)" }} />
                                 <span>Or call us: <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`} style={{ color: "#fff", fontWeight: 600, textDecoration: "none" }}>{siteConfig.phoneNumber}</a></span>
                             </div>
                         </div>
 
-                        <div style={{ background: "#fff", borderRadius: 20, padding: "2.5rem", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+                        <div style={{ background: "var(--card)", borderRadius: 20, padding: "2.5rem", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
                             <h2 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "1.5rem", textAlign: "center" }}>
                                 Start Here
                             </h2>

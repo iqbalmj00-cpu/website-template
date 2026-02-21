@@ -20,7 +20,7 @@ function ThankYouContent() {
                     <div style={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg, var(--brand), var(--brand-dark))", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
                         <CheckCircle size={40} color="#fff" />
                     </div>
-                    <h1 style={{ fontSize: "clamp(1.75rem, 5vw, 2.5rem)", color: "var(--navy)", marginBottom: "0.75rem" }}>
+                    <h1 style={{ fontSize: "clamp(1.75rem, 5vw, 2.5rem)", color: "var(--foreground)", marginBottom: "0.75rem" }}>
                         You&rsquo;re all set, {name.split(" ")[0]}!
                     </h1>
                     <p style={{ color: "var(--muted)", fontSize: "1.1rem", lineHeight: 1.7 }}>

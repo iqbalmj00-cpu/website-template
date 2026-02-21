@@ -23,7 +23,7 @@ export default function Footer() {
     ];
 
     return (
-        <footer style={{ background: "var(--navy)", color: "#e2e8f0" }}>
+        <footer style={{ background: "var(--footer-bg)", color: "#e2e8f0" }}>
             <div
                 style={{
                     maxWidth: 1200,
@@ -38,7 +38,7 @@ export default function Footer() {
                 <div>
                     <p
                         style={{
-                            fontFamily: "var(--font-space-grotesk)",
+                            fontFamily: "var(--heading-font)",
                             fontWeight: 800,
                             fontSize: "1.25rem",
                             color: "var(--brand)",

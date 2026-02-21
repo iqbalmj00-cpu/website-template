@@ -55,7 +55,7 @@ function Calendar({ selected, onSelect }: { selected: Date | null; onSelect: (d:
         <div style={{ maxWidth: 400, margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                 <button onClick={prevMonth} style={{ border: "none", background: "none", fontSize: 22, color: "#64748B", padding: "4px 12px", borderRadius: 8, cursor: "pointer" }}>‹</button>
-                <span style={{ fontFamily: "var(--font-space-grotesk)", fontWeight: 700, fontSize: 18, color: "#0A192F" }}>{monthName} {viewYear}</span>
+                <span style={{ fontFamily: "var(--heading-font)", fontWeight: 700, fontSize: 18, color: "var(--foreground)" }}>{monthName} {viewYear}</span>
                 <button onClick={nextMonth} style={{ border: "none", background: "none", fontSize: 22, color: "#64748B", padding: "4px 12px", borderRadius: 8, cursor: "pointer" }}>›</button>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, textAlign: "center" }}>
@@ -260,7 +260,7 @@ export default function BookingWizard() {
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>👋</div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--navy)" }}>Let&apos;s get started!</h1>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Let&apos;s get started!</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Tell us a bit about yourself so we can prepare your custom quote.</p>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -296,11 +296,11 @@ export default function BookingWizard() {
 
                         <button onClick={captureLead} disabled={!canProceed() || submitting}
                             style={{
-                                width: "100%", marginTop: 24, padding: 18, borderRadius: 9999, border: "none",
+                                width: "100%", marginTop: 24, padding: 18, borderRadius: "var(--btn-radius)", border: "none",
                                 background: canProceed() && !submitting ? "linear-gradient(135deg, var(--brand), var(--brand-dark))" : "#E2E8F0",
                                 color: canProceed() && !submitting ? "#fff" : "#94A3B8",
                                 fontSize: 17, fontWeight: 700, cursor: canProceed() && !submitting ? "pointer" : "not-allowed",
-                                fontFamily: "var(--font-space-grotesk)", boxShadow: canProceed() && !submitting ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
+                                fontFamily: "var(--heading-font)", boxShadow: canProceed() && !submitting ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
                                 transition: "all 0.2s",
                             }}>
                             {submitting ? "Saving..." : "Get My Free Quote →"}
@@ -316,7 +316,7 @@ export default function BookingWizard() {
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>🗑️</div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--navy)" }}>What kind of junk are we hauling?</h1>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>What kind of junk are we hauling?</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Select all categories that apply.</p>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(155px, 1fr))", gap: 12 }}>
@@ -329,7 +329,7 @@ export default function BookingWizard() {
                                         </div>
                                     )}
                                     <div style={{ fontSize: 32, marginBottom: 8 }}>{cat.icon}</div>
-                                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--navy)", marginBottom: 4 }}>{cat.label}</div>
+                                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{cat.label}</div>
                                     <div style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.4 }}>{cat.desc}</div>
                                 </div>
                             ))}
@@ -342,7 +342,7 @@ export default function BookingWizard() {
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>📋</div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--navy)" }}>What items need to go?</h1>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>What items need to go?</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Tap items to add them, then adjust quantities.</p>
                         </div>
                         {selectedCategories.map(catId => {
@@ -350,7 +350,7 @@ export default function BookingWizard() {
                             const items = CATEGORY_ITEMS[catId] || [];
                             return (
                                 <div key={catId} style={{ marginBottom: 28 }}>
-                                    <h3 style={{ fontFamily: "var(--font-space-grotesk)", fontSize: 15, fontWeight: 700, color: "var(--navy)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.02em" }}>
+                                    <h3 style={{ fontFamily: "var(--heading-font)", fontSize: 15, fontWeight: 700, color: "var(--foreground)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.02em" }}>
                                         {cat?.icon} {cat?.label}
                                     </h3>
                                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
@@ -364,7 +364,7 @@ export default function BookingWizard() {
                                                         background: active ? "#FFF7ED" : "#fff", border: `2px solid ${active ? "var(--brand)" : "#E2E8F0"}`, cursor: "pointer", transition: "all 0.15s",
                                                     }}>
                                                     <div>
-                                                        <div style={{ fontWeight: 600, fontSize: 13, color: "var(--navy)" }}>{item.label}</div>
+                                                        <div style={{ fontWeight: 600, fontSize: 13, color: "var(--foreground)" }}>{item.label}</div>
                                                         <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{item.weight === "heavy" ? "⚠️ Heavy" : item.weight === "medium" ? "Medium" : "Light"}</div>
                                                     </div>
                                                     {active ? (
@@ -396,7 +396,7 @@ export default function BookingWizard() {
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>🚛</div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--navy)" }}>How much space will it take?</h1>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>How much space will it take?</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Estimate how much of our truck your junk will fill.</p>
                         </div>
                         <div style={{ textAlign: "center", marginBottom: 28 }}>
@@ -410,7 +410,7 @@ export default function BookingWizard() {
                                         borderRadius: 14, padding: "16px 18px", textAlign: "left", cursor: "pointer", transition: "all 0.2s",
                                     }}>
                                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                                        <span style={{ fontWeight: 700, fontSize: 15, color: "var(--navy)" }}>{v.label}</span>
+                                        <span style={{ fontWeight: 700, fontSize: 15, color: "var(--foreground)" }}>{v.label}</span>
                                         <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 20, background: volume === v.id ? "#FFEDD5" : "#F1F5F9", color: volume === v.id ? "var(--brand)" : "#94A3B8" }}>{v.fraction}</span>
                                     </div>
                                     <div style={{ fontSize: 12, color: "#64748B" }}>{v.desc}</div>
@@ -426,7 +426,7 @@ export default function BookingWizard() {
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>📍</div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--navy)" }}>Where is the junk located?</h1>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Where is the junk located?</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>This helps us plan access and determine crew size.</p>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
@@ -439,7 +439,7 @@ export default function BookingWizard() {
                                         </div>
                                     )}
                                     <div style={{ fontSize: 32, marginBottom: 8 }}>{loc.icon}</div>
-                                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--navy)", marginBottom: 4 }}>{loc.label}</div>
+                                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{loc.label}</div>
                                     <div style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.4 }}>{loc.desc}</div>
                                 </div>
                             ))}
@@ -457,15 +457,15 @@ export default function BookingWizard() {
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>📅</div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--navy)" }}>Pick a date & time</h1>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Pick a date & time</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>You can reschedule after booking if needed.</p>
                         </div>
-                        <div style={{ background: "#fff", borderRadius: 16, padding: 24, border: "1px solid #E2E8F0", marginBottom: 24 }}>
+                        <div style={{ background: "var(--card)", borderRadius: 16, padding: 24, border: "1px solid #E2E8F0", marginBottom: 24 }}>
                             <Calendar selected={selectedDate} onSelect={setSelectedDate} />
                         </div>
                         {selectedDate && (
                             <div>
-                                <div style={{ fontFamily: "var(--font-space-grotesk)", fontSize: 16, fontWeight: 700, color: "var(--navy)", marginBottom: 12, textAlign: "center" }}>
+                                <div style={{ fontFamily: "var(--heading-font)", fontSize: 16, fontWeight: 700, color: "var(--foreground)", marginBottom: 12, textAlign: "center" }}>
                                     Available times for {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
                                 </div>
                                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
@@ -475,7 +475,7 @@ export default function BookingWizard() {
                                                 border: `2px solid ${selectedTime === slot.id ? "var(--brand)" : "#E2E8F0"}`, background: selectedTime === slot.id ? "#FFF7ED" : "#fff",
                                                 borderRadius: 12, padding: 16, textAlign: "center", cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit",
                                             }}>
-                                            <div style={{ fontWeight: 600, fontSize: 14, color: selectedTime === slot.id ? "var(--brand)" : "var(--navy)" }}>{slot.label}</div>
+                                            <div style={{ fontWeight: 600, fontSize: 14, color: selectedTime === slot.id ? "var(--brand)" : "var(--foreground)" }}>{slot.label}</div>
                                             <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>{slot.period}</div>
                                         </button>
                                     ))}
@@ -492,15 +492,15 @@ export default function BookingWizard() {
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, var(--brand), var(--brand-dark))", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                                 <Check size={24} color="#fff" />
                             </div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--navy)" }}>Your Junk Removal Estimate</h1>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Your Junk Removal Estimate</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Review your details below. Final price confirmed on-site.</p>
                         </div>
-                        <div style={{ background: "#fff", borderRadius: 20, border: "1px solid #E2E8F0", overflow: "hidden", marginBottom: 24, boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
-                            <div style={{ background: "var(--navy)", padding: "32px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+                        <div style={{ background: "var(--card)", borderRadius: 20, border: "1px solid #E2E8F0", overflow: "hidden", marginBottom: 24, boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
+                            <div style={{ background: "var(--hero-bg)", padding: "32px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
                                 <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, position: "relative", zIndex: 1 }}>
                                     Estimated Price Range
                                 </div>
-                                <div style={{ fontFamily: "var(--font-space-grotesk)", fontSize: 44, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
+                                <div style={{ fontFamily: "var(--heading-font)", fontSize: 44, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
                                     ${volData ? volData.price[0] + priceAdj : "—"} – ${volData ? volData.price[1] + priceAdj : "—"}
                                 </div>
                                 {priceAdj > 0 && <div style={{ fontSize: 12, color: "#FBBF24", marginTop: 6, position: "relative", zIndex: 1 }}>Includes +${priceAdj} stairs surcharge</div>}
@@ -519,7 +519,7 @@ export default function BookingWizard() {
                                 ].map((row, i) => (
                                     <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", borderBottom: i < 8 ? "1px solid #F1F5F9" : "none" }}>
                                         <span style={{ fontSize: 14, color: "#64748B", fontWeight: 500 }}>{row.label}</span>
-                                        <span style={{ fontSize: 14, color: "var(--navy)", fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{row.value}</span>
+                                        <span style={{ fontSize: 14, color: "var(--foreground)", fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{row.value}</span>
                                     </div>
                                 ))}
                             </div>
@@ -533,11 +533,11 @@ export default function BookingWizard() {
 
                         <button onClick={handleSubmit} disabled={submitting}
                             style={{
-                                width: "100%", marginTop: 24, padding: 18, borderRadius: 9999, border: "none",
+                                width: "100%", marginTop: 24, padding: 18, borderRadius: "var(--btn-radius)", border: "none",
                                 background: !submitting ? "linear-gradient(135deg, var(--brand), var(--brand-dark))" : "#E2E8F0",
                                 color: !submitting ? "#fff" : "#94A3B8",
                                 fontSize: 17, fontWeight: 700, cursor: !submitting ? "pointer" : "not-allowed",
-                                fontFamily: "var(--font-space-grotesk)", boxShadow: !submitting ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
+                                fontFamily: "var(--heading-font)", boxShadow: !submitting ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
                                 transition: "all 0.2s",
                             }}>
                             {submitting ? "Booking..." : "Confirm & Book My Pickup →"}
@@ -551,13 +551,13 @@ export default function BookingWizard() {
 
             {/* ── Footer Nav (Steps 1-5 only) ─────────────────────────────────── */}
             {step > 0 && step < 6 && (
-                <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: "1px solid #E2E8F0", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 50 }}>
+                <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--card)", borderTop: "1px solid #E2E8F0", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 50 }}>
                     <button onClick={goBack} style={{ border: "none", background: "none", fontSize: 15, color: "#64748B", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
                         <ChevronLeft size={18} /> Back
                     </button>
                     <button onClick={goNext} disabled={!canProceed()}
                         style={{
-                            padding: "14px 44px", borderRadius: 9999, border: "none", fontSize: 15, fontWeight: 700, cursor: canProceed() ? "pointer" : "not-allowed",
+                            padding: "14px 44px", borderRadius: "var(--btn-radius)", border: "none", fontSize: 15, fontWeight: 700, cursor: canProceed() ? "pointer" : "not-allowed",
                             fontFamily: "inherit", transition: "all 0.2s",
                             background: canProceed() ? "var(--brand)" : "#E2E8F0",
                             color: canProceed() ? "#fff" : "#94A3B8",

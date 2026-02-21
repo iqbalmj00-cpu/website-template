@@ -60,7 +60,7 @@ export default function BookingDetailsPage() {
                     </div>
                 </section>
 
-                <section style={{ padding: "3rem 1.5rem", background: "#fff" }}>
+                <section style={{ padding: "3rem 1.5rem", background: "var(--card)" }}>
                     <div style={{ maxWidth: 500, margin: "0 auto" }}>
                         <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.5rem" }}>
                             <div style={{ flex: 1, position: "relative" }}>
@@ -111,7 +111,7 @@ export default function BookingDetailsPage() {
                                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
                                             <h3 style={{ fontWeight: 700 }}>{job.title || "Junk Removal"}</h3>
                                             <span style={{
-                                                padding: "0.2rem 0.75rem", borderRadius: 999, fontSize: "0.75rem", fontWeight: 700,
+                                                padding: "0.2rem 0.75rem", borderRadius: "var(--btn-radius)", fontSize: "0.75rem", fontWeight: 700,
                                                 background: `${statusColors[job.status] || "#6b7280"}20`,
                                                 color: statusColors[job.status] || "#6b7280",
                                                 textTransform: "uppercase",

@@ -17,6 +17,9 @@ function parseJSON<T>(value: string | undefined, fallback: T): T {
 }
 
 export const siteConfig = {
+    // Theme
+    theme: process.env.NEXT_PUBLIC_THEME ?? "classic",
+
     // Core identity
     companyName: process.env.NEXT_PUBLIC_COMPANY_NAME ?? "Your Company Name",
     subdomain: process.env.NEXT_PUBLIC_SUBDOMAIN ?? "",

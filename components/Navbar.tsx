@@ -74,14 +74,14 @@ export default function Navbar() {
     return (
         <nav style={{
             position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
-            background: "var(--navy, #0f172a)",
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
-            boxShadow: "0 4px 30px rgba(0,0,0,0.3)",
+            background: "var(--nav-bg)",
+            borderBottom: "1px solid var(--border)",
+            boxShadow: "0 4px 30px rgba(0,0,0,0.15)",
         }}>
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 80 }}>
 
                 {/* Logo */}
-                <Link href="/" style={{ fontFamily: "var(--font-space-grotesk)", fontWeight: 900, fontSize: "1.4rem", color: "#fff", textDecoration: "none", letterSpacing: "-0.04em", flexShrink: 0 }}>
+                <Link href="/" style={{ fontFamily: "var(--heading-font)", fontWeight: 900, fontSize: "1.4rem", color: "var(--foreground)", textDecoration: "none", letterSpacing: "-0.04em", flexShrink: 0 }}>
                     {siteConfig.logoUrl ? (
                         <img src={siteConfig.logoUrl} alt={siteConfig.companyName} style={{ height: 40, objectFit: "contain" }} />
                     ) : (
@@ -101,12 +101,12 @@ export default function Navbar() {
                                         display: "flex", alignItems: "center", gap: "0.25rem",
                                         padding: "0.5rem 0.75rem",
                                         fontSize: "0.95rem", fontWeight: 700,
-                                        color: isActive(link.href) ? "#fff" : "#94a3b8",
+                                        color: isActive(link.href) ? "var(--foreground)" : "var(--nav-text)",
                                         borderBottom: isActive(link.href) ? "3px solid var(--brand)" : "3px solid transparent",
                                         transition: "color 0.15s",
                                     }}
-                                    onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
-                                    onMouseLeave={e => { if (!isActive(link.href)) e.currentTarget.style.color = "#94a3b8"; }}
+                                    onMouseEnter={e => (e.currentTarget.style.color = "var(--foreground)")}
+                                    onMouseLeave={e => { if (!isActive(link.href)) e.currentTarget.style.color = "var(--nav-text)"; }}
                                 >
                                     {link.name}
                                     <ChevronDown size={14} style={{ transition: "transform 0.2s", transform: activeDropdown === link.name ? "rotate(180deg)" : "none" }} />
@@ -117,8 +117,8 @@ export default function Navbar() {
                                     <div style={{
                                         position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
                                         marginTop: 12, minWidth: serviceCategories.length > 2 ? 680 : 340,
-                                        background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)",
-                                        borderRadius: 12, boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+                                        background: "var(--card)", border: "1px solid var(--border)",
+                                        borderRadius: "var(--card-radius)", boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
                                         padding: "1.5rem", zIndex: 60,
                                     }}>
                                         <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(serviceCategories.length, 4)}, 1fr)`, gap: "1.5rem" }}>
@@ -131,9 +131,9 @@ export default function Navbar() {
                                                         {cat.links.map(sl => (
                                                             <li key={sl.href}>
                                                                 <Link href={sl.href} onClick={() => setActiveDropdown(null)}
-                                                                    style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500, transition: "color 0.15s" }}
-                                                                    onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
-                                                                    onMouseLeave={e => (e.currentTarget.style.color = "#94a3b8")}
+                                                                    style={{ color: "var(--muted)", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500, transition: "color 0.15s" }}
+                                                                    onMouseEnter={e => (e.currentTarget.style.color = "var(--foreground)")}
+                                                                    onMouseLeave={e => (e.currentTarget.style.color = "var(--muted)")}
                                                                 >
                                                                     {sl.name}
                                                                 </Link>
@@ -145,9 +145,9 @@ export default function Navbar() {
                                         </div>
                                         <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.1)", textAlign: "center" }}>
                                             <Link href="/services" onClick={() => setActiveDropdown(null)}
-                                                style={{ color: "#fff", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", textDecoration: "none", letterSpacing: "0.05em" }}
+                                                style={{ color: "var(--foreground)", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", textDecoration: "none", letterSpacing: "0.05em" }}
                                                 onMouseEnter={e => (e.currentTarget.style.color = "var(--brand)")}
-                                                onMouseLeave={e => (e.currentTarget.style.color = "#fff")}
+                                                onMouseLeave={e => (e.currentTarget.style.color = "var(--foreground)")}
                                             >
                                                 View All Services →
                                             </Link>
@@ -160,12 +160,12 @@ export default function Navbar() {
                                     <div style={{
                                         position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
                                         marginTop: 12, width: 260,
-                                        background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)",
-                                        borderRadius: 12, boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+                                        background: "var(--card)", border: "1px solid var(--border)",
+                                        borderRadius: "var(--card-radius)", boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
                                         zIndex: 60, overflow: "hidden",
                                     }}>
                                         <Link href="/locations" onClick={() => setActiveDropdown(null)}
-                                            style={{ display: "block", padding: "0.75rem 1.25rem", color: "var(--brand)", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.1)" }}
+                                            style={{ display: "block", padding: "0.75rem 1.25rem", color: "var(--brand)", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", textDecoration: "none", borderBottom: "1px solid var(--border)" }}
                                         >
                                             All Locations
                                         </Link>
@@ -174,12 +174,12 @@ export default function Navbar() {
                                                 <Link key={loc.href} href={loc.href} onClick={() => setActiveDropdown(null)}
                                                     style={{
                                                         display: "block", padding: "0.5rem 1.25rem", fontSize: "0.875rem", fontWeight: 500, textDecoration: "none",
-                                                        color: pathname === loc.href ? "var(--brand)" : "#94a3b8",
-                                                        background: pathname === loc.href ? "rgba(255,255,255,0.05)" : "transparent",
+                                                        color: pathname === loc.href ? "var(--brand)" : "var(--muted)",
+                                                        background: pathname === loc.href ? "rgba(0,0,0,0.03)" : "transparent",
                                                         transition: "all 0.15s",
                                                     }}
-                                                    onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-                                                    onMouseLeave={e => { if (pathname !== loc.href) { e.currentTarget.style.color = "#94a3b8"; e.currentTarget.style.background = "transparent"; } }}
+                                                    onMouseEnter={e => { e.currentTarget.style.color = "var(--foreground)"; e.currentTarget.style.background = "rgba(0,0,0,0.03)"; }}
+                                                    onMouseLeave={e => { if (pathname !== loc.href) { e.currentTarget.style.color = "var(--muted)"; e.currentTarget.style.background = "transparent"; } }}
                                                 >
                                                     {loc.name}{siteConfig.state ? `, ${siteConfig.state}` : ""}
                                                 </Link>
@@ -192,12 +192,12 @@ export default function Navbar() {
                             <Link key={link.name} href={link.href}
                                 style={{
                                     padding: "0.5rem 0.75rem", fontSize: "0.95rem", fontWeight: 700, textDecoration: "none",
-                                    color: isActive(link.href) ? "#fff" : "#94a3b8",
+                                    color: isActive(link.href) ? "var(--foreground)" : "var(--nav-text)",
                                     borderBottom: isActive(link.href) ? "3px solid var(--brand)" : "3px solid transparent",
                                     transition: "color 0.15s",
                                 }}
-                                onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
-                                onMouseLeave={e => { if (!isActive(link.href)) e.currentTarget.style.color = "#94a3b8"; }}
+                                onMouseEnter={e => (e.currentTarget.style.color = "var(--foreground)")}
+                                onMouseLeave={e => { if (!isActive(link.href)) e.currentTarget.style.color = "var(--nav-text)"; }}
                             >
                                 {link.name}
                             </Link>
@@ -208,7 +208,7 @@ export default function Navbar() {
                 {/* Phone + Book Now */}
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexShrink: 0 }} className="desktop-nav">
                     <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
-                        style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "#e2e8f0", textDecoration: "none", fontSize: "0.9rem", fontWeight: 600 }}
+                        style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--foreground)", textDecoration: "none", fontSize: "0.9rem", fontWeight: 600 }}
                     >
                         <Phone size={16} style={{ color: "var(--brand)" }} />
                         {siteConfig.phoneNumber}
@@ -226,7 +226,7 @@ export default function Navbar() {
 
             {/* ── Mobile Menu ──────────────────────────────────────────────────── */}
             {mobileOpen && (
-                <div style={{ background: "var(--navy)", borderTop: "1px solid rgba(255,255,255,0.08)", maxHeight: "calc(100vh - 80px)", overflowY: "auto", padding: "0.5rem 1rem 1rem" }}>
+                <div style={{ background: "var(--nav-bg)", borderTop: "1px solid var(--border)", maxHeight: "calc(100vh - 80px)", overflowY: "auto", padding: "0.5rem 1rem 1rem" }}>
                     {navLinks.map(link =>
                         link.hasDropdown ? (
                             <div key={link.name}>
@@ -234,7 +234,7 @@ export default function Navbar() {
                                     width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center",
                                     background: "none", border: "none", cursor: "pointer",
                                     padding: "0.75rem 0.5rem", fontSize: "1rem", fontWeight: 600,
-                                    color: isActive(link.href) ? "#fff" : "#94a3b8",
+                                    color: isActive(link.href) ? "var(--foreground)" : "var(--nav-text)",
                                 }}>
                                     {link.name}
                                     <ChevronDown size={16} style={{ transform: activeDropdown === link.name ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
@@ -248,7 +248,7 @@ export default function Navbar() {
                                                         <p style={{ color: "var(--brand)", fontWeight: 700, fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.4rem" }}>{cat.title}</p>
                                                         {cat.links.map(sl => (
                                                             <Link key={sl.href} href={sl.href} onClick={() => { setMobileOpen(false); setActiveDropdown(null); }}
-                                                                style={{ display: "block", padding: "0.35rem 0.5rem", color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem" }}
+                                                                style={{ display: "block", padding: "0.35rem 0.5rem", color: "var(--muted)", textDecoration: "none", fontSize: "0.9rem" }}
                                                             >{sl.name}</Link>
                                                         ))}
                                                     </div>
@@ -264,7 +264,7 @@ export default function Navbar() {
                                                 >All Locations</Link>
                                                 {locationLinks.map(loc => (
                                                     <Link key={loc.href} href={loc.href} onClick={() => { setMobileOpen(false); setActiveDropdown(null); }}
-                                                        style={{ display: "block", padding: "0.35rem 0.5rem", color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem" }}
+                                                        style={{ display: "block", padding: "0.35rem 0.5rem", color: "var(--muted)", textDecoration: "none", fontSize: "0.9rem" }}
                                                     >{loc.name}{siteConfig.state ? `, ${siteConfig.state}` : ""}</Link>
                                                 ))}
                                             </>
@@ -274,13 +274,13 @@ export default function Navbar() {
                             </div>
                         ) : (
                             <Link key={link.name} href={link.href} onClick={() => setMobileOpen(false)}
-                                style={{ display: "block", padding: "0.75rem 0.5rem", color: isActive(link.href) ? "#fff" : "#94a3b8", textDecoration: "none", fontSize: "1rem", fontWeight: 600 }}
+                                style={{ display: "block", padding: "0.75rem 0.5rem", color: isActive(link.href) ? "var(--foreground)" : "var(--nav-text)", textDecoration: "none", fontSize: "1rem", fontWeight: 600 }}
                             >{link.name}</Link>
                         )
                     )}
                     <div style={{ padding: "0.75rem 0.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                         <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
-                            style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#e2e8f0", textDecoration: "none", fontWeight: 600 }}
+                            style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--foreground)", textDecoration: "none", fontWeight: 600 }}
                         >
                             <Phone size={16} style={{ color: "var(--brand)" }} /> {siteConfig.phoneNumber}
                         </a>

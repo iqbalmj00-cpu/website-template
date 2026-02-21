@@ -78,7 +78,7 @@ export default function HowItWorksPage() {
                 </section>
 
                 {/* Guarantees */}
-                <section style={{ padding: "5rem 1.5rem", background: "#fff", borderTop: "1px solid var(--border)" }}>
+                <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
                     <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
                         <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "3rem" }}>Our Guarantee</h2>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "2rem" }}>
@@ -104,8 +104,8 @@ export default function HowItWorksPage() {
                         <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "#fff", marginBottom: "1rem" }}>Ready to Get Started?</h2>
                         <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "1.1rem", marginBottom: "2rem" }}>Book online in 2 minutes. Same-day service available in {city}{state ? `, ${state}` : ""}.</p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                            <Link href="/book" style={{ padding: "1rem 2rem", borderRadius: 999, background: "#fff", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📅 Book Online Now</Link>
-                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: 999, border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
+                            <Link href="/book" style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📅 Book Online Now</Link>
+                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
                         </div>
                     </div>
                 </section>

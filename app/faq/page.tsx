@@ -26,7 +26,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
                     padding: "1.25rem 0", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit",
                     textAlign: "left",
                 }}>
-                <span style={{ fontWeight: 600, fontSize: "1rem", color: "var(--navy)", paddingRight: "1rem" }}>{q}</span>
+                <span style={{ fontWeight: 600, fontSize: "1rem", color: "var(--foreground)", paddingRight: "1rem" }}>{q}</span>
                 <ChevronDown size={20} style={{ color: "var(--muted)", transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0)", flexShrink: 0 }} />
             </button>
             {open && (
@@ -41,12 +41,12 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 export default function FAQPage() {
     return (
         <>
-            <section style={{ background: "var(--navy)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "#f8fafc", marginBottom: "1rem" }}>
+                    <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
                         Frequently Asked Questions
                     </h1>
-                    <p style={{ color: "#94a3b8", fontSize: "1.1rem", lineHeight: 1.7 }}>
+                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7 }}>
                         Everything you need to know about our junk removal service.
                     </p>
                 </div>
@@ -58,9 +58,9 @@ export default function FAQPage() {
                 ))}
             </section>
 
-            <section style={{ padding: "5rem 1.5rem", background: "var(--navy)", textAlign: "center" }}>
+            <section style={{ padding: "5rem 1.5rem", background: "var(--hero-bg)", textAlign: "center" }}>
                 <div style={{ maxWidth: 600, margin: "0 auto" }}>
-                    <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", color: "#f8fafc", marginBottom: "1rem" }}>
+                    <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
                         Still have questions?
                     </h2>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>

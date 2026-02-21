@@ -35,7 +35,7 @@ export default function LocationsPage() {
                                 alignItems: "center",
                                 gap: "0.5rem",
                                 padding: "0.4rem 1rem",
-                                borderRadius: 999,
+                                borderRadius: "var(--btn-radius)",
                                 background: "rgba(255,255,255,0.08)",
                                 border: "1px solid rgba(255,255,255,0.15)",
                                 color: "var(--brand)",
@@ -58,7 +58,7 @@ export default function LocationsPage() {
                 </section>
 
                 {/* Trust Metrics */}
-                <section style={{ background: "#fff", borderBottom: "1px solid var(--border)", padding: "2rem 1.5rem" }}>
+                <section style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", padding: "2rem 1.5rem" }}>
                     <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "2rem", textAlign: "center" }}>
                         {[
                             { icon: "🚛", label: "Same Day", sub: "Service Available" },
@@ -80,7 +80,7 @@ export default function LocationsPage() {
                     <div style={{ maxWidth: 1100, margin: "0 auto" }}>
                         <div style={{ textAlign: "center", marginBottom: "3rem" }}>
                             <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Choose Your Area</h2>
-                            <div style={{ width: 60, height: 4, borderRadius: 999, background: "var(--brand)", margin: "1rem auto 0" }} />
+                            <div style={{ width: 60, height: 4, borderRadius: "var(--btn-radius)", background: "var(--brand)", margin: "1rem auto 0" }} />
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.5rem" }}>
                             {locations.map((loc) => (
@@ -88,7 +88,7 @@ export default function LocationsPage() {
                                     key={loc.slug}
                                     href={`/locations/${loc.slug}`}
                                     style={{
-                                        background: "#fff",
+                                        background: "var(--card)",
                                         borderRadius: 16,
                                         padding: "2rem",
                                         border: "1px solid var(--border)",
@@ -110,12 +110,12 @@ export default function LocationsPage() {
                                     </p>
                                     <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                                         {loc.neighborhoods.slice(0, 4).map((hood) => (
-                                            <span key={hood} style={{ fontSize: "0.75rem", background: "var(--background)", padding: "0.3rem 0.6rem", borderRadius: 999, fontWeight: 500 }}>
+                                            <span key={hood} style={{ fontSize: "0.75rem", background: "var(--background)", padding: "0.3rem 0.6rem", borderRadius: "var(--btn-radius)", fontWeight: 500 }}>
                                                 {hood}
                                             </span>
                                         ))}
                                         {loc.neighborhoods.length > 4 && (
-                                            <span style={{ fontSize: "0.75rem", background: "rgba(var(--brand-rgb, 249, 115, 22), 0.1)", color: "var(--brand)", padding: "0.3rem 0.6rem", borderRadius: 999, fontWeight: 600 }}>
+                                            <span style={{ fontSize: "0.75rem", background: "rgba(var(--brand-rgb, 249, 115, 22), 0.1)", color: "var(--brand)", padding: "0.3rem 0.6rem", borderRadius: "var(--btn-radius)", fontWeight: 600 }}>
                                                 +{loc.neighborhoods.length - 4} more
                                             </span>
                                         )}
@@ -127,11 +127,11 @@ export default function LocationsPage() {
                 </section>
 
                 {/* Services Overview */}
-                <section style={{ padding: "5rem 1.5rem", background: "#fff", borderTop: "1px solid var(--border)" }}>
+                <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto" }}>
                         <div style={{ textAlign: "center", marginBottom: "3rem" }}>
                             <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Our Services</h2>
-                            <div style={{ width: 60, height: 4, borderRadius: 999, background: "var(--brand)", margin: "1rem auto 0" }} />
+                            <div style={{ width: 60, height: 4, borderRadius: "var(--btn-radius)", background: "var(--brand)", margin: "1rem auto 0" }} />
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.5rem" }}>
                             {services.slice(0, 8).map((svc) => (
@@ -170,7 +170,7 @@ export default function LocationsPage() {
                             <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
                                 🚛 Book Your Pickup
                             </Link>
-                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: 999, border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
+                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
                                 📞 {phoneNumber}
                             </a>
                         </div>

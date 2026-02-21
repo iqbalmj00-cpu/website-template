@@ -43,7 +43,7 @@ export default function ItemsWeDontTakePage() {
                 <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
                     <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", flexDirection: "column", gap: "1rem" }}>
                         {prohibited.map((p) => (
-                            <div key={p.item} style={{ background: "#fff", borderRadius: 12, padding: "1.5rem 2rem", border: "1px solid var(--border)", display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+                            <div key={p.item} style={{ background: "var(--card)", borderRadius: 12, padding: "1.5rem 2rem", border: "1px solid var(--border)", display: "flex", gap: "1rem", alignItems: "flex-start" }}>
                                 <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#ef4444", flexShrink: 0, marginTop: 6 }} />
                                 <div>
                                     <h3 style={{ fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.25rem" }}>{p.item}</h3>
@@ -52,7 +52,7 @@ export default function ItemsWeDontTakePage() {
                             </div>
                         ))}
                     </div>
-                    <div style={{ maxWidth: 600, margin: "3rem auto 0", padding: "1.5rem", background: "#fff", borderRadius: 12, border: "1px solid var(--border)", textAlign: "center" }}>
+                    <div style={{ maxWidth: 600, margin: "3rem auto 0", padding: "1.5rem", background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", textAlign: "center" }}>
                         <p style={{ color: "var(--muted)", lineHeight: 1.6 }}>
                             <strong>Need to dispose of restricted items?</strong> Contact your local municipal hazardous waste facility for safe disposal options.
                         </p>

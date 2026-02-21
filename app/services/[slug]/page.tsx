@@ -49,7 +49,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                     alignItems: "center",
                                     gap: "0.5rem",
                                     padding: "0.4rem 1rem",
-                                    borderRadius: 999,
+                                    borderRadius: "var(--btn-radius)",
                                     background: "rgba(255,255,255,0.08)",
                                     border: "1px solid rgba(255,255,255,0.15)",
                                     color: "var(--brand)",
@@ -87,7 +87,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                     href={`tel:${phoneNumber.replace(/\D/g, "")}`}
                                     style={{
                                         padding: "1rem 2rem",
-                                        borderRadius: 999,
+                                        borderRadius: "var(--btn-radius)",
                                         border: "2px solid rgba(255,255,255,0.3)",
                                         color: "#fff",
                                         textDecoration: "none",
@@ -122,7 +122,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                 </section>
 
                 {/* Items Grid */}
-                <section style={{ padding: "5rem 1.5rem", background: "#fff" }}>
+                <section style={{ padding: "5rem 1.5rem", background: "var(--card)" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto" }}>
                         <div style={{ textAlign: "center", marginBottom: "3rem" }}>
                             <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "0.5rem" }}>
@@ -192,7 +192,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                 </section>
 
                 {/* FAQs */}
-                <section style={{ padding: "5rem 1.5rem", background: "#fff", borderTop: "1px solid var(--border)" }}>
+                <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
                     <div style={{ maxWidth: 700, margin: "0 auto" }}>
                         <h2 style={{ fontSize: "2rem", fontWeight: 800, textAlign: "center", marginBottom: "2rem" }}>
                             Frequently Asked Questions
@@ -212,7 +212,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                             padding: "1rem 1.5rem",
                                             fontWeight: 600,
                                             cursor: "pointer",
-                                            background: "#fff",
+                                            background: "var(--card)",
                                             fontSize: "1rem",
                                         }}
                                     >
@@ -249,8 +249,8 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                         href={`/services/${s.slug}`}
                                         style={{
                                             padding: "0.6rem 1.25rem",
-                                            borderRadius: 999,
-                                            background: "#fff",
+                                            borderRadius: "var(--btn-radius)",
+                                            background: "var(--card)",
                                             border: "1px solid var(--border)",
                                             textDecoration: "none",
                                             color: "var(--foreground)",
@@ -287,8 +287,8 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                 href="/book"
                                 style={{
                                     padding: "1rem 2rem",
-                                    borderRadius: 999,
-                                    background: "#fff",
+                                    borderRadius: "var(--btn-radius)",
+                                    background: "var(--card)",
                                     color: "var(--brand)",
                                     fontWeight: 700,
                                     fontSize: "1rem",
@@ -301,7 +301,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                 href={`tel:${phoneNumber.replace(/\D/g, "")}`}
                                 style={{
                                     padding: "1rem 2rem",
-                                    borderRadius: 999,
+                                    borderRadius: "var(--btn-radius)",
                                     border: "2px solid #fff",
                                     color: "#fff",
                                     fontWeight: 700,

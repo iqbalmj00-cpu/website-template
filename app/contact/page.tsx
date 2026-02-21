@@ -16,12 +16,12 @@ export default function ContactPage() {
 
     return (
         <>
-            <section style={{ background: "var(--navy)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "#f8fafc", marginBottom: "1rem" }}>
+                    <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
                         Get In Touch
                     </h1>
-                    <p style={{ color: "#94a3b8", fontSize: "1.1rem", lineHeight: 1.7 }}>
+                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7 }}>
                         Have a question or need a quote? We&rsquo;d love to hear from you.
                     </p>
                 </div>
@@ -31,7 +31,7 @@ export default function ContactPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "2rem" }}>
                     {/* Contact info cards */}
                     <div>
-                        <h2 style={{ fontSize: "1.5rem", color: "var(--navy)", marginBottom: "1.5rem" }}>Contact Info</h2>
+                        <h2 style={{ fontSize: "1.5rem", color: "var(--foreground)", marginBottom: "1.5rem" }}>Contact Info</h2>
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                             {contactInfo.map(({ icon: Icon, label, value, href }) => (
                                 <div key={label} className="card" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -41,9 +41,9 @@ export default function ContactPage() {
                                     <div>
                                         <div style={{ fontSize: "0.8rem", color: "var(--muted)", fontWeight: 500 }}>{label}</div>
                                         {href ? (
-                                            <a href={href} style={{ fontWeight: 600, color: "var(--navy)", textDecoration: "none" }}>{value}</a>
+                                            <a href={href} style={{ fontWeight: 600, color: "var(--foreground)", textDecoration: "none" }}>{value}</a>
                                         ) : (
-                                            <div style={{ fontWeight: 600, color: "var(--navy)" }}>{value}</div>
+                                            <div style={{ fontWeight: 600, color: "var(--foreground)" }}>{value}</div>
                                         )}
                                     </div>
                                 </div>
@@ -53,7 +53,7 @@ export default function ContactPage() {
 
                     {/* Quick message */}
                     <div>
-                        <h2 style={{ fontSize: "1.5rem", color: "var(--navy)", marginBottom: "1.5rem" }}>Send a Message</h2>
+                        <h2 style={{ fontSize: "1.5rem", color: "var(--foreground)", marginBottom: "1.5rem" }}>Send a Message</h2>
                         <div className="card">
                             <p style={{ color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.7, marginBottom: "1.5rem" }}>
                                 The fastest way to get a quote is to{" "}

@@ -55,7 +55,7 @@ export default function HomePage() {
             {/* ── Hero ──────────────────────────────────────────────────────────── */}
             <section
                 style={{
-                    background: `linear-gradient(135deg, var(--navy) 0%, #112240 100%)`,
+                    background: "var(--hero-bg)",
                     padding: "7rem 1.5rem 6rem",
                     position: "relative",
                     overflow: "hidden",
@@ -85,7 +85,7 @@ export default function HomePage() {
                                 gap: "0.5rem",
                                 background: "rgba(249,115,22,0.12)",
                                 border: "1px solid rgba(249,115,22,0.25)",
-                                borderRadius: 9999,
+                                borderRadius: "var(--btn-radius)",
                                 padding: "0.375rem 1rem",
                                 marginBottom: "1.5rem",
                             }}
@@ -97,7 +97,7 @@ export default function HomePage() {
                         <h1
                             style={{
                                 fontSize: "clamp(2.5rem, 7vw, 4.5rem)",
-                                color: "#f8fafc",
+                                color: "var(--hero-text)",
                                 lineHeight: 1.1,
                                 marginBottom: "1.5rem",
                             }}
@@ -108,7 +108,7 @@ export default function HomePage() {
                         <p
                             style={{
                                 fontSize: "clamp(1.1rem, 2.5vw, 1.3rem)",
-                                color: "#94a3b8",
+                                color: "var(--hero-muted)",
                                 lineHeight: 1.7,
                                 marginBottom: "2.5rem",
                                 maxWidth: 560,
@@ -171,7 +171,7 @@ export default function HomePage() {
             </section>
 
             {/* ── Services ──────────────────────────────────────────────────────── */}
-            <section style={{ padding: "5rem 1.5rem", background: "#fff" }}>
+            <section style={{ padding: "5rem 1.5rem", background: "var(--card)" }}>
                 <div style={{ maxWidth: 1200, margin: "0 auto" }}>
                     <div style={{ textAlign: "center", marginBottom: "3rem" }}>
                         <h2 className="section-title" style={{ textAlign: "center" }}>What We Haul Away</h2>
@@ -254,12 +254,12 @@ export default function HomePage() {
                                         fontSize: "1.5rem",
                                         fontWeight: 800,
                                         margin: "0 auto 1.25rem",
-                                        fontFamily: "var(--font-space-grotesk)",
+                                        fontFamily: "var(--heading-font)",
                                     }}
                                 >
                                     {item.step}
                                 </div>
-                                <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem", color: "var(--navy)" }}>
+                                <h3 style={{ fontSize: "1.25rem", marginBottom: "0.5rem", color: "var(--foreground)" }}>
                                     {item.title}
                                 </h3>
                                 <p style={{ color: "var(--muted)", lineHeight: 1.65, fontSize: "0.95rem" }}>
@@ -272,7 +272,7 @@ export default function HomePage() {
             </section>
 
             {/* ── Why Choose Us ─────────────────────────────────────────────────── */}
-            <section style={{ padding: "5rem 1.5rem", background: "#fff" }}>
+            <section style={{ padding: "5rem 1.5rem", background: "var(--card)" }}>
                 <div style={{ maxWidth: 1200, margin: "0 auto" }}>
                     <div style={{ marginBottom: "3rem" }}>
                         <h2 className="section-title">Why {siteConfig.companyName}?</h2>
@@ -290,7 +290,7 @@ export default function HomePage() {
                         {whyUs.map((item) => (
                             <div key={item.title} className="card">
                                 <CheckCircle size={22} style={{ color: "var(--brand)", marginBottom: "0.75rem" }} />
-                                <h3 style={{ fontSize: "1.1rem", marginBottom: "0.5rem", color: "var(--navy)" }}>
+                                <h3 style={{ fontSize: "1.1rem", marginBottom: "0.5rem", color: "var(--foreground)" }}>
                                     {item.title}
                                 </h3>
                                 <p style={{ color: "var(--muted)", lineHeight: 1.65, fontSize: "0.925rem" }}>
@@ -327,7 +327,7 @@ export default function HomePage() {
                                         &ldquo;{t.text}&rdquo;
                                     </p>
                                     <div>
-                                        <p style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--navy)" }}>{t.name}</p>
+                                        <p style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--foreground)" }}>{t.name}</p>
                                         <p style={{ fontSize: "0.8rem", color: "var(--muted)" }}>{t.role}</p>
                                     </div>
                                 </div>
@@ -341,7 +341,7 @@ export default function HomePage() {
             <section
                 style={{
                     padding: "5rem 1.5rem",
-                    background: `linear-gradient(135deg, var(--navy) 0%, #112240 100%)`,
+                    background: "var(--hero-bg)",
                     textAlign: "center",
                 }}
             >
@@ -349,13 +349,13 @@ export default function HomePage() {
                     <h2
                         style={{
                             fontSize: "clamp(2rem, 5vw, 3rem)",
-                            color: "#f8fafc",
+                            color: "var(--hero-text)",
                             marginBottom: "1rem",
                         }}
                     >
                         Ready to reclaim your space?
                     </h2>
-                    <p style={{ color: "#94a3b8", fontSize: "1.1rem", lineHeight: 1.7, marginBottom: "2.5rem" }}>
+                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7, marginBottom: "2.5rem" }}>
                         Book your pickup online in 2 minutes. Same-day service available in {siteConfig.city}.
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>

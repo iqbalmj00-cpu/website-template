@@ -40,7 +40,7 @@ export default function ReviewsPage() {
                 <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.5rem" }}>
                         {reviews.map((review, i) => (
-                            <div key={i} style={{ background: "#fff", borderRadius: 16, padding: "2rem", border: "1px solid var(--border)", display: "flex", flexDirection: "column" }}>
+                            <div key={i} style={{ background: "var(--card)", borderRadius: 16, padding: "2rem", border: "1px solid var(--border)", display: "flex", flexDirection: "column" }}>
                                 <div style={{ display: "flex", gap: "0.25rem", color: "var(--brand)", marginBottom: "1rem", fontSize: "1rem" }}>
                                     {"★★★★★"}
                                 </div>
@@ -68,7 +68,7 @@ export default function ReviewsPage() {
                         <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem", marginBottom: "2rem" }}>Book your pickup today and see why our customers keep coming back.</p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                             <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>📋 Book Now</Link>
-                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: 999, border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
+                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
                         </div>
                     </div>
                 </section>

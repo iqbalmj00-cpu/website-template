@@ -35,7 +35,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                 <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: siteConfig.locationImages[slug] ? "1fr 1fr" : "1fr", gap: "2rem", alignItems: "center" }}>
                         <div>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: 999, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
                                 📍 {location.heroBadge}
                             </span>
                             <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.5rem" }}>
@@ -48,7 +48,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                                 <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
                                     🚛 Get A Free Quote
                                 </Link>
-                                <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: 999, border: "2px solid rgba(255,255,255,0.3)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
+                                <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid rgba(255,255,255,0.3)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
                                     📞 {phoneNumber}
                                 </a>
                             </div>
@@ -78,11 +78,11 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                 </section>
 
                 {/* Services */}
-                <section style={{ padding: "4rem 1.5rem", background: "#fff", borderBottom: "1px solid var(--border)" }}>
+                <section style={{ padding: "4rem 1.5rem", background: "var(--card)", borderBottom: "1px solid var(--border)" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto" }}>
                         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
                             <h2 style={{ fontSize: "2rem", fontWeight: 800, textTransform: "uppercase" }}>Our Services in {location.name}</h2>
-                            <div style={{ width: 60, height: 4, borderRadius: 999, background: "var(--brand)", margin: "1rem auto 0" }} />
+                            <div style={{ width: 60, height: 4, borderRadius: "var(--btn-radius)", background: "var(--brand)", margin: "1rem auto 0" }} />
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.5rem" }}>
                             {services.map((svc) => (
@@ -101,11 +101,11 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                     <div style={{ maxWidth: 900, margin: "0 auto" }}>
                         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
                             <h2 style={{ fontSize: "2rem", fontWeight: 800, textTransform: "uppercase" }}>Neighborhoods We Serve</h2>
-                            <div style={{ width: 60, height: 4, borderRadius: 999, background: "var(--brand)", margin: "1rem auto 0" }} />
+                            <div style={{ width: 60, height: 4, borderRadius: "var(--btn-radius)", background: "var(--brand)", margin: "1rem auto 0" }} />
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "0.75rem", maxWidth: 800, margin: "0 auto" }}>
                             {location.neighborhoods.map((hood) => (
-                                <div key={hood} style={{ background: "#fff", borderRadius: 8, padding: "0.75rem 1rem", textAlign: "center", border: "1px solid var(--border)", fontSize: "0.9rem", fontWeight: 600 }}>
+                                <div key={hood} style={{ background: "var(--card)", borderRadius: 8, padding: "0.75rem 1rem", textAlign: "center", border: "1px solid var(--border)", fontSize: "0.9rem", fontWeight: 600 }}>
                                     📍 {hood}
                                 </div>
                             ))}
@@ -114,13 +114,13 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                 </section>
 
                 {/* FAQs */}
-                <section style={{ padding: "4rem 1.5rem", background: "#fff", borderTop: "1px solid var(--border)" }}>
+                <section style={{ padding: "4rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
                     <div style={{ maxWidth: 700, margin: "0 auto" }}>
                         <h2 style={{ fontSize: "2rem", fontWeight: 800, textAlign: "center", marginBottom: "2rem" }}>Frequently Asked Questions</h2>
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                             {location.faqs.map((faq) => (
                                 <details key={faq.q} style={{ border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden" }}>
-                                    <summary style={{ padding: "1rem 1.5rem", fontWeight: 600, cursor: "pointer", background: "#fff", fontSize: "1rem" }}>{faq.q}</summary>
+                                    <summary style={{ padding: "1rem 1.5rem", fontWeight: 600, cursor: "pointer", background: "var(--card)", fontSize: "1rem" }}>{faq.q}</summary>
                                     <div style={{ padding: "1rem 1.5rem", background: "var(--background)", color: "var(--muted)", lineHeight: 1.6, borderTop: "1px solid var(--border)" }}>{faq.a}</div>
                                 </details>
                             ))}
@@ -130,12 +130,12 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
 
                 {/* Other Locations */}
                 {locations.length > 0 && (
-                    <section style={{ padding: "3rem 1.5rem", background: "#fff", borderTop: "1px solid var(--border)" }}>
+                    <section style={{ padding: "3rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
                         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
                             <h3 style={{ fontSize: "1.1rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", marginBottom: "1rem" }}>Other Service Areas</h3>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                                 {locations.map((l) => (
-                                    <Link key={l.slug} href={`/locations/${l.slug}`} style={{ padding: "0.5rem 1rem", borderRadius: 999, background: "var(--background)", border: "1px solid var(--border)", textDecoration: "none", color: "var(--foreground)", fontWeight: 500, fontSize: "0.85rem" }}>
+                                    <Link key={l.slug} href={`/locations/${l.slug}`} style={{ padding: "0.5rem 1rem", borderRadius: "var(--btn-radius)", background: "var(--background)", border: "1px solid var(--border)", textDecoration: "none", color: "var(--foreground)", fontWeight: 500, fontSize: "0.85rem" }}>
                                         {l.name}, {l.state} →
                                     </Link>
                                 ))}
@@ -155,7 +155,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                         </p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                             <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>🚛 Get Instant Quote</Link>
-                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: 999, border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
+                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
                         </div>
                     </div>
                 </section>

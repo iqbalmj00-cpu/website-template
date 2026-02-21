@@ -29,15 +29,15 @@ export default function PricingPage() {
     return (
         <>
             {/* Hero */}
-            <section style={{ background: "var(--navy)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <span style={{ display: "inline-block", padding: "0.4rem 1rem", borderRadius: 999, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
+                    <span style={{ display: "inline-block", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
                         💰 Simple Pricing
                     </span>
-                    <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "#f8fafc", marginBottom: "1rem" }}>
+                    <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
                         Transparent, Volume-Based Pricing
                     </h1>
-                    <p style={{ color: "#94a3b8", fontSize: "1.1rem", lineHeight: 1.7 }}>
+                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7 }}>
                         No hidden fees, no surprises. You only pay for the space your junk takes up in our truck.
                         Our crew will give you an exact quote on-site before we lift a finger.
                     </p>
@@ -55,7 +55,7 @@ export default function PricingPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                         {volumes.map((v, i) => (
                             <div key={v.label} style={{
-                                background: "#fff", borderRadius: 12, padding: "1.5rem",
+                                background: "var(--card)", borderRadius: 12, padding: "1.5rem",
                                 border: "1px solid var(--border)",
                                 display: "grid", gridTemplateColumns: "auto 1fr", gap: "1.25rem", alignItems: "center",
                             }}>
@@ -77,7 +77,7 @@ export default function PricingPage() {
             </section>
 
             {/* What's Included */}
-            <section style={{ padding: "5rem 1.5rem", background: "#fff", borderTop: "1px solid var(--border)" }}>
+            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
                     <h2 className="section-title" style={{ textAlign: "center", marginBottom: "3rem" }}>Everything&apos;s Included</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
@@ -108,7 +108,7 @@ export default function PricingPage() {
                         </Link>
                         <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`} style={{
                             display: "inline-flex", alignItems: "center", gap: "0.5rem",
-                            padding: "1rem 2rem", borderRadius: 999, border: "2px solid var(--brand)",
+                            padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--brand)",
                             color: "var(--brand)", textDecoration: "none", fontWeight: 700, fontSize: "1.05rem",
                         }}>
                             <Phone size={18} /> {siteConfig.phoneNumber}

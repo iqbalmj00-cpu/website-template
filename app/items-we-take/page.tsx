@@ -43,7 +43,7 @@ export default function ItemsWeTakePage() {
                 <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
                         {generalItems.map((cat) => (
-                            <div key={cat.cat} style={{ background: "#fff", borderRadius: 16, padding: "2rem", border: "1px solid var(--border)" }}>
+                            <div key={cat.cat} style={{ background: "var(--card)", borderRadius: 16, padding: "2rem", border: "1px solid var(--border)" }}>
                                 <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "0.03em" }}>{cat.cat}</h3>
                                 <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
                                     {cat.items.map((item) => (
@@ -58,7 +58,7 @@ export default function ItemsWeTakePage() {
                 </section>
 
                 {/* Note */}
-                <section style={{ padding: "3rem 1.5rem", background: "#fff", borderTop: "1px solid var(--border)", textAlign: "center" }}>
+                <section style={{ padding: "3rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)", textAlign: "center" }}>
                     <div style={{ maxWidth: 600, margin: "0 auto" }}>
                         <p style={{ color: "var(--muted)", lineHeight: 1.7 }}>
                             <strong>Not sure if we can take it?</strong> Give us a call at{" "}
@@ -75,7 +75,7 @@ export default function ItemsWeTakePage() {
                 <section style={{ background: "var(--brand)", padding: "4rem 1.5rem", textAlign: "center" }}>
                     <div style={{ maxWidth: 600, margin: "0 auto" }}>
                         <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "#fff", marginBottom: "1rem" }}>Ready to Haul It Away?</h2>
-                        <Link href="/book" style={{ display: "inline-block", padding: "1rem 2rem", borderRadius: 999, background: "#fff", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📅 Book Your Pickup</Link>
+                        <Link href="/book" style={{ display: "inline-block", padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📅 Book Your Pickup</Link>
                     </div>
                 </section>
             </main>
