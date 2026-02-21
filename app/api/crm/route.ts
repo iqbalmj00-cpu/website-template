@@ -9,12 +9,11 @@ export async function POST(req: Request) {
             return NextResponse.json({ ok: true, leadId: "hp" });
         }
 
-        const apiKey = process.env.INGEST_API_KEY;
         const siteToken = process.env.SITE_TOKEN;
         const dashboardUrl = process.env.DASHBOARD_URL;
 
-        if (!apiKey || !siteToken || !dashboardUrl) {
-            console.error("CRM proxy: missing env vars");
+        if (!siteToken || !dashboardUrl) {
+            console.error("CRM proxy: missing SITE_TOKEN or DASHBOARD_URL");
             return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
         }
 
@@ -38,7 +37,6 @@ export async function POST(req: Request) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": apiKey,
                 "x-site-token": siteToken,
             },
             body: JSON.stringify(payload),

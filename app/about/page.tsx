@@ -42,6 +42,15 @@ export default function AboutPage() {
                         Everything we pick up is sorted — usable items are donated, recyclables go to the proper facilities,
                         and only what's left goes to the landfill.
                     </p>
+                    {siteConfig.aboutImageUrl && (
+                        <div style={{ marginTop: "2rem" }}>
+                            <img
+                                src={siteConfig.aboutImageUrl}
+                                alt={`${siteConfig.companyName} team`}
+                                style={{ width: "100%", borderRadius: 16, objectFit: "cover", maxHeight: 400 }}
+                            />
+                        </div>
+                    )}
                 </div>
             </section>
 

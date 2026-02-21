@@ -1,175 +1,304 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Phone, Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { Phone, Menu, X, ChevronDown, Calendar } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
+import { getClientServices } from "@/lib/serviceData";
+import { getLocations } from "@/lib/locationData";
 
+/* ── Build dynamic dropdown data from siteConfig ──────────────────────── */
+function buildServiceLinks() {
+    const services = getClientServices();
+    // Group into categories
+    const residential = services.filter(s => ["furniture-removal", "appliance-removal", "mattress-disposal", "yard-waste-removal", "e-waste-recycling"].includes(s.slug));
+    const cleanouts = services.filter(s => ["estate-cleanout", "garage-cleanout", "hoarder-cleanout", "foreclosure-cleanout", "storage-unit-cleanout"].includes(s.slug));
+    const demolition = services.filter(s => ["hot-tub-removal", "shed-demolition", "deck-removal"].includes(s.slug));
+    const commercial = services.filter(s => ["commercial-cleanout", "office-furniture-removal", "construction-debris"].includes(s.slug));
+
+    const cats: { title: string; links: { name: string; href: string }[] }[] = [];
+    if (residential.length) cats.push({ title: "Residential", links: residential.map(s => ({ name: s.title, href: `/services/${s.slug}` })) });
+    if (cleanouts.length) cats.push({ title: "Cleanouts", links: cleanouts.map(s => ({ name: s.title, href: `/services/${s.slug}` })) });
+    if (demolition.length) cats.push({ title: "Demolition", links: demolition.map(s => ({ name: s.title, href: `/services/${s.slug}` })) });
+    if (commercial.length) cats.push({ title: "Commercial", links: commercial.map(s => ({ name: s.title, href: `/services/${s.slug}` })) });
+
+    // Fallback: if nothing categorized, just list all
+    if (cats.length === 0 && services.length > 0) {
+        cats.push({ title: "Our Services", links: services.map(s => ({ name: s.title, href: `/services/${s.slug}` })) });
+    }
+    return cats;
+}
+
+function buildLocationLinks() {
+    return getLocations().map(loc => ({ name: loc.name, href: `/locations/${loc.slug}` }));
+}
+
+/* ── Component ─────────────────────────────────────────────────────────── */
 export default function Navbar() {
-    const [open, setOpen] = useState(false);
+    const pathname = usePathname();
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+    const servicesRef = useRef<HTMLDivElement>(null);
+    const locationsRef = useRef<HTMLDivElement>(null);
 
-    const links = [
-        { label: "Services", href: "/services" },
-        { label: "Locations", href: "/locations" },
-        { label: "How It Works", href: "/how-it-works" },
-        { label: "About", href: "/about" },
-        { label: "FAQ", href: "/faq" },
-        { label: "Contact", href: "/contact" },
+    const serviceCategories = buildServiceLinks();
+    const locationLinks = buildLocationLinks();
+
+    const navLinks = [
+        { name: "Home", href: "/" },
+        { name: "Services", href: "/services", hasDropdown: true, isMega: true },
+        { name: "Locations", href: "/locations", hasDropdown: true },
+        { name: "How It Works", href: "/how-it-works" },
+        { name: "Reviews", href: "/reviews" },
+        { name: "About", href: "/about" },
+        { name: "Contact", href: "/contact" },
     ];
 
+    const isActive = (path: string) => pathname === path || (path !== "/" && pathname.startsWith(path));
+
+    // Close dropdowns on click outside
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            const t = e.target as Node;
+            if (!servicesRef.current?.contains(t) && !locationsRef.current?.contains(t)) {
+                setActiveDropdown(null);
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
+
+    const toggle = (name: string) => setActiveDropdown(prev => (prev === name ? null : name));
+
     return (
-        <header
-            style={{
-                position: "sticky",
-                top: 0,
-                zIndex: 50,
-                background: "rgba(255,255,255,0.95)",
-                backdropFilter: "blur(12px)",
-                borderBottom: "1px solid var(--border)",
-            }}
-        >
-            <div
-                style={{
-                    maxWidth: 1200,
-                    margin: "0 auto",
-                    padding: "0 1.5rem",
-                    height: 68,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "1rem",
-                }}
-            >
-                {/* Logo / Brand */}
-                <Link
-                    href="/"
-                    style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none" }}
-                >
+        <nav style={{
+            position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+            background: "var(--navy, #0f172a)",
+            borderBottom: "1px solid rgba(255,255,255,0.08)",
+            boxShadow: "0 4px 30px rgba(0,0,0,0.3)",
+        }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 80 }}>
+
+                {/* Logo */}
+                <Link href="/" style={{ fontFamily: "var(--font-space-grotesk)", fontWeight: 900, fontSize: "1.4rem", color: "#fff", textDecoration: "none", letterSpacing: "-0.04em", flexShrink: 0 }}>
                     {siteConfig.logoUrl ? (
-                        <Image
-                            src={siteConfig.logoUrl}
-                            alt={siteConfig.companyName}
-                            width={120}
-                            height={40}
-                            style={{ objectFit: "contain", height: 40, width: "auto" }}
-                        />
+                        <img src={siteConfig.logoUrl} alt={siteConfig.companyName} style={{ height: 40, objectFit: "contain" }} />
                     ) : (
-                        <span
-                            style={{
-                                fontFamily: "var(--font-space-grotesk)",
-                                fontWeight: 800,
-                                fontSize: "1.25rem",
-                                color: "var(--brand)",
-                                letterSpacing: "-0.02em",
-                            }}
-                        >
-                            {siteConfig.companyName}
-                        </span>
+                        <span><span style={{ color: "var(--brand)" }}>{siteConfig.companyName.split(" ")[0]}</span>{siteConfig.companyName.split(" ").length > 1 ? " " + siteConfig.companyName.split(" ").slice(1).join(" ") : ""}</span>
                     )}
                 </Link>
 
-                {/* Desktop nav */}
-                <nav
-                    style={{ display: "flex", alignItems: "center", gap: "2rem" }}
-                    className="hidden md:flex"
-                >
-                    {links.map((l) => (
-                        <Link
-                            key={l.href}
-                            href={l.href}
-                            style={{
-                                color: "var(--foreground)",
-                                fontWeight: 500,
-                                fontSize: "0.95rem",
-                                textDecoration: "none",
-                                transition: "color 0.15s",
-                            }}
-                            onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "var(--brand)")}
-                            onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "var(--foreground)")}
-                        >
-                            {l.label}
-                        </Link>
-                    ))}
-                </nav>
+                {/* Desktop Nav */}
+                <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }} className="desktop-nav">
+                    {navLinks.map(link =>
+                        link.hasDropdown ? (
+                            <div key={link.name} ref={link.name === "Services" ? servicesRef : locationsRef} style={{ position: "relative" }}>
+                                <button
+                                    onClick={() => toggle(link.name)}
+                                    style={{
+                                        background: "none", border: "none", cursor: "pointer",
+                                        display: "flex", alignItems: "center", gap: "0.25rem",
+                                        padding: "0.5rem 0.75rem",
+                                        fontSize: "0.95rem", fontWeight: 700,
+                                        color: isActive(link.href) ? "#fff" : "#94a3b8",
+                                        borderBottom: isActive(link.href) ? "3px solid var(--brand)" : "3px solid transparent",
+                                        transition: "color 0.15s",
+                                    }}
+                                    onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+                                    onMouseLeave={e => { if (!isActive(link.href)) e.currentTarget.style.color = "#94a3b8"; }}
+                                >
+                                    {link.name}
+                                    <ChevronDown size={14} style={{ transition: "transform 0.2s", transform: activeDropdown === link.name ? "rotate(180deg)" : "none" }} />
+                                </button>
 
-                {/* CTA + Phone */}
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <a
-                        href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.375rem",
-                            color: "var(--muted)",
-                            fontWeight: 500,
-                            fontSize: "0.9rem",
-                            textDecoration: "none",
-                        }}
-                        className="hidden sm:flex"
+                                {/* ── Services Mega Dropdown ─────────────────── */}
+                                {activeDropdown === "Services" && link.name === "Services" && (
+                                    <div style={{
+                                        position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
+                                        marginTop: 12, minWidth: serviceCategories.length > 2 ? 680 : 340,
+                                        background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)",
+                                        borderRadius: 12, boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+                                        padding: "1.5rem", zIndex: 60,
+                                    }}>
+                                        <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(serviceCategories.length, 4)}, 1fr)`, gap: "1.5rem" }}>
+                                            {serviceCategories.map(cat => (
+                                                <div key={cat.title}>
+                                                    <p style={{ color: "var(--brand)", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.75rem", paddingBottom: "0.5rem", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+                                                        {cat.title}
+                                                    </p>
+                                                    <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                                        {cat.links.map(sl => (
+                                                            <li key={sl.href}>
+                                                                <Link href={sl.href} onClick={() => setActiveDropdown(null)}
+                                                                    style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500, transition: "color 0.15s" }}
+                                                                    onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+                                                                    onMouseLeave={e => (e.currentTarget.style.color = "#94a3b8")}
+                                                                >
+                                                                    {sl.name}
+                                                                </Link>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.1)", textAlign: "center" }}>
+                                            <Link href="/services" onClick={() => setActiveDropdown(null)}
+                                                style={{ color: "#fff", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", textDecoration: "none", letterSpacing: "0.05em" }}
+                                                onMouseEnter={e => (e.currentTarget.style.color = "var(--brand)")}
+                                                onMouseLeave={e => (e.currentTarget.style.color = "#fff")}
+                                            >
+                                                View All Services →
+                                            </Link>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* ── Locations Dropdown ──────────────────────── */}
+                                {activeDropdown === "Locations" && link.name === "Locations" && (
+                                    <div style={{
+                                        position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
+                                        marginTop: 12, width: 260,
+                                        background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)",
+                                        borderRadius: 12, boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+                                        zIndex: 60, overflow: "hidden",
+                                    }}>
+                                        <Link href="/locations" onClick={() => setActiveDropdown(null)}
+                                            style={{ display: "block", padding: "0.75rem 1.25rem", color: "var(--brand)", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.1)" }}
+                                        >
+                                            All Locations
+                                        </Link>
+                                        <div style={{ maxHeight: 300, overflowY: "auto", padding: "0.25rem 0" }}>
+                                            {locationLinks.map(loc => (
+                                                <Link key={loc.href} href={loc.href} onClick={() => setActiveDropdown(null)}
+                                                    style={{
+                                                        display: "block", padding: "0.5rem 1.25rem", fontSize: "0.875rem", fontWeight: 500, textDecoration: "none",
+                                                        color: pathname === loc.href ? "var(--brand)" : "#94a3b8",
+                                                        background: pathname === loc.href ? "rgba(255,255,255,0.05)" : "transparent",
+                                                        transition: "all 0.15s",
+                                                    }}
+                                                    onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+                                                    onMouseLeave={e => { if (pathname !== loc.href) { e.currentTarget.style.color = "#94a3b8"; e.currentTarget.style.background = "transparent"; } }}
+                                                >
+                                                    {loc.name}{siteConfig.state ? `, ${siteConfig.state}` : ""}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <Link key={link.name} href={link.href}
+                                style={{
+                                    padding: "0.5rem 0.75rem", fontSize: "0.95rem", fontWeight: 700, textDecoration: "none",
+                                    color: isActive(link.href) ? "#fff" : "#94a3b8",
+                                    borderBottom: isActive(link.href) ? "3px solid var(--brand)" : "3px solid transparent",
+                                    transition: "color 0.15s",
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+                                onMouseLeave={e => { if (!isActive(link.href)) e.currentTarget.style.color = "#94a3b8"; }}
+                            >
+                                {link.name}
+                            </Link>
+                        )
+                    )}
+                </div>
+
+                {/* Phone + Book Now */}
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexShrink: 0 }} className="desktop-nav">
+                    <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
+                        style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "#e2e8f0", textDecoration: "none", fontSize: "0.9rem", fontWeight: 600 }}
                     >
-                        <Phone size={15} />
+                        <Phone size={16} style={{ color: "var(--brand)" }} />
                         {siteConfig.phoneNumber}
                     </a>
-                    <Link href="/book" className="btn-primary" style={{ padding: "0.6rem 1.25rem", fontSize: "0.9rem" }}>
-                        Book Now
+                    <Link href="/book" className="btn-primary" style={{ fontSize: "0.9rem", padding: "0.6rem 1.25rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <Calendar size={16} /> Book Now
                     </Link>
-                    {/* Mobile menu toggle */}
-                    <button
-                        onClick={() => setOpen((o) => !o)}
-                        style={{ background: "none", border: "none", cursor: "pointer", color: "var(--foreground)" }}
-                        className="flex md:hidden"
-                        aria-label="Toggle menu"
-                    >
-                        {open ? <X size={24} /> : <Menu size={24} />}
-                    </button>
                 </div>
+
+                {/* Mobile hamburger */}
+                <button className="mobile-nav-toggle" onClick={() => setMobileOpen(!mobileOpen)} style={{ background: "none", border: "none", color: "#e2e8f0", cursor: "pointer", padding: 8 }}>
+                    {mobileOpen ? <X size={28} /> : <Menu size={28} />}
+                </button>
             </div>
 
-            {/* Mobile menu */}
-            {open && (
-                <div
-                    style={{
-                        background: "#fff",
-                        borderTop: "1px solid var(--border)",
-                        padding: "1rem 1.5rem 1.5rem",
-                    }}
-                    className="md:hidden"
-                >
-                    {links.map((l) => (
-                        <Link
-                            key={l.href}
-                            href={l.href}
-                            onClick={() => setOpen(false)}
-                            style={{
-                                display: "block",
-                                padding: "0.75rem 0",
-                                color: "var(--foreground)",
-                                fontWeight: 500,
-                                textDecoration: "none",
-                                borderBottom: "1px solid var(--border)",
-                            }}
+            {/* ── Mobile Menu ──────────────────────────────────────────────────── */}
+            {mobileOpen && (
+                <div style={{ background: "var(--navy)", borderTop: "1px solid rgba(255,255,255,0.08)", maxHeight: "calc(100vh - 80px)", overflowY: "auto", padding: "0.5rem 1rem 1rem" }}>
+                    {navLinks.map(link =>
+                        link.hasDropdown ? (
+                            <div key={link.name}>
+                                <button onClick={() => toggle(link.name)} style={{
+                                    width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center",
+                                    background: "none", border: "none", cursor: "pointer",
+                                    padding: "0.75rem 0.5rem", fontSize: "1rem", fontWeight: 600,
+                                    color: isActive(link.href) ? "#fff" : "#94a3b8",
+                                }}>
+                                    {link.name}
+                                    <ChevronDown size={16} style={{ transform: activeDropdown === link.name ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+                                </button>
+                                {activeDropdown === link.name && (
+                                    <div style={{ paddingLeft: "1rem", marginBottom: "0.5rem", borderLeft: "2px solid var(--brand)" }}>
+                                        {link.name === "Services" ? (
+                                            <>
+                                                {serviceCategories.map(cat => (
+                                                    <div key={cat.title} style={{ marginBottom: "0.75rem" }}>
+                                                        <p style={{ color: "var(--brand)", fontWeight: 700, fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.4rem" }}>{cat.title}</p>
+                                                        {cat.links.map(sl => (
+                                                            <Link key={sl.href} href={sl.href} onClick={() => { setMobileOpen(false); setActiveDropdown(null); }}
+                                                                style={{ display: "block", padding: "0.35rem 0.5rem", color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem" }}
+                                                            >{sl.name}</Link>
+                                                        ))}
+                                                    </div>
+                                                ))}
+                                                <Link href="/services" onClick={() => { setMobileOpen(false); setActiveDropdown(null); }}
+                                                    style={{ display: "block", padding: "0.5rem", color: "#fff", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none" }}
+                                                >View All Services →</Link>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Link href="/locations" onClick={() => { setMobileOpen(false); setActiveDropdown(null); }}
+                                                    style={{ display: "block", padding: "0.4rem 0.5rem", color: "var(--brand)", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none" }}
+                                                >All Locations</Link>
+                                                {locationLinks.map(loc => (
+                                                    <Link key={loc.href} href={loc.href} onClick={() => { setMobileOpen(false); setActiveDropdown(null); }}
+                                                        style={{ display: "block", padding: "0.35rem 0.5rem", color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem" }}
+                                                    >{loc.name}{siteConfig.state ? `, ${siteConfig.state}` : ""}</Link>
+                                                ))}
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <Link key={link.name} href={link.href} onClick={() => setMobileOpen(false)}
+                                style={{ display: "block", padding: "0.75rem 0.5rem", color: isActive(link.href) ? "#fff" : "#94a3b8", textDecoration: "none", fontSize: "1rem", fontWeight: 600 }}
+                            >{link.name}</Link>
+                        )
+                    )}
+                    <div style={{ padding: "0.75rem 0.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                        <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
+                            style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#e2e8f0", textDecoration: "none", fontWeight: 600 }}
                         >
-                            {l.label}
+                            <Phone size={16} style={{ color: "var(--brand)" }} /> {siteConfig.phoneNumber}
+                        </a>
+                        <Link href="/book" onClick={() => setMobileOpen(false)} className="btn-primary" style={{ textAlign: "center", padding: "0.75rem" }}>
+                            Book Now
                         </Link>
-                    ))}
-                    <a
-                        href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
-                        style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            padding: "0.75rem 0",
-                            color: "var(--brand)",
-                            fontWeight: 600,
-                            textDecoration: "none",
-                        }}
-                    >
-                        <Phone size={16} />
-                        {siteConfig.phoneNumber}
-                    </a>
+                    </div>
                 </div>
             )}
-        </header>
+
+            <style>{`
+                .desktop-nav { display: none !important; }
+                .mobile-nav-toggle { display: block !important; }
+                @media (min-width: 1024px) {
+                    .desktop-nav { display: flex !important; }
+                    .mobile-nav-toggle { display: none !important; }
+                }
+            `}</style>
+        </nav>
     );
 }

@@ -71,16 +71,19 @@ export default function Footer() {
                         Services
                     </p>
                     <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        {services.map((s) => (
-                            <li key={s}>
-                                <Link href="/services" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.15s" }}
-                                    onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#e2e8f0")}
-                                    onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#94a3b8")}
-                                >
-                                    {s}
-                                </Link>
-                            </li>
-                        ))}
+                        {services.map((s) => {
+                            const slug = s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+                            return (
+                                <li key={s}>
+                                    <Link href={`/services/${slug}`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.15s" }}
+                                        onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#e2e8f0")}
+                                        onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#94a3b8")}
+                                    >
+                                        {s}
+                                    </Link>
+                                </li>
+                            );
+                        })}
                     </ul>
                 </div>
 

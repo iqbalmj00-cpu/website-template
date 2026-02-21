@@ -76,7 +76,7 @@ export default function HomePage() {
                         pointerEvents: "none",
                     }}
                 />
-                <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative" }}>
+                <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", display: "grid", gridTemplateColumns: siteConfig.heroImageUrl ? "1fr 1fr" : "1fr", gap: "3rem", alignItems: "center" }}>
                     <div style={{ maxWidth: 700 }}>
                         <div
                             style={{
@@ -137,6 +137,15 @@ export default function HomePage() {
                             </a>
                         </div>
                     </div>
+                    {siteConfig.heroImageUrl && (
+                        <div style={{ display: "flex", justifyContent: "center" }}>
+                            <img
+                                src={siteConfig.heroImageUrl}
+                                alt={`${siteConfig.companyName} junk removal in ${siteConfig.city}`}
+                                style={{ width: "100%", maxWidth: 520, borderRadius: 20, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 25px 80px rgba(0,0,0,0.5)" }}
+                            />
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -177,18 +186,34 @@ export default function HomePage() {
                             gap: "1rem",
                         }}
                     >
-                        {siteConfig.services.map((service) => (
-                            <div
-                                key={service}
-                                className="card"
-                                style={{ textAlign: "center", padding: "1.5rem 1rem" }}
-                            >
-                                <Truck size={28} style={{ color: "var(--brand)", marginBottom: "0.75rem" }} />
-                                <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)" }}>
-                                    {service}
-                                </p>
-                            </div>
-                        ))}
+                        {siteConfig.services.map((service) => {
+                            const slug = service.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+                            const imageUrl = siteConfig.serviceImages[slug];
+                            return (
+                                <Link
+                                    key={service}
+                                    href={`/services/${slug}`}
+                                    className="card"
+                                    style={{ textAlign: "center", padding: imageUrl ? "0" : "1.5rem 1rem", textDecoration: "none", color: "inherit", overflow: "hidden" }}
+                                >
+                                    {imageUrl ? (
+                                        <>
+                                            <img src={imageUrl} alt={service} style={{ width: "100%", height: 120, objectFit: "cover" }} />
+                                            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", padding: "0.75rem 0.5rem" }}>
+                                                {service}
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Truck size={28} style={{ color: "var(--brand)", marginBottom: "0.75rem" }} />
+                                            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)" }}>
+                                                {service}
+                                            </p>
+                                        </>
+                                    )}
+                                </Link>
+                            );
+                        })}
                     </div>
                     <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
                         <Link href="/services" className="btn-secondary">

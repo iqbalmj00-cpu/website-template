@@ -182,20 +182,25 @@ export default function BookingWizard() {
         setError("");
         try {
             const leadId = typeof window !== "undefined" ? localStorage.getItem("syjLeadId") : null;
+            // Build item summary from selected items
+            const itemSummary = Object.entries(selectedItems)
+                .flatMap(([, items]) => Object.entries(items).filter(([, qty]) => qty > 0).map(([name, qty]) => qty > 1 ? `${name} (×${qty})` : name))
+                .join(", ") || `${volData?.label || ""} junk removal`;
+
             const payload: Record<string, unknown> = {
+                type: "booking",
                 name: contact.name,
                 phone: contact.phone,
                 email: contact.email,
                 address: contact.address,
-                description: contact.notes || `${volData?.label || ""} junk removal`,
-                requestedDate: selectedDate?.toISOString(),
-                status: "booked",
+                date: selectedDate?.toISOString().split("T")[0],
+                timeSlot: selectedTime?.toUpperCase(),
+                items: itemSummary,
+                notes: contact.notes || "",
                 metadata: {
                     categories: selectedCategories,
-                    items: selectedItems,
                     volume: volume,
                     location: location,
-                    timeSlot: selectedTime,
                     priceRange: volData ? [volData.price[0] + priceAdj, volData.price[1] + priceAdj] : null,
                 },
                 source: "WEBSITE",

@@ -32,25 +32,36 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
             <Navbar />
             <main>
                 {/* Hero */}
-                <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 5rem" }}>
-                    <div style={{ maxWidth: 900, margin: "0 auto" }}>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: 999, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
-                            📍 {location.heroBadge}
-                        </span>
-                        <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.5rem" }}>
-                            Junk Removal in <span style={{ color: "var(--brand)" }}>{location.name}, {location.state}</span>
-                        </h1>
-                        <p style={{ fontSize: "1.15rem", color: "rgba(255,255,255,0.65)", maxWidth: 600, marginBottom: "2rem", lineHeight: 1.6 }}>
-                            {location.heroDescription}
-                        </p>
-                        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-                            <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
-                                🚛 Get A Free Quote
-                            </Link>
-                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: 999, border: "2px solid rgba(255,255,255,0.3)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
-                                📞 {phoneNumber}
-                            </a>
+                <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
+                    <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: siteConfig.locationImages[slug] ? "1fr 1fr" : "1fr", gap: "2rem", alignItems: "center" }}>
+                        <div>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: 999, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
+                                📍 {location.heroBadge}
+                            </span>
+                            <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.5rem" }}>
+                                Junk Removal in <span style={{ color: "var(--brand)" }}>{location.name}, {location.state}</span>
+                            </h1>
+                            <p style={{ fontSize: "1.15rem", color: "rgba(255,255,255,0.65)", maxWidth: 600, marginBottom: "2rem", lineHeight: 1.6 }}>
+                                {location.heroDescription}
+                            </p>
+                            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                                <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
+                                    🚛 Get A Free Quote
+                                </Link>
+                                <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: 999, border: "2px solid rgba(255,255,255,0.3)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
+                                    📞 {phoneNumber}
+                                </a>
+                            </div>
                         </div>
+                        {siteConfig.locationImages[slug] && (
+                            <div style={{ display: "flex", justifyContent: "center" }}>
+                                <img
+                                    src={siteConfig.locationImages[slug]}
+                                    alt={`Junk removal in ${location.name}, ${location.state}`}
+                                    style={{ width: "100%", maxWidth: 500, borderRadius: 16, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}
+                                />
+                            </div>
+                        )}
                     </div>
                 </section>
 

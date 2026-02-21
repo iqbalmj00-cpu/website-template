@@ -30,6 +30,10 @@ export const siteConfig = {
     brandColor: process.env.NEXT_PUBLIC_BRAND_COLOR ?? "#f97316",
     logoUrl: process.env.NEXT_PUBLIC_LOGO_URL ?? null,
     heroImageUrl: process.env.NEXT_PUBLIC_HERO_IMAGE_URL ?? null,
+    aboutImageUrl: process.env.NEXT_PUBLIC_ABOUT_IMAGE_URL ?? null,
+    commercialImageUrl: process.env.NEXT_PUBLIC_COMMERCIAL_IMAGE_URL ?? null,
+    locationImages: parseJSON<Record<string, string>>(process.env.NEXT_PUBLIC_LOCATION_IMAGES, {}),
+    serviceImages: parseJSON<Record<string, string>>(process.env.NEXT_PUBLIC_SERVICE_IMAGES, {}),
 
     // Dynamic content
     services: parseJSON<ServiceItem[]>(process.env.NEXT_PUBLIC_SERVICES, [
@@ -63,7 +67,6 @@ export const siteConfig = {
 
     // Dashboard connection
     dashboardUrl: process.env.DASHBOARD_URL ?? "",
-    ingestApiKey: process.env.INGEST_API_KEY ?? "",
     siteToken: process.env.SITE_TOKEN ?? "",
 
     // Stripe (client's connected account for card-on-file)
