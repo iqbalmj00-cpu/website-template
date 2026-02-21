@@ -1,4 +1,4 @@
-export const STEPS = ["Junk Type", "Items", "Volume", "Location", "Schedule", "Quote", "Contact & Pay"];
+export const STEPS = ["Your Info", "Junk Type", "Items", "Volume", "Location", "Schedule", "Quote & Book"];
 
 export type JunkCategory = { id: string; label: string; icon: string; desc: string };
 export type JunkItem = { id: string; label: string; weight: "heavy" | "medium" | "light" };

@@ -100,6 +100,7 @@ export default function BookingWizard() {
     const [contact, setContact] = useState<ContactInfo>({ name: "", phone: "", email: "", address: "", notes: "" });
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+    const [leadCaptured, setLeadCaptured] = useState(false);
 
     const goNext = () => setStep(s => s + 1);
     const goBack = () => setStep(s => s - 1);
@@ -130,13 +131,13 @@ export default function BookingWizard() {
 
     const canProceed = () => {
         switch (step) {
-            case 0: return selectedCategories.length > 0;
-            case 1: return totalItems > 0;
-            case 2: return volume !== null;
-            case 3: return location !== null;
-            case 4: return selectedDate !== null && selectedTime !== null;
-            case 5: return true; // quote summary — always can proceed
-            case 6: return contact.name && contact.phone && contact.email && contact.address;
+            case 0: return contact.name && contact.phone && contact.email && contact.address;
+            case 1: return selectedCategories.length > 0;
+            case 2: return totalItems > 0;
+            case 3: return volume !== null;
+            case 4: return location !== null;
+            case 5: return selectedDate !== null && selectedTime !== null;
+            case 6: return true; // quote summary — always can proceed
             default: return false;
         }
     };
@@ -145,6 +146,37 @@ export default function BookingWizard() {
     const locData = LOCATION_OPTIONS.find(l => l.id === location);
     const priceAdj = (location === "upstairs" || location === "basement") ? 50 : 0;
 
+    /* ── Capture lead on Step 0 completion ─────────────────────────── */
+    const captureLead = useCallback(async () => {
+        if (leadCaptured) { goNext(); return; }
+        setSubmitting(true);
+        setError("");
+        try {
+            const res = await fetch("/api/crm", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: contact.name,
+                    phone: contact.phone,
+                    email: contact.email,
+                    address: contact.address,
+                    description: contact.notes || "Website booking started",
+                    source: "WEBSITE",
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to save your info");
+            if (data.leadId) localStorage.setItem("syjLeadId", data.leadId);
+            setLeadCaptured(true);
+            goNext();
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+        } finally {
+            setSubmitting(false);
+        }
+    }, [contact, leadCaptured]);
+
+    /* ── Final booking submit ─────────────────────────────────────── */
     const handleSubmit = useCallback(async () => {
         setSubmitting(true);
         setError("");
@@ -157,6 +189,7 @@ export default function BookingWizard() {
                 address: contact.address,
                 description: contact.notes || `${volData?.label || ""} junk removal`,
                 requestedDate: selectedDate?.toISOString(),
+                status: "booked",
                 metadata: {
                     categories: selectedCategories,
                     items: selectedItems,
@@ -217,8 +250,64 @@ export default function BookingWizard() {
             {/* Content */}
             <div key={step} className="fade-up" style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 140px" }}>
 
-                {/* ── STEP 0: Junk Type ──────────────────────────────────────────── */}
+                {/* ── STEP 0: Contact Info (Lead Capture) ────────────────────────── */}
                 {step === 0 && (
+                    <div>
+                        <div style={{ textAlign: "center", marginBottom: 32 }}>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>👋</div>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--navy)" }}>Let&apos;s get started!</h1>
+                            <p style={{ color: "var(--muted)", fontSize: 15 }}>Tell us a bit about yourself so we can prepare your custom quote.</p>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                            <div>
+                                <label className="label">Full Name *</label>
+                                <input className="input" placeholder="John Smith" value={contact.name} onChange={e => setContact(c => ({ ...c, name: e.target.value }))} />
+                            </div>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                                <div>
+                                    <label className="label">Phone *</label>
+                                    <input className="input" placeholder="(555) 123-4567" value={contact.phone} onChange={e => setContact(c => ({ ...c, phone: formatPhone(e.target.value) }))} />
+                                </div>
+                                <div>
+                                    <label className="label">Email *</label>
+                                    <input className="input" type="email" placeholder="john@email.com" value={contact.email} onChange={e => setContact(c => ({ ...c, email: e.target.value }))} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="label">Service Address *</label>
+                                <input className="input" placeholder="1234 Main St, City, State" value={contact.address} onChange={e => setContact(c => ({ ...c, address: e.target.value }))} />
+                            </div>
+                            <div>
+                                <label className="label">Notes (optional)</label>
+                                <textarea className="input" rows={3} placeholder="Gate code, special instructions, etc." value={contact.notes} onChange={e => setContact(c => ({ ...c, notes: e.target.value }))} style={{ resize: "vertical" }} />
+                            </div>
+                        </div>
+
+                        {error && (
+                            <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, background: "#FEF2F2", border: "1px solid #FECACA", fontSize: 14, color: "#DC2626" }}>
+                                {error}
+                            </div>
+                        )}
+
+                        <button onClick={captureLead} disabled={!canProceed() || submitting}
+                            style={{
+                                width: "100%", marginTop: 24, padding: 18, borderRadius: 9999, border: "none",
+                                background: canProceed() && !submitting ? "linear-gradient(135deg, var(--brand), var(--brand-dark))" : "#E2E8F0",
+                                color: canProceed() && !submitting ? "#fff" : "#94A3B8",
+                                fontSize: 17, fontWeight: 700, cursor: canProceed() && !submitting ? "pointer" : "not-allowed",
+                                fontFamily: "var(--font-space-grotesk)", boxShadow: canProceed() && !submitting ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
+                                transition: "all 0.2s",
+                            }}>
+                            {submitting ? "Saving..." : "Get My Free Quote →"}
+                        </button>
+                        <p style={{ textAlign: "center", fontSize: 12, color: "var(--muted)", marginTop: 12 }}>
+                            No obligation — we&apos;ll prepare a custom quote based on your items.
+                        </p>
+                    </div>
+                )}
+
+                {/* ── STEP 1: Junk Type ──────────────────────────────────────────── */}
+                {step === 1 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>🗑️</div>
@@ -243,8 +332,8 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 1: Items ──────────────────────────────────────────────── */}
-                {step === 1 && (
+                {/* ── STEP 2: Items ──────────────────────────────────────────────── */}
+                {step === 2 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>📋</div>
@@ -297,8 +386,8 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 2: Volume ──────────────────────────────────────────────── */}
-                {step === 2 && (
+                {/* ── STEP 3: Volume ──────────────────────────────────────────────── */}
+                {step === 3 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>🚛</div>
@@ -327,8 +416,8 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 3: Location ────────────────────────────────────────────── */}
-                {step === 3 && (
+                {/* ── STEP 4: Location ────────────────────────────────────────────── */}
+                {step === 4 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>📍</div>
@@ -358,8 +447,8 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 4: Schedule ────────────────────────────────────────────── */}
-                {step === 4 && (
+                {/* ── STEP 5: Schedule ────────────────────────────────────────────── */}
+                {step === 5 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>📅</div>
@@ -391,8 +480,8 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 5: Quote Summary ───────────────────────────────────────── */}
-                {step === 5 && (
+                {/* ── STEP 6: Quote Summary & Book ──────────────────────────────────── */}
+                {step === 6 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, var(--brand), var(--brand-dark))", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
@@ -413,6 +502,9 @@ export default function BookingWizard() {
                             </div>
                             <div style={{ padding: 24 }}>
                                 {[
+                                    { label: "Name", value: contact.name },
+                                    { label: "Phone", value: contact.phone },
+                                    { label: "Address", value: contact.address },
                                     { label: "Junk Types", value: selectedCategories.map(c => JUNK_CATEGORIES.find(x => x.id === c)?.label).join(", ") },
                                     { label: "Items", value: `${totalItems} item${totalItems !== 1 ? "s" : ""}` },
                                     { label: "Truck Load", value: volData?.label || "—" },
@@ -420,46 +512,11 @@ export default function BookingWizard() {
                                     { label: "Date", value: selectedDate?.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }) || "—" },
                                     { label: "Time", value: TIME_SLOTS.find(t => t.id === selectedTime)?.label || "—" },
                                 ].map((row, i) => (
-                                    <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", borderBottom: i < 5 ? "1px solid #F1F5F9" : "none" }}>
+                                    <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", borderBottom: i < 8 ? "1px solid #F1F5F9" : "none" }}>
                                         <span style={{ fontSize: 14, color: "#64748B", fontWeight: 500 }}>{row.label}</span>
                                         <span style={{ fontSize: 14, color: "var(--navy)", fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{row.value}</span>
                                     </div>
                                 ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* ── STEP 6: Contact & Submit ────────────────────────────────────── */}
-                {step === 6 && (
-                    <div>
-                        <div style={{ textAlign: "center", marginBottom: 32 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>📞</div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--navy)" }}>Almost done — your info</h1>
-                            <p style={{ color: "var(--muted)", fontSize: 15 }}>We just need your contact details to confirm the booking.</p>
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                            <div>
-                                <label className="label">Full Name *</label>
-                                <input className="input" placeholder="John Smith" value={contact.name} onChange={e => setContact(c => ({ ...c, name: e.target.value }))} />
-                            </div>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                                <div>
-                                    <label className="label">Phone *</label>
-                                    <input className="input" placeholder="(555) 123-4567" value={contact.phone} onChange={e => setContact(c => ({ ...c, phone: formatPhone(e.target.value) }))} />
-                                </div>
-                                <div>
-                                    <label className="label">Email *</label>
-                                    <input className="input" type="email" placeholder="john@email.com" value={contact.email} onChange={e => setContact(c => ({ ...c, email: e.target.value }))} />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="label">Pickup Address *</label>
-                                <input className="input" placeholder="1234 Main St, City, State" value={contact.address} onChange={e => setContact(c => ({ ...c, address: e.target.value }))} />
-                            </div>
-                            <div>
-                                <label className="label">Notes (optional)</label>
-                                <textarea className="input" rows={3} placeholder="Gate code, special instructions, etc." value={contact.notes} onChange={e => setContact(c => ({ ...c, notes: e.target.value }))} style={{ resize: "vertical" }} />
                             </div>
                         </div>
 
@@ -469,16 +526,16 @@ export default function BookingWizard() {
                             </div>
                         )}
 
-                        <button onClick={handleSubmit} disabled={!canProceed() || submitting}
+                        <button onClick={handleSubmit} disabled={submitting}
                             style={{
                                 width: "100%", marginTop: 24, padding: 18, borderRadius: 9999, border: "none",
-                                background: canProceed() && !submitting ? "linear-gradient(135deg, var(--brand), var(--brand-dark))" : "#E2E8F0",
-                                color: canProceed() && !submitting ? "#fff" : "#94A3B8",
-                                fontSize: 17, fontWeight: 700, cursor: canProceed() && !submitting ? "pointer" : "not-allowed",
-                                fontFamily: "var(--font-space-grotesk)", boxShadow: canProceed() && !submitting ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
+                                background: !submitting ? "linear-gradient(135deg, var(--brand), var(--brand-dark))" : "#E2E8F0",
+                                color: !submitting ? "#fff" : "#94A3B8",
+                                fontSize: 17, fontWeight: 700, cursor: !submitting ? "pointer" : "not-allowed",
+                                fontFamily: "var(--font-space-grotesk)", boxShadow: !submitting ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
                                 transition: "all 0.2s",
                             }}>
-                            {submitting ? "Booking..." : "Book My Pickup →"}
+                            {submitting ? "Booking..." : "Confirm & Book My Pickup →"}
                         </button>
                         <p style={{ textAlign: "center", fontSize: 12, color: "var(--muted)", marginTop: 12 }}>
                             No commitment — final price confirmed when our crew arrives.
@@ -487,14 +544,12 @@ export default function BookingWizard() {
                 )}
             </div>
 
-            {/* ── Footer Nav ─────────────────────────────────────────────────── */}
-            {step < 6 && (
+            {/* ── Footer Nav (Steps 1-5 only) ─────────────────────────────────── */}
+            {step > 0 && step < 6 && (
                 <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: "1px solid #E2E8F0", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 50 }}>
-                    {step > 0 ? (
-                        <button onClick={goBack} style={{ border: "none", background: "none", fontSize: 15, color: "#64748B", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
-                            <ChevronLeft size={18} /> Back
-                        </button>
-                    ) : <div />}
+                    <button onClick={goBack} style={{ border: "none", background: "none", fontSize: 15, color: "#64748B", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
+                        <ChevronLeft size={18} /> Back
+                    </button>
                     <button onClick={goNext} disabled={!canProceed()}
                         style={{
                             padding: "14px 44px", borderRadius: 9999, border: "none", fontSize: 15, fontWeight: 700, cursor: canProceed() ? "pointer" : "not-allowed",
@@ -503,7 +558,7 @@ export default function BookingWizard() {
                             color: canProceed() ? "#fff" : "#94A3B8",
                             boxShadow: canProceed() ? "0 4px 16px rgba(249,115,22,0.3)" : "none",
                         }}>
-                        {step === 5 ? "Continue to Booking" : "Continue"}
+                        Continue
                     </button>
                 </div>
             )}
