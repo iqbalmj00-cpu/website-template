@@ -11,6 +11,11 @@ export default function Footer() {
     const quickLinks = [
         { label: "Book a Pickup", href: "/book" },
         { label: "Services", href: "/services" },
+        { label: "Locations", href: "/locations" },
+        { label: "How It Works", href: "/how-it-works" },
+        { label: "Reviews", href: "/reviews" },
+        { label: "Items We Take", href: "/items-we-take" },
+        { label: "Commercial", href: "/commercial" },
         { label: "About Us", href: "/about" },
         { label: "FAQ", href: "/faq" },
         { label: "Contact", href: "/contact" },
@@ -130,8 +135,8 @@ export default function Footer() {
             >
                 <span>© {year} {siteConfig.companyName}. All rights reserved.</span>
                 <div style={{ display: "flex", gap: "1.5rem" }}>
-                    <Link href="/privacy" style={{ color: "#64748b", textDecoration: "none" }}>Privacy Policy</Link>
-                    <Link href="/terms" style={{ color: "#64748b", textDecoration: "none" }}>Terms</Link>
+                    <Link href="/legal" style={{ color: "#64748b", textDecoration: "none" }}>Privacy Policy</Link>
+                    <Link href="/legal" style={{ color: "#64748b", textDecoration: "none" }}>Terms</Link>
                 </div>
             </div>
         </footer>
