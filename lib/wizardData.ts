@@ -1,20 +1,28 @@
 export const STEPS = ["Your Info", "Junk Type", "Items", "Volume", "Location", "Schedule", "Quote & Book"];
 
-export type JunkCategory = { id: string; label: string; icon: string; desc: string };
+export type JunkCategory = { id: string; label: string; icon: string; desc: string; inputType: "quantity" | "pile" };
 export type JunkItem = { id: string; label: string; weight: "heavy" | "medium" | "light" };
-export type VolumeOption = { id: string; label: string; fraction: string; desc: string; truckFill: number; price: [number, number] };
+export type PileSize = { id: string; label: string; desc: string; icon: string };
+export type VolumeOption = { id: string; label: string; fraction: string; desc: string; truckFill: number };
 export type LocationOption = { id: string; label: string; icon: string; desc: string };
 export type TimeSlot = { id: string; label: string; period: string };
 
 export const JUNK_CATEGORIES: JunkCategory[] = [
-    { id: "furniture", label: "Furniture Removal", icon: "🛋️", desc: "Sofas, tables, chairs, dressers" },
-    { id: "appliances", label: "Appliance Disposal", icon: "🧊", desc: "Fridges, washers, dryers, ovens" },
-    { id: "yard", label: "Yard Waste", icon: "🌿", desc: "Branches, soil, leaves, stumps" },
-    { id: "construction", label: "Construction Debris", icon: "🧱", desc: "Drywall, lumber, tile, concrete" },
-    { id: "electronics", label: "E-Waste Recycling", icon: "🖥️", desc: "TVs, computers, printers, cables" },
-    { id: "household", label: "General Junk", icon: "📦", desc: "Boxes, bags, miscellaneous items" },
-    { id: "mattress", label: "Mattresses", icon: "🛏️", desc: "Mattresses, box springs, frames" },
-    { id: "garage", label: "Garage Cleanout", icon: "🏠", desc: "Tools, storage, equipment" },
+    { id: "furniture", label: "Furniture Removal", icon: "🛋️", desc: "Sofas, tables, chairs, dressers", inputType: "quantity" },
+    { id: "appliances", label: "Appliance Disposal", icon: "🧊", desc: "Fridges, washers, dryers, ovens", inputType: "quantity" },
+    { id: "yard", label: "Yard Waste", icon: "🌿", desc: "Branches, soil, leaves, stumps", inputType: "pile" },
+    { id: "construction", label: "Construction Debris", icon: "🧱", desc: "Drywall, lumber, tile, concrete", inputType: "pile" },
+    { id: "electronics", label: "E-Waste Recycling", icon: "🖥️", desc: "TVs, computers, printers, cables", inputType: "quantity" },
+    { id: "household", label: "General Junk", icon: "📦", desc: "Boxes, bags, miscellaneous items", inputType: "pile" },
+    { id: "mattress", label: "Mattresses", icon: "🛏️", desc: "Mattresses, box springs, frames", inputType: "quantity" },
+    { id: "garage", label: "Garage Cleanout", icon: "🏠", desc: "Tools, storage, equipment", inputType: "pile" },
+];
+
+export const PILE_SIZES: PileSize[] = [
+    { id: "small", label: "Small Pile", desc: "A few bags or a wheelbarrow worth", icon: "📦" },
+    { id: "medium", label: "Medium Pile", desc: "Dining table–sized area, fills a pickup bed", icon: "📦📦" },
+    { id: "large", label: "Large Pile", desc: "Waist-high pile, half a garage bay", icon: "🏔️" },
+    { id: "xl", label: "XL Pile", desc: "Chest-high or larger, fills a full garage bay", icon: "🏔️🏔️" },
 ];
 
 export const CATEGORY_ITEMS: Record<string, JunkItem[]> = {
@@ -42,26 +50,6 @@ export const CATEGORY_ITEMS: Record<string, JunkItem[]> = {
         { id: "water_heater", label: "Water Heater", weight: "heavy" },
         { id: "ac_unit", label: "A/C Unit", weight: "medium" },
     ],
-    yard: [
-        { id: "branches", label: "Branches / Limbs", weight: "medium" },
-        { id: "soil_dirt", label: "Soil / Dirt", weight: "heavy" },
-        { id: "leaves_bags", label: "Bags of Leaves", weight: "light" },
-        { id: "stumps", label: "Tree Stumps", weight: "heavy" },
-        { id: "fencing", label: "Old Fencing", weight: "medium" },
-        { id: "patio_furniture", label: "Patio Furniture", weight: "medium" },
-        { id: "play_equipment", label: "Play Equipment", weight: "heavy" },
-        { id: "hot_tub", label: "Hot Tub", weight: "heavy" },
-    ],
-    construction: [
-        { id: "drywall", label: "Drywall / Sheetrock", weight: "medium" },
-        { id: "lumber", label: "Lumber / Wood", weight: "medium" },
-        { id: "tile", label: "Tile / Flooring", weight: "heavy" },
-        { id: "concrete", label: "Concrete / Brick", weight: "heavy" },
-        { id: "carpet", label: "Carpet / Padding", weight: "medium" },
-        { id: "roofing", label: "Roofing Materials", weight: "medium" },
-        { id: "cabinets", label: "Old Cabinets", weight: "heavy" },
-        { id: "windows", label: "Windows / Doors", weight: "medium" },
-    ],
     electronics: [
         { id: "tv", label: "TV / Monitor", weight: "medium" },
         { id: "computer", label: "Computer / Laptop", weight: "light" },
@@ -69,15 +57,6 @@ export const CATEGORY_ITEMS: Record<string, JunkItem[]> = {
         { id: "stereo", label: "Stereo / Speakers", weight: "medium" },
         { id: "cables_misc", label: "Cables & Misc", weight: "light" },
         { id: "gaming", label: "Gaming Equipment", weight: "light" },
-    ],
-    household: [
-        { id: "boxes", label: "Boxes / Bins", weight: "light" },
-        { id: "bags", label: "Trash Bags", weight: "light" },
-        { id: "clothing", label: "Clothing / Textiles", weight: "light" },
-        { id: "books", label: "Books / Papers", weight: "medium" },
-        { id: "toys", label: "Toys / Kids Items", weight: "light" },
-        { id: "exercise", label: "Exercise Equipment", weight: "heavy" },
-        { id: "misc_large", label: "Large Misc Items", weight: "medium" },
     ],
     mattress: [
         { id: "king_mattress", label: "King Mattress", weight: "heavy" },
@@ -87,25 +66,15 @@ export const CATEGORY_ITEMS: Record<string, JunkItem[]> = {
         { id: "box_spring", label: "Box Spring", weight: "medium" },
         { id: "bed_frame", label: "Bed Frame", weight: "medium" },
     ],
-    garage: [
-        { id: "workbench", label: "Workbench", weight: "heavy" },
-        { id: "shelving", label: "Shelving Units", weight: "medium" },
-        { id: "tools", label: "Old Tools", weight: "medium" },
-        { id: "paint", label: "Paint Cans", weight: "light" },
-        { id: "tires", label: "Tires / Wheels", weight: "medium" },
-        { id: "lawn_equip", label: "Lawn Equipment", weight: "heavy" },
-        { id: "storage_bins", label: "Storage Bins", weight: "light" },
-        { id: "sports_equip", label: "Sports Equipment", weight: "medium" },
-    ],
 };
 
 export const VOLUME_OPTIONS: VolumeOption[] = [
-    { id: "few", label: "A Few Items", fraction: "1/8", desc: "A few small items — fits in a pickup bed", truckFill: 0.125, price: [75, 150] },
-    { id: "quarter", label: "Quarter Load", fraction: "1/4", desc: "Small pile — a corner of the truck", truckFill: 0.25, price: [150, 250] },
-    { id: "half", label: "Half Load", fraction: "1/2", desc: "Medium pile — half the truck bed", truckFill: 0.5, price: [250, 400] },
-    { id: "three_quarter", label: "3/4 Load", fraction: "3/4", desc: "Large pile — most of the truck", truckFill: 0.75, price: [400, 550] },
-    { id: "full", label: "Full Load", fraction: "1", desc: "Filling the entire truck", truckFill: 1.0, price: [500, 700] },
-    { id: "multi", label: "Multiple Loads", fraction: "1+", desc: "More than one full truck load", truckFill: 1.25, price: [700, 1200] },
+    { id: "few", label: "A Few Items", fraction: "1/8", desc: "A few small items — fits in a pickup bed", truckFill: 0.125 },
+    { id: "quarter", label: "Quarter Load", fraction: "1/4", desc: "Small pile — a corner of the truck", truckFill: 0.25 },
+    { id: "half", label: "Half Load", fraction: "1/2", desc: "Medium pile — half the truck bed", truckFill: 0.5 },
+    { id: "three_quarter", label: "3/4 Load", fraction: "3/4", desc: "Large pile — most of the truck", truckFill: 0.75 },
+    { id: "full", label: "Full Load", fraction: "1", desc: "Filling the entire truck", truckFill: 1.0 },
+    { id: "multi", label: "Multiple Loads", fraction: "1+", desc: "More than one full truck load", truckFill: 1.25 },
 ];
 
 export const LOCATION_OPTIONS: LocationOption[] = [

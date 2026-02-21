@@ -7,6 +7,10 @@
 export type ServiceItem = string;
 export type Testimonial = { name: string; role: string; text: string };
 
+export type PricingTier = { id: string; label: string; fraction: string; min: number; max: number };
+export type Surcharge = { id: string; label: string; amount: number; enabled: boolean };
+export type PricingConfig = { truckSize: string; tiers: PricingTier[]; surcharges: Surcharge[] };
+
 function parseJSON<T>(value: string | undefined, fallback: T): T {
     if (!value) return fallback;
     try {
@@ -65,6 +69,25 @@ export const siteConfig = {
             text: "Handled an entire estate cleanout in one day. Couldn't have done it without them.",
         },
     ]),
+
+    // Pricing
+    pricing: parseJSON<PricingConfig>(process.env.NEXT_PUBLIC_PRICING, {
+        truckSize: "15yd",
+        tiers: [
+            { id: "few", label: "A Few Items", fraction: "1/8", min: 75, max: 150 },
+            { id: "quarter", label: "Quarter Load", fraction: "1/4", min: 150, max: 250 },
+            { id: "half", label: "Half Load", fraction: "1/2", min: 250, max: 400 },
+            { id: "three_quarter", label: "3/4 Load", fraction: "3/4", min: 400, max: 550 },
+            { id: "full", label: "Full Load", fraction: "1", min: 500, max: 700 },
+            { id: "multi", label: "Multiple Loads", fraction: "1+", min: 700, max: 1200 },
+        ],
+        surcharges: [
+            { id: "stairs", label: "Upstairs / Basement", amount: 50, enabled: true },
+            { id: "heavy_item", label: "Heavy Item (piano, hot tub, safe)", amount: 75, enabled: true },
+            { id: "same_day", label: "Same-Day Service", amount: 50, enabled: false },
+            { id: "minimum", label: "Minimum Trip Fee", amount: 75, enabled: true },
+        ],
+    }),
 
     // Analytics
     gaTrackingId: process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? null,

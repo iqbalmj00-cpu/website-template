@@ -9,12 +9,16 @@ export const metadata: Metadata = {
 };
 
 export default function PricingPage() {
+    const { tiers, surcharges, truckSize } = siteConfig.pricing;
+    const enabledSurcharges = surcharges.filter(s => s.enabled);
+
     const volumes = [
-        { label: "⅛ Truck", desc: "A few small items — a chair, some boxes, a microwave", icon: "📦" },
-        { label: "¼ Truck", desc: "A room's worth of clutter — small furniture, bags, and odds & ends", icon: "🪑" },
-        { label: "½ Truck", desc: "Multiple rooms or a garage half-full of junk", icon: "🏠" },
-        { label: "¾ Truck", desc: "A full garage cleanout or small estate cleanout", icon: "🏗️" },
-        { label: "Full Truck", desc: "The works — whole-house cleanout, major renovation debris", icon: "🚛" },
+        { id: "few", icon: "📦", desc: "A few small items — a chair, some boxes, a microwave" },
+        { id: "quarter", icon: "🪑", desc: "A room's worth of clutter — small furniture, bags, and odds & ends" },
+        { id: "half", icon: "🏠", desc: "Multiple rooms or a garage half-full of junk" },
+        { id: "three_quarter", icon: "🏗️", desc: "A full garage cleanout or small estate cleanout" },
+        { id: "full", icon: "🚛", desc: "The works — whole-house cleanout, major renovation debris" },
+        { id: "multi", icon: "🚛🚛", desc: "More than one full truck load" },
     ];
 
     const included = [
@@ -38,13 +42,13 @@ export default function PricingPage() {
                         Transparent, Volume-Based Pricing
                     </h1>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7 }}>
-                        No hidden fees, no surprises. You only pay for the space your junk takes up in our truck.
+                        No hidden fees, no surprises. You only pay for the space your junk takes up in our {truckSize} truck.
                         Our crew will give you an exact quote on-site before we lift a finger.
                     </p>
                 </div>
             </section>
 
-            {/* How It Works */}
+            {/* Pricing Tiers */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
                 <div style={{ maxWidth: 900, margin: "0 auto" }}>
                     <h2 className="section-title" style={{ textAlign: "center", marginBottom: "1rem" }}>How Our Pricing Works</h2>
@@ -53,28 +57,60 @@ export default function PricingPage() {
                     </p>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                        {volumes.map((v, i) => (
-                            <div key={v.label} style={{
-                                background: "var(--card)", borderRadius: 12, padding: "1.5rem",
-                                border: "1px solid var(--border)",
-                                display: "grid", gridTemplateColumns: "auto 1fr", gap: "1.25rem", alignItems: "center",
-                            }}>
-                                <div style={{
-                                    width: 56, height: 56, borderRadius: 12,
-                                    background: `rgba(249,115,22,${0.06 + i * 0.04})`,
-                                    display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem",
+                        {volumes.map((v, i) => {
+                            const tier = tiers.find(t => t.id === v.id);
+                            return (
+                                <div key={v.id} style={{
+                                    background: "var(--card)", borderRadius: 12, padding: "1.5rem",
+                                    border: "1px solid var(--border)",
+                                    display: "grid", gridTemplateColumns: "auto 1fr auto", gap: "1.25rem", alignItems: "center",
                                 }}>
-                                    {v.icon}
+                                    <div style={{
+                                        width: 56, height: 56, borderRadius: 12,
+                                        background: `rgba(249,115,22,${0.06 + i * 0.04})`,
+                                        display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem",
+                                    }}>
+                                        {v.icon}
+                                    </div>
+                                    <div>
+                                        <h3 style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.25rem" }}>
+                                            {tier?.label || v.id} {tier && <span style={{ fontSize: "0.8rem", color: "var(--muted)", fontWeight: 500 }}>({tier.fraction} truck)</span>}
+                                        </h3>
+                                        <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.5 }}>{v.desc}</p>
+                                    </div>
+                                    {tier && (
+                                        <div style={{ textAlign: "right", minWidth: 120 }}>
+                                            <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--brand)" }}>
+                                                ${tier.min} – ${tier.max}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                                <div>
-                                    <h3 style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.25rem" }}>{v.label}</h3>
-                                    <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.5 }}>{v.desc}</p>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </section>
+
+            {/* Surcharges */}
+            {enabledSurcharges.length > 0 && (
+                <section style={{ padding: "3rem 1.5rem 5rem", background: "var(--background)" }}>
+                    <div style={{ maxWidth: 700, margin: "0 auto" }}>
+                        <h2 className="section-title" style={{ textAlign: "center", marginBottom: "2rem" }}>Additional Fees</h2>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                            {enabledSurcharges.map(s => (
+                                <div key={s.id} style={{
+                                    display: "flex", justifyContent: "space-between", alignItems: "center",
+                                    padding: "1rem 1.25rem", background: "var(--card)", borderRadius: 10, border: "1px solid var(--border)",
+                                }}>
+                                    <span style={{ fontWeight: 600 }}>{s.label}</span>
+                                    <span style={{ fontWeight: 700, color: "var(--brand)" }}>+${s.amount}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* What's Included */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
