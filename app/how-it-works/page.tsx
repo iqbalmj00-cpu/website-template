@@ -38,9 +38,9 @@ export default function HowItWorksPage() {
             <Navbar />
             <main>
                 {/* Hero */}
-                <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
+                <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
                     <div style={{ maxWidth: 800, margin: "0 auto" }}>
-                        <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.5rem" }}>
+                        <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                             How It <span style={{ color: "var(--brand)" }}>Works</span>
                         </h1>
                         <p style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.65)", maxWidth: 550, margin: "0 auto" }}>
@@ -101,11 +101,11 @@ export default function HowItWorksPage() {
                 {/* CTA */}
                 <section style={{ background: "var(--brand)", padding: "4rem 1.5rem", textAlign: "center" }}>
                     <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "#fff", marginBottom: "1rem" }}>Ready to Get Started?</h2>
+                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Ready to Get Started?</h2>
                         <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "1.1rem", marginBottom: "2rem" }}>Book online in 2 minutes. Same-day service available in {city}{state ? `, ${state}` : ""}.</p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                             <Link href="/book" style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📅 Book Online Now</Link>
-                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
+                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
                         </div>
                     </div>
                 </section>

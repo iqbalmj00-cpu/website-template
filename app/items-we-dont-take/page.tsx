@@ -28,9 +28,9 @@ export default function ItemsWeDontTakePage() {
             <Navbar />
             <main>
                 {/* Hero */}
-                <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 4rem", textAlign: "center" }}>
+                <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 4rem", textAlign: "center" }}>
                     <div style={{ maxWidth: 800, margin: "0 auto" }}>
-                        <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1rem" }}>
+                        <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1rem" }}>
                             Items We <span style={{ color: "#ef4444" }}>Don&apos;t</span> Take
                         </h1>
                         <p style={{ fontSize: "1.1rem", color: "rgba(255,255,255,0.65)", maxWidth: 550, margin: "0 auto" }}>

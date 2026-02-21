@@ -35,7 +35,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                 {/* Hero */}
                 <section
                     style={{
-                        background: "var(--navy, #0f172a)",
+                        background: "var(--hero-bg)",
                         padding: "7rem 1.5rem 5rem",
                         position: "relative",
                         overflow: "hidden",
@@ -67,7 +67,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                 style={{
                                     fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
                                     fontWeight: 900,
-                                    color: "#fff",
+                                    color: "var(--hero-text)",
                                     lineHeight: 1.1,
                                     marginBottom: "1.5rem",
                                     textTransform: "uppercase",
@@ -89,7 +89,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                         padding: "1rem 2rem",
                                         borderRadius: "var(--btn-radius)",
                                         border: "2px solid rgba(255,255,255,0.3)",
-                                        color: "#fff",
+                                        color: "var(--hero-text)",
                                         textDecoration: "none",
                                         fontWeight: 700,
                                         fontSize: "1rem",
@@ -276,7 +276,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                     }}
                 >
                     <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "#fff", marginBottom: "1rem" }}>
+                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
                             Ready to Reclaim Your Space?
                         </h2>
                         <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "1.05rem", marginBottom: "2rem" }}>
@@ -303,7 +303,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                     padding: "1rem 2rem",
                                     borderRadius: "var(--btn-radius)",
                                     border: "2px solid #fff",
-                                    color: "#fff",
+                                    color: "var(--hero-text)",
                                     fontWeight: 700,
                                     fontSize: "1rem",
                                     textDecoration: "none",

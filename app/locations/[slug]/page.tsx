@@ -32,13 +32,13 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
             <Navbar />
             <main>
                 {/* Hero */}
-                <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
+                <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: siteConfig.locationImages[slug] ? "1fr 1fr" : "1fr", gap: "2rem", alignItems: "center" }}>
                         <div>
                             <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
                                 📍 {location.heroBadge}
                             </span>
-                            <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.5rem" }}>
+                            <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                                 Junk Removal in <span style={{ color: "var(--brand)" }}>{location.name}, {location.state}</span>
                             </h1>
                             <p style={{ fontSize: "1.15rem", color: "rgba(255,255,255,0.65)", maxWidth: 600, marginBottom: "2rem", lineHeight: 1.6 }}>
@@ -48,7 +48,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                                 <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
                                     🚛 Get A Free Quote
                                 </Link>
-                                <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid rgba(255,255,255,0.3)", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
+                                <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid rgba(255,255,255,0.3)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
                                     📞 {phoneNumber}
                                 </a>
                             </div>
@@ -145,9 +145,9 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                 )}
 
                 {/* CTA */}
-                <section style={{ background: "var(--navy, #0f172a)", padding: "5rem 1.5rem", textAlign: "center" }}>
+                <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem", textAlign: "center" }}>
                     <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "#fff", marginBottom: "1rem" }}>
+                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
                             Ready to Clear Out Your Space in <span style={{ color: "var(--brand)" }}>{location.name}</span>?
                         </h2>
                         <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem", marginBottom: "2rem" }}>
@@ -155,7 +155,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                         </p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                             <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>🚛 Get Instant Quote</Link>
-                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
+                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
                         </div>
                     </div>
                 </section>

@@ -93,7 +93,7 @@ export default function ServicesPage() {
                 {/* Hero */}
                 <section
                     style={{
-                        background: "var(--navy, #0f172a)",
+                        background: "var(--hero-bg)",
                         padding: "7rem 1.5rem 5rem",
                         textAlign: "center",
                         position: "relative",
@@ -124,7 +124,7 @@ export default function ServicesPage() {
                             style={{
                                 fontSize: "clamp(2.5rem, 6vw, 4rem)",
                                 fontWeight: 900,
-                                color: "#fff",
+                                color: "var(--hero-text)",
                                 lineHeight: 1.1,
                                 marginBottom: "1.5rem",
                             }}
@@ -146,7 +146,7 @@ export default function ServicesPage() {
                                     fontSize: "1rem",
                                     borderRadius: "var(--btn-radius)",
                                     border: "2px solid rgba(255,255,255,0.3)",
-                                    color: "#fff",
+                                    color: "var(--hero-text)",
                                     textDecoration: "none",
                                     fontWeight: 700,
                                     transition: "all 0.2s",
@@ -229,13 +229,13 @@ export default function ServicesPage() {
                 {/* CTA */}
                 <section
                     style={{
-                        background: "var(--navy, #0f172a)",
+                        background: "var(--hero-bg)",
                         padding: "5rem 1.5rem",
                         textAlign: "center",
                     }}
                 >
                     <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                        <h2 style={{ fontSize: "2.5rem", fontWeight: 900, color: "#fff", marginBottom: "1rem" }}>
+                        <h2 style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
                             Ready to clear the clutter?
                         </h2>
                         <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.15rem", marginBottom: "2.5rem" }}>
@@ -251,7 +251,7 @@ export default function ServicesPage() {
                                     padding: "1rem 2rem",
                                     borderRadius: "var(--btn-radius)",
                                     border: "2px solid rgba(255,255,255,0.3)",
-                                    color: "#fff",
+                                    color: "var(--hero-text)",
                                     textDecoration: "none",
                                     fontWeight: 700,
                                     fontSize: "1.1rem",

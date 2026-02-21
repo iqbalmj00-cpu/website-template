@@ -254,7 +254,7 @@ export default function Navbar() {
                                                     </div>
                                                 ))}
                                                 <Link href="/services" onClick={() => { setMobileOpen(false); setActiveDropdown(null); }}
-                                                    style={{ display: "block", padding: "0.5rem", color: "#fff", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none" }}
+                                                    style={{ display: "block", padding: "0.5rem", color: "var(--hero-text)", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none" }}
                                                 >View All Services →</Link>
                                             </>
                                         ) : (

@@ -28,9 +28,9 @@ export default function ItemsWeTakePage() {
             <Navbar />
             <main>
                 {/* Hero */}
-                <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 4rem", textAlign: "center" }}>
+                <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 4rem", textAlign: "center" }}>
                     <div style={{ maxWidth: 800, margin: "0 auto" }}>
-                        <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 3.5rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1rem" }}>
+                        <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1rem" }}>
                             Items We <span style={{ color: "var(--brand)" }}>Take</span>
                         </h1>
                         <p style={{ fontSize: "1.1rem", color: "rgba(255,255,255,0.65)", maxWidth: 550, margin: "0 auto" }}>
@@ -74,7 +74,7 @@ export default function ItemsWeTakePage() {
                 {/* CTA */}
                 <section style={{ background: "var(--brand)", padding: "4rem 1.5rem", textAlign: "center" }}>
                     <div style={{ maxWidth: 600, margin: "0 auto" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "#fff", marginBottom: "1rem" }}>Ready to Haul It Away?</h2>
+                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Ready to Haul It Away?</h2>
                         <Link href="/book" style={{ display: "inline-block", padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📅 Book Your Pickup</Link>
                     </div>
                 </section>

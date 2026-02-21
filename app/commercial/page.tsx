@@ -16,13 +16,13 @@ export default function CommercialPage() {
         <>
             <Navbar />
             <main>
-                <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
+                <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: siteConfig.commercialImageUrl ? "1fr 1fr" : "1fr", gap: "2rem", alignItems: "center" }}>
                         <div style={{ textAlign: siteConfig.commercialImageUrl ? "left" : "center", maxWidth: siteConfig.commercialImageUrl ? undefined : 800, margin: siteConfig.commercialImageUrl ? undefined : "0 auto" }}>
                             <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "2rem" }}>
                                 🏢 Business Solutions
                             </span>
-                            <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 3.5rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.5rem" }}>
+                            <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                                 Commercial <span style={{ color: "var(--brand)" }}>Junk Removal</span>
                             </h1>
                             <p style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.65)", maxWidth: 600 }}>
@@ -88,13 +88,13 @@ export default function CommercialPage() {
                 {/* CTA */}
                 <section style={{ background: "var(--brand)", padding: "4rem 1.5rem", textAlign: "center" }}>
                     <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "#fff", marginBottom: "1rem" }}>Get a Commercial Quote</h2>
+                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Get a Commercial Quote</h2>
                         <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "1.1rem", marginBottom: "2rem" }}>
                             Serving businesses across {city}{state ? `, ${state}` : ""}. Contact us for volume pricing.
                         </p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                             <Link href="/contact" style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📧 Request a Quote</Link>
-                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
+                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {phoneNumber}</a>
                         </div>
                     </div>
                 </section>

@@ -164,7 +164,7 @@ export default function HomePage() {
                     {trustItems.map(({ icon: Icon, label }) => (
                         <div key={label} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                             <Icon size={18} color="#fff" />
-                            <span style={{ color: "#fff", fontWeight: 600, fontSize: "0.925rem" }}>{label}</span>
+                            <span style={{ color: "var(--hero-text)", fontWeight: 600, fontSize: "0.925rem" }}>{label}</span>
                         </div>
                     ))}
                 </div>
@@ -247,7 +247,7 @@ export default function HomePage() {
                                         height: 60,
                                         borderRadius: "50%",
                                         background: "var(--brand)",
-                                        color: "#fff",
+                                        color: "var(--hero-text)",
                                         display: "flex",
                                         alignItems: "center",
                                         justifyContent: "center",

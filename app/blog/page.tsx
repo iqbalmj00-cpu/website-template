@@ -16,9 +16,9 @@ export default function BlogPage() {
         <>
             <Navbar />
             <main>
-                <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 4rem", textAlign: "center" }}>
+                <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 4rem", textAlign: "center" }}>
                     <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                        <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: "#fff", marginBottom: "1rem" }}>
+                        <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
                             The {companyName} <span style={{ color: "var(--brand)" }}>Blog</span>
                         </h1>
                         <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem" }}>

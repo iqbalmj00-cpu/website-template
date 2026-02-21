@@ -23,7 +23,7 @@ export default function LocationsPage() {
                 {/* Hero */}
                 <section
                     style={{
-                        background: "var(--navy, #0f172a)",
+                        background: "var(--hero-bg)",
                         padding: "7rem 1.5rem 5rem",
                         textAlign: "center",
                     }}
@@ -48,7 +48,7 @@ export default function LocationsPage() {
                         >
                             📍 Serving {serviceArea || city}
                         </span>
-                        <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.5rem" }}>
+                        <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                             Service <span style={{ color: "var(--brand)" }}>Locations</span>
                         </h1>
                         <p style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.65)", maxWidth: 600, margin: "0 auto" }}>
@@ -158,9 +158,9 @@ export default function LocationsPage() {
                 </section>
 
                 {/* CTA */}
-                <section style={{ background: "var(--navy, #0f172a)", padding: "5rem 1.5rem", textAlign: "center" }}>
+                <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem", textAlign: "center" }}>
                     <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "#fff", marginBottom: "1rem" }}>
+                        <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
                             Don&apos;t See Your Exact Neighborhood?
                         </h2>
                         <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem", marginBottom: "2rem" }}>
@@ -170,7 +170,7 @@ export default function LocationsPage() {
                             <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
                                 🚛 Book Your Pickup
                             </Link>
-                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
+                            <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
                                 📞 {phoneNumber}
                             </a>
                         </div>

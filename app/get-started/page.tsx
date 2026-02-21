@@ -58,10 +58,10 @@ export default function GetStartedPage() {
         <>
             <Navbar />
             <main>
-                <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 5rem" }}>
+                <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem" }}>
                     <div style={{ maxWidth: 1000, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
                         <div>
-                            <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: "1.5rem" }}>
+                            <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                                 Get Your <span style={{ color: "var(--brand)" }}>Free Quote</span> in Minutes
                             </h1>
                             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem", lineHeight: 1.7, marginBottom: "2rem" }}>
@@ -76,7 +76,7 @@ export default function GetStartedPage() {
                             </div>
                             <div style={{ marginTop: "2rem", display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--hero-muted)" }}>
                                 <Phone size={16} style={{ color: "var(--brand)" }} />
-                                <span>Or call us: <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`} style={{ color: "#fff", fontWeight: 600, textDecoration: "none" }}>{siteConfig.phoneNumber}</a></span>
+                                <span>Or call us: <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`} style={{ color: "var(--hero-text)", fontWeight: 600, textDecoration: "none" }}>{siteConfig.phoneNumber}</a></span>
                             </div>
                         </div>
 

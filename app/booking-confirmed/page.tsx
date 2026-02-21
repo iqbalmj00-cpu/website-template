@@ -17,7 +17,7 @@ function ConfirmationContent() {
 
     return (
         <main>
-            <section style={{ background: "var(--navy, #0f172a)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 600, margin: "0 auto" }}>
                     <div style={{
                         width: 80, height: 80, borderRadius: "50%",
@@ -27,7 +27,7 @@ function ConfirmationContent() {
                     }}>
                         <CheckCircle size={40} color="#22c55e" />
                     </div>
-                    <h1 style={{ fontSize: "2.5rem", fontWeight: 900, color: "#fff", marginBottom: "0.75rem" }}>
+                    <h1 style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "0.75rem" }}>
                         Booking <span style={{ color: "var(--brand)" }}>Confirmed!</span>
                     </h1>
                     <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem" }}>

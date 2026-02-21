@@ -324,7 +324,7 @@ export default function BookingWizard() {
                                 <div key={cat.id} className="card" onClick={() => toggleCategory(cat.id)}
                                     style={{ textAlign: "center", cursor: "pointer", position: "relative", background: selectedCategories.includes(cat.id) ? "#FFF7ED" : "#fff", borderColor: selectedCategories.includes(cat.id) ? "var(--brand)" : undefined }}>
                                     {selectedCategories.includes(cat.id) && (
-                                        <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                        <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%", background: "var(--brand)", color: "var(--hero-text)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                             <Check size={14} />
                                         </div>
                                     )}
@@ -371,7 +371,7 @@ export default function BookingWizard() {
                                                         <div style={{ display: "flex", alignItems: "center", gap: 8 }} onClick={e => e.stopPropagation()}>
                                                             <button onClick={() => updateQty(catId, item.id, -1)} style={{ width: 30, height: 30, borderRadius: "50%", border: "2px solid var(--brand)", background: "none", color: "var(--brand)", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
                                                             <span style={{ fontWeight: 700, fontSize: 16, color: "var(--brand)", minWidth: 20, textAlign: "center" }}>{qty}</span>
-                                                            <button onClick={() => updateQty(catId, item.id, 1)} style={{ width: 30, height: 30, borderRadius: "50%", border: "none", background: "var(--brand)", color: "#fff", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                                                            <button onClick={() => updateQty(catId, item.id, 1)} style={{ width: 30, height: 30, borderRadius: "50%", border: "none", background: "var(--brand)", color: "var(--hero-text)", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
                                                         </div>
                                                     ) : (
                                                         <span style={{ padding: "4px 16px", borderRadius: 20, border: "1.5px solid #E2E8F0", fontSize: 12, fontWeight: 600, color: "#64748B" }}>Add</span>
@@ -434,7 +434,7 @@ export default function BookingWizard() {
                                 <div key={loc.id} className="card" onClick={() => setLocation(loc.id)}
                                     style={{ textAlign: "center", cursor: "pointer", position: "relative", background: location === loc.id ? "#FFF7ED" : "#fff", borderColor: location === loc.id ? "var(--brand)" : undefined }}>
                                     {location === loc.id && (
-                                        <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                        <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%", background: "var(--brand)", color: "var(--hero-text)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                             <Check size={14} />
                                         </div>
                                     )}
@@ -500,7 +500,7 @@ export default function BookingWizard() {
                                 <div style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, position: "relative", zIndex: 1 }}>
                                     Estimated Price Range
                                 </div>
-                                <div style={{ fontFamily: "var(--heading-font)", fontSize: 44, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
+                                <div style={{ fontFamily: "var(--heading-font)", fontSize: 44, fontWeight: 800, color: "var(--hero-text)", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
                                     ${volData ? volData.price[0] + priceAdj : "—"} – ${volData ? volData.price[1] + priceAdj : "—"}
                                 </div>
                                 {priceAdj > 0 && <div style={{ fontSize: 12, color: "#FBBF24", marginTop: 6, position: "relative", zIndex: 1 }}>Includes +${priceAdj} stairs surcharge</div>}
