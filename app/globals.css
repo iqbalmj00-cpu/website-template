@@ -74,12 +74,6 @@
   --btn-tracking: 0.1em;
 }
 
-/* Industrial brand color override (neon yellow) */
-[data-theme="industrial"] {
-  --brand: #E8FF00;
-  --brand-dark: #C4D900;
-}
-
 /* ── ECO — Light green, organic ────────────────────────────────────────── */
 [data-theme="eco"] {
   --navy: #1A2E1A;
@@ -109,11 +103,6 @@
   --btn-tracking: 0.02em;
 }
 
-[data-theme="eco"] {
-  --brand: #2D7A4F;
-  --brand-dark: #1F5C3A;
-}
-
 /* ── EDITORIAL — Warm, elegant, serif ──────────────────────────────────── */
 [data-theme="editorial"] {
   --navy: #1C1C1C;
@@ -141,11 +130,6 @@
   --heading-transform: none;
   --btn-transform: none;
   --btn-tracking: 0.02em;
-}
-
-[data-theme="editorial"] {
-  --brand: #C45028;
-  --brand-dark: #A3401F;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
