@@ -21,7 +21,7 @@ export default function BlogPage() {
                         <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
                             The {companyName} <span style={{ color: "var(--brand)" }}>Blog</span>
                         </h1>
-                        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem" }}>
+                        <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem" }}>
                             Tips, guides, and junk removal insights from your {city} experts.
                         </p>
                     </div>

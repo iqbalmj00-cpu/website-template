@@ -50,8 +50,8 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                     gap: "0.5rem",
                                     padding: "0.4rem 1rem",
                                     borderRadius: "var(--btn-radius)",
-                                    background: "rgba(255,255,255,0.08)",
-                                    border: "1px solid rgba(255,255,255,0.15)",
+                                    background: "var(--hero-badge-bg)",
+                                    border: "1px solid var(--hero-badge-border)",
                                     color: "var(--brand)",
                                     fontSize: "0.8rem",
                                     fontWeight: 700,
@@ -76,7 +76,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                 {svc.title.split(" ").slice(0, -1).join(" ")}{" "}
                                 <span style={{ color: "var(--brand)" }}>{svc.title.split(" ").pop()}</span>
                             </h1>
-                            <p style={{ fontSize: "1.15rem", color: "rgba(255,255,255,0.65)", maxWidth: 600, marginBottom: "2rem", lineHeight: 1.6 }}>
+                            <p style={{ fontSize: "1.15rem", color: "var(--hero-muted)", maxWidth: 600, marginBottom: "2rem", lineHeight: 1.6 }}>
                                 {svc.heroSubtitle}
                             </p>
                             <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
@@ -88,7 +88,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                     style={{
                                         padding: "1rem 2rem",
                                         borderRadius: "var(--btn-radius)",
-                                        border: "2px solid rgba(255,255,255,0.3)",
+                                        border: "2px solid var(--hero-border)",
                                         color: "var(--hero-text)",
                                         textDecoration: "none",
                                         fontWeight: 700,
@@ -103,7 +103,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                             </div>
                             <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
                                 {["Upfront Pricing", "Fully Insured", "Eco-Friendly"].map((t) => (
-                                    <span key={t} style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                                    <span key={t} style={{ color: "var(--hero-muted)", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
                                         <span style={{ color: "var(--brand)" }}>✓</span> {t}
                                     </span>
                                 ))}
@@ -279,7 +279,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                         <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
                             Ready to Reclaim Your Space?
                         </h2>
-                        <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "1.05rem", marginBottom: "2rem" }}>
+                        <p style={{ color: "var(--hero-text)", fontSize: "1.05rem", marginBottom: "2rem" }}>
                             Get a free estimate today. Same-day service available in {city}{state ? `, ${state}` : ""}.
                         </p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>

@@ -36,8 +36,8 @@ export default function LocationsPage() {
                                 gap: "0.5rem",
                                 padding: "0.4rem 1rem",
                                 borderRadius: "var(--btn-radius)",
-                                background: "rgba(255,255,255,0.08)",
-                                border: "1px solid rgba(255,255,255,0.15)",
+                                background: "var(--hero-badge-bg)",
+                                border: "1px solid var(--hero-badge-border)",
                                 color: "var(--brand)",
                                 fontSize: "0.8rem",
                                 fontWeight: 700,
@@ -51,7 +51,7 @@ export default function LocationsPage() {
                         <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                             Service <span style={{ color: "var(--brand)" }}>Locations</span>
                         </h1>
-                        <p style={{ fontSize: "1.2rem", color: "rgba(255,255,255,0.65)", maxWidth: 600, margin: "0 auto" }}>
+                        <p style={{ fontSize: "1.2rem", color: "var(--hero-muted)", maxWidth: 600, margin: "0 auto" }}>
                             We proudly serve {city}{state ? `, ${state}` : ""} and surrounding communities. Find your neighborhood and book today.
                         </p>
                     </div>
@@ -163,7 +163,7 @@ export default function LocationsPage() {
                         <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
                             Don&apos;t See Your Exact Neighborhood?
                         </h2>
-                        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem", marginBottom: "2rem" }}>
+                        <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", marginBottom: "2rem" }}>
                             We cover more areas than we can list. Give us a call and chances are we're already serving your community.
                         </p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>

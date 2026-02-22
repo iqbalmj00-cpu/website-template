@@ -108,8 +108,8 @@ export default function ServicesPage() {
                                 gap: "0.5rem",
                                 padding: "0.4rem 1rem",
                                 borderRadius: "var(--btn-radius)",
-                                background: "rgba(255,255,255,0.08)",
-                                border: "1px solid rgba(255,255,255,0.15)",
+                                background: "var(--hero-badge-bg)",
+                                border: "1px solid var(--hero-badge-border)",
                                 color: "var(--brand)",
                                 fontSize: "0.8rem",
                                 fontWeight: 700,
@@ -132,7 +132,7 @@ export default function ServicesPage() {
                             OUR PROFESSIONAL{" "}
                             <span style={{ color: "var(--brand)" }}>SERVICES</span>
                         </h1>
-                        <p style={{ fontSize: "1.25rem", color: "rgba(255,255,255,0.65)", maxWidth: 600, margin: "0 auto 2.5rem" }}>
+                        <p style={{ fontSize: "1.25rem", color: "var(--hero-muted)", maxWidth: 600, margin: "0 auto 2.5rem" }}>
                             {companyName} provides efficient, reliable junk removal for homes, construction sites, and businesses.
                         </p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
@@ -145,7 +145,7 @@ export default function ServicesPage() {
                                     padding: "1rem 2rem",
                                     fontSize: "1rem",
                                     borderRadius: "var(--btn-radius)",
-                                    border: "2px solid rgba(255,255,255,0.3)",
+                                    border: "2px solid var(--hero-border)",
                                     color: "var(--hero-text)",
                                     textDecoration: "none",
                                     fontWeight: 700,
@@ -238,7 +238,7 @@ export default function ServicesPage() {
                         <h2 style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
                             Ready to clear the clutter?
                         </h2>
-                        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.15rem", marginBottom: "2.5rem" }}>
+                        <p style={{ color: "var(--hero-muted)", fontSize: "1.15rem", marginBottom: "2.5rem" }}>
                             Book your free estimate today. Same-day service available.
                         </p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
@@ -250,7 +250,7 @@ export default function ServicesPage() {
                                 style={{
                                     padding: "1rem 2rem",
                                     borderRadius: "var(--btn-radius)",
-                                    border: "2px solid rgba(255,255,255,0.3)",
+                                    border: "2px solid var(--hero-border)",
                                     color: "var(--hero-text)",
                                     textDecoration: "none",
                                     fontWeight: 700,

@@ -126,7 +126,7 @@ export default function HomePage() {
                                     display: "flex",
                                     alignItems: "center",
                                     gap: "0.5rem",
-                                    color: "#e2e8f0",
+                                    color: "var(--hero-text)",
                                     textDecoration: "none",
                                     fontWeight: 500,
                                     fontSize: "1rem",
@@ -363,7 +363,7 @@ export default function HomePage() {
                         <a
                             href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
                             className="btn-secondary"
-                            style={{ fontSize: "1rem", borderColor: "rgba(255,255,255,0.3)", color: "#e2e8f0" }}
+                            style={{ fontSize: "1rem", borderColor: "var(--hero-border)", color: "var(--hero-text)" }}
                         >
                             <Phone size={16} /> {siteConfig.phoneNumber}
                         </a>

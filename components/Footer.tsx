@@ -23,7 +23,7 @@ export default function Footer() {
     ];
 
     return (
-        <footer style={{ background: "var(--footer-bg)", color: "#e2e8f0" }}>
+        <footer style={{ background: "var(--footer-bg)", color: "var(--footer-text)" }}>
             <div
                 style={{
                     maxWidth: 1200,
@@ -54,7 +54,7 @@ export default function Footer() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                         <a
                             href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
-                            style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#e2e8f0", textDecoration: "none", fontSize: "0.9rem" }}
+                            style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--footer-text)", textDecoration: "none", fontSize: "0.9rem" }}
                         >
                             <Phone size={14} style={{ color: "var(--brand)" }} />
                             {siteConfig.phoneNumber}
@@ -77,7 +77,7 @@ export default function Footer() {
                             return (
                                 <li key={s}>
                                     <Link href={`/services/${slug}`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.15s" }}
-                                        onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#e2e8f0")}
+                                        onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "var(--footer-text)")}
                                         onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#94a3b8")}
                                     >
                                         {s}
@@ -97,7 +97,7 @@ export default function Footer() {
                         {quickLinks.map((l) => (
                             <li key={l.href}>
                                 <Link href={l.href} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem" }}
-                                    onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#e2e8f0")}
+                                    onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "var(--footer-text)")}
                                     onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#94a3b8")}
                                 >
                                     {l.label}
@@ -136,7 +136,7 @@ export default function Footer() {
             {/* Bottom bar */}
             <div
                 style={{
-                    borderTop: "1px solid rgba(255,255,255,0.08)",
+                    borderTop: "1px solid var(--border)",
                     maxWidth: 1200,
                     margin: "0 auto",
                     padding: "1.25rem 1.5rem",

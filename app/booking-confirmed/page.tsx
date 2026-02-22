@@ -30,7 +30,7 @@ function ConfirmationContent() {
                     <h1 style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "0.75rem" }}>
                         Booking <span style={{ color: "var(--brand)" }}>Confirmed!</span>
                     </h1>
-                    <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem" }}>
+                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem" }}>
                         Thanks, {name}! Your junk removal has been scheduled.
                     </p>
                 </div>

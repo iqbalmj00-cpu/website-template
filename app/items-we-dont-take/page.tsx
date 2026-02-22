@@ -33,7 +33,7 @@ export default function ItemsWeDontTakePage() {
                         <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1rem" }}>
                             Items We <span style={{ color: "#ef4444" }}>Don&apos;t</span> Take
                         </h1>
-                        <p style={{ fontSize: "1.1rem", color: "rgba(255,255,255,0.65)", maxWidth: 550, margin: "0 auto" }}>
+                        <p style={{ fontSize: "1.1rem", color: "var(--hero-muted)", maxWidth: 550, margin: "0 auto" }}>
                             For safety and legal reasons, we cannot transport these materials.
                         </p>
                     </div>

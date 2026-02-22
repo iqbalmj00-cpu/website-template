@@ -23,6 +23,9 @@
   --hero-bg: #0a192f;
   --hero-text: #f8fafc;
   --hero-muted: rgba(255, 255, 255, 0.6);
+  --hero-border: rgba(255, 255, 255, 0.3);
+  --hero-badge-bg: rgba(255, 255, 255, 0.08);
+  --hero-badge-border: rgba(255, 255, 255, 0.15);
 
   /* Navigation */
   --nav-bg: #0a192f;
@@ -30,6 +33,8 @@
 
   /* Footer */
   --footer-bg: #0a192f;
+  --footer-text: #e2e8f0;
+  --footer-muted: #94a3b8;
 
   /* Shapes */
   --radius: 1rem;
@@ -57,10 +62,15 @@
   --hero-bg: #0D0D0D;
   --hero-text: #FFFFFF;
   --hero-muted: rgba(255, 255, 255, 0.5);
+  --hero-border: rgba(255, 255, 255, 0.3);
+  --hero-badge-bg: rgba(255, 255, 255, 0.08);
+  --hero-badge-border: rgba(255, 255, 255, 0.15);
 
   --nav-bg: #0A0A0A;
   --nav-text: #B0B0B0;
   --footer-bg: #000000;
+  --footer-text: #e2e8f0;
+  --footer-muted: #B0B0B0;
 
   --radius: 4px;
   --btn-radius: 0px;
@@ -86,10 +96,15 @@
   --hero-bg: linear-gradient(160deg, #EDF5E8 0%, #D5ECCC 100%);
   --hero-text: #1A2E1A;
   --hero-muted: #4A6B4A;
+  --hero-border: rgba(26, 46, 26, 0.2);
+  --hero-badge-bg: rgba(26, 46, 26, 0.06);
+  --hero-badge-border: rgba(26, 46, 26, 0.15);
 
   --nav-bg: #FFFFFF;
   --nav-text: #4A6B4A;
   --footer-bg: #1A2E1A;
+  --footer-text: #D4E8D0;
+  --footer-muted: #8CAF8C;
 
   --radius: 16px;
   --btn-radius: 50px;
@@ -115,10 +130,15 @@
   --hero-bg: #1C1C1C;
   --hero-text: #FAFAF8;
   --hero-muted: rgba(255, 255, 255, 0.6);
+  --hero-border: rgba(255, 255, 255, 0.3);
+  --hero-badge-bg: rgba(255, 255, 255, 0.08);
+  --hero-badge-border: rgba(255, 255, 255, 0.15);
 
   --nav-bg: #FAFAF8;
   --nav-text: #555555;
   --footer-bg: #1C1C1C;
+  --footer-text: #E8E6E0;
+  --footer-muted: #888888;
 
   --radius: 2px;
   --btn-radius: 2px;

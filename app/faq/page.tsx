@@ -67,7 +67,7 @@ export default function FAQPage() {
                         <Link href="/contact" className="btn-primary" style={{ fontSize: "1rem", padding: "0.875rem 2rem" }}>
                             Contact Us
                         </Link>
-                        <Link href="/book" className="btn-secondary" style={{ fontSize: "1rem", borderColor: "rgba(255,255,255,0.3)", color: "#e2e8f0" }}>
+                        <Link href="/book" className="btn-secondary" style={{ fontSize: "1rem", borderColor: "var(--hero-border)", color: "var(--hero-text)" }}>
                             Book a Pickup <ArrowRight size={16} />
                         </Link>
                     </div>

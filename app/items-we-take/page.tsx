@@ -33,7 +33,7 @@ export default function ItemsWeTakePage() {
                         <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1rem" }}>
                             Items We <span style={{ color: "var(--brand)" }}>Take</span>
                         </h1>
-                        <p style={{ fontSize: "1.1rem", color: "rgba(255,255,255,0.65)", maxWidth: 550, margin: "0 auto" }}>
+                        <p style={{ fontSize: "1.1rem", color: "var(--hero-muted)", maxWidth: 550, margin: "0 auto" }}>
                             If it fits in our truck, we can probably haul it. Here&apos;s a look at what we accept.
                         </p>
                     </div>

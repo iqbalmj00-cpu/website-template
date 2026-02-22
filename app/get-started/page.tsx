@@ -64,12 +64,12 @@ export default function GetStartedPage() {
                             <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                                 Get Your <span style={{ color: "var(--brand)" }}>Free Quote</span> in Minutes
                             </h1>
-                            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem", lineHeight: 1.7, marginBottom: "2rem" }}>
+                            <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7, marginBottom: "2rem" }}>
                                 Tell us a little about yourself and we&apos;ll get you a fast, no-obligation estimate for junk removal in {siteConfig.city}.
                             </p>
                             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                                 {["No obligation — 100% free", "Same-day service available", "Upfront, transparent pricing"].map(t => (
-                                    <div key={t} style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "rgba(255,255,255,0.7)", fontSize: "0.95rem" }}>
+                                    <div key={t} style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--hero-muted)", fontSize: "0.95rem" }}>
                                         <span style={{ color: "var(--brand)", fontWeight: 700 }}>✓</span> {t}
                                     </div>
                                 ))}

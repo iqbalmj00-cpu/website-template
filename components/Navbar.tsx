@@ -124,7 +124,7 @@ export default function Navbar() {
                                         <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(serviceCategories.length, 4)}, 1fr)`, gap: "1.5rem" }}>
                                             {serviceCategories.map(cat => (
                                                 <div key={cat.title}>
-                                                    <p style={{ color: "var(--brand)", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.75rem", paddingBottom: "0.5rem", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+                                                    <p style={{ color: "var(--brand)", fontWeight: 800, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.75rem", paddingBottom: "0.5rem", borderBottom: "1px solid var(--border)" }}>
                                                         {cat.title}
                                                     </p>
                                                     <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
@@ -143,7 +143,7 @@ export default function Navbar() {
                                                 </div>
                                             ))}
                                         </div>
-                                        <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.1)", textAlign: "center" }}>
+                                        <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid var(--border)", textAlign: "center" }}>
                                             <Link href="/services" onClick={() => setActiveDropdown(null)}
                                                 style={{ color: "var(--foreground)", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", textDecoration: "none", letterSpacing: "0.05em" }}
                                                 onMouseEnter={e => (e.currentTarget.style.color = "var(--brand)")}
@@ -219,7 +219,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile hamburger */}
-                <button className="mobile-nav-toggle" onClick={() => setMobileOpen(!mobileOpen)} style={{ background: "none", border: "none", color: "#e2e8f0", cursor: "pointer", padding: 8 }}>
+                <button className="mobile-nav-toggle" onClick={() => setMobileOpen(!mobileOpen)} style={{ background: "none", border: "none", color: "var(--foreground)", cursor: "pointer", padding: 8 }}>
                     {mobileOpen ? <X size={28} /> : <Menu size={28} />}
                 </button>
             </div>

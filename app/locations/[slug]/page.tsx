@@ -35,20 +35,20 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                 <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: siteConfig.locationImages[slug] ? "1fr 1fr" : "1fr", gap: "2rem", alignItems: "center" }}>
                         <div>
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
                                 📍 {location.heroBadge}
                             </span>
                             <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                                 Junk Removal in <span style={{ color: "var(--brand)" }}>{location.name}, {location.state}</span>
                             </h1>
-                            <p style={{ fontSize: "1.15rem", color: "rgba(255,255,255,0.65)", maxWidth: 600, marginBottom: "2rem", lineHeight: 1.6 }}>
+                            <p style={{ fontSize: "1.15rem", color: "var(--hero-muted)", maxWidth: 600, marginBottom: "2rem", lineHeight: 1.6 }}>
                                 {location.heroDescription}
                             </p>
                             <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
                                 <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
                                     🚛 Get A Free Quote
                                 </Link>
-                                <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid rgba(255,255,255,0.3)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
+                                <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--hero-border)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
                                     📞 {phoneNumber}
                                 </a>
                             </div>
@@ -150,7 +150,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                         <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
                             Ready to Clear Out Your Space in <span style={{ color: "var(--brand)" }}>{location.name}</span>?
                         </h2>
-                        <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "1.1rem", marginBottom: "2rem" }}>
+                        <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", marginBottom: "2rem" }}>
                             Book online in 2 minutes or call for an instant estimate.
                         </p>
                         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
