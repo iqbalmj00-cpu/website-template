@@ -76,7 +76,7 @@ export default function HomePage() {
                         pointerEvents: "none",
                     }}
                 />
-                <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", display: "grid", gridTemplateColumns: siteConfig.heroImageUrl ? "1fr 1fr" : "1fr", gap: "3rem", alignItems: "center" }}>
+                <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center" }}>
                     <div style={{ maxWidth: 700 }}>
                         <div
                             style={{
@@ -137,15 +137,13 @@ export default function HomePage() {
                             </a>
                         </div>
                     </div>
-                    {siteConfig.heroImageUrl && (
-                        <div style={{ display: "flex", justifyContent: "center" }}>
-                            <img
-                                src={siteConfig.heroImageUrl}
-                                alt={`${siteConfig.companyName} junk removal in ${siteConfig.city}`}
-                                style={{ width: "100%", maxWidth: 520, borderRadius: 20, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 25px 80px rgba(0,0,0,0.5)" }}
-                            />
-                        </div>
-                    )}
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        <img
+                            src={siteConfig.heroImageUrl || "/images/default-hero.png"}
+                            alt={`${siteConfig.companyName} junk removal in ${siteConfig.city}`}
+                            style={{ width: "100%", maxWidth: 520, borderRadius: 20, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 25px 80px rgba(0,0,0,0.5)" }}
+                        />
+                    </div>
                 </div>
             </section>
 
