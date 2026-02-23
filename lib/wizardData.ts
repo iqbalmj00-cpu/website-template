@@ -3,7 +3,7 @@ export const STEPS = ["Your Info", "Junk Type", "Items", "Volume", "Location", "
 export type JunkCategory = { id: string; label: string; icon: string; desc: string; inputType: "quantity" | "pile" };
 export type JunkItem = { id: string; label: string; weight: "heavy" | "medium" | "light" };
 export type PileSize = { id: string; label: string; desc: string; icon: string };
-export type VolumeOption = { id: string; label: string; fraction: string; desc: string; truckFill: number };
+export type VolumeOption = { id: string; label: string; fraction: string; desc: string; truckFill: number; comparison: string };
 export type LocationOption = { id: string; label: string; icon: string; desc: string };
 export type TimeSlot = { id: string; label: string; period: string };
 
@@ -69,12 +69,12 @@ export const CATEGORY_ITEMS: Record<string, JunkItem[]> = {
 };
 
 export const VOLUME_OPTIONS: VolumeOption[] = [
-    { id: "few", label: "A Few Items", fraction: "1/8", desc: "A few small items — fits in a pickup bed", truckFill: 0.125 },
-    { id: "quarter", label: "Quarter Load", fraction: "1/4", desc: "Small pile — a corner of the truck", truckFill: 0.25 },
-    { id: "half", label: "Half Load", fraction: "1/2", desc: "Medium pile — half the truck bed", truckFill: 0.5 },
-    { id: "three_quarter", label: "3/4 Load", fraction: "3/4", desc: "Large pile — most of the truck", truckFill: 0.75 },
-    { id: "full", label: "Full Load", fraction: "1", desc: "Filling the entire truck", truckFill: 1.0 },
-    { id: "multi", label: "Multiple Loads", fraction: "1+", desc: "More than one full truck load", truckFill: 1.25 },
+    { id: "few", label: "A Few Items", fraction: "1/8", desc: "A few small items — fits in a pickup bed", truckFill: 0.125, comparison: "About half a pickup truck bed" },
+    { id: "quarter", label: "Quarter Load", fraction: "1/4", desc: "Small pile — a corner of the truck", truckFill: 0.25, comparison: "About 1 pickup truck bed" },
+    { id: "half", label: "Half Load", fraction: "1/2", desc: "Medium pile — half the truck bed", truckFill: 0.5, comparison: "About 2 pickup truck beds" },
+    { id: "three_quarter", label: "3/4 Load", fraction: "3/4", desc: "Large pile — most of the truck", truckFill: 0.75, comparison: "About 3 pickup truck beds" },
+    { id: "full", label: "Full Load", fraction: "1", desc: "Filling the entire truck", truckFill: 1.0, comparison: "About 4 pickup truck beds" },
+    { id: "multi", label: "Multiple Loads", fraction: "1+", desc: "More than one full truck load", truckFill: 1.25, comparison: "More than 4 pickup truck beds" },
 ];
 
 export const LOCATION_OPTIONS: LocationOption[] = [

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ChevronLeft, ArrowRight } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
@@ -132,6 +132,50 @@ export default function BookingWizard() {
         (s, c) => s + Object.values(c).reduce((a, q) => a + q, 0), 0
     );
     const totalPiles = Object.keys(pileSizes).length;
+
+    /* ── Auto-estimate volume from items & piles ──────────────────── */
+    const ITEM_FILL: Record<string, number> = { heavy: 0.08, medium: 0.05, light: 0.02 };
+    const PILE_FILL: Record<string, number> = { small: 0.06, medium: 0.15, large: 0.25, xl: 0.35 };
+
+    const estimatedFill = useMemo(() => {
+        let fill = 0;
+        // Sum item contributions
+        for (const catId of selectedCategories) {
+            const cat = JUNK_CATEGORIES.find(c => c.id === catId);
+            if (cat?.inputType === "quantity") {
+                const items = CATEGORY_ITEMS[catId] || [];
+                const catItems = selectedItems[catId] || {};
+                for (const [itemId, qty] of Object.entries(catItems)) {
+                    const item = items.find(i => i.id === itemId);
+                    fill += (ITEM_FILL[item?.weight || "medium"] || 0.05) * qty;
+                }
+            } else if (cat?.inputType === "pile" && pileSizes[catId]) {
+                fill += PILE_FILL[pileSizes[catId]] || 0.1;
+            }
+        }
+        return fill;
+    }, [selectedCategories, selectedItems, pileSizes]);
+
+    const estimatedVolumeId = useMemo(() => {
+        if (estimatedFill <= 0) return null;
+        // Find the closest volume tier
+        let best = VOLUME_OPTIONS[0];
+        for (const v of VOLUME_OPTIONS) {
+            if (Math.abs(v.truckFill - estimatedFill) < Math.abs(best.truckFill - estimatedFill)) {
+                best = v;
+            }
+        }
+        return best.id;
+    }, [estimatedFill]);
+
+    // Auto-select volume when entering step 3 if user hasn't manually chosen
+    const [volumeAutoSet, setVolumeAutoSet] = useState(false);
+    useEffect(() => {
+        if (step === 3 && !volumeAutoSet && estimatedVolumeId && volume === null) {
+            setVolume(estimatedVolumeId);
+            setVolumeAutoSet(true);
+        }
+    }, [step, estimatedVolumeId, volume, volumeAutoSet]);
 
     /* ── Pricing from config ─────────────────────────────────────── */
     const pricing = siteConfig.pricing;
@@ -510,23 +554,42 @@ export default function BookingWizard() {
                             <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>How much space will it take?</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Estimate how much of our {pricing.truckSize} truck your junk will fill.</p>
                         </div>
-                        <div style={{ textAlign: "center", marginBottom: 28 }}>
+
+                        {/* Recommendation banner */}
+                        {estimatedVolumeId && (
+                            <div style={{ padding: "12px 18px", borderRadius: 12, background: "#F0FDF4", border: "1px solid #BBF7D0", textAlign: "center", marginBottom: 20 }}>
+                                <span style={{ fontSize: 14, fontWeight: 600, color: "#16A34A" }}>📊 Based on your items, we estimate about a <strong>{VOLUME_OPTIONS.find(v => v.id === estimatedVolumeId)?.label}</strong></span>
+                            </div>
+                        )}
+
+                        <div style={{ textAlign: "center", marginBottom: 10 }}>
                             <TruckVisual fillPercent={VOLUME_OPTIONS.find(v => v.id === volume)?.truckFill ?? 0} />
                         </div>
+                        {/* Comparison caption under truck */}
+                        {volume && (
+                            <p style={{ textAlign: "center", fontSize: 14, fontWeight: 600, color: "var(--muted)", marginBottom: 24 }}>
+                                🛻 {VOLUME_OPTIONS.find(v => v.id === volume)?.comparison}
+                            </p>
+                        )}
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
                             {VOLUME_OPTIONS.map(v => {
                                 const tier = pricing.tiers.find(t => t.id === v.id);
+                                const isRecommended = v.id === estimatedVolumeId;
                                 return (
-                                    <div key={v.id} onClick={() => setVolume(v.id)}
+                                    <div key={v.id} onClick={() => { setVolume(v.id); setVolumeAutoSet(true); }}
                                         style={{
                                             background: volume === v.id ? "#FFF7ED" : "var(--card)", border: `2px solid ${volume === v.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`,
                                             borderRadius: 14, padding: "16px 18px", textAlign: "left", cursor: "pointer", transition: "all 0.2s",
+                                            position: "relative",
                                         }}>
+                                        {isRecommended && (
+                                            <span style={{ position: "absolute", top: -10, right: 12, background: "#16A34A", color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>Recommended</span>
+                                        )}
                                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
                                             <span style={{ fontWeight: 700, fontSize: 15, color: "var(--foreground)" }}>{v.label}</span>
                                             <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 20, background: volume === v.id ? "#FFEDD5" : "var(--border, #F1F5F9)", color: volume === v.id ? "var(--brand)" : "var(--muted)" }}>{v.fraction}</span>
                                         </div>
-                                        <div style={{ fontSize: 12, color: "var(--muted)" }}>{v.desc}</div>
+                                        <div style={{ fontSize: 12, color: "var(--muted)" }}>🛻 {v.comparison}</div>
                                         {tier && (
                                             <div style={{ fontSize: 14, fontWeight: 700, color: "var(--brand)", marginTop: 8 }}>${tier.min} – ${tier.max}</div>
                                         )}
