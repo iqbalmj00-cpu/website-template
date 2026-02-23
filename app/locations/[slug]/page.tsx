@@ -33,7 +33,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
             <main>
                 {/* Hero */}
                 <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
-                    <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: siteConfig.locationImages[slug] ? "1fr 1fr" : "1fr", gap: "2rem", alignItems: "center" }}>
+                    <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "center" }}>
                         <div>
                             <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
                                 📍 {location.heroBadge}
@@ -53,15 +53,19 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                                 </a>
                             </div>
                         </div>
-                        {siteConfig.locationImages[slug] && (
-                            <div style={{ display: "flex", justifyContent: "center" }}>
-                                <img
-                                    src={siteConfig.locationImages[slug]}
-                                    alt={`Junk removal in ${location.name}, ${location.state}`}
-                                    style={{ width: "100%", maxWidth: 500, borderRadius: 16, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}
-                                />
-                            </div>
-                        )}
+                        <div style={{ display: "flex", justifyContent: "center" }}>
+                            <img
+                                src={siteConfig.locationImages[slug] || `/images/generated/locations/${slug}.png`}
+                                alt={`Junk removal in ${location.name}, ${location.state}`}
+                                onError={(e) => {
+                                    const el = e.target as HTMLImageElement;
+                                    el.style.display = "none";
+                                    const parent = el.closest("div[style]") as HTMLElement;
+                                    if (parent?.parentElement) parent.parentElement.style.gridTemplateColumns = "1fr";
+                                }}
+                                style={{ width: "100%", maxWidth: 500, borderRadius: 16, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}
+                            />
+                        </div>
                     </div>
                 </section>
 

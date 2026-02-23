@@ -41,7 +41,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                         overflow: "hidden",
                     }}
                 >
-                    <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: siteConfig.serviceImages[slug] ? "1fr 1fr" : "1fr", gap: "2rem", alignItems: "center" }}>
+                    <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "center" }}>
                         <div>
                             <span
                                 style={{
@@ -109,15 +109,19 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                 ))}
                             </div>
                         </div>
-                        {siteConfig.serviceImages[slug] && (
-                            <div style={{ display: "flex", justifyContent: "center" }}>
-                                <img
-                                    src={siteConfig.serviceImages[slug]}
-                                    alt={`${svc.title} in ${city}`}
-                                    style={{ width: "100%", maxWidth: 500, borderRadius: 16, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}
-                                />
-                            </div>
-                        )}
+                        <div style={{ display: "flex", justifyContent: "center" }}>
+                            <img
+                                src={siteConfig.serviceImages[slug] || `/images/generated/services/${slug}.png`}
+                                alt={`${svc.title} in ${city}`}
+                                onError={(e) => {
+                                    const el = e.target as HTMLImageElement;
+                                    el.style.display = "none";
+                                    const parent = el.closest("div[style]") as HTMLElement;
+                                    if (parent?.parentElement) parent.parentElement.style.gridTemplateColumns = "1fr";
+                                }}
+                                style={{ width: "100%", maxWidth: 500, borderRadius: 16, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}
+                            />
+                        </div>
                     </div>
                 </section>
 

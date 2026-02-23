@@ -139,8 +139,9 @@ export default function HomePage() {
                     </div>
                     <div style={{ display: "flex", justifyContent: "center" }}>
                         <img
-                            src={siteConfig.heroImageUrl || "/images/default-hero.png"}
+                            src={siteConfig.heroImageUrl || "/images/generated/hero.png"}
                             alt={`${siteConfig.companyName} junk removal in ${siteConfig.city}`}
+                            onError={(e) => { (e.target as HTMLImageElement).src = "/images/default-hero.png"; }}
                             style={{ width: "100%", maxWidth: 520, borderRadius: 20, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 25px 80px rgba(0,0,0,0.5)" }}
                         />
                     </div>
@@ -186,7 +187,7 @@ export default function HomePage() {
                     >
                         {siteConfig.services.map((service) => {
                             const slug = service.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-                            const imageUrl = siteConfig.serviceImages[slug];
+                            const imageUrl = siteConfig.serviceImages[slug] || `/images/generated/services/${slug}.png`;
                             return (
                                 <Link
                                     key={service}
@@ -196,7 +197,19 @@ export default function HomePage() {
                                 >
                                     {imageUrl ? (
                                         <>
-                                            <img src={imageUrl} alt={service} style={{ width: "100%", height: 120, objectFit: "cover" }} />
+                                            <img
+                                                src={imageUrl}
+                                                alt={service}
+                                                style={{ width: "100%", height: 120, objectFit: "cover" }}
+                                                onError={(e) => {
+                                                    const img = e.target as HTMLImageElement;
+                                                    const card = img.closest(".card") as HTMLElement;
+                                                    if (card) { card.style.padding = "1.5rem 1rem"; }
+                                                    img.style.display = "none";
+                                                    const next = img.nextElementSibling as HTMLElement;
+                                                    if (next) next.style.padding = "0";
+                                                }}
+                                            />
                                             <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", padding: "0.75rem 0.5rem" }}>
                                                 {service}
                                             </p>
