@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Leaf, Shield, Users, Truck } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
+import SafeImage from "@/components/SafeImage";
 
 export const metadata: Metadata = {
     title: `About Us | ${siteConfig.companyName}`,
@@ -43,10 +44,9 @@ export default function AboutPage() {
                         and only what's left goes to the landfill.
                     </p>
                     <div style={{ marginTop: "2rem" }}>
-                        <img
+                        <SafeImage
                             src={siteConfig.aboutImageUrl || "/images/generated/about.png"}
                             alt={`${siteConfig.companyName} team`}
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                             style={{ width: "100%", borderRadius: 16, objectFit: "cover", maxHeight: 400 }}
                         />
                     </div>
