@@ -81,7 +81,7 @@ export default function Navbar() {
             <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 80 }}>
 
                 {/* Logo */}
-                <Link href="/" style={{ fontFamily: "var(--heading-font)", fontWeight: 900, fontSize: "1.4rem", color: "var(--foreground)", textDecoration: "none", letterSpacing: "-0.04em", flexShrink: 0 }}>
+                <Link href="/" style={{ fontFamily: "var(--heading-font)", fontWeight: 900, fontSize: "1.4rem", color: "var(--nav-hover)", textDecoration: "none", letterSpacing: "-0.04em", flexShrink: 0 }}>
                     {siteConfig.logoUrl ? (
                         <img src={siteConfig.logoUrl} alt={siteConfig.companyName} style={{ height: 40, objectFit: "contain" }} />
                     ) : (
@@ -101,11 +101,11 @@ export default function Navbar() {
                                         display: "flex", alignItems: "center", gap: "0.25rem",
                                         padding: "0.5rem 0.75rem",
                                         fontSize: "0.95rem", fontWeight: 700,
-                                        color: isActive(link.href) ? "var(--foreground)" : "var(--nav-text)",
+                                        color: isActive(link.href) ? "var(--nav-hover)" : "var(--nav-text)",
                                         borderBottom: isActive(link.href) ? "3px solid var(--brand)" : "3px solid transparent",
                                         transition: "color 0.15s",
                                     }}
-                                    onMouseEnter={e => (e.currentTarget.style.color = "var(--foreground)")}
+                                    onMouseEnter={e => (e.currentTarget.style.color = "var(--nav-hover)")}
                                     onMouseLeave={e => { if (!isActive(link.href)) e.currentTarget.style.color = "var(--nav-text)"; }}
                                 >
                                     {link.name}
@@ -145,9 +145,9 @@ export default function Navbar() {
                                         </div>
                                         <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid var(--border)", textAlign: "center" }}>
                                             <Link href="/services" onClick={() => setActiveDropdown(null)}
-                                                style={{ color: "var(--foreground)", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", textDecoration: "none", letterSpacing: "0.05em" }}
+                                                style={{ color: "var(--nav-hover)", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", textDecoration: "none", letterSpacing: "0.05em" }}
                                                 onMouseEnter={e => (e.currentTarget.style.color = "var(--brand)")}
-                                                onMouseLeave={e => (e.currentTarget.style.color = "var(--foreground)")}
+                                                onMouseLeave={e => (e.currentTarget.style.color = "var(--nav-hover)")}
                                             >
                                                 View All Services →
                                             </Link>
@@ -192,11 +192,11 @@ export default function Navbar() {
                             <Link key={link.name} href={link.href}
                                 style={{
                                     padding: "0.5rem 0.75rem", fontSize: "0.95rem", fontWeight: 700, textDecoration: "none",
-                                    color: isActive(link.href) ? "var(--foreground)" : "var(--nav-text)",
+                                    color: isActive(link.href) ? "var(--nav-hover)" : "var(--nav-text)",
                                     borderBottom: isActive(link.href) ? "3px solid var(--brand)" : "3px solid transparent",
                                     transition: "color 0.15s",
                                 }}
-                                onMouseEnter={e => (e.currentTarget.style.color = "var(--foreground)")}
+                                onMouseEnter={e => (e.currentTarget.style.color = "var(--nav-hover)")}
                                 onMouseLeave={e => { if (!isActive(link.href)) e.currentTarget.style.color = "var(--nav-text)"; }}
                             >
                                 {link.name}
@@ -208,7 +208,7 @@ export default function Navbar() {
                 {/* Phone + Book Now */}
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexShrink: 0 }} className="desktop-nav">
                     <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
-                        style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--foreground)", textDecoration: "none", fontSize: "0.9rem", fontWeight: 600 }}
+                        style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--nav-hover)", textDecoration: "none", fontSize: "0.9rem", fontWeight: 600 }}
                     >
                         <Phone size={16} style={{ color: "var(--brand)" }} />
                         {siteConfig.phoneNumber}
@@ -219,7 +219,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile hamburger */}
-                <button className="mobile-nav-toggle" onClick={() => setMobileOpen(!mobileOpen)} style={{ background: "none", border: "none", color: "var(--foreground)", cursor: "pointer", padding: 8 }}>
+                <button className="mobile-nav-toggle" onClick={() => setMobileOpen(!mobileOpen)} style={{ background: "none", border: "none", color: "var(--nav-hover)", cursor: "pointer", padding: 8 }}>
                     {mobileOpen ? <X size={28} /> : <Menu size={28} />}
                 </button>
             </div>
@@ -234,7 +234,7 @@ export default function Navbar() {
                                     width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center",
                                     background: "none", border: "none", cursor: "pointer",
                                     padding: "0.75rem 0.5rem", fontSize: "1rem", fontWeight: 600,
-                                    color: isActive(link.href) ? "var(--foreground)" : "var(--nav-text)",
+                                    color: isActive(link.href) ? "var(--nav-hover)" : "var(--nav-text)",
                                 }}>
                                     {link.name}
                                     <ChevronDown size={16} style={{ transform: activeDropdown === link.name ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
@@ -254,7 +254,7 @@ export default function Navbar() {
                                                     </div>
                                                 ))}
                                                 <Link href="/services" onClick={() => { setMobileOpen(false); setActiveDropdown(null); }}
-                                                    style={{ display: "block", padding: "0.5rem", color: "var(--hero-text)", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none" }}
+                                                    style={{ display: "block", padding: "0.5rem", color: "var(--nav-hover)", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none" }}
                                                 >View All Services →</Link>
                                             </>
                                         ) : (
@@ -274,13 +274,13 @@ export default function Navbar() {
                             </div>
                         ) : (
                             <Link key={link.name} href={link.href} onClick={() => setMobileOpen(false)}
-                                style={{ display: "block", padding: "0.75rem 0.5rem", color: isActive(link.href) ? "var(--foreground)" : "var(--nav-text)", textDecoration: "none", fontSize: "1rem", fontWeight: 600 }}
+                                style={{ display: "block", padding: "0.75rem 0.5rem", color: isActive(link.href) ? "var(--nav-hover)" : "var(--nav-text)", textDecoration: "none", fontSize: "1rem", fontWeight: 600 }}
                             >{link.name}</Link>
                         )
                     )}
                     <div style={{ padding: "0.75rem 0.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                         <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
-                            style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--foreground)", textDecoration: "none", fontWeight: 600 }}
+                            style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--nav-hover)", textDecoration: "none", fontWeight: 600 }}
                         >
                             <Phone size={16} style={{ color: "var(--brand)" }} /> {siteConfig.phoneNumber}
                         </a>

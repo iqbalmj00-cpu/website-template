@@ -30,6 +30,7 @@
   /* Navigation */
   --nav-bg: #0a192f;
   --nav-text: #94a3b8;
+  --nav-hover: #f8fafc;
 
   /* Footer */
   --footer-bg: #0a192f;
@@ -68,6 +69,7 @@
 
   --nav-bg: #0A0A0A;
   --nav-text: #B0B0B0;
+  --nav-hover: #FFFFFF;
   --footer-bg: #000000;
   --footer-text: #e2e8f0;
   --footer-muted: #B0B0B0;
@@ -102,6 +104,7 @@
 
   --nav-bg: #FFFFFF;
   --nav-text: #4A6B4A;
+  --nav-hover: #1A2E1A;
   --footer-bg: #1A2E1A;
   --footer-text: #D4E8D0;
   --footer-muted: #8CAF8C;
@@ -136,6 +139,7 @@
 
   --nav-bg: #FAFAF8;
   --nav-text: #555555;
+  --nav-hover: #1C1C1C;
   --footer-bg: #1C1C1C;
   --footer-text: #E8E6E0;
   --footer-muted: #888888;
