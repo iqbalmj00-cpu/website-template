@@ -89,6 +89,9 @@ export const siteConfig = {
         ],
     }),
 
+    // Plan tier (controls feature gating)
+    tier: (process.env.NEXT_PUBLIC_TIER ?? "starter") as "starter" | "growth",
+
     // Analytics
     gaTrackingId: process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? null,
 

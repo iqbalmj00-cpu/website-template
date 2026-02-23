@@ -1,17 +1,24 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronLeft, ArrowRight } from "lucide-react";
+import { Check, ChevronLeft, ArrowRight, CreditCard, Lock } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
 import {
     STEPS, JUNK_CATEGORIES, CATEGORY_ITEMS, VOLUME_OPTIONS,
     LOCATION_OPTIONS, TIME_SLOTS, PILE_SIZES,
 } from "@/lib/wizardData";
+import { loadStripe, type Stripe, type StripeCardElement } from "@stripe/stripe-js";
 
 /* ── Types ─────────────────────────────────────────────────────────────── */
 type ItemQtyMap = Record<string, Record<string, number>>;
 type ContactInfo = { name: string; phone: string; email: string; address: string; notes: string };
+
+/* ── Stripe (loaded lazily for Growth tier only) ── */
+const isGrowth = siteConfig.tier === "growth";
+const stripePromise = isGrowth && siteConfig.stripePublishableKey
+    ? loadStripe(siteConfig.stripePublishableKey, siteConfig.stripeConnectAccountId ? { stripeAccount: siteConfig.stripeConnectAccountId } : undefined)
+    : null;
 
 /* ── Truck SVG ─────────────────────────────────────────────────────────── */
 function TruckVisual({ fillPercent }: { fillPercent: number }) {
@@ -104,6 +111,56 @@ export default function BookingWizard() {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [leadCaptured, setLeadCaptured] = useState(false);
+
+    /* ── Stripe card-on-file state (Growth tier only) ── */
+    const [stripeReady, setStripeReady] = useState(false);
+    const [cardComplete, setCardComplete] = useState(false);
+    const [cardError, setCardError] = useState("");
+    const [setupClientSecret, setSetupClientSecret] = useState<string | null>(null);
+    const stripeRef = useRef<Stripe | null>(null);
+    const cardRef = useRef<StripeCardElement | null>(null);
+    const cardMountRef = useRef<HTMLDivElement | null>(null);
+
+    // Create SetupIntent + mount card element when entering step 6 (Growth only)
+    useEffect(() => {
+        if (!isGrowth || step !== 6 || stripeReady) return;
+        let cancelled = false;
+
+        (async () => {
+            try {
+                // 1. Create SetupIntent
+                const res = await fetch("/api/create-setup-intent", { method: "POST" });
+                const data = await res.json();
+                if (cancelled || !data.clientSecret) return;
+                setSetupClientSecret(data.clientSecret);
+
+                // 2. Load Stripe
+                const stripe = await stripePromise;
+                if (cancelled || !stripe || !cardMountRef.current) return;
+                stripeRef.current = stripe;
+
+                // 3. Mount card element
+                const elements = stripe.elements({ clientSecret: data.clientSecret });
+                const card = elements.create("card", {
+                    style: {
+                        base: { fontSize: "16px", color: "#1E293B", fontFamily: "inherit", "::placeholder": { color: "#94A3B8" } },
+                        invalid: { color: "#DC2626" },
+                    },
+                });
+                card.mount(cardMountRef.current);
+                card.on("change", (e) => {
+                    setCardComplete(e.complete);
+                    setCardError(e.error?.message || "");
+                });
+                cardRef.current = card;
+                setStripeReady(true);
+            } catch (err) {
+                console.error("Stripe setup error:", err);
+            }
+        })();
+
+        return () => { cancelled = true; };
+    }, [step, stripeReady]);
 
     const goNext = () => setStep(s => s + 1);
     const goBack = () => setStep(s => s - 1);
@@ -317,6 +374,18 @@ export default function BookingWizard() {
                 source: "WEBSITE",
             };
             if (leadId) payload.leadId = leadId;
+
+            // ── Stripe: confirm card and attach payment method (Growth only) ──
+            if (isGrowth && stripeRef.current && cardRef.current && setupClientSecret) {
+                const { setupIntent, error: stripeErr } = await stripeRef.current.confirmCardSetup(
+                    setupClientSecret,
+                    { payment_method: { card: cardRef.current, billing_details: { name: contact.name, phone: contact.phone, email: contact.email } } }
+                );
+                if (stripeErr) throw new Error(stripeErr.message || "Card save failed");
+                if (setupIntent?.payment_method) {
+                    payload.stripePaymentMethodId = setupIntent.payment_method;
+                }
+            }
 
             const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
             const data = await res.json();
@@ -704,13 +773,39 @@ export default function BookingWizard() {
                             </div>
                         </div>
 
+                        {/* ── Card on File (Growth tier only) ── */}
+                        {isGrowth && siteConfig.stripePublishableKey && (
+                            <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border, #E2E8F0)", padding: 24, marginBottom: 24 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                                    <CreditCard size={20} style={{ color: "var(--brand)" }} />
+                                    <span style={{ fontWeight: 700, fontSize: 15, color: "var(--foreground)" }}>Save Card on File</span>
+                                    <Lock size={14} style={{ color: "#16A34A", marginLeft: "auto" }} />
+                                    <span style={{ fontSize: 11, color: "#16A34A", fontWeight: 600 }}>Secure</span>
+                                </div>
+                                <div
+                                    ref={cardMountRef}
+                                    style={{
+                                        padding: "14px 16px", borderRadius: 10, border: "1.5px solid var(--border, #E2E8F0)",
+                                        background: "#FAFAFA", minHeight: 44, transition: "border-color 0.2s",
+                                    }}
+                                />
+                                {cardError && (
+                                    <p style={{ fontSize: 12, color: "#DC2626", marginTop: 8 }}>{cardError}</p>
+                                )}
+                                <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 12, lineHeight: 1.5 }}>
+                                    🔒 Your card will be saved on file and <strong>will not be charged</strong> until your job is complete.
+                                    The final price will be confirmed by your crew on-site.
+                                </p>
+                            </div>
+                        )}
+
                         {error && (
                             <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, background: "#FEF2F2", border: "1px solid #FECACA", fontSize: 14, color: "#DC2626" }}>
                                 {error}
                             </div>
                         )}
 
-                        <button onClick={handleSubmit} disabled={submitting}
+                        <button onClick={handleSubmit} disabled={submitting || (isGrowth && !!siteConfig.stripePublishableKey && !cardComplete)}
                             style={{
                                 width: "100%", marginTop: 24, padding: 18, borderRadius: "var(--btn-radius)", border: "none",
                                 background: !submitting ? "linear-gradient(135deg, var(--brand), var(--brand-dark))" : "#E2E8F0",
