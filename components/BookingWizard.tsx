@@ -259,7 +259,7 @@ export default function BookingWizard() {
                 value: minPrice || undefined,
                 notes: contact.notes || "",
                 metadata: {
-                    timeSlot: timeSlotOption?.label || selectedTime || "",
+                    timeSlot: timeSlotOption?.period || selectedTime || "",
                     truckLoad: volumeOption?.fraction || "",
                     quoteRange: quoteRangeStr,
                     junkLocation: locationOption?.label || "",
