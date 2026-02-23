@@ -197,32 +197,77 @@ export default function BookingWizard() {
         setError("");
         try {
             const leadId = typeof window !== "undefined" ? localStorage.getItem("syjLeadId") : null;
-            // Build item summary from selected items + pile sizes
-            const qtyItems = Object.entries(selectedItems)
-                .flatMap(([, items]) => Object.entries(items).filter(([, qty]) => qty > 0).map(([name, qty]) => qty > 1 ? `${name} (×${qty})` : name));
-            const pileItems = Object.entries(pileSizes)
-                .map(([catId, size]) => {
-                    const cat = JUNK_CATEGORIES.find(c => c.id === catId);
-                    return `${cat?.label || catId}: ${PILE_SIZES.find(p => p.id === size)?.label || size}`;
+
+            /* ── Build structured items array ── */
+            const structuredItems: { category: string; item: string; qty: number }[] = [];
+            Object.entries(selectedItems).forEach(([catId, items]) => {
+                const catLabel = JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId;
+                Object.entries(items).forEach(([itemName, qty]) => {
+                    if (qty > 0) structuredItems.push({ category: catLabel, item: itemName, qty });
                 });
-            const itemSummary = [...qtyItems, ...pileItems].join(", ") || `${tierData?.label || ""} junk removal`;
+            });
+
+            /* ── Build structured piles array ── */
+            const structuredPiles: { category: string; size: string }[] = [];
+            Object.entries(pileSizes).forEach(([catId, sizeId]) => {
+                const catLabel = JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId;
+                const sizeLabel = PILE_SIZES.find(p => p.id === sizeId)?.label || sizeId;
+                structuredPiles.push({ category: catLabel, size: sizeLabel });
+            });
+
+            /* ── Build rich human-readable description ── */
+            const descParts: string[] = [];
+            selectedCategories.forEach(catId => {
+                const catLabel = JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId;
+                const catItems = selectedItems[catId];
+                const pileSize = pileSizes[catId];
+                if (catItems && Object.keys(catItems).length > 0) {
+                    const itemStrs = Object.entries(catItems)
+                        .filter(([, qty]) => qty > 0)
+                        .map(([name, qty]) => qty > 1 ? `${name} ×${qty}` : name);
+                    descParts.push(`${catLabel}: ${itemStrs.join(", ")}`);
+                } else if (pileSize) {
+                    const sizeLabel = PILE_SIZES.find(p => p.id === pileSize)?.label || pileSize;
+                    descParts.push(`${catLabel}: ${sizeLabel}`);
+                }
+            });
+            const description = descParts.join("; ") || `${tierData?.label || ""} junk removal`;
+
+            /* ── Resolve human-readable labels ── */
+            const volumeOption = VOLUME_OPTIONS.find(v => v.id === volume);
+            const locationOption = LOCATION_OPTIONS.find(l => l.id === location);
+            const timeSlotOption = TIME_SLOTS.find(t => t.id === selectedTime);
+            const categoryLabels = selectedCategories.map(
+                catId => JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId
+            );
+            const minPrice = tierData ? tierData.min + priceAdj : 0;
+            const maxPrice = tierData ? tierData.max + priceAdj : 0;
+            const quoteRangeStr = tierData ? `$${minPrice} – $${maxPrice}` : "";
+
+            /* ── Determine stairs / access info ── */
+            const stairsAccessLabel = locationOption?.label || "Ground Floor";
 
             const payload: Record<string, unknown> = {
                 type: "booking",
+                status: "booked",
                 name: contact.name,
                 phone: contact.phone,
                 email: contact.email,
                 address: contact.address,
-                date: selectedDate?.toISOString().split("T")[0],
-                timeSlot: selectedTime?.toUpperCase(),
-                items: itemSummary,
+                description,
+                requestedDate: selectedDate?.toISOString().split("T")[0],
+                value: minPrice || undefined,
                 notes: contact.notes || "",
                 metadata: {
-                    categories: selectedCategories,
-                    pileSizes,
-                    volume: volume,
-                    location: location,
-                    priceRange: tierData ? [tierData.min + priceAdj, tierData.max + priceAdj] : null,
+                    timeSlot: timeSlotOption?.label || selectedTime || "",
+                    truckLoad: volumeOption?.fraction || "",
+                    quoteRange: quoteRangeStr,
+                    junkLocation: locationOption?.label || "",
+                    stairsAccess: stairsAccessLabel,
+                    categories: categoryLabels,
+                    items: structuredItems,
+                    piles: structuredPiles,
+                    priceRange: tierData ? [minPrice, maxPrice] : null,
                     surcharges: priceAdj > 0 ? [{ id: "stairs", label: stairsSurcharge?.label, amount: priceAdj }] : [],
                 },
                 source: "WEBSITE",
@@ -238,10 +283,10 @@ export default function BookingWizard() {
             const params = new URLSearchParams({
                 name: contact.name,
                 date: selectedDate?.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) || "",
-                time: TIME_SLOTS.find(t => t.id === selectedTime)?.label || "",
-                price: tierData ? `$${tierData.min + priceAdj} – $${tierData.max + priceAdj}` : "",
+                time: timeSlotOption?.label || "",
+                price: quoteRangeStr,
             });
-            router.push(`/thank-you?${params.toString()}`);
+            router.push(`/booking-confirmed?${params.toString()}`);
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
         } finally {

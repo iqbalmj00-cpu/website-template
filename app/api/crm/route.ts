@@ -20,19 +20,10 @@ export async function POST(req: Request) {
 
         const crmEndpoint = `${dashboardUrl}/api/ingest/website`;
 
-        // Build payload
-        const payload: Record<string, unknown> = {};
-        if (body.leadId) payload.leadId = body.leadId;
-        if (body.name) payload.name = body.name;
-        if (body.phone) payload.phone = body.phone;
-        if (body.email) payload.email = body.email;
-        if (body.address) payload.address = body.address;
-        if (body.description) payload.description = body.description;
-        if (body.image_urls) payload.image_urls = body.image_urls;
-        if (body.requestedDate) payload.requestedDate = body.requestedDate;
-        if (body.metadata) payload.metadata = body.metadata;
-        if (body.status) payload.status = body.status;
-        if (!body.leadId) payload.source = "WEBSITE";
+        // Build payload – forward all fields, apply source default for new leads
+        const payload: Record<string, unknown> = { ...body };
+        if (!body.leadId) payload.source = payload.source || "WEBSITE";
+
 
         const response = await fetch(crmEndpoint, {
             method: "POST",
