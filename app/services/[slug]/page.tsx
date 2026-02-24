@@ -271,7 +271,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                             style={{
                                 padding: "1rem 2rem",
                                 borderRadius: "var(--btn-radius)",
-                                border: "2px solid #fff",
+                                border: "2px solid var(--hero-text)",
                                 color: "var(--hero-text)",
                                 fontWeight: 700,
                                 fontSize: "1rem",

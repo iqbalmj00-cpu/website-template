@@ -35,7 +35,7 @@ export default function ContactPage() {
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                             {contactInfo.map(({ icon: Icon, label, value, href }) => (
                                 <div key={label} className="card" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(var(--brand-rgb, 249, 115, 22), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                         <Icon size={22} style={{ color: "var(--brand)" }} />
                                     </div>
                                     <div>

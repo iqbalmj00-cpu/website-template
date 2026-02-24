@@ -48,7 +48,7 @@ export default function Footer() {
                     >
                         {siteConfig.companyName}
                     </p>
-                    <p style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "#94a3b8", marginBottom: "1.25rem" }}>
+                    <p style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "var(--footer-muted)", marginBottom: "1.25rem" }}>
                         {siteConfig.tagline}
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -59,7 +59,7 @@ export default function Footer() {
                             <Phone size={14} style={{ color: "var(--brand)" }} />
                             {formatPhone(siteConfig.phoneNumber)}
                         </a>
-                        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", color: "#94a3b8" }}>
+                        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", color: "var(--footer-muted)" }}>
                             <MapPin size={14} style={{ color: "var(--brand)" }} />
                             {siteConfig.serviceArea}
                         </span>
@@ -76,9 +76,9 @@ export default function Footer() {
                             const slug = s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
                             return (
                                 <li key={s}>
-                                    <Link href={`/services/${slug}`} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.15s" }}
+                                    <Link href={`/services/${slug}`} style={{ color: "var(--footer-muted)", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.15s" }}
                                         onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "var(--footer-text)")}
-                                        onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#94a3b8")}
+                                        onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "var(--footer-muted)")}
                                     >
                                         {s}
                                     </Link>
@@ -96,9 +96,9 @@ export default function Footer() {
                     <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                         {quickLinks.map((l) => (
                             <li key={l.href}>
-                                <Link href={l.href} style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem" }}
+                                <Link href={l.href} style={{ color: "var(--footer-muted)", textDecoration: "none", fontSize: "0.9rem" }}
                                     onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "var(--footer-text)")}
-                                    onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#94a3b8")}
+                                    onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "var(--footer-muted)")}
                                 >
                                     {l.label}
                                 </Link>
@@ -108,9 +108,9 @@ export default function Footer() {
                             <li>
                                 <a href={`https://app.scaleyourjunk.com/driver/login?company=${siteConfig.subdomain}`}
                                     target="_blank" rel="noopener noreferrer"
-                                    style={{ color: "#64748b", textDecoration: "none", fontSize: "0.8rem" }}
-                                    onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#94a3b8")}
-                                    onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#64748b")}
+                                    style={{ color: "var(--footer-muted)", textDecoration: "none", fontSize: "0.8rem", opacity: 0.7 }}
+                                    onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "var(--footer-text)"; (e.target as HTMLElement).style.opacity = "1"; }}
+                                    onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "var(--footer-muted)"; (e.target as HTMLElement).style.opacity = "0.7"; }}
                                 >
                                     Driver Login →
                                 </a>
@@ -124,7 +124,7 @@ export default function Footer() {
                     <p style={{ fontWeight: 700, fontSize: "0.875rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--brand)", marginBottom: "1rem" }}>
                         Ready to haul?
                     </p>
-                    <p style={{ color: "#94a3b8", fontSize: "0.9rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
+                    <p style={{ color: "var(--footer-muted)", fontSize: "0.9rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
                         Book online in 2 minutes. Same-day pickup available in {siteConfig.city}.
                     </p>
                     <Link href="/book" className="btn-primary" style={{ fontSize: "0.9rem", padding: "0.7rem 1.5rem" }}>
@@ -146,13 +146,14 @@ export default function Footer() {
                     justifyContent: "space-between",
                     gap: "0.75rem",
                     fontSize: "0.8rem",
-                    color: "#64748b",
+                    color: "var(--footer-muted)",
+                    opacity: 0.7,
                 }}
             >
                 <span>© {year} {siteConfig.companyName}. All rights reserved.</span>
                 <div style={{ display: "flex", gap: "1.5rem" }}>
-                    <Link href="/legal" style={{ color: "#64748b", textDecoration: "none" }}>Privacy Policy</Link>
-                    <Link href="/legal" style={{ color: "#64748b", textDecoration: "none" }}>Terms</Link>
+                    <Link href="/legal" style={{ color: "var(--footer-muted)", textDecoration: "none" }}>Privacy Policy</Link>
+                    <Link href="/legal" style={{ color: "var(--footer-muted)", textDecoration: "none" }}>Terms</Link>
                 </div>
             </div>
         </footer>

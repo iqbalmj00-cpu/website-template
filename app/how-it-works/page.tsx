@@ -101,7 +101,7 @@ export default function HowItWorksPage() {
                     <p style={{ color: "var(--hero-text)", fontSize: "1.1rem", marginBottom: "2rem" }}>Book online in 2 minutes. Same-day service available in {city}{state ? `, ${state}` : ""}.</p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📅 Book Online Now</Link>
-                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {formatPhone(phoneNumber)}</a>
+                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--hero-text)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {formatPhone(phoneNumber)}</a>
                     </div>
                 </div>
             </section>

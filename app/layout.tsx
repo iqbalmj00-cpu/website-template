@@ -45,7 +45,7 @@ export default function RootLayout({
         <html lang="en" data-theme={siteConfig.theme} className={allFontVars}>
             <head>
                 {/* Inject brand color override from onboarding */}
-                <style>{`:root { --brand: ${siteConfig.brandColor}; --brand-dark: ${adjustColor(siteConfig.brandColor, -15)}; }`}</style>
+                <style>{`:root { --brand: ${siteConfig.brandColor}; --brand-dark: ${adjustColor(siteConfig.brandColor, -15)}; --brand-rgb: ${hexToRgb(siteConfig.brandColor)}; }`}</style>
                 {/* Google Analytics */}
                 {siteConfig.gaTrackingId && (
                     <>
@@ -101,4 +101,10 @@ function adjustColor(hex: string, amount: number): string {
     const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00ff) + amount));
     const b = Math.max(0, Math.min(255, (num & 0x0000ff) + amount));
     return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+}
+
+/** Convert hex color to comma-separated RGB string for rgba() usage */
+function hexToRgb(hex: string): string {
+    const num = parseInt(hex.replace("#", ""), 16);
+    return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
 }
