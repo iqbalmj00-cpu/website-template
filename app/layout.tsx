@@ -62,6 +62,30 @@ export default function RootLayout({
                 )}
             </head>
             <body>
+                {/* JSON-LD LocalBusiness schema for local SEO */}
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "LocalBusiness",
+                            name: siteConfig.companyName,
+                            description: `${siteConfig.companyName} offers fast, affordable junk removal in ${siteConfig.serviceArea}.`,
+                            telephone: siteConfig.phoneNumber,
+                            areaServed: siteConfig.serviceArea,
+                            address: {
+                                "@type": "PostalAddress",
+                                addressLocality: siteConfig.city,
+                                addressRegion: siteConfig.state,
+                                addressCountry: "US",
+                            },
+                            ...(siteConfig.subdomain ? { url: `https://${siteConfig.subdomain}.scaleyourjunk.com` } : {}),
+                            priceRange: "$$",
+                            openingHours: "Mo-Sa 07:00-19:00",
+                            serviceType: siteConfig.services,
+                        }),
+                    }}
+                />
                 <Navbar />
                 <main>{children}</main>
                 <Footer />

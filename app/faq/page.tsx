@@ -41,6 +41,24 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 export default function FAQPage() {
     return (
         <>
+            {/* FAQPage JSON-LD for rich snippets in Google */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        mainEntity: FAQS.map((faq) => ({
+                            "@type": "Question",
+                            name: faq.q,
+                            acceptedAnswer: {
+                                "@type": "Answer",
+                                text: faq.a,
+                            },
+                        })),
+                    }),
+                }}
+            />
             <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
                     <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>

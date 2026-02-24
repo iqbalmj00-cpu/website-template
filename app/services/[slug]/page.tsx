@@ -29,136 +29,63 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
     return (
         <>
             {/* Hero */}
-            <section
-                style={{
-                    background: "var(--hero-bg)",
-                    padding: "7rem 1.5rem 5rem",
-                    position: "relative",
-                    overflow: "hidden",
-                }}
-            >
-                <div data-image-grid style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "center" }}>
-                    <div>
-                        <span
-                            style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                                padding: "0.4rem 1rem",
-                                borderRadius: "var(--btn-radius)",
-                                background: "var(--hero-badge-bg)",
-                                border: "1px solid var(--hero-badge-border)",
-                                color: "var(--brand)",
-                                fontSize: "0.8rem",
-                                fontWeight: 700,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.05em",
-                                marginBottom: "1.5rem",
-                            }}
-                        >
-                            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
-                            Available for same-day pickup
-                        </span>
-                        <h1
-                            style={{
-                                fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
-                                fontWeight: 900,
-                                color: "var(--hero-text)",
-                                lineHeight: 1.1,
-                                marginBottom: "1.5rem",
-                                textTransform: "uppercase",
-                            }}
-                        >
-                            {svc.title.split(" ").slice(0, -1).join(" ")}{" "}
-                            <span style={{ color: "var(--brand)" }}>{svc.title.split(" ").pop()}</span>
-                        </h1>
-                        <p style={{ fontSize: "1.15rem", color: "var(--hero-muted)", maxWidth: 600, marginBottom: "2rem", lineHeight: 1.6 }}>
-                            {svc.heroSubtitle}
-                        </p>
-                        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-                            <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
-                                Get a Free Quote →
-                            </Link>
-                            <a
-                                href={telHref(phoneNumber)}
-                                style={{
-                                    padding: "1rem 2rem",
-                                    borderRadius: "var(--btn-radius)",
-                                    border: "2px solid var(--hero-border)",
-                                    color: "var(--hero-text)",
-                                    textDecoration: "none",
-                                    fontWeight: 700,
-                                    fontSize: "1rem",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "0.5rem",
-                                }}
-                            >
-                                📞 {formatPhone(phoneNumber)}
-                            </a>
-                        </div>
-                        <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
-                            {["Upfront Pricing", "Fully Insured", "Eco-Friendly"].map((t) => (
-                                <span key={t} style={{ color: "var(--hero-muted)", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                                    <span style={{ color: "var(--brand)" }}>✓</span> {t}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                        <div style={{
-                            width: "100%",
-                            maxWidth: 400,
-                            aspectRatio: "1",
-                            borderRadius: 32,
-                            background: "linear-gradient(135deg, rgba(var(--brand-rgb, 249, 115, 22), 0.15) 0%, rgba(var(--brand-rgb, 249, 115, 22), 0.05) 100%)",
-                            border: "1px solid rgba(var(--brand-rgb, 249, 115, 22), 0.2)",
-                            display: "flex",
-                            flexDirection: "column",
+            <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
+                <div style={{ maxWidth: 800, margin: "0 auto" }}>
+                    <span
+                        style={{
+                            display: "inline-flex",
                             alignItems: "center",
-                            justifyContent: "center",
-                            position: "relative",
-                            overflow: "hidden",
-                        }}>
-                            {/* Decorative rings */}
-                            <div style={{
-                                position: "absolute", inset: 0,
-                                borderRadius: "inherit",
-                                background: "radial-gradient(circle at 30% 30%, rgba(var(--brand-rgb, 249, 115, 22), 0.1) 0%, transparent 60%)",
-                            }} />
-                            <div style={{
-                                position: "absolute", width: "120%", height: "120%",
-                                border: "1px solid rgba(var(--brand-rgb, 249, 115, 22), 0.08)",
-                                borderRadius: "50%", top: "-10%", left: "-10%",
-                            }} />
-                            <div style={{
-                                position: "absolute", width: "80%", height: "80%",
-                                border: "1px solid rgba(var(--brand-rgb, 249, 115, 22), 0.06)",
-                                borderRadius: "50%", top: "10%", left: "10%",
-                            }} />
-                            {/* Main icon */}
-                            <span style={{
-                                fontSize: "clamp(5rem, 12vw, 8rem)",
-                                lineHeight: 1,
-                                position: "relative",
-                                zIndex: 1,
-                                filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))",
-                            }}>
-                                {svc.icon}
+                            gap: "0.5rem",
+                            padding: "0.4rem 1rem",
+                            borderRadius: "var(--btn-radius)",
+                            background: "var(--hero-badge-bg)",
+                            border: "1px solid var(--hero-badge-border)",
+                            color: "var(--brand)",
+                            fontSize: "0.8rem",
+                            fontWeight: 700,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.05em",
+                            marginBottom: "2rem",
+                        }}
+                    >
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
+                        {svc.icon} Available for same-day pickup
+                    </span>
+                    <h1
+                        style={{
+                            fontSize: "clamp(2.5rem, 6vw, 4rem)",
+                            fontWeight: 900,
+                            color: "var(--hero-text)",
+                            lineHeight: 1.1,
+                            marginBottom: "1.5rem",
+                        }}
+                    >
+                        {svc.title.split(" ").slice(0, -1).join(" ")}{" "}
+                        <span style={{ color: "var(--brand)" }}>{svc.title.split(" ").pop()}</span>
+                        <span style={{ display: "block", fontSize: "clamp(1rem, 2.5vw, 1.3rem)", fontWeight: 400, color: "var(--hero-muted)", marginTop: "0.5rem", textTransform: "none" }}>
+                            in {city}{state ? `, ${state}` : ""}
+                        </span>
+                    </h1>
+                    <p style={{ fontSize: "1.15rem", color: "var(--hero-muted)", maxWidth: 600, margin: "0 auto 2.5rem", lineHeight: 1.7 }}>
+                        {svc.heroSubtitle}
+                    </p>
+                    <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap", marginBottom: "2rem" }}>
+                        <Link href="/book" className="btn-primary" style={{ padding: "1rem 2.5rem", fontSize: "1.05rem" }}>
+                            Get a Free Quote →
+                        </Link>
+                        <a
+                            href={telHref(phoneNumber)}
+                            className="hero-outline-btn"
+                        >
+                            📞 {formatPhone(phoneNumber)}
+                        </a>
+                    </div>
+                    <div style={{ display: "flex", gap: "2rem", justifyContent: "center", flexWrap: "wrap" }}>
+                        {["Upfront Pricing", "Fully Insured", "Eco-Friendly"].map((t) => (
+                            <span key={t} style={{ color: "var(--hero-muted)", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                                <span style={{ color: "var(--brand)" }}>✓</span> {t}
                             </span>
-                            <span style={{
-                                marginTop: "1.5rem",
-                                fontSize: "0.8rem",
-                                fontWeight: 700,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.12em",
-                                color: "var(--brand)",
-                                position: "relative",
-                                zIndex: 1,
-                            }}>
-                                {svc.title}
-                            </span>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
