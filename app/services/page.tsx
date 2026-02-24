@@ -48,7 +48,7 @@ function ServiceCard({
             <p style={{ color: "var(--muted)", lineHeight: 1.6, flex: 1 }}>{shortDesc}</p>
 
             {expanded && (
-                <p style={{ color: "#555", lineHeight: 1.6, marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
+                <p style={{ color: "var(--muted)", lineHeight: 1.6, marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
                     {fullDesc}
                 </p>
             )}

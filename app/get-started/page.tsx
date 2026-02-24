@@ -11,7 +11,7 @@ export default function GetStartedPage() {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
 
-    const formatPhone = (val: string) => {
+    const formatPhoneInput = (val: string) => {
         const d = val.replace(/\D/g, "").slice(0, 10);
         if (d.length <= 3) return d;
         if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
@@ -100,7 +100,7 @@ export default function GetStartedPage() {
                             />
                             <input
                                 type="tel" placeholder="Phone Number *" required
-                                value={form.phone} onChange={(e) => setForm({ ...form, phone: formatPhone(e.target.value) })}
+                                value={form.phone} onChange={(e) => setForm({ ...form, phone: formatPhoneInput(e.target.value) })}
                                 style={inputStyle}
                             />
                             {error && (

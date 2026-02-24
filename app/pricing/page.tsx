@@ -67,7 +67,7 @@ export default function PricingPage() {
                                 }}>
                                     <div style={{
                                         width: 56, height: 56, borderRadius: 12,
-                                        background: `rgba(249,115,22,${0.06 + i * 0.04})`,
+                                        background: `rgba(var(--brand-rgb, 249, 115, 22), ${0.06 + i * 0.04})`,
                                         display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem",
                                     }}>
                                         {v.icon}
@@ -144,7 +144,7 @@ export default function PricingPage() {
                         </Link>
                         <a href={telHref(siteConfig.phoneNumber)} style={{
                             display: "flex", alignItems: "center", gap: "0.5rem",
-                            color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1.1rem",
+                            color: "var(--foreground)", textDecoration: "none", fontWeight: 700, fontSize: "1.1rem",
                         }}>
                             <Phone size={18} /> {formatPhone(siteConfig.phoneNumber)}
                         </a>

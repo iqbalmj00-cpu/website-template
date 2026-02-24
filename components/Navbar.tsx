@@ -106,7 +106,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* Desktop Nav */}
-                <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", flex: 1, justifyContent: "center" }} className="desktop-nav">
+                <div style={{ display: "flex", alignItems: "center", gap: "0.15rem", flex: 1, justifyContent: "space-evenly", padding: "0 1rem" }} className="desktop-nav">
                     {navLinks.map(link =>
                         link.hasDropdown ? (
                             <div key={link.name} ref={link.name === "Services" ? servicesRef : locationsRef} style={{ position: "relative" }}>
