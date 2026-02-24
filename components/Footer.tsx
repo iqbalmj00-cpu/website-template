@@ -61,7 +61,7 @@ export default function Footer() {
                         </a>
                         <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", color: "var(--footer-muted)" }}>
                             <MapPin size={14} style={{ color: "var(--brand)" }} />
-                            {siteConfig.serviceArea}
+                            {siteConfig.city}{siteConfig.state ? `, ${siteConfig.state}` : ""}
                         </span>
                     </div>
                 </div>
