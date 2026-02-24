@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
-import SafeImage from "@/components/SafeImage";
 import { ALL_SERVICES, getServiceBySlug, getClientServices } from "@/lib/serviceData";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -106,13 +105,60 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                             ))}
                         </div>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                        <SafeImage
-                            src={siteConfig.serviceImages[slug] || `/images/generated/services/${slug}.png`}
-                            alt={`${svc.title} in ${city}`}
-                            collapseParentGrid
-                            style={{ width: "100%", maxWidth: 500, borderRadius: 16, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}
-                        />
+                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                        <div style={{
+                            width: "100%",
+                            maxWidth: 400,
+                            aspectRatio: "1",
+                            borderRadius: 32,
+                            background: "linear-gradient(135deg, rgba(var(--brand-rgb, 249, 115, 22), 0.15) 0%, rgba(var(--brand-rgb, 249, 115, 22), 0.05) 100%)",
+                            border: "1px solid rgba(var(--brand-rgb, 249, 115, 22), 0.2)",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            position: "relative",
+                            overflow: "hidden",
+                        }}>
+                            {/* Decorative rings */}
+                            <div style={{
+                                position: "absolute", inset: 0,
+                                borderRadius: "inherit",
+                                background: "radial-gradient(circle at 30% 30%, rgba(var(--brand-rgb, 249, 115, 22), 0.1) 0%, transparent 60%)",
+                            }} />
+                            <div style={{
+                                position: "absolute", width: "120%", height: "120%",
+                                border: "1px solid rgba(var(--brand-rgb, 249, 115, 22), 0.08)",
+                                borderRadius: "50%", top: "-10%", left: "-10%",
+                            }} />
+                            <div style={{
+                                position: "absolute", width: "80%", height: "80%",
+                                border: "1px solid rgba(var(--brand-rgb, 249, 115, 22), 0.06)",
+                                borderRadius: "50%", top: "10%", left: "10%",
+                            }} />
+                            {/* Main icon */}
+                            <span style={{
+                                fontSize: "clamp(5rem, 12vw, 8rem)",
+                                lineHeight: 1,
+                                position: "relative",
+                                zIndex: 1,
+                                filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.15))",
+                            }}>
+                                {svc.icon}
+                            </span>
+                            <span style={{
+                                marginTop: "1.5rem",
+                                fontSize: "0.8rem",
+                                fontWeight: 700,
+                                textTransform: "uppercase",
+                                letterSpacing: "0.12em",
+                                color: "var(--brand)",
+                                position: "relative",
+                                zIndex: 1,
+                            }}>
+                                {svc.title}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </section>
