@@ -1,7 +1,5 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { siteConfig } from "@/lib/siteConfig";
@@ -89,11 +87,9 @@ function ConfirmationContent() {
 export default function BookingConfirmedPage() {
     return (
         <>
-            <Navbar />
             <Suspense fallback={<div style={{ minHeight: "50vh" }} />}>
                 <ConfirmationContent />
             </Suspense>
-            <Footer />
         </>
     );
 }

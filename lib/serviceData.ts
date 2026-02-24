@@ -20,6 +20,60 @@ export interface ServiceDetail {
 
 export const ALL_SERVICES: ServiceDetail[] = [
     {
+        slug: "junk-removal",
+        title: "Junk Removal",
+        names: ["Junk Removal", "General Junk Removal", "junk-removal"],
+        icon: "🗑️",
+        shortDesc: "Full-service junk removal for homes and businesses. We haul away anything you don't want.",
+        fullDesc: "From a single item to a full truckload, our crew handles all the heavy lifting. We sort everything for donation, recycling, or disposal so you don't have to worry about where it ends up.",
+        heroSubtitle: "Point at what you want gone — we take care of the rest. Fast, affordable, and eco-friendly.",
+        items: [
+            { title: "Household Junk", desc: "Old furniture, boxes, bags, and miscellaneous clutter." },
+            { title: "Garage & Basement", desc: "Years of accumulated items cleared in hours." },
+            { title: "Renovation Debris", desc: "Post-project cleanup including drywall, lumber, and tile." },
+            { title: "Appliances", desc: "Fridges, washers, dryers, and other large appliances." },
+            { title: "Yard Waste", desc: "Branches, soil, old fencing, and outdoor debris." },
+            { title: "Miscellaneous", desc: "If it fits in our truck, we can probably take it." },
+        ],
+        procesSteps: [
+            { title: "Book Online", desc: "Schedule a pickup in 2 minutes — no phone tag required." },
+            { title: "We Show Up", desc: "Our crew arrives on time and gives you a firm, upfront price." },
+            { title: "It's Gone", desc: "We load everything, sweep up, and haul it all away." },
+        ],
+        faqs: [
+            { q: "What items do you take?", a: "Almost everything — furniture, appliances, electronics, yard waste, and more. See our Items We Take page for the full list." },
+            { q: "How much does it cost?", a: "Pricing is based on how much space your items take in our truck. We give you a firm quote before we start." },
+            { q: "Do you offer same-day service?", a: "Yes! Same-day and next-day pickups are available depending on availability." },
+        ],
+    },
+    {
+        slug: "demolition",
+        title: "Demolition",
+        names: ["Demolition", "Light Demolition", "Demo", "demolition"],
+        icon: "🔨",
+        shortDesc: "Light demolition services for sheds, decks, fences, and interior tear-outs.",
+        fullDesc: "We handle small to medium demolition projects including shed removal, deck tear-down, fence demolition, and interior gut-outs. All debris is hauled away in the same visit.",
+        heroSubtitle: "Need something torn down? We demolish it, load it, and haul it — all in one visit.",
+        items: [
+            { title: "Shed Removal", desc: "Wood, metal, and plastic sheds demolished and hauled." },
+            { title: "Deck Tear-Down", desc: "Wood and composite decks removed safely." },
+            { title: "Fence Removal", desc: "Chain-link, wood, and vinyl fencing taken down and hauled." },
+            { title: "Interior Demolition", desc: "Cabinets, countertops, drywall, and flooring removed." },
+            { title: "Concrete Removal", desc: "Small pads, walkways, and steps broken up and hauled." },
+            { title: "Above-Ground Pools", desc: "Pool walls, liners, and frames removed." },
+        ],
+        procesSteps: [
+            { title: "Site Assessment", desc: "We visit the site and provide a firm quote for the work." },
+            { title: "Demo Day", desc: "Our crew tears it down safely and efficiently." },
+            { title: "Clean Haul", desc: "All debris is loaded and hauled away. Site left clean." },
+        ],
+        faqs: [
+            { q: "What kind of demolition do you do?", a: "We handle light demolition — sheds, decks, fences, interior tear-outs, and small concrete. We don't do structural or load-bearing demolition." },
+            { q: "Do you haul the debris too?", a: "Yes! Demo and haul-away are included in one price." },
+            { q: "Do I need a permit?", a: "Permit requirements vary by city. We can advise you on what's typically needed for your project." },
+        ],
+    },
+    {
         slug: "furniture-removal",
         title: "Furniture Removal",
         names: ["Furniture Removal", "Furniture", "furniture-removal"],

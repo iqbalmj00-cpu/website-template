@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CheckCircle, Truck, Phone } from "lucide-react";
-import { siteConfig } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
     title: `Pricing | ${siteConfig.companyName}`,
@@ -142,12 +142,11 @@ export default function PricingPage() {
                         <Link href="/book" className="btn-primary" style={{ fontSize: "1.05rem", padding: "1rem 2rem" }}>
                             Book a Pickup <ArrowRight size={18} />
                         </Link>
-                        <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`} style={{
-                            display: "inline-flex", alignItems: "center", gap: "0.5rem",
-                            padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--brand)",
-                            color: "var(--brand)", textDecoration: "none", fontWeight: 700, fontSize: "1.05rem",
+                        <a href={telHref(siteConfig.phoneNumber)} style={{
+                            display: "flex", alignItems: "center", gap: "0.5rem",
+                            color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1.1rem",
                         }}>
-                            <Phone size={18} /> {siteConfig.phoneNumber}
+                            <Phone size={18} /> {formatPhone(siteConfig.phoneNumber)}
                         </a>
                     </div>
                 </div>

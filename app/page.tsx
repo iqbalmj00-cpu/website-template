@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Phone, Star, CheckCircle, ArrowRight, Truck, Clock, Shield, Leaf } from "lucide-react";
-import { siteConfig } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import { getClientServices, ALL_SERVICES } from "@/lib/serviceData";
 
 export default function HomePage() {
     const howItWorks = [
@@ -121,7 +121,7 @@ export default function HomePage() {
                                 Book My Pickup <ArrowRight size={18} />
                             </Link>
                             <a
-                                href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
+                                href={telHref(siteConfig.phoneNumber)}
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
@@ -133,7 +133,7 @@ export default function HomePage() {
                                 }}
                             >
                                 <Phone size={18} style={{ color: "var(--brand)" }} />
-                                {siteConfig.phoneNumber}
+                                {formatPhone(siteConfig.phoneNumber)}
                             </a>
                         </div>
                     </div>
@@ -187,41 +187,19 @@ export default function HomePage() {
                     >
                         {siteConfig.services.map((service) => {
                             const slug = service.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-                            const imageUrl = siteConfig.serviceImages[slug] || `/images/generated/services/${slug}.png`;
+                            const svcData = getClientServices().find(s => s.slug === slug) || ALL_SERVICES.find(s => s.slug === slug);
+                            const icon = svcData?.icon || "🚛";
                             return (
                                 <Link
                                     key={service}
                                     href={`/services/${slug}`}
                                     className="card"
-                                    style={{ textAlign: "center", padding: imageUrl ? "0" : "1.5rem 1rem", textDecoration: "none", color: "inherit", overflow: "hidden" }}
+                                    style={{ textAlign: "center", padding: "1.5rem 1rem", textDecoration: "none", color: "inherit" }}
                                 >
-                                    {imageUrl ? (
-                                        <>
-                                            <img
-                                                src={imageUrl}
-                                                alt={service}
-                                                style={{ width: "100%", height: 120, objectFit: "cover" }}
-                                                onError={(e) => {
-                                                    const img = e.target as HTMLImageElement;
-                                                    const card = img.closest(".card") as HTMLElement;
-                                                    if (card) { card.style.padding = "1.5rem 1rem"; }
-                                                    img.style.display = "none";
-                                                    const next = img.nextElementSibling as HTMLElement;
-                                                    if (next) next.style.padding = "0";
-                                                }}
-                                            />
-                                            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)", padding: "0.75rem 0.5rem" }}>
-                                                {service}
-                                            </p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Truck size={28} style={{ color: "var(--brand)", marginBottom: "0.75rem" }} />
-                                            <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)" }}>
-                                                {service}
-                                            </p>
-                                        </>
-                                    )}
+                                    <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>{icon}</div>
+                                    <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)" }}>
+                                        {service}
+                                    </p>
                                 </Link>
                             );
                         })}
@@ -374,11 +352,11 @@ export default function HomePage() {
                             Book My Pickup <ArrowRight size={18} />
                         </Link>
                         <a
-                            href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
+                            href={telHref(siteConfig.phoneNumber)}
                             className="btn-secondary"
                             style={{ fontSize: "1rem", borderColor: "var(--hero-border)", color: "var(--hero-text)" }}
                         >
-                            <Phone size={16} /> {siteConfig.phoneNumber}
+                            <Phone size={16} /> {formatPhone(siteConfig.phoneNumber)}
                         </a>
                     </div>
                 </div>

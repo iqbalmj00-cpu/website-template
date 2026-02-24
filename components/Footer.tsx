@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Phone, Mail, MapPin, Facebook, Instagram } from "lucide-react";
-import { siteConfig } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 
 export default function Footer() {
     const year = new Date().getFullYear();
@@ -53,11 +53,11 @@ export default function Footer() {
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                         <a
-                            href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
+                            href={telHref(siteConfig.phoneNumber)}
                             style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--footer-text)", textDecoration: "none", fontSize: "0.9rem" }}
                         >
                             <Phone size={14} style={{ color: "var(--brand)" }} />
-                            {siteConfig.phoneNumber}
+                            {formatPhone(siteConfig.phoneNumber)}
                         </a>
                         <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", color: "#94a3b8" }}>
                             <MapPin size={14} style={{ color: "var(--brand)" }} />

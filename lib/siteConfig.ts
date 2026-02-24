@@ -104,4 +104,21 @@ export const siteConfig = {
     stripeConnectAccountId: process.env.STRIPE_CONNECT_ACCOUNT_ID ?? "",
 } as const;
 
+/** Format a phone number for display: +16186934498 → (618) 693-4498 */
+export function formatPhone(raw: string): string {
+    const d = raw.replace(/\D/g, "");
+    if (d.length === 11 && d[0] === "1") {
+        return `(${d.slice(1, 4)}) ${d.slice(4, 7)}-${d.slice(7)}`;
+    }
+    if (d.length === 10) {
+        return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+    }
+    return raw; // already formatted or non-US — return as-is
+}
+
+/** Build tel: href preserving the + prefix for E.164 */
+export function telHref(raw: string): string {
+    return `tel:${raw.replace(/[^+\d]/g, "")}`;
+}
+
 export type SiteConfig = typeof siteConfig;

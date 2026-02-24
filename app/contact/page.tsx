@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
-import { siteConfig } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
     title: `Contact Us | ${siteConfig.companyName}`,
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
     const contactInfo = [
-        { icon: Phone, label: "Phone", value: siteConfig.phoneNumber, href: `tel:${siteConfig.phoneNumber.replace(/\D/g, "")}` },
+        { icon: Phone, label: "Phone", value: formatPhone(siteConfig.phoneNumber), href: telHref(siteConfig.phoneNumber) },
         { icon: MapPin, label: "Service Area", value: siteConfig.serviceArea, href: undefined },
         { icon: Clock, label: "Hours", value: "Mon – Sat, 7am – 7pm", href: undefined },
     ];
@@ -62,8 +62,8 @@ export default function ContactPage() {
                             </p>
                             <p style={{ color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.7 }}>
                                 For general inquiries, give us a call at{" "}
-                                <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`} style={{ color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>
-                                    {siteConfig.phoneNumber}
+                                <a href={telHref(siteConfig.phoneNumber)} style={{ color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>
+                                    {formatPhone(siteConfig.phoneNumber)}
                                 </a>
                                 . Our AI assistant is available 24/7 and our crew is ready to help during business hours.
                             </p>

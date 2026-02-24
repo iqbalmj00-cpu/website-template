@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, Calendar, Clock, DollarSign, ArrowRight, Phone } from "lucide-react";
-import { siteConfig } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { Suspense } from "react";
 
 function ThankYouContent() {
@@ -67,8 +67,8 @@ function ThankYouContent() {
                     <Link href="/" className="btn-primary" style={{ fontSize: "1rem", padding: "0.875rem 2rem" }}>
                         Back to Home <ArrowRight size={16} />
                     </Link>
-                    <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--muted)", textDecoration: "none", fontSize: "0.95rem" }}>
-                        <Phone size={16} /> Questions? Call {siteConfig.phoneNumber}
+                    <a href={telHref(siteConfig.phoneNumber)} style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--muted)", textDecoration: "none", fontSize: "0.95rem" }}>
+                        <Phone size={16} /> Questions? Call {formatPhone(siteConfig.phoneNumber)}
                     </a>
                 </div>
             </div>

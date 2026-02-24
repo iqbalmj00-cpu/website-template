@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { Phone, Menu, X, ChevronDown, Calendar } from "lucide-react";
-import { siteConfig } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
 import { getLocations } from "@/lib/locationData";
 
@@ -85,7 +85,7 @@ export default function Navbar() {
                     {siteConfig.logoUrl ? (
                         <img src={siteConfig.logoUrl} alt={siteConfig.companyName} style={{ height: 40, objectFit: "contain" }} />
                     ) : (
-                        <span><span style={{ color: "var(--brand)" }}>{siteConfig.companyName.split(" ")[0]}</span>{siteConfig.companyName.split(" ").length > 1 ? " " + siteConfig.companyName.split(" ").slice(1).join(" ") : ""}</span>
+                        <span><span style={{ color: "var(--brand)" }}>{siteConfig.companyName.split(" ")[0]}</span>{siteConfig.companyName.includes(" ") ? " " + siteConfig.companyName.split(" ").slice(1).join(" ") : ""}</span>
                     )}
                 </Link>
 
@@ -207,11 +207,11 @@ export default function Navbar() {
 
                 {/* Phone + Book Now */}
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexShrink: 0 }} className="desktop-nav">
-                    <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
+                    <a href={telHref(siteConfig.phoneNumber)}
                         style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--nav-hover)", textDecoration: "none", fontSize: "0.9rem", fontWeight: 600 }}
                     >
                         <Phone size={16} style={{ color: "var(--brand)" }} />
-                        {siteConfig.phoneNumber}
+                        {formatPhone(siteConfig.phoneNumber)}
                     </a>
                     <Link href="/book" className="btn-primary" style={{ fontSize: "0.9rem", padding: "0.6rem 1.25rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                         <Calendar size={16} /> Book Now
@@ -279,10 +279,10 @@ export default function Navbar() {
                         )
                     )}
                     <div style={{ padding: "0.75rem 0.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                        <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`}
+                        <a href={telHref(siteConfig.phoneNumber)}
                             style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--nav-hover)", textDecoration: "none", fontWeight: 600 }}
                         >
-                            <Phone size={16} style={{ color: "var(--brand)" }} /> {siteConfig.phoneNumber}
+                            <Phone size={16} style={{ color: "var(--brand)" }} /> {formatPhone(siteConfig.phoneNumber)}
                         </a>
                         <Link href="/book" onClick={() => setMobileOpen(false)} className="btn-primary" style={{ textAlign: "center", padding: "0.75rem" }}>
                             Book Now
