@@ -61,19 +61,12 @@ function ConfirmationContent() {
                         </div>
                     </div>
 
-                    <div style={{ background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.2)", borderRadius: 12, padding: "1.25rem", marginBottom: "2rem" }}>
-                        <p style={{ fontWeight: 700, fontSize: "0.95rem", marginBottom: "0.5rem" }}>📞 What happens next?</p>
-                        <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>
-                            Our team will confirm your appointment via text or call. On the day of your pickup, the crew will arrive during your selected window and handle everything.
-                        </p>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-                        <Link href="/" className="btn-primary" style={{ flex: 1, textAlign: "center", padding: "0.875rem" }}>
+                    <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center" }}>
+                        <Link href="/" className="btn-primary" style={{ flex: 1, justifyContent: "center", padding: "0.875rem" }}>
                             Back to Home
                         </Link>
                         <a href={telHref(siteConfig.phoneNumber)} className="btn-secondary"
-                            style={{ flex: 1, textAlign: "center", padding: "0.875rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
+                            style={{ flex: 1, justifyContent: "center", padding: "0.875rem" }}
                         >
                             <Phone size={16} /> Call Us
                         </a>
