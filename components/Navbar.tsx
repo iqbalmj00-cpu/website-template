@@ -93,10 +93,10 @@ export default function Navbar() {
             borderBottom: "1px solid var(--border)",
             boxShadow: "0 4px 30px rgba(0,0,0,0.15)",
         }}>
-            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 2rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 80 }}>
+            <div style={{ padding: "0 3rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 80 }}>
 
                 {/* Logo */}
-                <Link href="/" style={{ fontFamily: "var(--heading-font)", fontWeight: 900, fontSize: "1.4rem", color: "var(--nav-hover)", textDecoration: "none", letterSpacing: "-0.04em", flexShrink: 0, whiteSpace: "nowrap" }}>
+                <Link href="/" style={{ fontFamily: "var(--heading-font)", fontWeight: 900, fontSize: "1.4rem", color: "var(--nav-hover)", textDecoration: "none", letterSpacing: "-0.04em", flexShrink: 0, whiteSpace: "nowrap", marginRight: "2rem" }}>
                     {siteConfig.logoUrl ? (
                         <img src={siteConfig.logoUrl} alt={siteConfig.companyName} style={{ height: 40, objectFit: "contain" }} />
                     ) : (() => {
@@ -106,7 +106,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* Desktop Nav */}
-                <div style={{ display: "flex", alignItems: "center", gap: "0.15rem", flex: 1, justifyContent: "space-evenly", padding: "0 1rem" }} className="desktop-nav">
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1, justifyContent: "center" }} className="desktop-nav">
                     {navLinks.map(link =>
                         link.hasDropdown ? (
                             <div key={link.name} ref={link.name === "Services" ? servicesRef : locationsRef} style={{ position: "relative" }}>
@@ -222,7 +222,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Phone + Book Now */}
-                <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", flexShrink: 0 }} className="desktop-nav">
+                <div style={{ display: "flex", alignItems: "center", gap: "2rem", flexShrink: 0, marginLeft: "2rem" }} className="desktop-nav">
                     <a href={telHref(siteConfig.phoneNumber)}
                         style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--nav-hover)", textDecoration: "none", fontSize: "0.9rem", fontWeight: 600 }}
                     >
