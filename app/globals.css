@@ -389,3 +389,71 @@ h5 {
   font-size: 1rem;
   transition: all 0.15s ease;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — Mobile-first adjustments
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet and below (< 768px) ──────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Hero two-column grids → single column */
+  [style*="grid-template-columns: 1fr 1fr"],
+  [data-image-grid] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Section padding: reduce vertical spacing */
+  .section {
+    padding: 3rem 1rem;
+  }
+
+  /* Section titles: tighten up */
+  .section-title {
+    font-size: clamp(1.5rem, 5vw, 2.25rem);
+  }
+
+  /* Cards: slightly less padding */
+  .card {
+    padding: 1.25rem;
+  }
+
+  /* Buttons: full width on small screens for better tap targets */
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Footer grid: single column */
+  footer>div:first-child {
+    grid-template-columns: 1fr !important;
+    gap: 2rem;
+  }
+
+  /* Footer bottom bar: stack vertically */
+  footer>div:last-child {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* ── Small phones (< 480px) ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .section {
+    padding: 2.5rem 1rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+}

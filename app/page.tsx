@@ -76,7 +76,7 @@ export default function HomePage() {
                         pointerEvents: "none",
                     }}
                 />
-                <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center" }}>
+                <div data-image-grid style={{ maxWidth: 1200, margin: "0 auto", position: "relative", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center" }}>
                     <div style={{ maxWidth: 700 }}>
                         <div
                             style={{

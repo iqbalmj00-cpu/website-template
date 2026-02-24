@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { siteConfig } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { CheckCircle, Phone, Calendar, MapPin } from "lucide-react";
 import { Suspense } from "react";
 
@@ -72,7 +72,7 @@ function ConfirmationContent() {
                         <Link href="/" className="btn-primary" style={{ flex: 1, textAlign: "center", padding: "0.875rem" }}>
                             Back to Home
                         </Link>
-                        <a href={`tel:${siteConfig.phoneNumber.replace(/\D/g, "")}`} className="btn-secondary"
+                        <a href={telHref(siteConfig.phoneNumber)} className="btn-secondary"
                             style={{ flex: 1, textAlign: "center", padding: "0.875rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
                         >
                             <Phone size={16} /> Call Us

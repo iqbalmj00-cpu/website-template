@@ -55,7 +55,7 @@ export default function GetStartedPage() {
     return (
         <>
             <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem" }}>
-                <div style={{ maxWidth: 1000, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
+                <div data-image-grid style={{ maxWidth: 1000, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
                     <div>
                         <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                             Get Your <span style={{ color: "var(--brand)" }}>Free Quote</span> in Minutes

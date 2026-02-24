@@ -8,6 +8,21 @@ import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
 import { getLocations } from "@/lib/locationData";
 
+/* ── Split company name for logo ──────────────────────────────────────── */
+function splitCompanyName(name: string): [string, string] {
+    // If name has spaces, split on first space
+    if (name.includes(" ")) {
+        const idx = name.indexOf(" ");
+        return [name.slice(0, idx), name.slice(idx + 1)];
+    }
+    // CamelCase split: "JamalsJunkRemoval" → ["Jamals", "Junk Removal"]
+    const parts = name.replace(/([a-z])([A-Z])/g, "$1 $2").split(" ");
+    if (parts.length > 1) {
+        return [parts[0], parts.slice(1).join(" ")];
+    }
+    return [name, ""];
+}
+
 /* ── Build dynamic dropdown data from siteConfig ──────────────────────── */
 function buildServiceLinks() {
     const services = getClientServices();
@@ -78,19 +93,20 @@ export default function Navbar() {
             borderBottom: "1px solid var(--border)",
             boxShadow: "0 4px 30px rgba(0,0,0,0.15)",
         }}>
-            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 80 }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", height: 80, gap: "2rem" }}>
 
                 {/* Logo */}
-                <Link href="/" style={{ fontFamily: "var(--heading-font)", fontWeight: 900, fontSize: "1.4rem", color: "var(--nav-hover)", textDecoration: "none", letterSpacing: "-0.04em", flexShrink: 0 }}>
+                <Link href="/" style={{ fontFamily: "var(--heading-font)", fontWeight: 900, fontSize: "1.4rem", color: "var(--nav-hover)", textDecoration: "none", letterSpacing: "-0.04em", flexShrink: 0, whiteSpace: "nowrap" }}>
                     {siteConfig.logoUrl ? (
                         <img src={siteConfig.logoUrl} alt={siteConfig.companyName} style={{ height: 40, objectFit: "contain" }} />
-                    ) : (
-                        <span><span style={{ color: "var(--brand)" }}>{siteConfig.companyName.split(" ")[0]}</span>{siteConfig.companyName.includes(" ") ? " " + siteConfig.companyName.split(" ").slice(1).join(" ") : ""}</span>
-                    )}
+                    ) : (() => {
+                        const [first, rest] = splitCompanyName(siteConfig.companyName);
+                        return <span><span style={{ color: "var(--brand)" }}>{first}</span>{rest ? " " + rest : ""}</span>;
+                    })()}
                 </Link>
 
                 {/* Desktop Nav */}
-                <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }} className="desktop-nav">
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }} className="desktop-nav">
                     {navLinks.map(link =>
                         link.hasDropdown ? (
                             <div key={link.name} ref={link.name === "Services" ? servicesRef : locationsRef} style={{ position: "relative" }}>
