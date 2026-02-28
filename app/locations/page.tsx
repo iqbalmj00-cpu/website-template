@@ -3,6 +3,8 @@ import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { getLocations } from "@/lib/locationData";
 import { getClientServices } from "@/lib/serviceData";
 import type { Metadata } from "next";
+import ServiceIcon from "@/components/ServiceIcon";
+import { MapPin, Truck, ShieldCheck, Recycle, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
     title: `Service Locations | ${siteConfig.companyName}`,
@@ -42,7 +44,7 @@ export default function LocationsPage() {
                             marginBottom: "2rem",
                         }}
                     >
-                        📍 Serving {serviceArea || city}
+                        <MapPin size={16} style={{ color: "var(--brand)" }} /> Serving {serviceArea || city}
                     </span>
                     <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                         Service <span style={{ color: "var(--brand)" }}>Locations</span>
@@ -57,13 +59,13 @@ export default function LocationsPage() {
             <section style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", padding: "2rem 1.5rem" }}>
                 <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "2rem", textAlign: "center" }}>
                     {[
-                        { icon: "🚛", label: "Same Day", sub: "Service Available" },
-                        { icon: "🛡️", label: "Licensed", sub: "& Fully Insured" },
-                        { icon: "♻️", label: "Eco-Friendly", sub: "Disposal" },
-                        { icon: "📞", label: "Free", sub: "Estimates" },
+                        { Icon: Truck, label: "Same Day", sub: "Service Available" },
+                        { Icon: ShieldCheck, label: "Licensed", sub: "& Fully Insured" },
+                        { Icon: Recycle, label: "Eco-Friendly", sub: "Disposal" },
+                        { Icon: Phone, label: "Free", sub: "Estimates" },
                     ].map((m) => (
                         <div key={m.label} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                            <span style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>{m.icon}</span>
+                            <span style={{ marginBottom: "0.5rem" }}><m.Icon size={28} color="var(--brand)" /></span>
                             <span style={{ fontWeight: 800, fontSize: "1.15rem" }}>{m.label}</span>
                             <span style={{ color: "var(--muted)", fontSize: "0.85rem" }}>{m.sub}</span>
                         </div>
@@ -95,7 +97,7 @@ export default function LocationsPage() {
                                 }}
                             >
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                                    <span style={{ fontSize: "2rem" }}>📍</span>
+                                    <span style={{ fontSize: "2rem" }}><MapPin size={28} color="var(--brand)" /></span>
                                     <span style={{ color: "var(--muted)" }}>→</span>
                                 </div>
                                 <h3 style={{ fontSize: "1.25rem", fontWeight: 800, textTransform: "uppercase", marginBottom: "0.5rem" }}>
@@ -145,7 +147,7 @@ export default function LocationsPage() {
                                     transition: "transform 0.2s",
                                 }}
                             >
-                                <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>{svc.icon}</div>
+                                <div style={{ marginBottom: "0.75rem" }}><ServiceIcon name={svc.icon} size={28} color="var(--brand)" /></div>
                                 <h3 style={{ fontSize: "1rem", fontWeight: 700, textTransform: "uppercase" }}>{svc.title}</h3>
                             </Link>
                         ))}
@@ -164,10 +166,10 @@ export default function LocationsPage() {
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
-                            🚛 Book Your Pickup
+                            <Truck size={18} /> Book Your Pickup
                         </Link>
-                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
-                            📞 {formatPhone(phoneNumber)}
+                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                            <Phone size={18} /> {formatPhone(phoneNumber)}
                         </a>
                     </div>
                 </div>

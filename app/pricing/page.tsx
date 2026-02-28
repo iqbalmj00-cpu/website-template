@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle, Truck, Phone } from "lucide-react";
+import { ArrowRight, CheckCircle, Truck, Phone, Package, Armchair, Home, HardHat, Container, BadgeDollarSign } from "lucide-react";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
@@ -13,12 +13,12 @@ export default function PricingPage() {
     const enabledSurcharges = surcharges.filter(s => s.enabled);
 
     const volumes = [
-        { id: "few", icon: "📦", desc: "A few small items — a chair, some boxes, a microwave" },
-        { id: "quarter", icon: "🪑", desc: "A room's worth of clutter — small furniture, bags, and odds & ends" },
-        { id: "half", icon: "🏠", desc: "Multiple rooms or a garage half-full of junk" },
-        { id: "three_quarter", icon: "🏗️", desc: "A full garage cleanout or small estate cleanout" },
-        { id: "full", icon: "🚛", desc: "The works — whole-house cleanout, major renovation debris" },
-        { id: "multi", icon: "🚛🚛", desc: "More than one full truck load" },
+        { id: "few", Icon: Package, desc: "A few small items — a chair, some boxes, a microwave" },
+        { id: "quarter", Icon: Armchair, desc: "A room's worth of clutter — small furniture, bags, and odds & ends" },
+        { id: "half", Icon: Home, desc: "Multiple rooms or a garage half-full of junk" },
+        { id: "three_quarter", Icon: HardHat, desc: "A full garage cleanout or small estate cleanout" },
+        { id: "full", Icon: Truck, desc: "The works — whole-house cleanout, major renovation debris" },
+        { id: "multi", Icon: Container, desc: "More than one full truck load" },
     ];
 
     const included = [
@@ -36,7 +36,7 @@ export default function PricingPage() {
             <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
                     <span style={{ display: "inline-block", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
-                        💰 Simple Pricing
+                        <BadgeDollarSign size={16} style={{ color: "var(--brand)" }} /> Simple Pricing
                     </span>
                     <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
                         Transparent, Volume-Based Pricing
@@ -68,9 +68,9 @@ export default function PricingPage() {
                                     <div style={{
                                         width: 56, height: 56, borderRadius: 12,
                                         background: `rgba(var(--brand-rgb, 249, 115, 22), ${0.06 + i * 0.04})`,
-                                        display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem",
+                                        display: "flex", alignItems: "center", justifyContent: "center",
                                     }}>
-                                        {v.icon}
+                                        <v.Icon size={24} color="var(--brand)" />
                                     </div>
                                     <div>
                                         <h3 style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.25rem" }}>

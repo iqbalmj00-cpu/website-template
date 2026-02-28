@@ -8,21 +8,21 @@ export type LocationOption = { id: string; label: string; icon: string; desc: st
 export type TimeSlot = { id: string; label: string; period: string };
 
 export const JUNK_CATEGORIES: JunkCategory[] = [
-    { id: "furniture", label: "Furniture Removal", icon: "🛋️", desc: "Sofas, tables, chairs, dressers", inputType: "quantity" },
-    { id: "appliances", label: "Appliance Disposal", icon: "🧊", desc: "Fridges, washers, dryers, ovens", inputType: "quantity" },
-    { id: "yard", label: "Yard Waste", icon: "🌿", desc: "Branches, soil, leaves, stumps", inputType: "pile" },
-    { id: "construction", label: "Construction Debris", icon: "🧱", desc: "Drywall, lumber, tile, concrete", inputType: "pile" },
-    { id: "electronics", label: "E-Waste Recycling", icon: "🖥️", desc: "TVs, computers, printers, cables", inputType: "quantity" },
-    { id: "household", label: "General Junk", icon: "📦", desc: "Boxes, bags, miscellaneous items", inputType: "pile" },
-    { id: "mattress", label: "Mattresses", icon: "🛏️", desc: "Mattresses, box springs, frames", inputType: "quantity" },
-    { id: "garage", label: "Garage Cleanout", icon: "🏠", desc: "Tools, storage, equipment", inputType: "pile" },
+    { id: "furniture", label: "Furniture Removal", icon: "Armchair", desc: "Sofas, tables, chairs, dressers", inputType: "quantity" },
+    { id: "appliances", label: "Appliance Disposal", icon: "Plug", desc: "Fridges, washers, dryers, ovens", inputType: "quantity" },
+    { id: "yard", label: "Yard Waste", icon: "TreePine", desc: "Branches, soil, leaves, stumps", inputType: "pile" },
+    { id: "construction", label: "Construction Debris", icon: "HardHat", desc: "Drywall, lumber, tile, concrete", inputType: "pile" },
+    { id: "electronics", label: "E-Waste Recycling", icon: "Monitor", desc: "TVs, computers, printers, cables", inputType: "quantity" },
+    { id: "household", label: "General Junk", icon: "Package", desc: "Boxes, bags, miscellaneous items", inputType: "pile" },
+    { id: "mattress", label: "Mattresses", icon: "BedDouble", desc: "Mattresses, box springs, frames", inputType: "quantity" },
+    { id: "garage", label: "Garage Cleanout", icon: "Warehouse", desc: "Tools, storage, equipment", inputType: "pile" },
 ];
 
 export const PILE_SIZES: PileSize[] = [
-    { id: "small", label: "Small Pile", desc: "A few bags or a wheelbarrow worth", icon: "📦" },
-    { id: "medium", label: "Medium Pile", desc: "Dining table–sized area, fills a pickup bed", icon: "📦📦" },
-    { id: "large", label: "Large Pile", desc: "Waist-high pile, half a garage bay", icon: "🏔️" },
-    { id: "xl", label: "XL Pile", desc: "Chest-high or larger, fills a full garage bay", icon: "🏔️🏔️" },
+    { id: "small", label: "Small Pile", desc: "A few bags or a wheelbarrow worth", icon: "Package" },
+    { id: "medium", label: "Medium Pile", desc: "Dining table–sized area, fills a pickup bed", icon: "Truck" },
+    { id: "large", label: "Large Pile", desc: "Waist-high pile, half a garage bay", icon: "Container" },
+    { id: "xl", label: "XL Pile", desc: "Chest-high or larger, fills a full garage bay", icon: "Warehouse" },
 ];
 
 export const CATEGORY_ITEMS: Record<string, JunkItem[]> = {
@@ -78,12 +78,12 @@ export const VOLUME_OPTIONS: VolumeOption[] = [
 ];
 
 export const LOCATION_OPTIONS: LocationOption[] = [
-    { id: "curbside", label: "Curbside / Driveway", icon: "🏘️", desc: "Already outside, easy access" },
-    { id: "garage", label: "Garage", icon: "🚗", desc: "Inside the garage" },
-    { id: "ground_floor", label: "Ground Floor", icon: "🏠", desc: "First floor, no stairs" },
-    { id: "upstairs", label: "Upstairs", icon: "⬆️", desc: "Second floor or higher" },
-    { id: "basement", label: "Basement", icon: "⬇️", desc: "Below ground level" },
-    { id: "backyard", label: "Backyard", icon: "🌳", desc: "Behind the house" },
+    { id: "curbside", label: "Curbside / Driveway", icon: "Home", desc: "Already outside, easy access" },
+    { id: "garage", label: "Garage", icon: "Warehouse", desc: "Inside the garage" },
+    { id: "ground_floor", label: "Ground Floor", icon: "Building2", desc: "First floor, no stairs" },
+    { id: "upstairs", label: "Upstairs", icon: "ArrowUp", desc: "Second floor or higher" },
+    { id: "basement", label: "Basement", icon: "ArrowDown", desc: "Below ground level" },
+    { id: "backyard", label: "Backyard", icon: "TreePine", desc: "Behind the house" },
 ];
 
 export const TIME_SLOTS: TimeSlot[] = [

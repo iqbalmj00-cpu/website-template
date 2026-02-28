@@ -4,15 +4,17 @@ import Link from "next/link";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
 import { useState } from "react";
+import ServiceIcon from "@/components/ServiceIcon";
+import { ShieldCheck, MapPin, Building2, Ban, ClipboardList, Phone } from "lucide-react";
 
 function ServiceCard({
-    icon,
+    iconName,
     title,
     slug,
     shortDesc,
     fullDesc,
 }: {
-    icon: string;
+    iconName: string;
     title: string;
     slug: string;
     shortDesc: string;
@@ -41,7 +43,7 @@ function ServiceCard({
                 (e.currentTarget as HTMLElement).style.transform = "none";
             }}
         >
-            <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>{icon}</div>
+            <div style={{ marginBottom: "1rem", display: "flex" }}><ServiceIcon name={iconName} size={36} color="var(--brand)" /></div>
             <h3 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--foreground)", marginBottom: "0.5rem" }}>
                 {title}
             </h3>
@@ -114,7 +116,7 @@ export default function ServicesPage() {
                             marginBottom: "2rem",
                         }}
                     >
-                        🛡️ Licensed & Insured
+                        <ShieldCheck size={16} style={{ color: "var(--brand)" }} /> Licensed & Insured
                     </span>
                     <h1
                         style={{
@@ -133,7 +135,7 @@ export default function ServicesPage() {
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/locations" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
-                            📍 View Coverage Area
+                            <MapPin size={16} /> View Coverage Area
                         </Link>
                         <Link
                             href="/commercial"
@@ -148,7 +150,7 @@ export default function ServicesPage() {
                                 transition: "all 0.2s",
                             }}
                         >
-                            🏢 Business Solutions
+                            <Building2 size={16} /> Business Solutions
                         </Link>
                     </div>
                 </div>
@@ -168,7 +170,7 @@ export default function ServicesPage() {
                     {services.map((svc) => (
                         <ServiceCard
                             key={svc.slug}
-                            icon={svc.icon}
+                            iconName={svc.icon}
                             title={svc.title}
                             slug={svc.slug}
                             shortDesc={svc.shortDesc}
@@ -181,7 +183,7 @@ export default function ServicesPage() {
             {/* Items We Don't Accept */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
-                    <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🚫</div>
+                    <Ban size={40} style={{ color: "#ef4444", marginBottom: "1rem" }} />
                     <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "2rem" }}>Items We Do Not Accept</h2>
                     <div
                         style={{
@@ -239,7 +241,7 @@ export default function ServicesPage() {
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" className="btn-primary" style={{ padding: "1rem 2.5rem", fontSize: "1.1rem" }}>
-                            📋 Get an Instant Quote
+                            <ClipboardList size={18} /> Get an Instant Quote
                         </Link>
                         <a
                             href={telHref(phoneNumber)}
@@ -253,7 +255,7 @@ export default function ServicesPage() {
                                 fontSize: "1.1rem",
                             }}
                         >
-                            📞 {formatPhone(phoneNumber)}
+                            <Phone size={18} /> {formatPhone(phoneNumber)}
                         </a>
                     </div>
                 </div>

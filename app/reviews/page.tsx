@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import type { Metadata } from "next";
+import { ClipboardList, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
     title: `Customer Reviews | ${siteConfig.companyName}`,
@@ -63,8 +64,8 @@ export default function ReviewsPage() {
                     <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Join Our Happy Customers</h2>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", marginBottom: "2rem" }}>Book your pickup today and see why our customers keep coming back.</p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                        <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>📋 Book Now</Link>
-                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--hero-text)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {formatPhone(phoneNumber)}</a>
+                        <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><ClipboardList size={18} /> Book Now</Link>
+                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--hero-text)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Phone size={18} /> {formatPhone(phoneNumber)}</a>
                     </div>
                 </div>
             </section>

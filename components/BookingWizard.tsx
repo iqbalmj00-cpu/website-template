@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronLeft, ArrowRight, CreditCard, Lock } from "lucide-react";
+import { Check, ChevronLeft, ArrowRight, CreditCard, Lock, Trash2, ClipboardList, Truck, MapPin, CalendarDays, BarChart3, AlertTriangle, LockKeyhole, Hand } from "lucide-react";
+import ServiceIcon from "@/components/ServiceIcon";
 import { siteConfig } from "@/lib/siteConfig";
 import {
     STEPS, JUNK_CATEGORIES, CATEGORY_ITEMS, VOLUME_OPTIONS,
@@ -447,7 +448,7 @@ export default function BookingWizard() {
                 {step === 0 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>👋</div>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><Hand size={26} color="var(--brand)" /></div>
                             <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Let&apos;s get started!</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Tell us a bit about yourself so we can prepare your custom quote.</p>
                         </div>
@@ -503,7 +504,7 @@ export default function BookingWizard() {
                 {step === 1 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>🗑️</div>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><Trash2 size={26} color="var(--brand)" /></div>
                             <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>What kind of junk are we hauling?</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Select all categories that apply.</p>
                         </div>
@@ -516,7 +517,7 @@ export default function BookingWizard() {
                                             <Check size={14} />
                                         </div>
                                     )}
-                                    <div style={{ fontSize: 32, marginBottom: 8 }}>{cat.icon}</div>
+                                    <div style={{ marginBottom: 8, display: "flex", justifyContent: "center" }}><ServiceIcon name={cat.icon} size={32} color="var(--brand)" /></div>
                                     <div style={{ fontWeight: 600, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{cat.label}</div>
                                     <div style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.4 }}>{cat.desc}</div>
                                 </div>
@@ -529,7 +530,7 @@ export default function BookingWizard() {
                 {step === 2 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>📋</div>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><ClipboardList size={26} color="var(--brand)" /></div>
                             <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Tell us what you have</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Pick items or estimate pile sizes for each category.</p>
                         </div>
@@ -543,7 +544,7 @@ export default function BookingWizard() {
                                 return (
                                     <div key={catId} style={{ marginBottom: 28 }}>
                                         <h3 style={{ fontFamily: "var(--heading-font)", fontSize: 15, fontWeight: 700, color: "var(--foreground)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.02em" }}>
-                                            {cat.icon} {cat.label} — How big is the pile?
+                                            <ServiceIcon name={cat.icon} size={16} color="var(--brand)" /> {cat.label} — How big is the pile?
                                         </h3>
                                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10 }}>
                                             {PILE_SIZES.map(size => (
@@ -560,7 +561,7 @@ export default function BookingWizard() {
                                                             <Check size={12} />
                                                         </div>
                                                     )}
-                                                    <div style={{ fontSize: 24, marginBottom: 6 }}>{size.icon}</div>
+                                                    <div style={{ marginBottom: 6, display: "flex", justifyContent: "center" }}><ServiceIcon name={size.icon} size={24} color="var(--brand)" /></div>
                                                     <div style={{ fontWeight: 700, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{size.label}</div>
                                                     <div style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.4 }}>{size.desc}</div>
                                                 </div>
@@ -575,7 +576,7 @@ export default function BookingWizard() {
                             return (
                                 <div key={catId} style={{ marginBottom: 28 }}>
                                     <h3 style={{ fontFamily: "var(--heading-font)", fontSize: 15, fontWeight: 700, color: "var(--foreground)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.02em" }}>
-                                        {cat.icon} {cat.label}
+                                        <ServiceIcon name={cat.icon} size={16} color="var(--brand)" /> {cat.label}
                                     </h3>
                                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
                                         {items.map(item => {
@@ -619,7 +620,7 @@ export default function BookingWizard() {
                 {step === 3 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>🚛</div>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><Truck size={26} color="var(--brand)" /></div>
                             <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>How much space will it take?</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Estimate how much of our {pricing.truckSize} truck your junk will fill.</p>
                         </div>
@@ -627,7 +628,7 @@ export default function BookingWizard() {
                         {/* Recommendation banner */}
                         {estimatedVolumeId && (
                             <div style={{ padding: "12px 18px", borderRadius: 12, background: "#F0FDF4", border: "1px solid #BBF7D0", textAlign: "center", marginBottom: 20 }}>
-                                <span style={{ fontSize: 14, fontWeight: 600, color: "#16A34A" }}>📊 Based on your items, we estimate about a <strong>{VOLUME_OPTIONS.find(v => v.id === estimatedVolumeId)?.label}</strong></span>
+                                <span style={{ fontSize: 14, fontWeight: 600, color: "#16A34A" }}><BarChart3 size={14} style={{ display: "inline", verticalAlign: "middle" }} /> Based on your items, we estimate about a <strong>{VOLUME_OPTIONS.find(v => v.id === estimatedVolumeId)?.label}</strong></span>
                             </div>
                         )}
 
@@ -637,7 +638,7 @@ export default function BookingWizard() {
                         {/* Comparison caption under truck */}
                         {volume && (
                             <p style={{ textAlign: "center", fontSize: 14, fontWeight: 600, color: "var(--muted)", marginBottom: 24 }}>
-                                🛻 {VOLUME_OPTIONS.find(v => v.id === volume)?.comparison}
+                                <Truck size={16} style={{ display: "inline", verticalAlign: "middle" }} /> {VOLUME_OPTIONS.find(v => v.id === volume)?.comparison}
                             </p>
                         )}
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
@@ -658,7 +659,7 @@ export default function BookingWizard() {
                                             <span style={{ fontWeight: 700, fontSize: 15, color: "var(--foreground)" }}>{v.label}</span>
                                             <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 20, background: volume === v.id ? "#FFEDD5" : "var(--border, #F1F5F9)", color: volume === v.id ? "var(--brand)" : "var(--muted)" }}>{v.fraction}</span>
                                         </div>
-                                        <div style={{ fontSize: 12, color: "var(--muted)" }}>🛻 {v.comparison}</div>
+                                        <div style={{ fontSize: 12, color: "var(--muted)" }}><Truck size={12} style={{ display: "inline", verticalAlign: "middle" }} /> {v.comparison}</div>
                                         {tier && (
                                             <div style={{ fontSize: 14, fontWeight: 700, color: "var(--brand)", marginTop: 8 }}>${tier.min} – ${tier.max}</div>
                                         )}
@@ -673,7 +674,7 @@ export default function BookingWizard() {
                 {step === 4 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>📍</div>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><MapPin size={26} color="var(--brand)" /></div>
                             <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Where is the junk located?</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>This helps us plan access and determine crew size.</p>
                         </div>
@@ -686,7 +687,7 @@ export default function BookingWizard() {
                                             <Check size={14} />
                                         </div>
                                     )}
-                                    <div style={{ fontSize: 32, marginBottom: 8 }}>{loc.icon}</div>
+                                    <div style={{ marginBottom: 8, display: "flex", justifyContent: "center" }}><ServiceIcon name={loc.icon} size={32} color="var(--brand)" /></div>
                                     <div style={{ fontWeight: 600, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{loc.label}</div>
                                     <div style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.4 }}>{loc.desc}</div>
                                 </div>
@@ -694,7 +695,7 @@ export default function BookingWizard() {
                         </div>
                         {(location === "upstairs" || location === "basement") && stairsSurcharge?.enabled && (
                             <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, background: "#FFFBEB", border: "1px solid #FEF3C7", fontSize: 13, color: "#92400E", display: "flex", alignItems: "center", gap: 8 }}>
-                                ⚠️ Stairs access may add ${stairsSurcharge.amount} to the estimate due to extra labor.
+                                <AlertTriangle size={16} style={{ display: "inline", verticalAlign: "middle", flexShrink: 0 }} /> Stairs access may add ${stairsSurcharge.amount} to the estimate due to extra labor.
                             </div>
                         )}
                     </div>
@@ -704,7 +705,7 @@ export default function BookingWizard() {
                 {step === 5 && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 26 }}>📅</div>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><CalendarDays size={26} color="var(--brand)" /></div>
                             <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Pick a date & time</h1>
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>You can reschedule after booking if needed.</p>
                         </div>
@@ -793,7 +794,7 @@ export default function BookingWizard() {
                                     <p style={{ fontSize: 12, color: "#DC2626", marginTop: 8 }}>{cardError}</p>
                                 )}
                                 <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 12, lineHeight: 1.5 }}>
-                                    🔒 Your card will be saved on file and <strong>will not be charged</strong> until your job is complete.
+                                    <LockKeyhole size={14} style={{ display: "inline", verticalAlign: "middle" }} /> Your card will be saved on file and <strong>will not be charged</strong> until your job is complete.
                                     The final price will be confirmed by your crew on-site.
                                 </p>
                             </div>

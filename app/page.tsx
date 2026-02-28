@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Phone, Star, CheckCircle, ArrowRight, Truck, Clock, Shield, Leaf } from "lucide-react";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { getClientServices, ALL_SERVICES } from "@/lib/serviceData";
+import ServiceIcon from "@/components/ServiceIcon";
 
 export default function HomePage() {
     const howItWorks = [
@@ -91,7 +92,7 @@ export default function HomePage() {
                             }}
                         >
                             <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--brand)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                                Serving {siteConfig.serviceArea}
+                                Serving {siteConfig.city}
                             </span>
                         </div>
                         <h1
@@ -188,7 +189,7 @@ export default function HomePage() {
                         {siteConfig.services.map((service) => {
                             const slug = service.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
                             const svcData = getClientServices().find(s => s.slug === slug) || ALL_SERVICES.find(s => s.slug === slug);
-                            const icon = svcData?.icon || "🚛";
+                            const iconName = svcData?.icon || "Truck";
                             return (
                                 <Link
                                     key={service}
@@ -196,7 +197,7 @@ export default function HomePage() {
                                     className="card"
                                     style={{ textAlign: "center", padding: "1.5rem 1rem", textDecoration: "none", color: "inherit" }}
                                 >
-                                    <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>{icon}</div>
+                                    <div style={{ marginBottom: "0.75rem", display: "flex", justifyContent: "center" }}><ServiceIcon name={iconName} size={32} color="var(--brand)" /></div>
                                     <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)" }}>
                                         {service}
                                     </p>

@@ -5,6 +5,8 @@ import { getLocations, getLocationBySlug } from "@/lib/locationData";
 import { getClientServices } from "@/lib/serviceData";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import ServiceIcon from "@/components/ServiceIcon";
+import { MapPin, Truck, Phone } from "lucide-react";
 
 export async function generateStaticParams() {
     return getLocations().map((loc) => ({ slug: loc.slug }));
@@ -33,7 +35,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                 <div data-image-grid style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "center" }}>
                     <div>
                         <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
-                            📍 {location.heroBadge}
+                            <MapPin size={16} style={{ color: "var(--brand)" }} /> {location.heroBadge}
                         </span>
                         <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                             Junk Removal in <span style={{ color: "var(--brand)" }}>{location.name}, {location.state}</span>
@@ -43,10 +45,10 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                         </p>
                         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
                             <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
-                                🚛 Get A Free Quote
+                                <Truck size={18} /> Get A Free Quote
                             </Link>
-                            <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--hero-border)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>
-                                📞 {formatPhone(phoneNumber)}
+                            <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--hero-border)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                                <Phone size={18} /> {formatPhone(phoneNumber)}
                             </a>
                         </div>
                     </div>
@@ -83,7 +85,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.5rem" }}>
                         {services.map((svc) => (
                             <Link key={svc.slug} href={`/services/${svc.slug}`} style={{ padding: "2rem", background: "var(--background)", border: "1px solid var(--border)", borderRadius: 16, textDecoration: "none", color: "inherit", transition: "transform 0.2s" }}>
-                                <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>{svc.icon}</div>
+                                <div style={{ marginBottom: "0.75rem" }}><ServiceIcon name={svc.icon} size={28} color="var(--brand)" /></div>
                                 <h3 style={{ fontSize: "1rem", fontWeight: 700, textTransform: "uppercase", marginBottom: "0.5rem" }}>{svc.title}</h3>
                                 <p style={{ color: "var(--muted)", fontSize: "0.85rem", lineHeight: 1.5 }}>{svc.shortDesc}</p>
                             </Link>
@@ -102,7 +104,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "0.75rem", maxWidth: 800, margin: "0 auto" }}>
                         {location.neighborhoods.map((hood) => (
                             <div key={hood} style={{ background: "var(--card)", borderRadius: 8, padding: "0.75rem 1rem", textAlign: "center", border: "1px solid var(--border)", fontSize: "0.9rem", fontWeight: 600 }}>
-                                📍 {hood}
+                                <MapPin size={14} color="var(--brand)" style={{ display: "inline" }} /> {hood}
                             </div>
                         ))}
                     </div>
@@ -150,8 +152,8 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                         Book online in 2 minutes or call for an instant estimate.
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                        <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>🚛 Get Instant Quote</Link>
-                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {formatPhone(phoneNumber)}</a>
+                        <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Truck size={18} /> Get Instant Quote</Link>
+                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Phone size={18} /> {formatPhone(phoneNumber)}</a>
                     </div>
                 </div>
             </section>

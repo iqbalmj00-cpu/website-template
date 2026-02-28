@@ -3,6 +3,8 @@ import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { ALL_SERVICES, getServiceBySlug, getClientServices } from "@/lib/serviceData";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import ServiceIcon from "@/components/ServiceIcon";
+import { Phone, CalendarDays } from "lucide-react";
 
 export async function generateStaticParams() {
     return ALL_SERVICES.map((svc) => ({ slug: svc.slug }));
@@ -49,7 +51,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                         }}
                     >
                         <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
-                        {svc.icon} Available for same-day pickup
+                        <ServiceIcon name={svc.icon} size={16} color="var(--brand)" /> Available for same-day pickup
                     </span>
                     <h1
                         style={{
@@ -77,7 +79,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                             href={telHref(phoneNumber)}
                             className="hero-outline-btn"
                         >
-                            📞 {formatPhone(phoneNumber)}
+                            <Phone size={16} /> {formatPhone(phoneNumber)}
                         </a>
                     </div>
                     <div style={{ display: "flex", gap: "2rem", justifyContent: "center", flexWrap: "wrap" }}>
@@ -228,7 +230,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                         transition: "all 0.2s",
                                     }}
                                 >
-                                    {s.icon} {s.title} →
+                                    <ServiceIcon name={s.icon} size={16} color="var(--brand)" /> {s.title} →
                                 </Link>
                             ))}
                         </div>
@@ -264,7 +266,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                 textDecoration: "none",
                             }}
                         >
-                            📅 Book Online Now
+                            <CalendarDays size={18} /> Book Online Now
                         </Link>
                         <a
                             href={telHref(phoneNumber)}
@@ -278,7 +280,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                 textDecoration: "none",
                             }}
                         >
-                            📞 Call {formatPhone(phoneNumber)}
+                            <Phone size={18} /> Call {formatPhone(phoneNumber)}
                         </a>
                     </div>
                 </div>

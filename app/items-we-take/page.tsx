@@ -2,6 +2,7 @@ import Link from "next/link";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
 import type { Metadata } from "next";
+import { CalendarDays } from "lucide-react";
 
 export const metadata: Metadata = {
     title: `Items We Take | ${siteConfig.companyName}`,
@@ -72,7 +73,7 @@ export default function ItemsWeTakePage() {
             }>
                 <div style={{ maxWidth: 600, margin: "0 auto" }}>
                     <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Ready to Haul It Away?</h2>
-                    <Link href="/book" style={{ display: "inline-block", padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📅 Book Your Pickup</Link>
+                    <Link href="/book" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}><CalendarDays size={18} /> Book Your Pickup</Link>
                 </div>
             </section >
         </>

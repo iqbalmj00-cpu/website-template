@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import type { Metadata } from "next";
+import { Smartphone, Truck, CircleCheckBig, BadgeDollarSign, Clock, Recycle, ShieldCheck, CalendarDays, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
     title: `How It Works | ${siteConfig.companyName}`,
@@ -13,19 +14,19 @@ export default function HowItWorksPage() {
     const steps = [
         {
             num: "01",
-            icon: "📱",
+            Icon: Smartphone,
             title: "Book Online or Call",
             desc: `Schedule your pickup in under 2 minutes through our website or call us at ${formatPhone(phoneNumber)}. Pick a date and time window that works for you — same-day appointments often available.`,
         },
         {
             num: "02",
-            icon: "🚛",
+            Icon: Truck,
             title: "We Show Up & Quote",
             desc: "Our uniformed, insured crew arrives within your time window. We look at what needs to go and give you a firm, upfront price before we touch anything. No surprises, no hidden fees.",
         },
         {
             num: "03",
-            icon: "✅",
+            Icon: CircleCheckBig,
             title: "We Haul It Away",
             desc: "Once you approve the price, we get to work immediately. We load, sweep up, and haul everything away. Usable items are donated, the rest is recycled or disposed of responsibly.",
         },
@@ -60,8 +61,8 @@ export default function HowItWorksPage() {
                                 borderBottom: i < steps.length - 1 ? "1px solid var(--border)" : "none",
                             }}
                         >
-                            <div style={{ flexShrink: 0, width: 80, height: 80, borderRadius: 16, background: "rgba(var(--brand-rgb, 249, 115, 22), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2.5rem" }}>
-                                {step.icon}
+                            <div style={{ flexShrink: 0, width: 80, height: 80, borderRadius: 16, background: "rgba(var(--brand-rgb, 249, 115, 22), 0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <step.Icon size={36} color="var(--brand)" />
                             </div>
                             <div>
                                 <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--brand)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Step {step.num}</span>
@@ -79,13 +80,13 @@ export default function HowItWorksPage() {
                     <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "3rem" }}>Our Guarantee</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "2rem" }}>
                         {[
-                            { icon: "💰", title: "No Hidden Fees", desc: "The price we quote is the price you pay. Period." },
-                            { icon: "⏰", title: "On-Time Arrival", desc: "We show up within your scheduled window, every time." },
-                            { icon: "♻️", title: "Eco-Friendly", desc: "We donate and recycle first. Landfill is the last resort." },
-                            { icon: "🛡️", title: "Fully Insured", desc: "Licensed and insured so you have zero liability." },
+                            { Icon: BadgeDollarSign, title: "No Hidden Fees", desc: "The price we quote is the price you pay. Period." },
+                            { Icon: Clock, title: "On-Time Arrival", desc: "We show up within your scheduled window, every time." },
+                            { Icon: Recycle, title: "Eco-Friendly", desc: "We donate and recycle first. Landfill is the last resort." },
+                            { Icon: ShieldCheck, title: "Fully Insured", desc: "Licensed and insured so you have zero liability." },
                         ].map((g) => (
                             <div key={g.title} style={{ padding: "2rem", background: "var(--background)", borderRadius: 16, border: "1px solid var(--border)" }}>
-                                <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>{g.icon}</div>
+                                <div style={{ marginBottom: "0.75rem" }}><g.Icon size={28} color="var(--brand)" /></div>
                                 <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{g.title}</h3>
                                 <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>{g.desc}</p>
                             </div>
@@ -100,8 +101,8 @@ export default function HowItWorksPage() {
                     <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Ready to Get Started?</h2>
                     <p style={{ color: "var(--hero-text)", fontSize: "1.1rem", marginBottom: "2rem" }}>Book online in 2 minutes. Same-day service available in {city}{state ? `, ${state}` : ""}.</p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                        <Link href="/book" style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}>📅 Book Online Now</Link>
-                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--hero-text)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem" }}>📞 {formatPhone(phoneNumber)}</a>
+                        <Link href="/book" style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><CalendarDays size={18} /> Book Online Now</Link>
+                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--hero-text)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Phone size={18} /> {formatPhone(phoneNumber)}</a>
                     </div>
                 </div>
             </section>
