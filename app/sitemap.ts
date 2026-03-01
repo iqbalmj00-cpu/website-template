@@ -1,9 +1,10 @@
 import { siteConfig } from "@/lib/siteConfig";
-import { ALL_SERVICES, getClientServices } from "@/lib/serviceData";
+import { getClientServices } from "@/lib/serviceData";
 import { getLocations } from "@/lib/locationData";
+import { fetchBlogs } from "@/lib/blogData";
 import type { MetadataRoute } from "next";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = siteConfig.subdomain
         ? `https://${siteConfig.subdomain}.scaleyourjunk.com`
         : "https://example.com";
@@ -26,6 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         { url: `${baseUrl}/items-we-dont-take`, changeFrequency: "monthly" as const, priority: 0.4 },
         { url: `${baseUrl}/book`, changeFrequency: "monthly" as const, priority: 0.9 },
         { url: `${baseUrl}/get-started`, changeFrequency: "monthly" as const, priority: 0.8 },
+        { url: `${baseUrl}/blog`, changeFrequency: "weekly" as const, priority: 0.7 },
         { url: `${baseUrl}/legal`, changeFrequency: "yearly" as const, priority: 0.2 },
     ];
 
@@ -45,9 +47,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
         lastModified: now,
     }));
 
+    // Blog pages
+    const blogs = await fetchBlogs();
+    const blogPages = blogs.map((b) => ({
+        url: `${baseUrl}/blog/${b.slug}`,
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+        lastModified: now,
+    }));
+
     return [
         ...staticPages.map((p) => ({ ...p, lastModified: now })),
         ...servicePages,
         ...locationPages,
+        ...blogPages,
     ];
 }
