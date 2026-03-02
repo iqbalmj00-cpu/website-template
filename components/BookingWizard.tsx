@@ -2,12 +2,15 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronLeft, ArrowRight, CreditCard, Lock, Trash2, ClipboardList, Truck, MapPin, CalendarDays, BarChart3, AlertTriangle, LockKeyhole, Hand } from "lucide-react";
+import { Check, ChevronLeft, ArrowRight, CreditCard, Lock, Trash2, ClipboardList, Truck, MapPin, CalendarDays, BarChart3, AlertTriangle, LockKeyhole, Hand, Wrench, Box } from "lucide-react";
 import ServiceIcon from "@/components/ServiceIcon";
 import { siteConfig } from "@/lib/siteConfig";
 import {
-    STEPS, JUNK_CATEGORIES, CATEGORY_ITEMS, VOLUME_OPTIONS,
+    JUNK_CATEGORIES, CATEGORY_ITEMS, VOLUME_OPTIONS,
     LOCATION_OPTIONS, TIME_SLOTS, PILE_SIZES,
+    CONTAINER_SIZES, DEBRIS_TYPES, RENTAL_DURATIONS,
+    getPhases, getPhaseLabel,
+    type ServiceType, type WizardPhase,
 } from "@/lib/wizardData";
 import { loadStripe, type Stripe, type StripeCardElement } from "@stripe/stripe-js";
 
@@ -113,6 +116,16 @@ export default function BookingWizard() {
     const [error, setError] = useState("");
     const [leadCaptured, setLeadCaptured] = useState(false);
 
+    /* ── Dumpster rental state ── */
+    const [serviceType, setServiceType] = useState<ServiceType | null>(siteConfig.offersDumpsterRental ? null : "junk");
+    const [containerSize, setContainerSize] = useState<string | null>(null);
+    const [debrisType, setDebrisType] = useState<string | null>(null);
+    const [rentalDuration, setRentalDuration] = useState<string | null>(null);
+
+    /* ── Phase system ── */
+    const phases = useMemo(() => getPhases(serviceType, siteConfig.offersDumpsterRental), [serviceType]);
+    const currentPhase = phases[step] || "contact";
+
     /* ── Stripe card-on-file state (Growth tier only) ── */
     const [stripeReady, setStripeReady] = useState(false);
     const [cardComplete, setCardComplete] = useState(false);
@@ -122,9 +135,9 @@ export default function BookingWizard() {
     const cardRef = useRef<StripeCardElement | null>(null);
     const cardMountRef = useRef<HTMLDivElement | null>(null);
 
-    // Create SetupIntent + mount card element when entering step 6 (Growth only)
+    // Create SetupIntent + mount card element when entering quote phase (Growth only)
     useEffect(() => {
-        if (!isGrowth || step !== 6 || stripeReady) return;
+        if (!isGrowth || currentPhase !== "quote" || stripeReady) return;
         let cancelled = false;
 
         (async () => {
@@ -161,7 +174,7 @@ export default function BookingWizard() {
         })();
 
         return () => { cancelled = true; };
-    }, [step, stripeReady]);
+    }, [step, stripeReady, currentPhase]);
 
     const goNext = () => setStep(s => s + 1);
     const goBack = () => setStep(s => s - 1);
@@ -229,11 +242,11 @@ export default function BookingWizard() {
     // Auto-select volume when entering step 3 if user hasn't manually chosen
     const [volumeAutoSet, setVolumeAutoSet] = useState(false);
     useEffect(() => {
-        if (step === 3 && !volumeAutoSet && estimatedVolumeId && volume === null) {
+        if (currentPhase === "junk_volume" && !volumeAutoSet && estimatedVolumeId && volume === null) {
             setVolume(estimatedVolumeId);
             setVolumeAutoSet(true);
         }
-    }, [step, estimatedVolumeId, volume, volumeAutoSet]);
+    }, [currentPhase, estimatedVolumeId, volume, volumeAutoSet]);
 
     /* ── Pricing from config ─────────────────────────────────────── */
     const pricing = siteConfig.pricing;
@@ -243,11 +256,11 @@ export default function BookingWizard() {
         ? stairsSurcharge.amount : 0;
 
     const canProceed = () => {
-        switch (step) {
-            case 0: return contact.name && contact.phone && contact.email && contact.address;
-            case 1: return selectedCategories.length > 0;
-            case 2: {
-                // Every selected category must have either items (quantity) or a pile size (pile)
+        switch (currentPhase) {
+            case "contact": return contact.name && contact.phone && contact.email && contact.address;
+            case "service_type": return serviceType !== null;
+            case "junk_type": return selectedCategories.length > 0;
+            case "junk_items": {
                 return selectedCategories.every(catId => {
                     const cat = JUNK_CATEGORIES.find(c => c.id === catId);
                     if (!cat) return false;
@@ -255,10 +268,12 @@ export default function BookingWizard() {
                     return Object.values(selectedItems[catId] || {}).some(q => q > 0);
                 });
             }
-            case 3: return volume !== null;
-            case 4: return location !== null;
-            case 5: return selectedDate !== null && selectedTime !== null;
-            case 6: return true;
+            case "junk_volume": return volume !== null;
+            case "junk_location": return location !== null;
+            case "dumpster_size": return containerSize !== null;
+            case "dumpster_details": return debrisType !== null && rentalDuration !== null;
+            case "schedule": return selectedDate !== null && selectedTime !== null;
+            case "quote": return true;
             default: return false;
         }
     };
@@ -299,106 +314,122 @@ export default function BookingWizard() {
         setError("");
         try {
             const leadId = typeof window !== "undefined" ? localStorage.getItem("syjLeadId") : null;
-
-            /* ── Build structured items array ── */
-            const structuredItems: { category: string; item: string; qty: number }[] = [];
-            Object.entries(selectedItems).forEach(([catId, items]) => {
-                const catLabel = JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId;
-                Object.entries(items).forEach(([itemName, qty]) => {
-                    if (qty > 0) structuredItems.push({ category: catLabel, item: itemName, qty });
-                });
-            });
-
-            /* ── Build structured piles array ── */
-            const structuredPiles: { category: string; size: string }[] = [];
-            Object.entries(pileSizes).forEach(([catId, sizeId]) => {
-                const catLabel = JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId;
-                const sizeLabel = PILE_SIZES.find(p => p.id === sizeId)?.label || sizeId;
-                structuredPiles.push({ category: catLabel, size: sizeLabel });
-            });
-
-            /* ── Build rich human-readable description ── */
-            const descParts: string[] = [];
-            selectedCategories.forEach(catId => {
-                const catLabel = JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId;
-                const catItems = selectedItems[catId];
-                const pileSize = pileSizes[catId];
-                if (catItems && Object.keys(catItems).length > 0) {
-                    const itemStrs = Object.entries(catItems)
-                        .filter(([, qty]) => qty > 0)
-                        .map(([name, qty]) => qty > 1 ? `${name} ×${qty}` : name);
-                    descParts.push(`${catLabel}: ${itemStrs.join(", ")}`);
-                } else if (pileSize) {
-                    const sizeLabel = PILE_SIZES.find(p => p.id === pileSize)?.label || pileSize;
-                    descParts.push(`${catLabel}: ${sizeLabel}`);
-                }
-            });
-            const description = descParts.join("; ") || `${tierData?.label || ""} junk removal`;
-
-            /* ── Resolve human-readable labels ── */
-            const volumeOption = VOLUME_OPTIONS.find(v => v.id === volume);
-            const locationOption = LOCATION_OPTIONS.find(l => l.id === location);
             const timeSlotOption = TIME_SLOTS.find(t => t.id === selectedTime);
-            const categoryLabels = selectedCategories.map(
-                catId => JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId
-            );
-            const minPrice = tierData ? tierData.min + priceAdj : 0;
-            const maxPrice = tierData ? tierData.max + priceAdj : 0;
-            const quoteRangeStr = tierData ? `$${minPrice} – $${maxPrice}` : "";
 
-            /* ── Determine stairs / access info ── */
-            const stairsAccessLabel = locationOption?.label || "Ground Floor";
+            /* ── JUNK REMOVAL payload ── */
+            const sendJunkBooking = async () => {
+                const structuredItems: { category: string; item: string; qty: number }[] = [];
+                Object.entries(selectedItems).forEach(([catId, items]) => {
+                    const catLabel = JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId;
+                    Object.entries(items).forEach(([itemName, qty]) => {
+                        if (qty > 0) structuredItems.push({ category: catLabel, item: itemName, qty });
+                    });
+                });
+                const structuredPiles: { category: string; size: string }[] = [];
+                Object.entries(pileSizes).forEach(([catId, sizeId]) => {
+                    const catLabel = JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId;
+                    const sizeLabel = PILE_SIZES.find(p => p.id === sizeId)?.label || sizeId;
+                    structuredPiles.push({ category: catLabel, size: sizeLabel });
+                });
+                const descParts: string[] = [];
+                selectedCategories.forEach(catId => {
+                    const catLabel = JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId;
+                    const catItems = selectedItems[catId];
+                    const pileSize = pileSizes[catId];
+                    if (catItems && Object.keys(catItems).length > 0) {
+                        const itemStrs = Object.entries(catItems).filter(([, qty]) => qty > 0).map(([name, qty]) => qty > 1 ? `${name} ×${qty}` : name);
+                        descParts.push(`${catLabel}: ${itemStrs.join(", ")}`);
+                    } else if (pileSize) {
+                        descParts.push(`${catLabel}: ${PILE_SIZES.find(p => p.id === pileSize)?.label || pileSize}`);
+                    }
+                });
+                const description = descParts.join("; ") || `${tierData?.label || ""} junk removal`;
+                const volumeOption = VOLUME_OPTIONS.find(v => v.id === volume);
+                const locationOption = LOCATION_OPTIONS.find(l => l.id === location);
+                const categoryLabels = selectedCategories.map(catId => JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId);
+                const minPrice = tierData ? tierData.min + priceAdj : 0;
+                const maxPrice = tierData ? tierData.max + priceAdj : 0;
+                const quoteRangeStr = tierData ? `$${minPrice} – $${maxPrice}` : "";
+                const stairsAccessLabel = locationOption?.label || "Ground Floor";
 
-            const payload: Record<string, unknown> = {
-                type: "booking",
-                status: "booked",
-                name: contact.name,
-                phone: contact.phone,
-                email: contact.email,
-                address: contact.address,
-                description,
-                requestedDate: selectedDate?.toISOString().split("T")[0],
-                value: minPrice || undefined,
-                notes: contact.notes || "",
-                metadata: {
-                    timeSlot: timeSlotOption?.period || selectedTime || "",
-                    truckLoad: volumeOption?.fraction || "",
-                    quoteRange: quoteRangeStr,
-                    junkLocation: locationOption?.label || "",
-                    stairsAccess: stairsAccessLabel,
-                    categories: categoryLabels,
-                    items: structuredItems,
-                    piles: structuredPiles,
-                    priceRange: tierData ? [minPrice, maxPrice] : null,
-                    surcharges: priceAdj > 0 ? [{ id: "stairs", label: stairsSurcharge?.label, amount: priceAdj }] : [],
-                },
-                source: "WEBSITE",
-            };
-            if (leadId) payload.leadId = leadId;
+                const payload: Record<string, unknown> = {
+                    type: "booking", status: "booked",
+                    name: contact.name, phone: contact.phone, email: contact.email, address: contact.address,
+                    description, requestedDate: selectedDate?.toISOString().split("T")[0],
+                    value: minPrice || undefined, notes: contact.notes || "",
+                    metadata: {
+                        serviceType: "junk_removal",
+                        timeSlot: timeSlotOption?.period || selectedTime || "",
+                        truckLoad: volumeOption?.fraction || "", quoteRange: quoteRangeStr,
+                        junkLocation: locationOption?.label || "", stairsAccess: stairsAccessLabel,
+                        categories: categoryLabels, items: structuredItems, piles: structuredPiles,
+                        priceRange: tierData ? [minPrice, maxPrice] : null,
+                        surcharges: priceAdj > 0 ? [{ id: "stairs", label: stairsSurcharge?.label, amount: priceAdj }] : [],
+                    },
+                    source: "WEBSITE",
+                };
+                if (leadId) payload.leadId = leadId;
 
-            // ── Stripe: confirm card and attach payment method (Growth only) ──
-            if (isGrowth && stripeRef.current && cardRef.current && setupClientSecret) {
-                const { setupIntent, error: stripeErr } = await stripeRef.current.confirmCardSetup(
-                    setupClientSecret,
-                    { payment_method: { card: cardRef.current, billing_details: { name: contact.name, phone: contact.phone, email: contact.email } } }
-                );
-                if (stripeErr) throw new Error(stripeErr.message || "Card save failed");
-                if (setupIntent?.payment_method) {
-                    payload.stripePaymentMethodId = setupIntent.payment_method;
+                // Stripe card-on-file (Growth only)
+                if (isGrowth && stripeRef.current && cardRef.current && setupClientSecret) {
+                    const { setupIntent, error: stripeErr } = await stripeRef.current.confirmCardSetup(
+                        setupClientSecret,
+                        { payment_method: { card: cardRef.current, billing_details: { name: contact.name, phone: contact.phone, email: contact.email } } }
+                    );
+                    if (stripeErr) throw new Error(stripeErr.message || "Card save failed");
+                    if (setupIntent?.payment_method) payload.stripePaymentMethodId = setupIntent.payment_method;
                 }
+
+                const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Booking failed");
+                if (data.leadId) localStorage.setItem("syjLeadId", data.leadId);
+                return quoteRangeStr;
+            };
+
+            /* ── DUMPSTER RENTAL payload ── */
+            const sendDumpsterLead = async () => {
+                const containerLabel = CONTAINER_SIZES.find(c => c.id === containerSize)?.label || containerSize || "";
+                const debrisLabel = DEBRIS_TYPES.find(d => d.id === debrisType)?.label || debrisType || "";
+                const durationLabel = RENTAL_DURATIONS.find(r => r.id === rentalDuration)?.label || rentalDuration || "";
+                const description = `${containerLabel} dumpster, ${debrisLabel}, ${durationLabel}`;
+
+                const payload: Record<string, unknown> = {
+                    type: "rental_lead", status: "new",
+                    name: contact.name, phone: contact.phone, email: contact.email, address: contact.address,
+                    description, requestedDate: selectedDate?.toISOString().split("T")[0],
+                    notes: contact.notes || "",
+                    metadata: {
+                        serviceType: "dumpster_rental",
+                        containerSize: containerSize || "", debrisType: debrisType || "",
+                        rentalDuration: rentalDuration || "",
+                        timeSlot: timeSlotOption?.period || selectedTime || "",
+                    },
+                    source: "WEBSITE",
+                };
+                if (leadId) payload.leadId = leadId;
+
+                const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Rental request failed");
+                if (data.leadId) localStorage.setItem("syjLeadId", data.leadId);
+            };
+
+            /* ── Execute based on service type ── */
+            let priceStr = "";
+            if (serviceType === "junk" || serviceType === "both") {
+                priceStr = await sendJunkBooking();
             }
-
-            const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Booking failed");
-
-            if (data.leadId) localStorage.setItem("syjLeadId", data.leadId);
+            if (serviceType === "dumpster" || serviceType === "both") {
+                await sendDumpsterLead();
+            }
 
             const params = new URLSearchParams({
                 name: contact.name,
                 date: selectedDate?.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) || "",
                 time: timeSlotOption?.label || "",
-                price: quoteRangeStr,
+                price: priceStr,
+                serviceType: serviceType || "junk",
             });
             router.push(`/booking-confirmed?${params.toString()}`);
         } catch (err: unknown) {
@@ -406,7 +437,7 @@ export default function BookingWizard() {
         } finally {
             setSubmitting(false);
         }
-    }, [contact, selectedCategories, selectedItems, pileSizes, volume, location, selectedDate, selectedTime, tierData, priceAdj, stairsSurcharge, router]);
+    }, [contact, selectedCategories, selectedItems, pileSizes, volume, location, selectedDate, selectedTime, tierData, priceAdj, stairsSurcharge, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret]);
 
     const formatPhone = (val: string) => {
         const digits = val.replace(/\D/g, "").slice(0, 10);
@@ -428,24 +459,24 @@ export default function BookingWizard() {
         <div style={{ minHeight: "100vh", background: "var(--background)" }}>
             {/* Progress bar */}
             <div style={{ maxWidth: 720, margin: "0 auto", padding: "28px 20px 0", display: "flex", gap: 6 }}>
-                {STEPS.map((_, i) => (
+                {phases.map((_p: WizardPhase, i: number) => (
                     <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= step ? "var(--brand)" : "#E2E8F0", transition: "background 0.3s" }} />
                 ))}
             </div>
             <div style={{ maxWidth: 720, margin: "0 auto", padding: "8px 20px 0", display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 11, fontWeight: 600, color: "var(--brand)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                    Step {step + 1} of {STEPS.length}
+                    Step {step + 1} of {phases.length}
                 </span>
                 <span style={{ fontSize: 11, fontWeight: 600, color: "var(--brand)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                    {STEPS[step]}
+                    {getPhaseLabel(currentPhase)}
                 </span>
             </div>
 
             {/* Content */}
             <div key={step} className="fade-up" style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 140px" }}>
 
-                {/* ── STEP 0: Contact Info (Lead Capture) ────────────────────────── */}
-                {step === 0 && (
+                {/* ── CONTACT: Contact Info (Lead Capture) ────────────────────────── */}
+                {currentPhase === "contact" && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><Hand size={26} color="var(--brand)" /></div>
@@ -500,8 +531,39 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 1: Junk Type ──────────────────────────────────────────── */}
-                {step === 1 && (
+                {/* ── SERVICE TYPE: Junk / Dumpster / Both ──────────────────── */}
+                {currentPhase === "service_type" && (
+                    <div>
+                        <div style={{ textAlign: "center", marginBottom: 32 }}>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><Wrench size={26} color="var(--brand)" /></div>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>What services do you need?</h1>
+                            <p style={{ color: "var(--muted)", fontSize: 15 }}>Select one or both options below.</p>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, maxWidth: 480, margin: "0 auto" }}>
+                            {([{ id: "junk" as ServiceType, label: "Junk Removal", desc: "We send a crew to haul it all away", iconEl: <Truck size={36} color="var(--brand)" /> }, { id: "dumpster" as ServiceType, label: "Dumpster Rental", desc: "Container delivered to your location", iconEl: <Box size={36} color="var(--brand)" /> }]).map(opt => {
+                                const sel = serviceType === opt.id || serviceType === "both";
+                                return (
+                                    <div key={opt.id} onClick={() => setServiceType(prev => {
+                                        if (prev === "both" && opt.id === "junk") return "dumpster";
+                                        if (prev === "both" && opt.id === "dumpster") return "junk";
+                                        if (prev === opt.id) return null;
+                                        if (prev && prev !== opt.id) return "both";
+                                        return opt.id;
+                                    })} style={{ background: sel ? "#FFF7ED" : "var(--card)", border: `2px solid ${sel ? "var(--brand)" : "var(--border, #E2E8F0)"}`, borderRadius: 16, padding: "28px 20px", textAlign: "center", cursor: "pointer", transition: "all 0.2s", position: "relative" }}>
+                                        {sel && <div style={{ position: "absolute", top: 12, right: 12, width: 24, height: 24, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={14} /></div>}
+                                        <div style={{ marginBottom: 12 }}>{opt.iconEl}</div>
+                                        <div style={{ fontWeight: 700, fontSize: 16, color: "var(--foreground)", marginBottom: 6 }}>{opt.label}</div>
+                                        <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.5 }}>{opt.desc}</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        {serviceType === "both" && (<div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, background: "#F0FDF4", border: "1px solid #BBF7D0", textAlign: "center", fontSize: 14, fontWeight: 600, color: "#16A34A" }}><Check size={14} style={{ display: "inline", verticalAlign: "middle" }} /> Both services selected!</div>)}
+                    </div>
+                )}
+
+                {/* ── JUNK TYPE: Category selection ─────────────────────────────── */}
+                {currentPhase === "junk_type" && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><Trash2 size={26} color="var(--brand)" /></div>
@@ -526,8 +588,8 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 2: Items / Pile Size ──────────────────────────────────── */}
-                {step === 2 && (
+                {/* ── JUNK ITEMS: Items / Pile Size ──────────────────────────── */}
+                {currentPhase === "junk_items" && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><ClipboardList size={26} color="var(--brand)" /></div>
@@ -616,8 +678,8 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 3: Volume ──────────────────────────────────────────────── */}
-                {step === 3 && (
+                {/* ── JUNK VOLUME ──────────────────────────────────────────────── */}
+                {currentPhase === "junk_volume" && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><Truck size={26} color="var(--brand)" /></div>
@@ -670,8 +732,8 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 4: Location ────────────────────────────────────────────── */}
-                {step === 4 && (
+                {/* ── JUNK LOCATION ────────────────────────────────────────────── */}
+                {currentPhase === "junk_location" && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><MapPin size={26} color="var(--brand)" /></div>
@@ -701,8 +763,70 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 5: Schedule ────────────────────────────────────────────── */}
-                {step === 5 && (
+                {/* ── DUMPSTER SIZE ────────────────────────────────────────────── */}
+                {currentPhase === "dumpster_size" && (
+                    <div>
+                        <div style={{ textAlign: "center", marginBottom: 32 }}>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><Box size={26} color="var(--brand)" /></div>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>What size container?</h1>
+                            <p style={{ color: "var(--muted)", fontSize: 15 }}>Choose the dumpster size that best fits your project.</p>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14 }}>
+                            {CONTAINER_SIZES.map(cs => (
+                                <div key={cs.id} onClick={() => setContainerSize(cs.id)} style={{ background: containerSize === cs.id ? "#FFF7ED" : "var(--card)", border: `2px solid ${containerSize === cs.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`, borderRadius: 16, padding: "20px 18px", cursor: "pointer", transition: "all 0.2s", position: "relative" }}>
+                                    {containerSize === cs.id && <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={14} /></div>}
+                                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                                        <ServiceIcon name={cs.icon} size={28} color="var(--brand)" />
+                                        <div style={{ fontWeight: 800, fontSize: 22, color: "var(--brand)" }}>{cs.yards}</div>
+                                    </div>
+                                    <div style={{ fontWeight: 700, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{cs.label}</div>
+                                    <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8 }}>{cs.desc}</div>
+                                    <div style={{ fontSize: 12, color: "var(--foreground)", background: "var(--background)", padding: "6px 10px", borderRadius: 8, lineHeight: 1.4 }}><strong>Good for:</strong> {cs.goodFor}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* ── DUMPSTER DETAILS ────────────────────────────────────────── */}
+                {currentPhase === "dumpster_details" && (
+                    <div>
+                        <div style={{ textAlign: "center", marginBottom: 32 }}>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><ClipboardList size={26} color="var(--brand)" /></div>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Rental Details</h1>
+                            <p style={{ color: "var(--muted)", fontSize: 15 }}>Tell us about your project so we can prepare.</p>
+                        </div>
+                        <div style={{ marginBottom: 28 }}>
+                            <h3 style={{ fontFamily: "var(--heading-font)", fontSize: 15, fontWeight: 700, color: "var(--foreground)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.02em" }}>What type of debris?</h3>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 10 }}>
+                                {DEBRIS_TYPES.map(dt => (
+                                    <div key={dt.id} onClick={() => setDebrisType(dt.id)} style={{ background: debrisType === dt.id ? "#FFF7ED" : "var(--card)", border: `2px solid ${debrisType === dt.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`, borderRadius: 12, padding: "14px 16px", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 10 }}>
+                                        <ServiceIcon name={dt.icon} size={20} color="var(--brand)" />
+                                        <span style={{ fontWeight: 600, fontSize: 14, color: "var(--foreground)" }}>{dt.label}</span>
+                                        {debrisType === dt.id && <Check size={16} color="var(--brand)" style={{ marginLeft: "auto" }} />}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style={{ fontFamily: "var(--heading-font)", fontSize: 15, fontWeight: 700, color: "var(--foreground)", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.02em" }}>How long do you need it?</h3>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                {RENTAL_DURATIONS.map(rd => (
+                                    <div key={rd.id} onClick={() => setRentalDuration(rd.id)} style={{ background: rentalDuration === rd.id ? "#FFF7ED" : "var(--card)", border: `2px solid ${rentalDuration === rd.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`, borderRadius: 12, padding: "16px 18px", cursor: "pointer", transition: "all 0.15s", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                        <div>
+                                            <div style={{ fontWeight: 600, fontSize: 15, color: "var(--foreground)", marginBottom: 2 }}>{rd.label}</div>
+                                            <div style={{ fontSize: 12, color: "var(--muted)" }}>{rd.desc}</div>
+                                        </div>
+                                        {rentalDuration === rd.id && <Check size={18} color="var(--brand)" />}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ── SCHEDULE ────────────────────────────────────────────────── */}
+                {currentPhase === "schedule" && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><CalendarDays size={26} color="var(--brand)" /></div>
@@ -734,43 +858,78 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── STEP 6: Quote Summary & Book ──────────────────────────────────── */}
-                {step === 6 && (
+                {/* ── QUOTE: Summary & Book ───────────────────────────────────── */}
+                {currentPhase === "quote" && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
                             <div style={{ width: 56, height: 56, borderRadius: 16, background: "linear-gradient(135deg, var(--brand), var(--brand-dark))", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                                 <Check size={24} color="#fff" />
                             </div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Your Junk Removal Estimate</h1>
-                            <p style={{ color: "var(--muted)", fontSize: 15 }}>Review your details below. Final price confirmed on-site.</p>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>
+                                {serviceType === "dumpster" ? "Your Dumpster Rental Request" : serviceType === "both" ? "Your Service Summary" : "Your Junk Removal Estimate"}
+                            </h1>
+                            <p style={{ color: "var(--muted)", fontSize: 15 }}>
+                                {serviceType === "dumpster" ? "We'll call to confirm availability." : "Review your details below. Final price confirmed on-site."}
+                            </p>
                         </div>
                         <div style={{ background: "var(--card)", borderRadius: 20, border: "1px solid var(--border, #E2E8F0)", overflow: "hidden", marginBottom: 24, boxShadow: "0 4px 24px rgba(0,0,0,0.06)" }}>
-                            <div style={{ background: "var(--hero-bg)", padding: "32px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-                                <div style={{ fontSize: 12, color: "var(--hero-muted, #94A3B8)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, position: "relative", zIndex: 1 }}>
-                                    Estimated Price Range
-                                </div>
-                                <div style={{ fontFamily: "var(--heading-font)", fontSize: 44, fontWeight: 800, color: "var(--hero-text)", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
-                                    ${tierData ? tierData.min + priceAdj : "—"} – ${tierData ? tierData.max + priceAdj : "—"}
-                                </div>
-                                {priceAdj > 0 && <div style={{ fontSize: 12, color: "#FBBF24", marginTop: 6, position: "relative", zIndex: 1 }}>Includes +${priceAdj} {stairsSurcharge?.label?.toLowerCase() || "stairs"} surcharge</div>}
-                            </div>
-                            <div style={{ padding: 24 }}>
-                                {[
-                                    { label: "Name", value: contact.name },
-                                    { label: "Phone", value: contact.phone },
-                                    { label: "Address", value: contact.address },
-                                    { label: "Junk Types", value: selectedCategories.map(c => JUNK_CATEGORIES.find(x => x.id === c)?.label).join(", ") },
-                                    { label: "Details", value: selectionSummary() },
-                                    { label: "Truck Load", value: tierData?.label || "—" },
-                                    { label: "Location", value: LOCATION_OPTIONS.find(l => l.id === location)?.label || "—" },
-                                    { label: "Date", value: selectedDate?.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }) || "—" },
-                                    { label: "Time", value: TIME_SLOTS.find(t => t.id === selectedTime)?.label || "—" },
-                                ].map((row, i) => (
-                                    <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", borderBottom: i < 8 ? "1px solid var(--border, #F1F5F9)" : "none" }}>
-                                        <span style={{ fontSize: 14, color: "var(--muted)", fontWeight: 500 }}>{row.label}</span>
-                                        <span style={{ fontSize: 14, color: "var(--foreground)", fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{row.value}</span>
+                            {/* Price banner — only show for junk removal */}
+                            {(serviceType === "junk" || serviceType === "both") && (
+                                <div style={{ background: "var(--hero-bg)", padding: "32px 24px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+                                    <div style={{ fontSize: 12, color: "var(--hero-muted, #94A3B8)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, position: "relative", zIndex: 1 }}>
+                                        {serviceType === "both" ? "Junk Removal Estimate" : "Estimated Price Range"}
                                     </div>
-                                ))}
+                                    <div style={{ fontFamily: "var(--heading-font)", fontSize: 44, fontWeight: 800, color: "var(--hero-text)", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
+                                        ${tierData ? tierData.min + priceAdj : "—"} – ${tierData ? tierData.max + priceAdj : "—"}
+                                    </div>
+                                    {priceAdj > 0 && <div style={{ fontSize: 12, color: "#FBBF24", marginTop: 6, position: "relative", zIndex: 1 }}>Includes +${priceAdj} {stairsSurcharge?.label?.toLowerCase() || "stairs"} surcharge</div>}
+                                </div>
+                            )}
+                            {/* Dumpster pending banner */}
+                            {(serviceType === "dumpster" || serviceType === "both") && (
+                                <div style={{ background: serviceType === "dumpster" ? "var(--hero-bg)" : "#FFFBEB", padding: serviceType === "dumpster" ? "32px 24px" : "16px 24px", textAlign: "center" }}>
+                                    <div style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, color: serviceType === "dumpster" ? "var(--hero-muted, #94A3B8)" : "#92400E" }}>
+                                        {serviceType === "both" ? "Dumpster Rental" : "Dumpster Rental Request"}
+                                    </div>
+                                    <div style={{ fontFamily: "var(--heading-font)", fontSize: serviceType === "dumpster" ? 28 : 20, fontWeight: 800, color: serviceType === "dumpster" ? "var(--hero-text)" : "#92400E" }}>
+                                        📋 Pending Confirmation
+                                    </div>
+                                    <div style={{ fontSize: 12, color: serviceType === "dumpster" ? "var(--hero-muted, #94A3B8)" : "#92400E", marginTop: 4 }}>We&apos;ll call within 2 hours to confirm availability</div>
+                                </div>
+                            )}
+                            <div style={{ padding: 24 }}>
+                                {(() => {
+                                    const rows: { label: string; value: string }[] = [
+                                        { label: "Name", value: contact.name },
+                                        { label: "Phone", value: contact.phone },
+                                        { label: "Address", value: contact.address },
+                                    ];
+                                    if (serviceType === "junk" || serviceType === "both") {
+                                        rows.push(
+                                            { label: "Junk Types", value: selectedCategories.map(c => JUNK_CATEGORIES.find(x => x.id === c)?.label || c).join(", ") },
+                                            { label: "Details", value: selectionSummary() },
+                                            { label: "Truck Load", value: tierData?.label || "—" },
+                                            { label: "Location", value: LOCATION_OPTIONS.find(l => l.id === location)?.label || "—" },
+                                        );
+                                    }
+                                    if (serviceType === "dumpster" || serviceType === "both") {
+                                        rows.push(
+                                            { label: "Container", value: CONTAINER_SIZES.find(c => c.id === containerSize)?.label || "—" },
+                                            { label: "Debris Type", value: DEBRIS_TYPES.find(d => d.id === debrisType)?.label || "—" },
+                                            { label: "Duration", value: RENTAL_DURATIONS.find(r => r.id === rentalDuration)?.label || "—" },
+                                        );
+                                    }
+                                    rows.push(
+                                        { label: serviceType === "dumpster" ? "Delivery Date" : "Date", value: selectedDate?.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }) || "—" },
+                                        { label: "Time", value: TIME_SLOTS.find(t => t.id === selectedTime)?.label || "—" },
+                                    );
+                                    return rows.map((row, i) => (
+                                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", borderBottom: i < rows.length - 1 ? "1px solid var(--border, #F1F5F9)" : "none" }}>
+                                            <span style={{ fontSize: 14, color: "var(--muted)", fontWeight: 500 }}>{row.label}</span>
+                                            <span style={{ fontSize: 14, color: "var(--foreground)", fontWeight: 600, textAlign: "right", maxWidth: "60%" }}>{row.value}</span>
+                                        </div>
+                                    ));
+                                })()}
                             </div>
                         </div>
 
@@ -806,7 +965,7 @@ export default function BookingWizard() {
                             </div>
                         )}
 
-                        <button onClick={handleSubmit} disabled={submitting || (isGrowth && !!siteConfig.stripePublishableKey && !cardComplete)}
+                        <button onClick={handleSubmit} disabled={submitting || (isGrowth && !!siteConfig.stripePublishableKey && !cardComplete && serviceType !== "dumpster")}
                             style={{
                                 width: "100%", marginTop: 24, padding: 18, borderRadius: "var(--btn-radius)", border: "none",
                                 background: !submitting ? "linear-gradient(135deg, var(--brand), var(--brand-dark))" : "#E2E8F0",
@@ -815,17 +974,17 @@ export default function BookingWizard() {
                                 fontFamily: "var(--heading-font)", boxShadow: !submitting ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
                                 transition: "all 0.2s",
                             }}>
-                            {submitting ? "Booking..." : "Confirm & Book My Pickup →"}
+                            {submitting ? "Submitting..." : serviceType === "dumpster" ? "Request Dumpster Rental →" : serviceType === "both" ? "Confirm & Book →" : "Confirm & Book My Pickup →"}
                         </button>
                         <p style={{ textAlign: "center", fontSize: 12, color: "var(--muted)", marginTop: 12 }}>
-                            No commitment — final price confirmed when our crew arrives.
+                            {serviceType === "dumpster" ? "We\u0027ll call within 2 hours to confirm availability and pricing." : serviceType === "both" ? "Junk removal auto-booked. Dumpster confirmed by phone." : "No commitment \u2014 final price confirmed when our crew arrives."}
                         </p>
                     </div>
                 )}
             </div>
 
-            {/* ── Footer Nav (Steps 1-5 only) ─────────────────────────────────── */}
-            {step > 0 && step < 6 && (
+            {/* ── Footer Nav (all steps except contact and quote) ────────────── */}
+            {currentPhase !== "contact" && currentPhase !== "quote" && (
                 <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--card)", borderTop: "1px solid var(--border, #E2E8F0)", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 50 }}>
                     <button onClick={goBack} style={{ border: "none", background: "none", fontSize: 15, color: "var(--muted)", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
                         <ChevronLeft size={18} /> Back

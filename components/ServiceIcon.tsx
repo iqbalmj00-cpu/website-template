@@ -6,6 +6,7 @@ import {
     KeyRound, Truck, ShieldCheck, MapPin, Phone, Ban, ClipboardList,
     CalendarDays, Smartphone, CircleCheckBig, BadgeDollarSign, Clock,
     Recycle, Mail, Sofa, ArrowUp, ArrowDown, Building,
+    Ruler, Timer, Box,
     type LucideIcon,
 } from "lucide-react";
 
@@ -15,6 +16,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
     KeyRound, Truck, ShieldCheck, MapPin, Phone, Ban, ClipboardList,
     CalendarDays, Smartphone, CircleCheckBig, BadgeDollarSign, Clock,
     Recycle, Mail, Sofa, ArrowUp, ArrowDown, Building,
+    Ruler, Timer, Box,
 };
 
 export default function ServiceIcon({

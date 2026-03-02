@@ -65,6 +65,7 @@ export default function Navbar() {
         { name: "Services", href: "/services", hasDropdown: true, isMega: true },
         { name: "Locations", href: "/locations", hasDropdown: true },
         { name: "How It Works", href: "/how-it-works" },
+        ...(siteConfig.offersDumpsterRental ? [{ name: "Dumpster Rental", href: "/dumpster-rental" }] : []),
         { name: "Reviews", href: "/reviews" },
         { name: "About", href: "/about" },
         { name: "Blog", href: "/blog" },

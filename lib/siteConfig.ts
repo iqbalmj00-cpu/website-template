@@ -92,6 +92,9 @@ export const siteConfig = {
     // Plan tier (controls feature gating)
     tier: (process.env.NEXT_PUBLIC_TIER ?? "starter") as "starter" | "growth",
 
+    // Dumpster rental (gated per client during onboarding)
+    offersDumpsterRental: (process.env.NEXT_PUBLIC_OFFERS_DUMPSTER_RENTAL ?? "true") === "true",
+
     // Analytics
     gaTrackingId: process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? null,
 

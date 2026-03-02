@@ -92,3 +92,82 @@ export const TIME_SLOTS: TimeSlot[] = [
     { id: "afternoon", label: "12:00 – 2:00 PM", period: "Afternoon" },
     { id: "late", label: "2:00 – 4:00 PM", period: "Late Afternoon" },
 ];
+
+/* ── Dumpster Rental Data ──────────────────────────────────────────────── */
+
+export type ServiceType = "junk" | "dumpster" | "both";
+
+export type ContainerSize = { id: string; label: string; yards: string; desc: string; goodFor: string; icon: string };
+export type DebrisType = { id: string; label: string; icon: string };
+export type RentalDuration = { id: string; label: string; desc: string };
+
+export const CONTAINER_SIZES: ContainerSize[] = [
+    { id: "10yd", label: "10 Yard", yards: "10 yd³", desc: "About 3 pickup truck loads", goodFor: "Bathroom remodel, small cleanout, garage declutter", icon: "Container" },
+    { id: "20yd", label: "20 Yard", yards: "20 yd³", desc: "About 6 pickup truck loads", goodFor: "Single-room renovation, medium cleanout, roofing (up to 1,500 sq ft)", icon: "Container" },
+    { id: "30yd", label: "30 Yard", yards: "30 yd³", desc: "About 9 pickup truck loads", goodFor: "Multi-room renovation, large estate cleanout, new construction debris", icon: "Container" },
+    { id: "40yd", label: "40 Yard", yards: "40 yd³", desc: "About 12 pickup truck loads", goodFor: "Full house cleanout, major construction, commercial demolition", icon: "Warehouse" },
+];
+
+export const DEBRIS_TYPES: DebrisType[] = [
+    { id: "construction", label: "Construction / Demolition", icon: "HardHat" },
+    { id: "household", label: "Household Junk", icon: "Home" },
+    { id: "yard_waste", label: "Yard Waste", icon: "TreePine" },
+    { id: "roofing", label: "Roofing Materials", icon: "Building" },
+    { id: "mixed", label: "Mixed / Not Sure", icon: "Package" },
+];
+
+export const RENTAL_DURATIONS: RentalDuration[] = [
+    { id: "1_week", label: "About a week", desc: "3–7 day rental" },
+    { id: "2_weeks", label: "About 2 weeks", desc: "8–14 day rental" },
+    { id: "call_when_full", label: "Not sure — I'll call when it's full", desc: "Flexible timeline" },
+];
+
+/* ── Phase System ──────────────────────────────────────────────────────── */
+
+export type WizardPhase =
+    | "contact"
+    | "service_type"
+    | "junk_type"
+    | "junk_items"
+    | "junk_volume"
+    | "junk_location"
+    | "dumpster_size"
+    | "dumpster_details"
+    | "schedule"
+    | "quote";
+
+const JUNK_PHASES: WizardPhase[] = ["junk_type", "junk_items", "junk_volume", "junk_location"];
+const DUMPSTER_PHASES: WizardPhase[] = ["dumpster_size", "dumpster_details"];
+
+export function getPhases(serviceType: ServiceType | null, offersDumpster: boolean): WizardPhase[] {
+    const base: WizardPhase[] = ["contact"];
+
+    // If client offers dumpster rental, show the service type selector
+    if (offersDumpster) base.push("service_type");
+
+    if (!serviceType || serviceType === "junk") {
+        return [...base, ...JUNK_PHASES, "schedule", "quote"];
+    }
+    if (serviceType === "dumpster") {
+        return [...base, ...DUMPSTER_PHASES, "schedule", "quote"];
+    }
+    // "both"
+    return [...base, ...JUNK_PHASES, ...DUMPSTER_PHASES, "schedule", "quote"];
+}
+
+const PHASE_LABELS: Record<WizardPhase, string> = {
+    contact: "Your Info",
+    service_type: "Service Type",
+    junk_type: "Junk Type",
+    junk_items: "Items",
+    junk_volume: "Volume",
+    junk_location: "Location",
+    dumpster_size: "Container Size",
+    dumpster_details: "Rental Details",
+    schedule: "Schedule",
+    quote: "Quote & Book",
+};
+
+export function getPhaseLabel(phase: WizardPhase): string {
+    return PHASE_LABELS[phase] || phase;
+}

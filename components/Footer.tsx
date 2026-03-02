@@ -13,6 +13,7 @@ export default function Footer() {
         { label: "Services", href: "/services" },
         { label: "Locations", href: "/locations" },
         { label: "How It Works", href: "/how-it-works" },
+        ...(siteConfig.offersDumpsterRental ? [{ label: "Dumpster Rental", href: "/dumpster-rental" }] : []),
         { label: "Pricing", href: "/pricing" },
         { label: "Reviews", href: "/reviews" },
         { label: "Items We Take", href: "/items-we-take" },

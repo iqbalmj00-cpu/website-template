@@ -12,6 +12,9 @@ function ConfirmationContent() {
     const date = params.get("date") || "";
     const time = params.get("time") || "";
     const price = params.get("price") || "";
+    const st = params.get("serviceType") || "junk";
+    const hasDumpster = st === "dumpster" || st === "both";
+    const hasJunk = st === "junk" || st === "both";
 
     return (
         <main>
@@ -26,10 +29,10 @@ function ConfirmationContent() {
                         <CheckCircle size={40} color="#22c55e" />
                     </div>
                     <h1 style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "0.75rem" }}>
-                        Booking <span style={{ color: "var(--brand)" }}>Confirmed!</span>
+                        {hasDumpster && !hasJunk ? (<>Request <span style={{ color: "var(--brand)" }}>Received!</span></>) : (<>Booking <span style={{ color: "var(--brand)" }}>Confirmed!</span></>)}
                     </h1>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem" }}>
-                        Thanks, {name}! Your junk removal has been scheduled.
+                        {st === "both" ? `Thanks, ${name}! Your junk removal is scheduled and we'll call within 2 hours to confirm dumpster availability.` : hasDumpster ? `Thanks, ${name}! We'll call you within 2 hours to confirm dumpster availability and pricing.` : `Thanks, ${name}! Your junk removal has been scheduled.`}
                     </p>
                 </div>
             </section>
