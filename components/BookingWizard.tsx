@@ -396,6 +396,7 @@ export default function BookingWizard() {
 
                 const payload: Record<string, unknown> = {
                     type: "rental_lead", status: "new",
+                    serviceType: "dumpster_rental",
                     name: contact.name, phone: contact.phone, email: contact.email, address: contact.address,
                     description, requestedDate: selectedDate?.toISOString().split("T")[0],
                     notes: contact.notes || "",
