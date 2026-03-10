@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronLeft, ArrowRight, CreditCard, Lock, Trash2, ClipboardList, Truck, MapPin, CalendarDays, BarChart3, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, PenTool } from "lucide-react";
+import { Check, ChevronLeft, ArrowRight, CreditCard, Lock, Trash2, ClipboardList, Truck, MapPin, CalendarDays, BarChart3, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, PenTool, Home, Building2 } from "lucide-react";
 import ServiceIcon from "@/components/ServiceIcon";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { siteConfig } from "@/lib/siteConfig";
@@ -17,7 +17,7 @@ import { loadStripe, type Stripe, type StripeCardElement } from "@stripe/stripe-
 
 /* ── Types ─────────────────────────────────────────────────────────────── */
 type ItemQtyMap = Record<string, Record<string, number>>;
-type ContactInfo = { name: string; phone: string; email: string; address: string; notes: string };
+type ContactInfo = { name: string; phone: string; email: string; address: string; notes: string; customerType: "residential" | "commercial" };
 
 /* ── Stripe (loaded lazily for Growth tier only) ── */
 const isGrowth = siteConfig.tier === "growth";
@@ -118,7 +118,7 @@ export default function BookingWizard() {
     const [location, setLocation] = useState<string | null>(null);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
-    const [contact, setContact] = useState<ContactInfo>({ name: "", phone: "", email: "", address: "", notes: "" });
+    const [contact, setContact] = useState<ContactInfo>({ name: "", phone: "", email: "", address: "", notes: "", customerType: "residential" });
     const [addressInArea, setAddressInArea] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
@@ -313,6 +313,7 @@ export default function BookingWizard() {
                     address: contact.address,
                     description: contact.notes || "Website booking started",
                     source: "WEBSITE",
+                    metadata: { customerType: contact.customerType },
                 }),
             });
             const data = await res.json();
@@ -378,6 +379,7 @@ export default function BookingWizard() {
                     value: minPrice || undefined, notes: contact.notes || "",
                     metadata: {
                         serviceType: "junk_removal",
+                        customerType: contact.customerType,
                         timeSlot: timeSlotOption?.period || selectedTime || "",
                         truckLoad: volumeOption?.fraction || "", quoteRange: quoteRangeStr,
                         junkLocation: locationOption?.label || "", stairsAccess: stairsAccessLabel,
@@ -423,6 +425,7 @@ export default function BookingWizard() {
                     notes: contact.notes || "",
                     metadata: {
                         serviceType: "dumpster_rental",
+                        customerType: contact.customerType,
                         containerSize: containerSize || "", debrisType: debrisType || "",
                         rentalDuration: rentalDuration || "",
                         timeSlot: timeSlotOption?.period || selectedTime || "",
@@ -537,6 +540,25 @@ export default function BookingWizard() {
                                         }
                                     }}
                                 />
+                            </div>
+                            <div>
+                                <label className="label">Property Type</label>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                                    {(["residential", "commercial"] as const).map(type => (
+                                        <button key={type} onClick={() => setContact(c => ({ ...c, customerType: type }))}
+                                            style={{
+                                                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                                                padding: "14px 16px", borderRadius: 12, cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit",
+                                                border: `2px solid ${contact.customerType === type ? "var(--brand)" : "var(--border, #E2E8F0)"}`,
+                                                background: contact.customerType === type ? "#FFF7ED" : "var(--card)",
+                                                color: contact.customerType === type ? "var(--brand)" : "var(--foreground)",
+                                                fontWeight: 600, fontSize: 14,
+                                            }}>
+                                            {type === "residential" ? <Home size={18} /> : <Building2 size={18} />}
+                                            {type === "residential" ? "Residential" : "Commercial"}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                             <div>
                                 <label className="label">Notes (optional)</label>
