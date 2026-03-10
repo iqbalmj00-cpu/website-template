@@ -30,6 +30,41 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
 
     return (
         <>
+            {/* JSON-LD: Service schema */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "Service",
+                        name: `${svc.title} in ${city}, ${state}`,
+                        description: `${svc.shortDesc} Professional ${svc.title.toLowerCase()} service in ${city} by ${companyName}.`,
+                        provider: {
+                            "@type": "LocalBusiness",
+                            name: companyName,
+                            telephone: phoneNumber,
+                            address: { "@type": "PostalAddress", addressLocality: city, addressRegion: state, addressCountry: "US" },
+                        },
+                        areaServed: { "@type": "City", name: city },
+                        ...(siteConfig.subdomain ? { url: `https://${siteConfig.subdomain}.scaleyourjunk.com/services/${slug}` } : {}),
+                    }),
+                }}
+            />
+            {/* JSON-LD: BreadcrumbList */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        itemListElement: [
+                            { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com` : "/" },
+                            { "@type": "ListItem", position: 2, name: "Services", item: siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com/services` : "/services" },
+                            { "@type": "ListItem", position: 3, name: svc.title },
+                        ],
+                    }),
+                }}
+            />
             {/* Hero */}
             <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>

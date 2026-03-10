@@ -30,6 +30,45 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
 
     return (
         <>
+            {/* JSON-LD: Location-specific LocalBusiness */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "LocalBusiness",
+                        name: `${companyName} — ${location.name}, ${location.state}`,
+                        description: location.heroDescription,
+                        telephone: phoneNumber,
+                        address: {
+                            "@type": "PostalAddress",
+                            addressLocality: location.name,
+                            addressRegion: location.state,
+                            addressCountry: "US",
+                        },
+                        areaServed: [
+                            { "@type": "City", name: location.name },
+                            ...location.neighborhoods.map(n => ({ "@type": "Place", name: n })),
+                        ],
+                        ...(siteConfig.subdomain ? { url: `https://${siteConfig.subdomain}.scaleyourjunk.com/locations/${slug}` } : {}),
+                    }),
+                }}
+            />
+            {/* JSON-LD: BreadcrumbList */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        itemListElement: [
+                            { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com` : "/" },
+                            { "@type": "ListItem", position: 2, name: "Locations", item: siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com/locations` : "/locations" },
+                            { "@type": "ListItem", position: 3, name: `${location.name}, ${location.state}` },
+                        ],
+                    }),
+                }}
+            />
             {/* Hero */}
             <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
                 <div data-image-grid style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "center" }}>

@@ -69,20 +69,41 @@ export default function RootLayout({
                         __html: JSON.stringify({
                             "@context": "https://schema.org",
                             "@type": "LocalBusiness",
+                            "@id": siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com/#business` : undefined,
                             name: siteConfig.companyName,
-                            description: `${siteConfig.companyName} offers fast, affordable junk removal in ${siteConfig.serviceArea}.`,
+                            description: `${siteConfig.companyName} offers fast, affordable junk removal in ${siteConfig.serviceArea || siteConfig.city}.`,
                             telephone: siteConfig.phoneNumber,
-                            areaServed: siteConfig.serviceArea,
+                            ...(siteConfig.subdomain ? { url: `https://${siteConfig.subdomain}.scaleyourjunk.com` } : {}),
+                            ...(siteConfig.logoUrl ? { logo: siteConfig.logoUrl, image: siteConfig.logoUrl } : {}),
                             address: {
                                 "@type": "PostalAddress",
                                 addressLocality: siteConfig.city,
                                 addressRegion: siteConfig.state,
                                 addressCountry: "US",
                             },
-                            ...(siteConfig.subdomain ? { url: `https://${siteConfig.subdomain}.scaleyourjunk.com` } : {}),
+                            areaServed: (siteConfig.serviceArea || siteConfig.city).split(",").map(a => ({
+                                "@type": "City",
+                                name: a.trim(),
+                            })),
                             priceRange: "$$",
-                            openingHours: "Mo-Sa 07:00-19:00",
-                            serviceType: siteConfig.services,
+                            currenciesAccepted: "USD",
+                            paymentAccepted: "Cash, Credit Card",
+                            openingHoursSpecification: (() => {
+                                const bh = siteConfig.businessHours;
+                                if (!bh) return undefined;
+                                const dayMap: Record<string, string> = {
+                                    mon: "Monday", tue: "Tuesday", wed: "Wednesday",
+                                    thu: "Thursday", fri: "Friday", sat: "Saturday", sun: "Sunday",
+                                };
+                                return Object.entries(bh)
+                                    .filter(([, v]) => v && !(v as { closed?: boolean }).closed)
+                                    .map(([day, v]) => ({
+                                        "@type": "OpeningHoursSpecification",
+                                        dayOfWeek: dayMap[day] || day,
+                                        opens: (v as { start?: string }).start || "08:00",
+                                        closes: (v as { end?: string }).end || "18:00",
+                                    }));
+                            })(),
                         }),
                     }}
                 />
