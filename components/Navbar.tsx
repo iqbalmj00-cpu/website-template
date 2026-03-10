@@ -117,8 +117,8 @@ export default function Navbar() {
                                     style={{
                                         background: "none", border: "none", cursor: "pointer",
                                         display: "flex", alignItems: "center", gap: "0.25rem",
-                                        padding: "0.5rem 0.75rem",
-                                        fontSize: "0.95rem", fontWeight: 700,
+                                        padding: "0.5rem 0.6rem", whiteSpace: "nowrap" as const,
+                                        fontSize: "0.875rem", fontWeight: 700,
                                         color: isActive(link.href) ? "var(--nav-hover)" : "var(--nav-text)",
                                         borderBottom: isActive(link.href) ? "3px solid var(--brand)" : "3px solid transparent",
                                         transition: "color 0.15s",
@@ -209,7 +209,8 @@ export default function Navbar() {
                         ) : (
                             <Link key={link.name} href={link.href}
                                 style={{
-                                    padding: "0.5rem 0.75rem", fontSize: "0.95rem", fontWeight: 700, textDecoration: "none",
+                                    padding: "0.5rem 0.6rem", fontSize: "0.875rem", fontWeight: 700, textDecoration: "none",
+                                    whiteSpace: "nowrap" as const,
                                     color: isActive(link.href) ? "var(--nav-hover)" : "var(--nav-text)",
                                     borderBottom: isActive(link.href) ? "3px solid var(--brand)" : "3px solid transparent",
                                     transition: "color 0.15s",
