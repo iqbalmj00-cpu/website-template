@@ -1,3 +1,5 @@
+import type { BusinessHoursConfig } from "@/lib/siteConfig";
+
 export const STEPS = ["Your Info", "Junk Type", "Items", "Volume", "Location", "Schedule", "Quote & Book"];
 
 export type JunkCategory = { id: string; label: string; icon: string; desc: string; inputType: "quantity" | "pile" };
@@ -5,7 +7,7 @@ export type JunkItem = { id: string; label: string; weight: "heavy" | "medium" |
 export type PileSize = { id: string; label: string; desc: string; icon: string };
 export type VolumeOption = { id: string; label: string; fraction: string; desc: string; truckFill: number; comparison: string };
 export type LocationOption = { id: string; label: string; icon: string; desc: string };
-export type TimeSlot = { id: string; label: string; period: string };
+export type TimeSlot = { id: string; label: string; period: string; startHour: number };
 
 export const JUNK_CATEGORIES: JunkCategory[] = [
     { id: "furniture", label: "Furniture Removal", icon: "Armchair", desc: "Sofas, tables, chairs, dressers", inputType: "quantity" },
@@ -87,10 +89,10 @@ export const LOCATION_OPTIONS: LocationOption[] = [
 ];
 
 export const TIME_SLOTS: TimeSlot[] = [
-    { id: "morning", label: "8:00 – 10:00 AM", period: "Morning" },
-    { id: "midday", label: "10:00 AM – 12:00 PM", period: "Midday" },
-    { id: "afternoon", label: "12:00 – 2:00 PM", period: "Afternoon" },
-    { id: "late", label: "2:00 – 4:00 PM", period: "Late Afternoon" },
+    { id: "morning", label: "8:00 – 10:00 AM", period: "Morning", startHour: 8 },
+    { id: "midday", label: "10:00 AM – 12:00 PM", period: "Midday", startHour: 10 },
+    { id: "afternoon", label: "12:00 – 2:00 PM", period: "Afternoon", startHour: 12 },
+    { id: "late", label: "2:00 – 4:00 PM", period: "Late Afternoon", startHour: 14 },
 ];
 
 /* ── Dumpster Rental Data ──────────────────────────────────────────────── */
@@ -134,10 +136,12 @@ export type WizardPhase =
     | "dumpster_size"
     | "dumpster_details"
     | "schedule"
+    | "terms"
     | "quote";
 
 const JUNK_PHASES: WizardPhase[] = ["junk_type", "junk_items", "junk_volume", "junk_location"];
 const DUMPSTER_PHASES: WizardPhase[] = ["dumpster_size", "dumpster_details"];
+const CLOSING_PHASES: WizardPhase[] = ["schedule", "terms", "quote"];
 
 export function getPhases(serviceType: ServiceType | null, offersDumpster: boolean): WizardPhase[] {
     const base: WizardPhase[] = ["contact"];
@@ -146,13 +150,13 @@ export function getPhases(serviceType: ServiceType | null, offersDumpster: boole
     if (offersDumpster) base.push("service_type");
 
     if (!serviceType || serviceType === "junk") {
-        return [...base, ...JUNK_PHASES, "schedule", "quote"];
+        return [...base, ...JUNK_PHASES, ...CLOSING_PHASES];
     }
     if (serviceType === "dumpster") {
-        return [...base, ...DUMPSTER_PHASES, "schedule", "quote"];
+        return [...base, ...DUMPSTER_PHASES, ...CLOSING_PHASES];
     }
     // "both"
-    return [...base, ...JUNK_PHASES, ...DUMPSTER_PHASES, "schedule", "quote"];
+    return [...base, ...JUNK_PHASES, ...DUMPSTER_PHASES, ...CLOSING_PHASES];
 }
 
 const PHASE_LABELS: Record<WizardPhase, string> = {
@@ -165,9 +169,48 @@ const PHASE_LABELS: Record<WizardPhase, string> = {
     dumpster_size: "Container Size",
     dumpster_details: "Rental Details",
     schedule: "Schedule",
+    terms: "Terms & Sign",
     quote: "Quote & Book",
 };
 
 export function getPhaseLabel(phase: WizardPhase): string {
     return PHASE_LABELS[phase] || phase;
+}
+
+/* ── Business Hours Helpers ───────────────────────────────────────────── */
+
+const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
+function parseHour24(time: string): number {
+    const [h] = time.split(":").map(Number);
+    return h;
+}
+
+/** Check if a specific date falls on a closed business day */
+export function isDayClosed(
+    date: Date,
+    businessHours: BusinessHoursConfig | null,
+): boolean {
+    if (!businessHours) return false; // no config = all days open
+    const dayKey = DAY_KEYS[date.getDay()];
+    const dayHours = businessHours[dayKey];
+    return !dayHours || !!dayHours.closed;
+}
+
+/** Get available time slots for a specific date based on business hours */
+export function getAvailableTimeSlots(
+    date: Date,
+    businessHours: BusinessHoursConfig | null,
+): TimeSlot[] {
+    if (!businessHours) return TIME_SLOTS; // no config = show all
+    const dayKey = DAY_KEYS[date.getDay()];
+    const dayHours = businessHours[dayKey];
+    if (!dayHours || dayHours.closed) return []; // closed day
+
+    const openHour = parseHour24(dayHours.start);
+    const closeHour = parseHour24(dayHours.end);
+
+    return TIME_SLOTS.filter(
+        (slot) => slot.startHour >= openHour && slot.startHour < closeHour,
+    );
 }

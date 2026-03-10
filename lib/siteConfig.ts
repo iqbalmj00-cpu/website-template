@@ -10,6 +10,8 @@ export type Testimonial = { name: string; role: string; text: string };
 export type PricingTier = { id: string; label: string; fraction: string; min: number; max: number };
 export type Surcharge = { id: string; label: string; amount: number; enabled: boolean };
 export type PricingConfig = { truckSize: string; tiers: PricingTier[]; surcharges: Surcharge[] };
+export type BusinessDayHours = { start: string; end: string; closed?: boolean };
+export type BusinessHoursConfig = Record<string, BusinessDayHours>;
 
 function parseJSON<T>(value: string | undefined, fallback: T): T {
     if (!value) return fallback;
@@ -94,6 +96,16 @@ export const siteConfig = {
 
     // Dumpster rental (gated per client during onboarding)
     offersDumpsterRental: (process.env.NEXT_PUBLIC_OFFERS_DUMPSTER_RENTAL ?? "true") === "true",
+
+    // Business hours (provisioned from CompanyProfile.businessHours)
+    // Format: {"mon":{"start":"08:00","end":"18:00"},"sun":{"closed":true}}
+    businessHours: parseJSON<BusinessHoursConfig | null>(process.env.NEXT_PUBLIC_BUSINESS_HOURS, null),
+
+    // Google Maps (for address autocomplete)
+    googleMapsKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "",
+
+    // Service area ZIP codes (for blocking out-of-area bookings)
+    serviceAreaZips: parseJSON<string[]>(process.env.NEXT_PUBLIC_SERVICE_AREA_ZIPS, []),
 
     // Analytics
     gaTrackingId: process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? null,

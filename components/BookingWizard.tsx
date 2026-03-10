@@ -2,14 +2,15 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronLeft, ArrowRight, CreditCard, Lock, Trash2, ClipboardList, Truck, MapPin, CalendarDays, BarChart3, AlertTriangle, LockKeyhole, Hand, Wrench, Box } from "lucide-react";
+import { Check, ChevronLeft, ArrowRight, CreditCard, Lock, Trash2, ClipboardList, Truck, MapPin, CalendarDays, BarChart3, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, PenTool } from "lucide-react";
 import ServiceIcon from "@/components/ServiceIcon";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { siteConfig } from "@/lib/siteConfig";
 import {
     JUNK_CATEGORIES, CATEGORY_ITEMS, VOLUME_OPTIONS,
     LOCATION_OPTIONS, TIME_SLOTS, PILE_SIZES,
     CONTAINER_SIZES, DEBRIS_TYPES, RENTAL_DURATIONS,
-    getPhases, getPhaseLabel,
+    getPhases, getPhaseLabel, isDayClosed, getAvailableTimeSlots,
     type ServiceType, type WizardPhase,
 } from "@/lib/wizardData";
 import { loadStripe, type Stripe, type StripeCardElement } from "@stripe/stripe-js";
@@ -47,7 +48,7 @@ function TruckVisual({ fillPercent }: { fillPercent: number }) {
 }
 
 /* ── Calendar ──────────────────────────────────────────────────────────── */
-function Calendar({ selected, onSelect }: { selected: Date | null; onSelect: (d: Date) => void }) {
+function Calendar({ selected, onSelect, isDisabled }: { selected: Date | null; onSelect: (d: Date) => void; isDisabled?: (d: Date) => boolean }) {
     const today = new Date();
     const [viewMonth, setViewMonth] = useState(today.getMonth());
     const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -70,6 +71,11 @@ function Calendar({ selected, onSelect }: { selected: Date | null; onSelect: (d:
         const d = new Date(viewYear, viewMonth, day);
         return d < new Date(today.getFullYear(), today.getMonth(), today.getDate());
     };
+    const isClosed = (day: number) => {
+        if (!isDisabled) return false;
+        return isDisabled(new Date(viewYear, viewMonth, day));
+    };
+    const isUnavailable = (day: number) => isPast(day) || isClosed(day);
 
     return (
         <div>
@@ -86,10 +92,11 @@ function Calendar({ selected, onSelect }: { selected: Date | null; onSelect: (d:
                 ))}
                 {Array.from({ length: firstDay }).map((_, i) => <div key={`e${i}`} />)}
                 {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => (
-                    <button key={day} onClick={() => !isPast(day) && onSelect(new Date(viewYear, viewMonth, day))}
+                    <button key={day} onClick={() => !isUnavailable(day) && onSelect(new Date(viewYear, viewMonth, day))}
                         style={{
-                            width: 38, height: 38, borderRadius: "50%", border: "none", fontSize: 14, fontWeight: 600, cursor: isPast(day) ? "default" : "pointer",
-                            background: isSame(selected, day) ? "var(--brand)" : "transparent", color: isSame(selected, day) ? "#fff" : isPast(day) ? "#CBD5E1" : "var(--foreground)",
+                            width: 38, height: 38, borderRadius: "50%", border: "none", fontSize: 14, fontWeight: 600, cursor: isUnavailable(day) ? "default" : "pointer",
+                            background: isSame(selected, day) ? "var(--brand)" : isClosed(day) ? "repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(203,213,225,0.3) 3px, rgba(203,213,225,0.3) 6px)" : "transparent",
+                            color: isSame(selected, day) ? "#fff" : isUnavailable(day) ? "#CBD5E1" : "var(--foreground)",
                             transition: "all 0.15s", margin: "0 auto", fontFamily: "inherit",
                         }}>
                         {day}
@@ -112,9 +119,16 @@ export default function BookingWizard() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [contact, setContact] = useState<ContactInfo>({ name: "", phone: "", email: "", address: "", notes: "" });
+    const [addressInArea, setAddressInArea] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [leadCaptured, setLeadCaptured] = useState(false);
+
+    /* ── Terms & signature state ── */
+    const [termsAccepted, setTermsAccepted] = useState(false);
+    const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+    const sigCanvasRef = useRef<HTMLCanvasElement>(null);
+    const sigDrawingRef = useRef(false);
 
     /* ── Dumpster rental state ── */
     const [serviceType, setServiceType] = useState<ServiceType | null>(siteConfig.offersDumpsterRental ? null : "junk");
@@ -257,7 +271,11 @@ export default function BookingWizard() {
 
     const canProceed = () => {
         switch (currentPhase) {
-            case "contact": return contact.name && contact.phone && contact.email && contact.address;
+            case "contact": {
+                const hasRequired = !!(contact.name && contact.phone && contact.email && contact.address);
+                const areaOk = siteConfig.serviceAreaZips.length === 0 || addressInArea;
+                return hasRequired && areaOk;
+            }
             case "service_type": return serviceType !== null;
             case "junk_type": return selectedCategories.length > 0;
             case "junk_items": {
@@ -273,6 +291,7 @@ export default function BookingWizard() {
             case "dumpster_size": return containerSize !== null;
             case "dumpster_details": return debrisType !== null && rentalDuration !== null;
             case "schedule": return selectedDate !== null && selectedTime !== null;
+            case "terms": return termsAccepted && !!signatureDataUrl;
             case "quote": return true;
             default: return false;
         }
@@ -365,6 +384,8 @@ export default function BookingWizard() {
                         categories: categoryLabels, items: structuredItems, piles: structuredPiles,
                         priceRange: tierData ? [minPrice, maxPrice] : null,
                         surcharges: priceAdj > 0 ? [{ id: "stairs", label: stairsSurcharge?.label, amount: priceAdj }] : [],
+                        termsAcceptedAt: new Date().toISOString(),
+                        signatureDataUrl: signatureDataUrl || undefined,
                     },
                     source: "WEBSITE",
                 };
@@ -405,6 +426,8 @@ export default function BookingWizard() {
                         containerSize: containerSize || "", debrisType: debrisType || "",
                         rentalDuration: rentalDuration || "",
                         timeSlot: timeSlotOption?.period || selectedTime || "",
+                        termsAcceptedAt: new Date().toISOString(),
+                        signatureDataUrl: signatureDataUrl || undefined,
                     },
                     source: "WEBSITE",
                 };
@@ -501,7 +524,19 @@ export default function BookingWizard() {
                             </div>
                             <div>
                                 <label className="label">Service Address *</label>
-                                <input className="input" placeholder="1234 Main St, City, State" value={contact.address} onChange={e => setContact(c => ({ ...c, address: e.target.value }))} />
+                                <AddressAutocomplete
+                                    value={contact.address}
+                                    onChange={(val) => setContact(c => ({ ...c, address: val }))}
+                                    onPlaceSelect={(place) => {
+                                        setContact(c => ({ ...c, address: place.address }));
+                                        const zips = siteConfig.serviceAreaZips;
+                                        if (zips.length > 0 && place.zip) {
+                                            setAddressInArea(zips.includes(place.zip));
+                                        } else {
+                                            setAddressInArea(true);
+                                        }
+                                    }}
+                                />
                             </div>
                             <div>
                                 <label className="label">Notes (optional)</label>
@@ -835,31 +870,194 @@ export default function BookingWizard() {
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>You can reschedule after booking if needed.</p>
                         </div>
                         <div style={{ background: "var(--card)", borderRadius: 16, padding: 24, border: "1px solid var(--border, #E2E8F0)", marginBottom: 24 }}>
-                            <Calendar selected={selectedDate} onSelect={setSelectedDate} />
+                            <Calendar selected={selectedDate} onSelect={(d) => { setSelectedDate(d); setSelectedTime(null); }} isDisabled={(d) => isDayClosed(d, siteConfig.businessHours)} />
                         </div>
-                        {selectedDate && (
-                            <div>
-                                <div style={{ fontFamily: "var(--heading-font)", fontSize: 16, fontWeight: 700, color: "var(--foreground)", marginBottom: 12, textAlign: "center" }}>
-                                    Available times for {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                        {selectedDate && (() => {
+                            const availableSlots = getAvailableTimeSlots(selectedDate, siteConfig.businessHours);
+                            if (availableSlots.length === 0) return (
+                                <div style={{ textAlign: "center", padding: 24, background: "#FEF2F2", borderRadius: 12, border: "1px solid #FECACA" }}>
+                                    <AlertTriangle size={20} color="#DC2626" style={{ marginBottom: 8 }} />
+                                    <div style={{ fontSize: 14, color: "#DC2626", fontWeight: 600 }}>We&apos;re closed on this day</div>
+                                    <div style={{ fontSize: 13, color: "#DC2626", marginTop: 4 }}>Please select a different date.</div>
                                 </div>
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
-                                    {TIME_SLOTS.map(slot => (
-                                        <button key={slot.id} onClick={() => setSelectedTime(slot.id)}
-                                            style={{
-                                                border: `2px solid ${selectedTime === slot.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: selectedTime === slot.id ? "#FFF7ED" : "var(--card)",
-                                                borderRadius: 12, padding: 16, textAlign: "center", cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit",
-                                            }}>
-                                            <div style={{ fontWeight: 600, fontSize: 14, color: selectedTime === slot.id ? "var(--brand)" : "var(--foreground)" }}>{slot.label}</div>
-                                            <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>{slot.period}</div>
-                                        </button>
-                                    ))}
+                            );
+                            return (
+                                <div>
+                                    <div style={{ fontFamily: "var(--heading-font)", fontSize: 16, fontWeight: 700, color: "var(--foreground)", marginBottom: 12, textAlign: "center" }}>
+                                        Available times for {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                                    </div>
+                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
+                                        {availableSlots.map(slot => (
+                                            <button key={slot.id} onClick={() => setSelectedTime(slot.id)}
+                                                style={{
+                                                    border: `2px solid ${selectedTime === slot.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: selectedTime === slot.id ? "#FFF7ED" : "var(--card)",
+                                                    borderRadius: 12, padding: 16, textAlign: "center", cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit",
+                                                }}>
+                                                <div style={{ fontWeight: 600, fontSize: 14, color: selectedTime === slot.id ? "var(--brand)" : "var(--foreground)" }}>{slot.label}</div>
+                                                <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>{slot.period}</div>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
                     </div>
                 )}
 
-                {/* ── QUOTE: Summary & Book ───────────────────────────────────── */}
+                {/* ── TERMS & SIGNATURE ───────────────────────────────────────── */}
+                {currentPhase === "terms" && (
+                    <div>
+                        <div style={{ textAlign: "center", marginBottom: 32 }}>
+                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><FileText size={26} color="var(--brand)" /></div>
+                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Terms & Signature</h1>
+                            <p style={{ color: "var(--muted)", fontSize: 15 }}>Please review and sign below to proceed.</p>
+                        </div>
+
+                        {/* Simplified Terms */}
+                        <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border, #E2E8F0)", padding: 24, marginBottom: 24 }}>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: "var(--foreground)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                                <FileText size={18} color="var(--brand)" />
+                                Key Terms
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                {[
+                                    "Final pricing is confirmed on-site based on actual volume.",
+                                    "24-hour cancellation notice required. Late cancellations may incur a trip fee.",
+                                    "We cannot haul hazardous materials, asbestos, or medical waste.",
+                                    `${siteConfig.companyName} is fully licensed and insured.`,
+                                ].map((term, i) => (
+                                    <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                                        <Check size={16} style={{ color: "var(--brand)", flexShrink: 0, marginTop: 2 }} />
+                                        <span style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.5 }}>{term}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <a href="/legal" target="_blank" rel="noopener noreferrer"
+                                style={{ display: "inline-block", marginTop: 16, fontSize: 13, color: "var(--brand)", fontWeight: 600, textDecoration: "underline" }}>
+                                Read full Terms of Service & Privacy Policy →
+                            </a>
+                        </div>
+
+                        {/* Checkbox */}
+                        <label style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px 20px", borderRadius: 12, border: `2px solid ${termsAccepted ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: termsAccepted ? "#FFF7ED" : "var(--card)", cursor: "pointer", transition: "all 0.15s", marginBottom: 24 }}>
+                            <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)}
+                                style={{ width: 20, height: 20, accentColor: "var(--brand)", flexShrink: 0, marginTop: 1 }} />
+                            <span style={{ fontSize: 14, color: "var(--foreground)", lineHeight: 1.5 }}>
+                                I agree to the <a href="/legal" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Terms of Service</a> and <a href="/legal" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>
+                            </span>
+                        </label>
+
+                        {/* Signature Pad */}
+                        <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border, #E2E8F0)", padding: 24 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--foreground)", display: "flex", alignItems: "center", gap: 8 }}>
+                                    <PenTool size={18} color="var(--brand)" />
+                                    Your Signature
+                                </div>
+                                {signatureDataUrl && (
+                                    <button onClick={() => {
+                                        const canvas = sigCanvasRef.current;
+                                        if (canvas) {
+                                            const ctx = canvas.getContext("2d");
+                                            ctx?.clearRect(0, 0, canvas.width, canvas.height);
+                                        }
+                                        setSignatureDataUrl(null);
+                                    }} style={{ border: "none", background: "none", fontSize: 13, color: "#DC2626", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontFamily: "inherit" }}>
+                                        <Trash2 size={14} /> Clear
+                                    </button>
+                                )}
+                            </div>
+                            <canvas
+                                ref={sigCanvasRef}
+                                width={560}
+                                height={180}
+                                style={{
+                                    width: "100%", height: 180, borderRadius: 12,
+                                    border: `2px dashed ${signatureDataUrl ? "var(--brand)" : "var(--border, #CBD5E1)"}`,
+                                    background: "#FAFAFA", cursor: "crosshair", touchAction: "none",
+                                }}
+                                onMouseDown={(e) => {
+                                    sigDrawingRef.current = true;
+                                    const canvas = sigCanvasRef.current;
+                                    if (!canvas) return;
+                                    const ctx = canvas.getContext("2d");
+                                    if (!ctx) return;
+                                    const rect = canvas.getBoundingClientRect();
+                                    const scaleX = canvas.width / rect.width;
+                                    const scaleY = canvas.height / rect.height;
+                                    ctx.beginPath();
+                                    ctx.moveTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
+                                }}
+                                onMouseMove={(e) => {
+                                    if (!sigDrawingRef.current) return;
+                                    const canvas = sigCanvasRef.current;
+                                    if (!canvas) return;
+                                    const ctx = canvas.getContext("2d");
+                                    if (!ctx) return;
+                                    const rect = canvas.getBoundingClientRect();
+                                    const scaleX = canvas.width / rect.width;
+                                    const scaleY = canvas.height / rect.height;
+                                    ctx.lineWidth = 2.5;
+                                    ctx.lineCap = "round";
+                                    ctx.strokeStyle = "#1E293B";
+                                    ctx.lineTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
+                                    ctx.stroke();
+                                }}
+                                onMouseUp={() => {
+                                    sigDrawingRef.current = false;
+                                    if (sigCanvasRef.current) setSignatureDataUrl(sigCanvasRef.current.toDataURL("image/png"));
+                                }}
+                                onMouseLeave={() => {
+                                    if (sigDrawingRef.current) {
+                                        sigDrawingRef.current = false;
+                                        if (sigCanvasRef.current) setSignatureDataUrl(sigCanvasRef.current.toDataURL("image/png"));
+                                    }
+                                }}
+                                onTouchStart={(e) => {
+                                    e.preventDefault();
+                                    sigDrawingRef.current = true;
+                                    const canvas = sigCanvasRef.current;
+                                    if (!canvas) return;
+                                    const ctx = canvas.getContext("2d");
+                                    if (!ctx) return;
+                                    const rect = canvas.getBoundingClientRect();
+                                    const scaleX = canvas.width / rect.width;
+                                    const scaleY = canvas.height / rect.height;
+                                    const touch = e.touches[0];
+                                    ctx.beginPath();
+                                    ctx.moveTo((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY);
+                                }}
+                                onTouchMove={(e) => {
+                                    e.preventDefault();
+                                    if (!sigDrawingRef.current) return;
+                                    const canvas = sigCanvasRef.current;
+                                    if (!canvas) return;
+                                    const ctx = canvas.getContext("2d");
+                                    if (!ctx) return;
+                                    const rect = canvas.getBoundingClientRect();
+                                    const scaleX = canvas.width / rect.width;
+                                    const scaleY = canvas.height / rect.height;
+                                    const touch = e.touches[0];
+                                    ctx.lineWidth = 2.5;
+                                    ctx.lineCap = "round";
+                                    ctx.strokeStyle = "#1E293B";
+                                    ctx.lineTo((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY);
+                                    ctx.stroke();
+                                }}
+                                onTouchEnd={(e) => {
+                                    e.preventDefault();
+                                    sigDrawingRef.current = false;
+                                    if (sigCanvasRef.current) setSignatureDataUrl(sigCanvasRef.current.toDataURL("image/png"));
+                                }}
+                            />
+                            <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 10, textAlign: "center" }}>
+                                Draw your signature above using your mouse or finger
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {/* ── QUOTE: Summary & Book ─────────────────────────────── */}
                 {currentPhase === "quote" && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
