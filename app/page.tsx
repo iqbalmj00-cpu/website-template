@@ -92,7 +92,7 @@ export default function HomePage() {
                             }}
                         >
                             <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--brand)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                                Serving {siteConfig.city}
+                                Serving {siteConfig.city} &amp; the Surrounding Areas
                             </span>
                         </div>
                         <h1
