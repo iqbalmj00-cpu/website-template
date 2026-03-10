@@ -442,14 +442,36 @@ export default function BookingWizard() {
                 if (data.leadId) localStorage.setItem("syjLeadId", data.leadId);
             };
 
+            /* ── Send signed waiver to dashboard ── */
+            const sendWaiver = async () => {
+                if (!signatureDataUrl || !leadId) return;
+                try {
+                    await fetch("/api/waiver", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            leadId,
+                            signature: signatureDataUrl,
+                            waiverType: "damage_waiver",
+                            customerName: contact.name,
+                        }),
+                    });
+                } catch {
+                    // Non-blocking — don't fail the booking if waiver upload fails
+                    console.warn("Waiver upload failed silently");
+                }
+            };
+
             /* ── Execute based on service type ── */
             let priceStr = "";
+            const waiverPromise = sendWaiver(); // fire in parallel
             if (serviceType === "junk" || serviceType === "both") {
                 priceStr = await sendJunkBooking();
             }
             if (serviceType === "dumpster" || serviceType === "both") {
                 await sendDumpsterLead();
             }
+            await waiverPromise; // ensure waiver completes before redirect
 
             const params = new URLSearchParams({
                 name: contact.name,
