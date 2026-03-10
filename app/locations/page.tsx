@@ -27,25 +27,38 @@ export default function LocationsPage() {
                 }}
             >
                 <div style={{ maxWidth: 900, margin: "0 auto" }}>
-                    <span
-                        style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.5rem",
-                            padding: "0.4rem 1rem",
-                            borderRadius: "var(--btn-radius)",
-                            background: "var(--hero-badge-bg)",
-                            border: "1px solid var(--hero-badge-border)",
-                            color: "var(--brand)",
-                            fontSize: "0.8rem",
-                            fontWeight: 700,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                            marginBottom: "2rem",
-                        }}
-                    >
-                        <MapPin size={16} style={{ color: "var(--brand)" }} /> Serving {serviceArea || city}
-                    </span>
+                    {(() => {
+                        const areaNames = (serviceArea || city).split(",").map(s => s.trim()).filter(Boolean);
+                        const maxShow = 12;
+                        const visible = areaNames.slice(0, maxShow);
+                        const remaining = areaNames.length - maxShow;
+                        return (
+                            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.5rem", marginBottom: "2rem" }}>
+                                {visible.map((name) => (
+                                    <span key={name} style={{
+                                        display: "inline-flex", alignItems: "center", gap: "0.35rem",
+                                        padding: "0.35rem 0.75rem", borderRadius: "var(--btn-radius)",
+                                        background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)",
+                                        color: "var(--brand)", fontSize: "0.75rem", fontWeight: 600,
+                                        textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap",
+                                    }}>
+                                        <MapPin size={12} /> {name}
+                                    </span>
+                                ))}
+                                {remaining > 0 && (
+                                    <span style={{
+                                        display: "inline-flex", alignItems: "center",
+                                        padding: "0.35rem 0.75rem", borderRadius: "var(--btn-radius)",
+                                        background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.3)",
+                                        color: "var(--brand)", fontSize: "0.75rem", fontWeight: 700,
+                                        textTransform: "uppercase", letterSpacing: "0.04em",
+                                    }}>
+                                        +{remaining} more
+                                    </span>
+                                )}
+                            </div>
+                        );
+                    })()}
                     <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                         Service <span style={{ color: "var(--brand)" }}>Locations</span>
                     </h1>

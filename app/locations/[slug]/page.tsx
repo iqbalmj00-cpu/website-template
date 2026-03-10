@@ -34,9 +34,38 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
             <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
                 <div data-image-grid style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "center" }}>
                     <div>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
-                            <MapPin size={16} style={{ color: "var(--brand)" }} /> {location.heroBadge}
-                        </span>
+                        {(() => {
+                            const badgeNames = (location.heroBadge || location.name).split(",").map(s => s.trim()).filter(Boolean);
+                            const maxShow = 10;
+                            const visible = badgeNames.slice(0, maxShow);
+                            const remaining = badgeNames.length - maxShow;
+                            return (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1.5rem" }}>
+                                    {visible.map((name) => (
+                                        <span key={name} style={{
+                                            display: "inline-flex", alignItems: "center", gap: "0.3rem",
+                                            padding: "0.3rem 0.65rem", borderRadius: "var(--btn-radius)",
+                                            background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)",
+                                            color: "var(--brand)", fontSize: "0.7rem", fontWeight: 600,
+                                            textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap",
+                                        }}>
+                                            <MapPin size={10} /> {name}
+                                        </span>
+                                    ))}
+                                    {remaining > 0 && (
+                                        <span style={{
+                                            display: "inline-flex", alignItems: "center",
+                                            padding: "0.3rem 0.65rem", borderRadius: "var(--btn-radius)",
+                                            background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.3)",
+                                            color: "var(--brand)", fontSize: "0.7rem", fontWeight: 700,
+                                            textTransform: "uppercase", letterSpacing: "0.04em",
+                                        }}>
+                                            +{remaining} more
+                                        </span>
+                                    )}
+                                </div>
+                            );
+                        })()}
                         <h1 style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                             Junk Removal in <span style={{ color: "var(--brand)" }}>{location.name}, {location.state}</span>
                         </h1>
