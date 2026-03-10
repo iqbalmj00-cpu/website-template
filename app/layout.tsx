@@ -26,13 +26,36 @@ const allFontVars = [
     sourceSans3.variable,
 ].join(" ");
 
+const baseUrl = siteConfig.subdomain
+    ? `https://${siteConfig.subdomain}.scaleyourjunk.com`
+    : "https://scaleyourjunk.com";
+
+const ogImage = siteConfig.heroImageUrl || siteConfig.logoUrl || null;
+
 export const metadata: Metadata = {
+    metadataBase: new URL(baseUrl),
     title: `${siteConfig.companyName} | Junk Removal in ${siteConfig.city}`,
-    description: `${siteConfig.companyName} offers fast, affordable junk removal in ${siteConfig.serviceArea}. Furniture, appliances, yard waste & more. Book online in minutes.`,
+    description: `${siteConfig.companyName} offers fast, affordable junk removal in ${siteConfig.serviceArea || siteConfig.city}. Furniture, appliances, yard waste & more. Book online in minutes.`,
+    alternates: {
+        canonical: "/",
+    },
     openGraph: {
         title: `${siteConfig.companyName} | Junk Removal in ${siteConfig.city}`,
-        description: `Fast, affordable junk removal in ${siteConfig.serviceArea}.`,
+        description: `Fast, affordable junk removal in ${siteConfig.serviceArea || siteConfig.city}.`,
         type: "website",
+        siteName: siteConfig.companyName,
+        locale: "en_US",
+        ...(ogImage ? { images: [{ url: ogImage, width: 1200, height: 630, alt: `${siteConfig.companyName} — Junk Removal in ${siteConfig.city}` }] } : {}),
+    },
+    twitter: {
+        card: ogImage ? "summary_large_image" : "summary",
+        title: `${siteConfig.companyName} | Junk Removal in ${siteConfig.city}`,
+        description: `Fast, affordable junk removal in ${siteConfig.serviceArea || siteConfig.city}.`,
+        ...(ogImage ? { images: [ogImage] } : {}),
+    },
+    robots: {
+        index: true,
+        follow: true,
     },
 };
 

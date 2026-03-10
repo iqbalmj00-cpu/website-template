@@ -14,9 +14,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const svc = getServiceBySlug(slug);
     if (!svc) return { title: "Service Not Found" };
+    const pageTitle = `${svc.title} in ${siteConfig.city}, ${siteConfig.state} | ${siteConfig.companyName}`;
+    const pageDesc = `${svc.shortDesc} Professional ${svc.title.toLowerCase()} service in ${siteConfig.city} by ${siteConfig.companyName}. Book your free estimate today.`;
+    const svcImage = siteConfig.serviceImages?.[slug] || null;
     return {
-        title: `${svc.title} in ${siteConfig.city}, ${siteConfig.state} | ${siteConfig.companyName}`,
-        description: `${svc.shortDesc} Professional ${svc.title.toLowerCase()} service in ${siteConfig.city} by ${siteConfig.companyName}. Book your free estimate today.`,
+        title: pageTitle,
+        description: pageDesc,
+        alternates: { canonical: `/services/${slug}` },
+        openGraph: {
+            title: pageTitle,
+            description: pageDesc,
+            type: "article",
+            ...(svcImage ? { images: [{ url: svcImage, width: 1200, height: 630, alt: `${svc.title} in ${siteConfig.city}` }] } : {}),
+        },
     };
 }
 

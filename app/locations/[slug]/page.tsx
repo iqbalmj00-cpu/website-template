@@ -16,7 +16,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const { slug } = await params;
     const loc = getLocationBySlug(slug);
     if (!loc) return { title: "Location Not Found" };
-    return { title: loc.metaTitle, description: loc.metaDescription };
+    const locImage = siteConfig.locationImages?.[slug] || null;
+    return {
+        title: loc.metaTitle,
+        description: loc.metaDescription,
+        alternates: { canonical: `/locations/${slug}` },
+        openGraph: {
+            title: loc.metaTitle,
+            description: loc.metaDescription,
+            type: "article",
+            ...(locImage ? { images: [{ url: locImage, width: 1200, height: 630, alt: `Junk removal in ${loc.name}, ${loc.state}` }] } : {}),
+        },
+    };
 }
 
 export default async function LocationDetailPage({ params }: { params: Promise<{ slug: string }> }) {
