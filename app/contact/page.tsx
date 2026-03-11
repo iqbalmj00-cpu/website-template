@@ -1,17 +1,37 @@
 import type { Metadata } from "next";
-import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import Link from "next/link";
+import { Phone, MapPin, Clock, CalendarDays, MessageSquare, Truck } from "lucide-react";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+const areas = siteConfig.serviceArea.split(",").map(s => s.trim()).filter(Boolean);
+
+function formatHoursDisplay(): string {
+    const hours = siteConfig.businessHours;
+    if (!hours) return "Mon – Sat, 7am – 7pm";
+    const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+    const dayLabels: Record<string, string> = { mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat", sun: "Sun" };
+    const open = days.filter(d => hours[d] && !hours[d].closed);
+    if (open.length === 0) return "By appointment only";
+    const firstDay = open[0];
+    const lastDay = open[open.length - 1];
+    const sample = hours[firstDay];
+    if (!sample) return "Mon – Sat, 7am – 7pm";
+    const fmt = (t: string) => { const [h] = t.split(":").map(Number); return h > 12 ? `${h - 12}pm` : `${h}am`; };
+    return `${dayLabels[firstDay]} – ${dayLabels[lastDay]}, ${fmt(sample.start)} – ${fmt(sample.end)}`;
+}
+
 export const metadata: Metadata = {
-    title: `Contact Us | ${siteConfig.companyName}`,
-    description: `Get in touch with ${siteConfig.companyName}. Serving ${siteConfig.serviceArea}.`,
+    title: `Contact ${siteConfig.companyName} — Junk Removal in ${cityState}`,
+    description: `Get in touch with ${siteConfig.companyName} for junk removal in ${cityState}. Call for a free quote, book online, or send us a message. Same-day service available.`,
+    alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {
     const contactInfo = [
         { icon: Phone, label: "Phone", value: formatPhone(siteConfig.phoneNumber), href: telHref(siteConfig.phoneNumber) },
         { icon: MapPin, label: "Service Area", value: siteConfig.serviceArea, href: undefined },
-        { icon: Clock, label: "Hours", value: "Mon – Sat, 7am – 7pm", href: undefined },
+        { icon: Clock, label: "Hours", value: formatHoursDisplay(), href: undefined },
     ];
 
     return (
@@ -19,10 +39,10 @@ export default function ContactPage() {
             <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
                     <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
-                        Get In Touch
+                        Contact {siteConfig.companyName} in {siteConfig.city}
                     </h1>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7 }}>
-                        Have a question or need a quote? We&rsquo;d love to hear from you.
+                        Need junk removed in {cityState}? We&apos;re here to help. Get a free quote in minutes — online or by phone.
                     </p>
                 </div>
             </section>
@@ -58,7 +78,7 @@ export default function ContactPage() {
                             <p style={{ color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.7, marginBottom: "1.5rem" }}>
                                 The fastest way to get a quote is to{" "}
                                 <a href="/book" style={{ color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>book online</a>
-                                {" "}— it takes about 2 minutes and you&rsquo;ll get an instant estimate.
+                                {" "}— it takes about 2 minutes and you&apos;ll get an instant estimate.
                             </p>
                             <p style={{ color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.7 }}>
                                 For general inquiries, give us a call at{" "}
@@ -71,6 +91,61 @@ export default function ContactPage() {
                     </div>
                 </div>
             </section>
+
+            {/* What to Expect */}
+            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+                    <h2 className="section-title" style={{ textAlign: "center", marginBottom: "1rem" }}>What to Expect</h2>
+                    <p style={{ textAlign: "center", color: "var(--muted)", maxWidth: 600, margin: "0 auto 3rem", lineHeight: 1.7 }}>
+                        Getting junk removed in {siteConfig.city} is quick and easy with {siteConfig.companyName}.
+                    </p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "2rem" }}>
+                        {[
+                            { icon: CalendarDays, step: "1", title: "Call or Book Online", desc: `Reach out by phone or book through our website. Tell us what you need hauled and pick a time that works for you. We offer same-day and next-day slots in ${siteConfig.city}.` },
+                            { icon: MessageSquare, step: "2", title: "Get a Free Quote", desc: "Our crew arrives at your location and gives you a firm, upfront price before any work begins. No hidden fees and no obligation — if the price doesn't work, there's no charge." },
+                            { icon: Truck, step: "3", title: "We Haul It Away", desc: "Once you give the thumbs up, we load everything, sweep up, and haul it all away. Most jobs take under an hour. Your space is clean and clutter-free." },
+                        ].map((item) => (
+                            <div key={item.step} style={{ textAlign: "center" }}>
+                                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.25rem", fontWeight: 800, margin: "0 auto 1rem" }}>
+                                    {item.step}
+                                </div>
+                                <h3 style={{ fontSize: "1.1rem", marginBottom: "0.5rem", color: "var(--foreground)" }}>{item.title}</h3>
+                                <p style={{ color: "var(--muted)", lineHeight: 1.65, fontSize: "0.925rem" }}>{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Service Area */}
+            {areas.length > 1 && (
+                <section style={{ padding: "4rem 1.5rem", background: "var(--background)", borderTop: "1px solid var(--border)" }}>
+                    <div style={{ maxWidth: 800, margin: "0 auto" }}>
+                        <div className="card" style={{ textAlign: "center", padding: "2.5rem" }}>
+                            <MapPin size={32} style={{ color: "var(--brand)", marginBottom: "1rem" }} />
+                            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "1rem" }}>Our Service Area</h2>
+                            <p style={{ color: "var(--muted)", lineHeight: 1.7, marginBottom: "1.5rem" }}>
+                                We serve all of {siteConfig.city} and surrounding areas including:
+                            </p>
+                            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.5rem" }}>
+                                {areas.map((area) => (
+                                    <span key={area} style={{
+                                        display: "inline-flex", alignItems: "center", gap: "0.3rem",
+                                        padding: "0.35rem 0.75rem", borderRadius: "var(--btn-radius)",
+                                        background: "var(--background)", border: "1px solid var(--border)",
+                                        fontSize: "0.8rem", fontWeight: 600,
+                                    }}>
+                                        <MapPin size={11} color="var(--brand)" /> {area}
+                                    </span>
+                                ))}
+                            </div>
+                            <Link href="/locations" style={{ display: "inline-block", marginTop: "1.5rem", color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>
+                                View All Locations →
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+            )}
         </>
     );
 }

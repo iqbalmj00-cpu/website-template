@@ -1,86 +1,18 @@
-"use client";
-
 import Link from "next/link";
+import type { Metadata } from "next";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
-import { useState } from "react";
 import ServiceIcon from "@/components/ServiceIcon";
-import { ShieldCheck, MapPin, Building2, Ban, ClipboardList, Phone } from "lucide-react";
+import ServiceCard from "./ServiceCard";
+import { ShieldCheck, MapPin, Building2, Ban, ClipboardList, Phone, DollarSign, FileText } from "lucide-react";
 
-function ServiceCard({
-    iconName,
-    title,
-    slug,
-    shortDesc,
-    fullDesc,
-}: {
-    iconName: string;
-    title: string;
-    slug: string;
-    shortDesc: string;
-    fullDesc: string;
-}) {
-    const [expanded, setExpanded] = useState(false);
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
-    return (
-        <div
-            style={{
-                background: "var(--card)",
-                borderRadius: 16,
-                padding: "2rem",
-                border: "1px solid var(--border)",
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-                transition: "box-shadow 0.3s, transform 0.3s",
-            }}
-            onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 32px rgba(0,0,0,0.1)";
-                (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-            }}
-            onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = "none";
-                (e.currentTarget as HTMLElement).style.transform = "none";
-            }}
-        >
-            <div style={{ marginBottom: "1rem", display: "flex" }}><ServiceIcon name={iconName} size={36} color="var(--brand)" /></div>
-            <h3 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--foreground)", marginBottom: "0.5rem" }}>
-                {title}
-            </h3>
-            <p style={{ color: "var(--muted)", lineHeight: 1.6, flex: 1 }}>{shortDesc}</p>
-
-            {expanded && (
-                <p style={{ color: "var(--muted)", lineHeight: 1.6, marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid var(--border)" }}>
-                    {fullDesc}
-                </p>
-            )}
-
-            <div style={{ marginTop: "1rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <button
-                    onClick={() => setExpanded((e) => !e)}
-                    style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        color: "var(--foreground)",
-                        fontWeight: 700,
-                        fontSize: "0.85rem",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em",
-                    }}
-                >
-                    {expanded ? "Show Less ↑" : "Learn More →"}
-                </button>
-                <Link
-                    href={`/services/${slug}`}
-                    style={{ color: "var(--brand)", fontWeight: 700, fontSize: "0.85rem", textDecoration: "none" }}
-                >
-                    View Details →
-                </Link>
-            </div>
-        </div>
-    );
-}
+export const metadata: Metadata = {
+    title: `Junk Removal Services in ${cityState} | ${siteConfig.companyName}`,
+    description: `${siteConfig.companyName} offers professional junk removal services in ${cityState}. Furniture, appliances, yard waste, construction debris & more. Licensed & insured. Book online today.`,
+    alternates: { canonical: "/services" },
+};
 
 export default function ServicesPage() {
     const services = getClientServices();
@@ -127,11 +59,11 @@ export default function ServicesPage() {
                             marginBottom: "1.5rem",
                         }}
                     >
-                        OUR PROFESSIONAL{" "}
-                        <span style={{ color: "var(--brand)" }}>SERVICES</span>
+                        Junk Removal Services in{" "}
+                        <span style={{ color: "var(--brand)" }}>{siteConfig.city}</span>
                     </h1>
                     <p style={{ fontSize: "1.25rem", color: "var(--hero-muted)", maxWidth: 600, margin: "0 auto 2.5rem" }}>
-                        {companyName} provides efficient, reliable junk removal for homes, construction sites, and businesses.
+                        {companyName} provides efficient, reliable junk removal for homes, construction sites, and businesses across {cityState}.
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/locations" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
@@ -156,8 +88,20 @@ export default function ServicesPage() {
                 </div>
             </section>
 
+            {/* Intro */}
+            <section style={{ padding: "4rem 1.5rem 0", background: "var(--background)" }}>
+                <div style={{ maxWidth: 750, margin: "0 auto", textAlign: "center" }}>
+                    <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.8 }}>
+                        Whether you&apos;re clearing out a garage, renovating a kitchen, or managing a commercial cleanout,
+                        {companyName} has the crew and equipment to get it done fast. We serve all of {cityState} with same-day
+                        and next-day availability. Every job includes eco-friendly disposal — we donate usable items to local
+                        charities, recycle what we can, and only landfill what&apos;s left.
+                    </p>
+                </div>
+            </section>
+
             {/* Service Cards */}
-            <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
+            <section style={{ padding: "4rem 1.5rem 5rem", background: "var(--background)" }}>
                 <div
                     style={{
                         maxWidth: 1200,
@@ -180,8 +124,42 @@ export default function ServicesPage() {
                 </div>
             </section>
 
-            {/* Items We Don't Accept */}
+            {/* How Pricing Works */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 900, margin: "0 auto" }}>
+                    <h2 className="section-title" style={{ textAlign: "center", marginBottom: "1rem" }}>How Pricing Works</h2>
+                    <p style={{ textAlign: "center", color: "var(--muted)", fontSize: "1rem", maxWidth: 600, margin: "0 auto 3rem", lineHeight: 1.7 }}>
+                        No hourly rates, no hidden fees. You pay based on how much space your items take in our truck.
+                    </p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
+                        <div className="card" style={{ textAlign: "center" }}>
+                            <DollarSign size={32} style={{ color: "var(--brand)", marginBottom: "1rem" }} />
+                            <h3 style={{ fontSize: "1.1rem", color: "var(--foreground)", marginBottom: "0.5rem" }}>Volume-Based Pricing</h3>
+                            <p style={{ color: "var(--muted)", fontSize: "0.925rem", lineHeight: 1.65 }}>
+                                We quote based on how much space your items take in our {siteConfig.pricing.truckSize} truck.
+                                See exactly what you&apos;ll pay before we start — starting at just ${siteConfig.pricing.tiers[0]?.min ?? 75}.
+                            </p>
+                            <Link href="/pricing" style={{ display: "inline-block", marginTop: "1rem", color: "var(--brand)", fontWeight: 600, textDecoration: "none", fontSize: "0.9rem" }}>
+                                View Full Pricing →
+                            </Link>
+                        </div>
+                        <div className="card" style={{ textAlign: "center" }}>
+                            <FileText size={32} style={{ color: "var(--brand)", marginBottom: "1rem" }} />
+                            <h3 style={{ fontSize: "1.1rem", color: "var(--foreground)", marginBottom: "0.5rem" }}>Free Estimates</h3>
+                            <p style={{ color: "var(--muted)", fontSize: "0.925rem", lineHeight: 1.65 }}>
+                                Book online and our crew will give you a firm quote on-site before any work begins.
+                                No obligation — if the price doesn&apos;t work for you, there&apos;s no charge.
+                            </p>
+                            <Link href="/book" style={{ display: "inline-block", marginTop: "1rem", color: "var(--brand)", fontWeight: 600, textDecoration: "none", fontSize: "0.9rem" }}>
+                                Get Your Free Quote →
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Items We Don't Accept */}
+            <section style={{ padding: "5rem 1.5rem", background: "var(--background)", borderTop: "1px solid var(--border)" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
                     <Ban size={40} style={{ color: "#ef4444", marginBottom: "1rem" }} />
                     <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "2rem" }}>Items We Do Not Accept</h2>
@@ -237,7 +215,7 @@ export default function ServicesPage() {
                         Ready to clear the clutter?
                     </h2>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.15rem", marginBottom: "2.5rem" }}>
-                        Book your free estimate today. Same-day service available.
+                        Book your free estimate today. Same-day service available in {cityState}.
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" className="btn-primary" style={{ padding: "1rem 2.5rem", fontSize: "1.1rem" }}>

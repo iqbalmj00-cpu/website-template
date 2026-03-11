@@ -4,9 +4,12 @@ import SafeImage from "@/components/SafeImage";
 import type { Metadata } from "next";
 import { Building2, Factory, Store, UtensilsCrossed, HardHat, Building, Moon, ClipboardList, ShieldCheck, Recycle, Mail, Phone } from "lucide-react";
 
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+
 export const metadata: Metadata = {
-    title: `Commercial Junk Removal | ${siteConfig.companyName}`,
-    description: `Commercial junk removal for offices, warehouses, retail spaces, and construction sites. ${siteConfig.companyName} handles it all.`,
+    title: `Commercial Junk Removal in ${cityState} | ${siteConfig.companyName}`,
+    description: `Commercial junk removal for offices, warehouses, retail spaces, and construction sites in ${cityState}. ${siteConfig.companyName} offers after-hours service, volume pricing, and eco-friendly disposal.`,
+    alternates: { canonical: "/commercial" },
 };
 
 export default function CommercialPage() {
@@ -24,7 +27,7 @@ export default function CommercialPage() {
                             Commercial <span style={{ color: "var(--brand)" }}>Junk Removal</span>
                         </h1>
                         <p style={{ fontSize: "1.2rem", color: "var(--hero-muted)", maxWidth: 600 }}>
-                            Offices, warehouses, retail spaces, restaurants — {companyName} clears commercial properties quickly and professionally.
+                            Offices, warehouses, retail spaces, restaurants — {companyName} clears commercial properties across {cityState} quickly and professionally. After-hours and weekend service available to minimize disruption to your operations.
                         </p>
                     </div>
                     <div style={{ display: "flex", justifyContent: "center" }}>
@@ -44,12 +47,12 @@ export default function CommercialPage() {
                     <h2 style={{ fontSize: "2rem", fontWeight: 800, textAlign: "center", marginBottom: "3rem" }}>What We Handle</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
                         {[
-                            { Icon: Building2, title: "Office Cleanouts", desc: "Desks, chairs, cubicles, filing cabinets, and full floor clearings. We work after hours to minimize disruption." },
-                            { Icon: Factory, title: "Warehouse Clearing", desc: "Pallets, racking, old inventory, and industrial equipment removed efficiently." },
-                            { Icon: Store, title: "Retail Spaces", desc: "Store fixtures, signage, shelving, and display cases removed before your next tenant moves in." },
-                            { Icon: UtensilsCrossed, title: "Restaurant Equipment", desc: "Commercial kitchen equipment, seating, bar fixtures, and walk-in coolers." },
-                            { Icon: HardHat, title: "Construction Sites", desc: "Ongoing debris removal for contractors. Scheduled pickups available weekly or bi-weekly." },
-                            { Icon: Building, title: "Property Management", desc: "Turnover cleanouts, tenant moveout junk, and ongoing building maintenance support." },
+                            { Icon: Building2, title: "Office Cleanouts", desc: `Desks, chairs, cubicles, filing cabinets, and full floor clearings. We work after hours to minimize disruption to your ${siteConfig.city} business.` },
+                            { Icon: Factory, title: "Warehouse Clearing", desc: "Pallets, racking, old inventory, and industrial equipment removed efficiently. We handle large-scale warehouse cleanouts with scheduled pickups." },
+                            { Icon: Store, title: "Retail Spaces", desc: "Store fixtures, signage, shelving, and display cases removed before your next tenant moves in. Quick turnaround so you don't lose rental income." },
+                            { Icon: UtensilsCrossed, title: "Restaurant Equipment", desc: "Commercial kitchen equipment, seating, bar fixtures, and walk-in coolers. We handle the heavy stuff so you can focus on your remodel." },
+                            { Icon: HardHat, title: "Construction Sites", desc: `Ongoing debris removal for contractors in ${cityState}. Scheduled pickups available weekly or bi-weekly to keep your job site clean.` },
+                            { Icon: Building, title: "Property Management", desc: "Turnover cleanouts, tenant moveout junk, and ongoing building maintenance support. Volume discounts available for property management companies." },
                         ].map((svc) => (
                             <div key={svc.title} style={{ background: "var(--card)", borderRadius: 16, padding: "2rem", border: "1px solid var(--border)" }}>
                                 <div style={{ marginBottom: "0.75rem" }}><svc.Icon size={28} color="var(--brand)" /></div>

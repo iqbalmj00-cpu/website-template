@@ -7,8 +7,9 @@ import { Newspaper, Clock, ArrowRight, PenLine } from "lucide-react";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-    title: `Blog | ${siteConfig.companyName}`,
-    description: `Tips, guides, and news about junk removal from ${siteConfig.companyName} in ${siteConfig.city}.`,
+    title: `Junk Removal Tips & Blog | ${siteConfig.companyName} — ${siteConfig.city}`,
+    description: `Tips, guides, and news about junk removal from ${siteConfig.companyName} in ${siteConfig.city}. Learn about pricing, eco-friendly disposal, and how to prepare for a pickup.`,
+    alternates: { canonical: "/blog" },
 };
 
 export default async function BlogPage() {

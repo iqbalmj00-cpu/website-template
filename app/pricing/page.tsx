@@ -3,9 +3,19 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle, Truck, Phone, Package, Armchair, Home, HardHat, Container, BadgeDollarSign } from "lucide-react";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+
+const PRICING_FAQS = [
+    { q: "Do you charge for stairs or basements?", a: `${siteConfig.pricing.surcharges.find(s => s.id === "stairs")?.enabled ? `Yes, there's a $${siteConfig.pricing.surcharges.find(s => s.id === "stairs")?.amount} surcharge for items that need to be carried from upstairs or basements. This covers the extra time and effort for our crew.` : "No extra charge for stairs or basements — it's all included in your quote."}` },
+    { q: "Is there a minimum charge?", a: `Yes, our minimum is $${siteConfig.pricing.tiers[0]?.min ?? 75}. This covers a few small items like a chair, some boxes, or a microwave — plus our trip, crew time, and disposal fees.` },
+    { q: "Can I get an exact quote before you arrive?", a: "We provide estimated ranges based on your description. When our crew arrives, they'll give you a firm, exact price before doing any work. No surprises." },
+    { q: "Do you price match?", a: "We are confident our pricing is already competitive. If you've received a lower written quote from a licensed hauler for the same scope of work, let us know and we'll do our best to match it." },
+];
+
 export const metadata: Metadata = {
-    title: `Pricing | ${siteConfig.companyName}`,
-    description: `Transparent junk removal pricing from ${siteConfig.companyName}. Volume-based pricing with free on-site estimates. No hidden fees.`,
+    title: `Junk Removal Pricing in ${cityState} | ${siteConfig.companyName}`,
+    description: `Transparent, volume-based junk removal pricing from ${siteConfig.companyName} in ${cityState}. Starting at $${siteConfig.pricing.tiers[0]?.min ?? 75}. Free on-site estimates, no hidden fees.`,
+    alternates: { canonical: "/pricing" },
 };
 
 export default function PricingPage() {
@@ -39,11 +49,11 @@ export default function PricingPage() {
                         <BadgeDollarSign size={16} style={{ color: "var(--brand)" }} /> Simple Pricing
                     </span>
                     <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
-                        Transparent, Volume-Based Pricing
+                        Junk Removal Pricing in {siteConfig.city}
                     </h1>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7 }}>
                         No hidden fees, no surprises. You only pay for the space your junk takes up in our {truckSize} truck.
-                        Our crew will give you an exact quote on-site before we lift a finger.
+                        Our crew will give you an exact quote on-site before we lift a finger. Serving all of {cityState}.
                     </p>
                 </div>
             </section>
@@ -148,6 +158,35 @@ export default function PricingPage() {
                         }}>
                             <Phone size={18} /> {formatPhone(siteConfig.phoneNumber)}
                         </a>
+                    </div>
+                </div>
+            </section>
+
+            {/* Pricing FAQ */}
+            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "FAQPage",
+                            mainEntity: PRICING_FAQS.map(f => ({
+                                "@type": "Question",
+                                name: f.q,
+                                acceptedAnswer: { "@type": "Answer", text: f.a },
+                            })),
+                        }),
+                    }}
+                />
+                <div style={{ maxWidth: 700, margin: "0 auto" }}>
+                    <h2 className="section-title" style={{ textAlign: "center", marginBottom: "2rem" }}>Pricing FAQ</h2>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                        {PRICING_FAQS.map((faq) => (
+                            <details key={faq.q} style={{ borderBottom: "1px solid var(--border)" }}>
+                                <summary style={{ padding: "1.25rem 0", fontWeight: 600, cursor: "pointer", fontSize: "1rem", color: "var(--foreground)" }}>{faq.q}</summary>
+                                <div style={{ paddingBottom: "1.25rem", color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.7 }}>{faq.a}</div>
+                            </details>
+                        ))}
                     </div>
                 </div>
             </section>

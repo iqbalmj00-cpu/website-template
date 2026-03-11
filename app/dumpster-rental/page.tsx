@@ -7,9 +7,12 @@ import FAQAccordion from "@/components/FAQAccordion";
 import { Phone, ArrowRight, Truck, Clock, CheckCircle, ShieldCheck } from "lucide-react";
 import { formatPhone, telHref } from "@/lib/siteConfig";
 
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+
 export const metadata: Metadata = {
-    title: `Dumpster Rental | ${siteConfig.companyName}`,
-    description: `Rent a dumpster in ${siteConfig.serviceArea}. 10–40 yard containers for construction, cleanouts, and more. Fast delivery from ${siteConfig.companyName}.`,
+    title: `Dumpster Rental in ${cityState} | ${siteConfig.companyName}`,
+    description: `Rent a dumpster in ${cityState}. 10–40 yard containers for construction, cleanouts, and more. Fast delivery from ${siteConfig.companyName}. Book online today.`,
+    alternates: { canonical: "/dumpster-rental" },
 };
 
 const STEPS = [
@@ -30,6 +33,21 @@ const FAQ_ITEMS = [
 export default function DumpsterRentalPage() {
     return (
         <main>
+            {/* FAQ JSON-LD */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        mainEntity: FAQ_ITEMS.map(f => ({
+                            "@type": "Question",
+                            name: f.question,
+                            acceptedAnswer: { "@type": "Answer", text: f.answer },
+                        })),
+                    }),
+                }}
+            />
             {/* ── Hero ── */}
             <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>

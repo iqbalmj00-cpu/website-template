@@ -2,9 +2,12 @@ import Link from "next/link";
 import { siteConfig } from "@/lib/siteConfig";
 import type { Metadata } from "next";
 
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+
 export const metadata: Metadata = {
-    title: `Items We Don't Take | ${siteConfig.companyName}`,
-    description: `For safety and legal reasons, ${siteConfig.companyName} cannot transport certain hazardous materials. See the full list.`,
+    title: `Items We Don't Take | ${siteConfig.companyName} — ${siteConfig.city} Junk Removal`,
+    description: `For safety and legal reasons, ${siteConfig.companyName} in ${cityState} cannot transport certain hazardous materials. See the full list and find safe disposal alternatives.`,
+    alternates: { canonical: "/items-we-dont-take" },
 };
 
 export default function ItemsWeDontTakePage() {
@@ -30,7 +33,7 @@ export default function ItemsWeDontTakePage() {
                         Items We <span style={{ color: "#ef4444" }}>Don&apos;t</span> Take
                     </h1>
                     <p style={{ fontSize: "1.1rem", color: "var(--hero-muted)", maxWidth: 550, margin: "0 auto" }}>
-                        For safety and legal reasons, we cannot transport these materials.
+                        For the safety of our crew and your community in {cityState}, we cannot transport certain hazardous or regulated materials. Below is a list of restricted items and suggestions for safe disposal.
                     </p>
                 </div>
             </section>

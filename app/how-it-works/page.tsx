@@ -3,9 +3,12 @@ import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import type { Metadata } from "next";
 import { Smartphone, Truck, CircleCheckBig, BadgeDollarSign, Clock, Recycle, ShieldCheck, CalendarDays, Phone } from "lucide-react";
 
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+
 export const metadata: Metadata = {
-    title: `How It Works | ${siteConfig.companyName}`,
-    description: `Book junk removal in 3 easy steps with ${siteConfig.companyName}. Schedule online, we show up, and your junk is gone.`,
+    title: `How Junk Removal Works in ${siteConfig.city} | ${siteConfig.companyName}`,
+    description: `Book junk removal in ${cityState} in 3 easy steps with ${siteConfig.companyName}. Schedule online, we show up with a free quote, and your junk is gone. Same-day service available.`,
+    alternates: { canonical: "/how-it-works" },
 };
 
 export default function HowItWorksPage() {
@@ -38,10 +41,11 @@ export default function HowItWorksPage() {
             <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>
                     <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
-                        How It <span style={{ color: "var(--brand)" }}>Works</span>
+                        How Junk Removal Works in{" "}
+                        <span style={{ color: "var(--brand)" }}>{siteConfig.city}</span>
                     </h1>
                     <p style={{ fontSize: "1.2rem", color: "var(--hero-muted)", maxWidth: 550, margin: "0 auto" }}>
-                        Junk removal shouldn&apos;t be complicated. {companyName} makes it fast, fair, and hands-free.
+                        Junk removal in {cityState} shouldn&apos;t be complicated. {companyName} makes it fast, fair, and hands-free — from booking to cleanup.
                     </p>
                 </div>
             </section>
@@ -80,10 +84,10 @@ export default function HowItWorksPage() {
                     <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "3rem" }}>Our Guarantee</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "2rem" }}>
                         {[
-                            { Icon: BadgeDollarSign, title: "No Hidden Fees", desc: "The price we quote is the price you pay. Period." },
-                            { Icon: Clock, title: "On-Time Arrival", desc: "We show up within your scheduled window, every time." },
-                            { Icon: Recycle, title: "Eco-Friendly", desc: "We donate and recycle first. Landfill is the last resort." },
-                            { Icon: ShieldCheck, title: "Fully Insured", desc: "Licensed and insured so you have zero liability." },
+                            { Icon: BadgeDollarSign, title: "No Hidden Fees", desc: "The price we quote is the price you pay. Period. No extra charges for loading, hauling, or disposal." },
+                            { Icon: Clock, title: "On-Time Arrival", desc: `We show up within your scheduled window, every time. Same-day service often available in ${siteConfig.city}.` },
+                            { Icon: Recycle, title: "Eco-Friendly", desc: "We donate usable items to local charities and recycle everything we can. Landfill is our last resort." },
+                            { Icon: ShieldCheck, title: "Fully Insured", desc: "Licensed and insured with comprehensive liability coverage, so you have zero risk when we're on your property." },
                         ].map((g) => (
                             <div key={g.title} style={{ padding: "2rem", background: "var(--background)", borderRadius: 16, border: "1px solid var(--border)" }}>
                                 <div style={{ marginBottom: "0.75rem" }}><g.Icon size={28} color="var(--brand)" /></div>

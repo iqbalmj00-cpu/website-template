@@ -4,9 +4,12 @@ import { getClientServices } from "@/lib/serviceData";
 import type { Metadata } from "next";
 import { CalendarDays } from "lucide-react";
 
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+
 export const metadata: Metadata = {
-    title: `Items We Take | ${siteConfig.companyName}`,
-    description: `See the full list of items ${siteConfig.companyName} can haul away — furniture, appliances, yard waste, construction debris, and more.`,
+    title: `Items We Haul Away in ${siteConfig.city} | ${siteConfig.companyName}`,
+    description: `See the full list of items ${siteConfig.companyName} can haul away in ${cityState} — furniture, appliances, yard waste, construction debris, electronics, and more. We recycle and donate.`,
+    alternates: { canonical: "/items-we-take" },
 };
 
 export default function ItemsWeTakePage() {
@@ -28,10 +31,10 @@ export default function ItemsWeTakePage() {
             <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 4rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>
                     <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1rem" }}>
-                        Items We <span style={{ color: "var(--brand)" }}>Take</span>
+                        Items We <span style={{ color: "var(--brand)" }}>Haul Away</span> in {siteConfig.city}
                     </h1>
                     <p style={{ fontSize: "1.1rem", color: "var(--hero-muted)", maxWidth: 550, margin: "0 auto" }}>
-                        If it fits in our truck, we can probably haul it. Here&apos;s a look at what we accept.
+                        If it fits in our truck, we can probably haul it. We serve all of {cityState} with eco-friendly junk removal — we donate usable items, recycle what we can, and responsibly dispose of the rest.
                     </p>
                 </div>
             </section>
@@ -60,7 +63,7 @@ export default function ItemsWeTakePage() {
                     <p style={{ color: "var(--muted)", lineHeight: 1.7 }}>
                         <strong>Not sure if we can take it?</strong> Give us a call at{" "}
                         <a href={telHref(phoneNumber)} style={{ color: "var(--brand)", fontWeight: 600 }}>{formatPhone(phoneNumber)}</a>{" "}
-                        and we&apos;ll let you know. If we can&apos;t haul it, we&apos;ll point you to someone who can.
+                        and we&apos;ll let you know right away. Common edge cases like pianos, hot tubs, and large safes are usually fine — they just require a heavy item surcharge. If we can&apos;t haul it, we&apos;ll point you to someone who can.
                     </p>
                     <Link href="/items-we-dont-take" style={{ display: "inline-block", marginTop: "1rem", color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>
                         See items we don&apos;t take →

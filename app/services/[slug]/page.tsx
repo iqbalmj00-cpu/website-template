@@ -75,6 +75,21 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                     }),
                 }}
             />
+            {/* JSON-LD: FAQPage */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        mainEntity: svc.faqs.map((faq: { q: string; a: string }) => ({
+                            "@type": "Question",
+                            name: faq.q,
+                            acceptedAnswer: { "@type": "Answer", text: faq.a },
+                        })),
+                    }),
+                }}
+            />
             {/* Hero */}
             <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>

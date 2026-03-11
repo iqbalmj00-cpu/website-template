@@ -1,10 +1,18 @@
-"use client";
-
 import Link from "next/link";
-import { Phone, Star, CheckCircle, ArrowRight, Truck, Clock, Shield, Leaf } from "lucide-react";
+import type { Metadata } from "next";
+import { Phone, Star, CheckCircle, ArrowRight, Truck, Clock, Shield, Leaf, MapPin } from "lucide-react";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { getClientServices, ALL_SERVICES } from "@/lib/serviceData";
 import ServiceIcon from "@/components/ServiceIcon";
+import SafeImage from "@/components/SafeImage";
+
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+
+export const metadata: Metadata = {
+    title: `Junk Removal in ${cityState} | ${siteConfig.companyName}`,
+    description: `${siteConfig.companyName} offers fast, affordable junk removal in ${cityState}. Furniture, appliances, yard waste & more. Same-day service available. Book online in minutes.`,
+    alternates: { canonical: "/" },
+};
 
 export default function HomePage() {
     const howItWorks = [
@@ -103,7 +111,7 @@ export default function HomePage() {
                                 marginBottom: "1.5rem",
                             }}
                         >
-                            Junk Removal Made{" "}
+                            Junk Removal in {siteConfig.city} Made{" "}
                             <span style={{ color: "var(--brand)" }}>Easy.</span>
                         </h1>
                         <p
@@ -139,10 +147,11 @@ export default function HomePage() {
                         </div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "center" }}>
-                        <img
+                        <SafeImage
                             src={siteConfig.heroImageUrl || "/images/generated/hero.png"}
+                            fallbackSrc="/images/default-hero.png"
                             alt={`${siteConfig.companyName} junk removal in ${siteConfig.city}`}
-                            onError={(e) => { (e.target as HTMLImageElement).src = "/images/default-hero.png"; }}
+                            collapseParentGrid
                             style={{ width: "100%", maxWidth: 520, borderRadius: 20, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 25px 80px rgba(0,0,0,0.5)" }}
                         />
                     </div>

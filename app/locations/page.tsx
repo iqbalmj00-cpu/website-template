@@ -6,9 +6,12 @@ import type { Metadata } from "next";
 import ServiceIcon from "@/components/ServiceIcon";
 import { MapPin, Truck, ShieldCheck, Recycle, Phone } from "lucide-react";
 
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+
 export const metadata: Metadata = {
-    title: `Service Locations | ${siteConfig.companyName}`,
-    description: `${siteConfig.companyName} serves the ${siteConfig.serviceArea || siteConfig.city} area. Find junk removal services near you.`,
+    title: `Junk Removal Service Areas in ${cityState} | ${siteConfig.companyName}`,
+    description: `${siteConfig.companyName} provides junk removal across ${siteConfig.serviceArea || siteConfig.city}. Find your neighborhood and book same-day service.`,
+    alternates: { canonical: "/locations" },
 };
 
 export default function LocationsPage() {
