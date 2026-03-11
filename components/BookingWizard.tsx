@@ -190,8 +190,32 @@ export default function BookingWizard() {
         return () => { cancelled = true; };
     }, [step, stripeReady, currentPhase]);
 
-    const goNext = () => setStep(s => s + 1);
-    const goBack = () => setStep(s => s - 1);
+    /* ── Browser back-button integration ── */
+    useEffect(() => {
+        // Replace current entry so we have step=0 as base
+        window.history.replaceState({ wizardStep: 0 }, "");
+
+        const onPopState = (e: PopStateEvent) => {
+            const prevStep = e.state?.wizardStep;
+            if (typeof prevStep === "number" && prevStep >= 0) {
+                setStep(prevStep);
+            } else {
+                // No wizard state = user is leaving the page, let it happen
+            }
+        };
+        window.addEventListener("popstate", onPopState);
+        return () => window.removeEventListener("popstate", onPopState);
+    }, []);
+
+    const goNext = () => {
+        const next = step + 1;
+        setStep(next);
+        window.history.pushState({ wizardStep: next }, "");
+    };
+    const goBack = () => {
+        if (step > 0) window.history.back(); // triggers popstate → setStep
+        // If step === 0, browser back navigates away from /book naturally
+    };
 
     const toggleCategory = (id: string) =>
         setSelectedCategories(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
