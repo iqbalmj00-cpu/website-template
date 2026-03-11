@@ -18,18 +18,18 @@ export default function HomePage() {
     const howItWorks = [
         {
             step: "1",
-            title: "Book Online",
-            desc: "Pick your date and time in 2 minutes. No phone tag, no waiting.",
+            title: "Book & Get Your Estimate",
+            desc: "Book online in 2 minutes — select your items, see your price range instantly. Or call our 24/7 phone line.",
         },
         {
             step: "2",
-            title: "We Show Up",
-            desc: "Our crew arrives on time, quotes you upfront, then gets to work.",
+            title: "We Confirm",
+            desc: "Our team reviews your booking and confirms your date, time, and price. You'll get a confirmation with all the details.",
         },
         {
             step: "3",
-            title: "It's Gone",
-            desc: "We haul everything away. You don't lift a finger. Simple as that.",
+            title: "We Show Up & Haul",
+            desc: "Our crew arrives on time, confirms the final price, and gets to work. We load, sweep up, and haul everything away.",
         },
     ];
 

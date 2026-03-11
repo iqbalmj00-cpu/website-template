@@ -18,20 +18,20 @@ export default function HowItWorksPage() {
         {
             num: "01",
             Icon: Smartphone,
-            title: "Book Online or Call",
-            desc: `Schedule your pickup in under 2 minutes through our website or call us at ${formatPhone(phoneNumber)}. Pick a date and time window that works for you — same-day appointments often available.`,
+            title: "Book & Get Your Estimate",
+            desc: `Book online in under 2 minutes through our website — tell us what you need hauled, select your items, and see your estimated price range instantly. Prefer to talk? Call us at ${formatPhone(phoneNumber)} — our 24/7 AI phone agent can book your pickup and answer questions anytime.`,
         },
         {
             num: "02",
-            Icon: Truck,
-            title: "We Show Up & Quote",
-            desc: "Our uniformed, insured crew arrives within your time window. We look at what needs to go and give you a firm, upfront price before we touch anything. No surprises, no hidden fees.",
+            Icon: CircleCheckBig,
+            title: "We Confirm Your Appointment",
+            desc: "Our team reviews your booking details and confirms your date, time, and estimated price. You'll get a confirmation with everything you need to know — no guesswork, no surprises.",
         },
         {
             num: "03",
-            Icon: CircleCheckBig,
-            title: "We Haul It Away",
-            desc: "Once you approve the price, we get to work immediately. We load, sweep up, and haul everything away. Usable items are donated, the rest is recycled or disposed of responsibly.",
+            Icon: Truck,
+            title: "We Show Up & Haul It Away",
+            desc: "Our uniformed, insured crew arrives within your time window. We confirm the final price on-site, load everything up, sweep the area clean, and haul it all away. Usable items are donated, the rest is recycled or disposed of responsibly.",
         },
     ];
 

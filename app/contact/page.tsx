@@ -101,9 +101,9 @@ export default function ContactPage() {
                     </p>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "2rem" }}>
                         {[
-                            { icon: CalendarDays, step: "1", title: "Call or Book Online", desc: `Reach out by phone or book through our website. Tell us what you need hauled and pick a time that works for you. We offer same-day and next-day slots in ${siteConfig.city}.` },
-                            { icon: MessageSquare, step: "2", title: "Get a Free Quote", desc: "Our crew arrives at your location and gives you a firm, upfront price before any work begins. No hidden fees and no obligation — if the price doesn't work, there's no charge." },
-                            { icon: Truck, step: "3", title: "We Haul It Away", desc: "Once you give the thumbs up, we load everything, sweep up, and haul it all away. Most jobs take under an hour. Your space is clean and clutter-free." },
+                            { icon: CalendarDays, step: "1", title: "Book & Get Your Estimate", desc: `Book online in 2 minutes — select your items and see your price range instantly. Or call us at ${formatPhone(siteConfig.phoneNumber)}. Our 24/7 AI phone agent can book your pickup anytime.` },
+                            { icon: MessageSquare, step: "2", title: "We Confirm Your Appointment", desc: `Our team reviews your booking and confirms your date, time, and estimated price. You'll get a confirmation with all the details — no guesswork.` },
+                            { icon: Truck, step: "3", title: "We Show Up & Haul It Away", desc: "Our crew arrives on time, confirms the final price on-site, and gets to work. We load, sweep up, and haul everything away. Most jobs take under an hour." },
                         ].map((item) => (
                             <div key={item.step} style={{ textAlign: "center" }}>
                                 <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.25rem", fontWeight: 800, margin: "0 auto 1rem" }}>
