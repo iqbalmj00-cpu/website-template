@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
     title: `Legal | ${siteConfig.companyName}`,
     description: `Privacy policy and terms of service for ${siteConfig.companyName}.`,
+    alternates: { canonical: "/legal" },
 };
 
 export default function LegalPage() {

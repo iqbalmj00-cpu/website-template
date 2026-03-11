@@ -19,7 +19,7 @@ export default function HomePage() {
         {
             step: "1",
             title: "Book & Get Your Estimate",
-            desc: "Book online in 2 minutes — select your items, see your price range instantly. Or call our 24/7 phone line.",
+            desc: "Book online in 2 minutes — select your items, see your price range instantly. Or call our 24/7 AI phone agent.",
         },
         {
             step: "2",

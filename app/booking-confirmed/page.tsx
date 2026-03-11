@@ -5,6 +5,7 @@ import BookingConfirmedClient from "./BookingConfirmedClient";
 export const metadata: Metadata = {
     title: `Booking Confirmed | ${siteConfig.companyName}`,
     description: `Your junk removal booking with ${siteConfig.companyName} has been confirmed.`,
+    robots: { index: false, follow: false },
 };
 
 export default function BookingConfirmedPage() {
