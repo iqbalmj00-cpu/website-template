@@ -13,6 +13,17 @@ export type PricingConfig = { truckSize: string; tiers: PricingTier[]; surcharge
 export type BusinessDayHours = { start: string; end: string; closed?: boolean };
 export type BusinessHoursConfig = Record<string, BusinessDayHours>;
 
+export type DumpsterPriceTier = {
+    sizeCuYd: number;
+    baseRate: number;
+    includedDays: number;
+    weightAllowanceTons: number;
+    overageRatePerTon: number;
+    extendedDailyRate: number | null;
+};
+export type DumpsterSurcharge = { name: string; type: string; amount: number };
+export type DumpsterPricingConfig = { tiers: DumpsterPriceTier[]; surcharges: DumpsterSurcharge[] };
+
 function parseJSON<T>(value: string | undefined, fallback: T): T {
     if (!value) return fallback;
     try {
@@ -96,6 +107,9 @@ export const siteConfig = {
 
     // Dumpster rental (gated per client during onboarding)
     offersDumpsterRental: (process.env.NEXT_PUBLIC_OFFERS_DUMPSTER_RENTAL ?? "true") === "true",
+
+    // Dumpster rental pricing (provisioned from DumpsterPriceTier table)
+    dumpsterPricing: parseJSON<DumpsterPricingConfig | null>(process.env.NEXT_PUBLIC_DUMPSTER_PRICING, null),
 
     // Business hours (provisioned from CompanyProfile.businessHours)
     // Format: {"mon":{"start":"08:00","end":"18:00"},"sun":{"closed":true}}

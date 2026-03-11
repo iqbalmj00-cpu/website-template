@@ -876,18 +876,25 @@ export default function BookingWizard() {
                             <p style={{ color: "var(--muted)", fontSize: 15 }}>Choose the dumpster size that best fits your project.</p>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14 }}>
-                            {CONTAINER_SIZES.map(cs => (
+                            {CONTAINER_SIZES.map(cs => {
+                                const sizeNum = parseInt(cs.id);
+                                const tier = siteConfig.dumpsterPricing?.tiers.find(t => t.sizeCuYd === sizeNum);
+                                const hasPrice = tier && tier.baseRate > 0;
+                                return (
                                 <div key={cs.id} onClick={() => setContainerSize(cs.id)} style={{ background: containerSize === cs.id ? "#FFF7ED" : "var(--card)", border: `2px solid ${containerSize === cs.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`, borderRadius: 16, padding: "20px 18px", cursor: "pointer", transition: "all 0.2s", position: "relative" }}>
                                     {containerSize === cs.id && <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={14} /></div>}
                                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
                                         <ServiceIcon name={cs.icon} size={28} color="var(--brand)" />
                                         <div style={{ fontWeight: 800, fontSize: 22, color: "var(--brand)" }}>{cs.yards}</div>
+                                        {hasPrice && <div style={{ marginLeft: "auto", fontWeight: 900, fontSize: 20, color: "var(--foreground)" }}>${tier.baseRate}</div>}
                                     </div>
-                                    <div style={{ fontWeight: 700, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{cs.label}</div>
+                                    <div style={{ fontWeight: 700, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{cs.label}{hasPrice ? ` — $${tier.baseRate}` : ""}</div>
+                                    {hasPrice && <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>{tier.includedDays}-day rental · {tier.weightAllowanceTons}T included</div>}
                                     <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8 }}>{cs.desc}</div>
                                     <div style={{ fontSize: 12, color: "var(--foreground)", background: "var(--background)", padding: "6px 10px", borderRadius: 8, lineHeight: 1.4 }}><strong>Good for:</strong> {cs.goodFor}</div>
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 )}
@@ -1153,17 +1160,35 @@ export default function BookingWizard() {
                                 </div>
                             )}
                             {/* Dumpster pending banner */}
-                            {(serviceType === "dumpster" || serviceType === "both") && (
-                                <div style={{ background: serviceType === "dumpster" ? "var(--hero-bg)" : "#FFFBEB", padding: serviceType === "dumpster" ? "32px 24px" : "16px 24px", textAlign: "center" }}>
-                                    <div style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, color: serviceType === "dumpster" ? "var(--hero-muted, #94A3B8)" : "#92400E" }}>
-                                        {serviceType === "both" ? "Dumpster Rental" : "Dumpster Rental Request"}
+                            {(serviceType === "dumpster" || serviceType === "both") && (() => {
+                                const sizeNum = containerSize ? parseInt(containerSize) : 0;
+                                const dTier = siteConfig.dumpsterPricing?.tiers.find(t => t.sizeCuYd === sizeNum);
+                                const dHasPrice = dTier && dTier.baseRate > 0;
+                                return (
+                                    <div style={{ background: serviceType === "dumpster" ? "var(--hero-bg)" : "#FFFBEB", padding: serviceType === "dumpster" ? "32px 24px" : "16px 24px", textAlign: "center" }}>
+                                        <div style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, color: serviceType === "dumpster" ? "var(--hero-muted, #94A3B8)" : "#92400E" }}>
+                                            {serviceType === "both" ? "Dumpster Rental" : "Dumpster Rental"}
+                                        </div>
+                                        {dHasPrice ? (
+                                            <>
+                                                <div style={{ fontFamily: "var(--heading-font)", fontSize: serviceType === "dumpster" ? 44 : 28, fontWeight: 800, color: serviceType === "dumpster" ? "var(--hero-text)" : "#92400E" }}>
+                                                    {CONTAINER_SIZES.find(c => c.id === containerSize)?.label || ""} — ${dTier.baseRate}
+                                                </div>
+                                                <div style={{ fontSize: 12, color: serviceType === "dumpster" ? "var(--hero-muted, #94A3B8)" : "#92400E", marginTop: 4 }}>
+                                                    {dTier.includedDays}-day rental · {dTier.weightAllowanceTons} tons included · ${dTier.overageRatePerTon}/ton overage{dTier.extendedDailyRate ? ` · $${dTier.extendedDailyRate}/day extended` : ""}
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div style={{ fontFamily: "var(--heading-font)", fontSize: serviceType === "dumpster" ? 28 : 20, fontWeight: 800, color: serviceType === "dumpster" ? "var(--hero-text)" : "#92400E" }}>
+                                                    📋 Pending Confirmation
+                                                </div>
+                                                <div style={{ fontSize: 12, color: serviceType === "dumpster" ? "var(--hero-muted, #94A3B8)" : "#92400E", marginTop: 4 }}>We&apos;ll call within 2 hours to confirm availability</div>
+                                            </>
+                                        )}
                                     </div>
-                                    <div style={{ fontFamily: "var(--heading-font)", fontSize: serviceType === "dumpster" ? 28 : 20, fontWeight: 800, color: serviceType === "dumpster" ? "var(--hero-text)" : "#92400E" }}>
-                                        📋 Pending Confirmation
-                                    </div>
-                                    <div style={{ fontSize: 12, color: serviceType === "dumpster" ? "var(--hero-muted, #94A3B8)" : "#92400E", marginTop: 4 }}>We&apos;ll call within 2 hours to confirm availability</div>
-                                </div>
-                            )}
+                                );
+                            })()}
                             <div style={{ padding: 24 }}>
                                 {(() => {
                                     const rows: { label: string; value: string }[] = [

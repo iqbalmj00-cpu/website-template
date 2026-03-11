@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { siteConfig } from "@/lib/siteConfig";
+import { siteConfig, type DumpsterPriceTier } from "@/lib/siteConfig";
 import { CONTAINER_SIZES, DEBRIS_TYPES } from "@/lib/wizardData";
 import ServiceIcon from "@/components/ServiceIcon";
 import FAQAccordion from "@/components/FAQAccordion";
@@ -83,17 +83,33 @@ export default function DumpsterRentalPage() {
                         </p>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
-                        {CONTAINER_SIZES.map(cs => (
-                            <div key={cs.id} className="card" style={{ padding: "2rem 1.5rem", textAlign: "center" }}>
-                                <ServiceIcon name={cs.icon} size={40} color="var(--brand)" />
-                                <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--brand)", margin: "0.5rem 0" }}>{cs.yards}</div>
-                                <h3 style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.5rem" }}>{cs.label}</h3>
-                                <p style={{ color: "var(--muted)", fontSize: "0.9rem", marginBottom: "1rem" }}>{cs.desc}</p>
-                                <div style={{ background: "var(--background)", borderRadius: 10, padding: "0.75rem 1rem", fontSize: "0.85rem", lineHeight: 1.5 }}>
-                                    <strong>Good for:</strong> {cs.goodFor}
+                        {CONTAINER_SIZES.map(cs => {
+                            const sizeNum = parseInt(cs.id);
+                            const tier: DumpsterPriceTier | undefined = siteConfig.dumpsterPricing?.tiers.find(t => t.sizeCuYd === sizeNum);
+                            const hasPrice = tier && tier.baseRate > 0;
+                            return (
+                                <div key={cs.id} className="card" style={{ padding: "2rem 1.5rem", textAlign: "center", display: "flex", flexDirection: "column" }}>
+                                    <ServiceIcon name={cs.icon} size={40} color="var(--brand)" />
+                                    <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--brand)", margin: "0.5rem 0" }}>{cs.yards}</div>
+                                    <h3 style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.5rem" }}>{cs.label}</h3>
+                                    {/* Price */}
+                                    {hasPrice ? (
+                                        <div style={{ margin: "0.25rem 0 0.75rem" }}>
+                                            <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "var(--foreground)" }}>${tier.baseRate}</div>
+                                            <div style={{ fontSize: "0.75rem", color: "var(--muted)", lineHeight: 1.5, marginTop: 4 }}>
+                                                {tier.includedDays}-day rental · {tier.weightAllowanceTons}T included · ${tier.overageRatePerTon}/ton overage{tier.extendedDailyRate ? ` · $${tier.extendedDailyRate}/day extended` : ""}
+                                            </div>
+                                        </div>
+                                    ) : siteConfig.dumpsterPricing ? (
+                                        <div style={{ margin: "0.25rem 0 0.75rem", fontSize: "1rem", fontWeight: 700, color: "var(--brand)" }}>Call for Pricing</div>
+                                    ) : null}
+                                    <p style={{ color: "var(--muted)", fontSize: "0.9rem", marginBottom: "1rem" }}>{cs.desc}</p>
+                                    <div style={{ background: "var(--background)", borderRadius: 10, padding: "0.75rem 1rem", fontSize: "0.85rem", lineHeight: 1.5, marginTop: "auto" }}>
+                                        <strong>Good for:</strong> {cs.goodFor}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </section>
