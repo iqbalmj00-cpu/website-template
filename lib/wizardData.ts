@@ -191,10 +191,12 @@ export function isDayClosed(
     date: Date,
     businessHours: BusinessHoursConfig | null,
 ): boolean {
-    if (!businessHours) return false; // no config = all days open
+    if (!businessHours || Object.keys(businessHours).length === 0) return false; // no config / empty = all days open
     const dayKey = DAY_KEYS[date.getDay()];
     const dayHours = businessHours[dayKey];
-    return !dayHours || !!dayHours.closed;
+    // If a day isn't listed in the config, treat it as OPEN (safe default)
+    if (!dayHours) return false;
+    return !!dayHours.closed;
 }
 
 /** Get available time slots for a specific date based on business hours */
@@ -202,10 +204,12 @@ export function getAvailableTimeSlots(
     date: Date,
     businessHours: BusinessHoursConfig | null,
 ): TimeSlot[] {
-    if (!businessHours) return TIME_SLOTS; // no config = show all
+    if (!businessHours || Object.keys(businessHours).length === 0) return TIME_SLOTS; // no config / empty = show all
     const dayKey = DAY_KEYS[date.getDay()];
     const dayHours = businessHours[dayKey];
-    if (!dayHours || dayHours.closed) return []; // closed day
+    // If a day isn't listed in the config, show all slots (safe default)
+    if (!dayHours) return TIME_SLOTS;
+    if (dayHours.closed) return []; // explicitly closed day
 
     const openHour = parseHour24(dayHours.start);
     const closeHour = parseHour24(dayHours.end);
