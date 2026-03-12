@@ -9,7 +9,8 @@ export type Testimonial = { name: string; role: string; text: string };
 
 export type PricingTier = { id: string; label: string; fraction: string; min: number; max: number };
 export type Surcharge = { id: string; label: string; amount: number; enabled: boolean };
-export type PricingConfig = { truckSize: string; tiers: PricingTier[]; surcharges: Surcharge[] };
+export type DistanceTier = { id: string; maxMiles: number; additionalCost: number };
+export type PricingConfig = { truckSize: string; fullLoadPrice?: number; tiers: PricingTier[]; distanceTiers?: DistanceTier[]; surcharges: Surcharge[] };
 export type BusinessDayHours = { start: string; end: string; closed?: boolean };
 export type BusinessHoursConfig = Record<string, BusinessDayHours>;
 
@@ -120,6 +121,11 @@ export const siteConfig = {
 
     // Service area ZIP codes (for blocking out-of-area bookings)
     serviceAreaZips: parseJSON<string[]>(process.env.NEXT_PUBLIC_SERVICE_AREA_ZIPS, []),
+
+    // Service radius center point + max radius (for distance-based pricing)
+    centerLat: process.env.NEXT_PUBLIC_CENTER_LAT ? parseFloat(process.env.NEXT_PUBLIC_CENTER_LAT) : null,
+    centerLng: process.env.NEXT_PUBLIC_CENTER_LNG ? parseFloat(process.env.NEXT_PUBLIC_CENTER_LNG) : null,
+    maxRadius: process.env.NEXT_PUBLIC_MAX_RADIUS ? parseInt(process.env.NEXT_PUBLIC_MAX_RADIUS, 10) : null,
 
     // Analytics
     gaTrackingId: process.env.NEXT_PUBLIC_GA_TRACKING_ID ?? null,

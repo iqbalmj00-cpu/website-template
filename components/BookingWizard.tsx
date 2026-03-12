@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, ChevronLeft, ArrowRight, CreditCard, Lock, Trash2, ClipboardList, Truck, MapPin, CalendarDays, BarChart3, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, PenTool, Home, Building2 } from "lucide-react";
 import ServiceIcon from "@/components/ServiceIcon";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import { haversineDistance } from "@/lib/haversine";
 import { siteConfig } from "@/lib/siteConfig";
 import {
     JUNK_CATEGORIES, CATEGORY_ITEMS, VOLUME_OPTIONS,
@@ -120,6 +121,9 @@ export default function BookingWizard() {
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [contact, setContact] = useState<ContactInfo>({ name: "", phone: "", email: "", address: "", notes: "", customerType: "residential" });
     const [addressInArea, setAddressInArea] = useState(true);
+    const [outOfAreaMsg, setOutOfAreaMsg] = useState<string | null>(null);
+    const [distanceSurcharge, setDistanceSurcharge] = useState(0);
+    const [distanceMiles, setDistanceMiles] = useState<number | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [leadCaptured, setLeadCaptured] = useState(false);
@@ -292,12 +296,13 @@ export default function BookingWizard() {
     const stairsSurcharge = pricing.surcharges.find(s => s.id === "stairs");
     const priceAdj = (location === "upstairs" || location === "basement") && stairsSurcharge?.enabled
         ? stairsSurcharge.amount : 0;
+    const totalAdj = priceAdj + distanceSurcharge;
 
     const canProceed = () => {
         switch (currentPhase) {
             case "contact": {
                 const hasRequired = !!(contact.name && contact.phone && contact.email && contact.address);
-                const areaOk = siteConfig.serviceAreaZips.length === 0 || addressInArea;
+                const areaOk = addressInArea && !outOfAreaMsg;
                 return hasRequired && areaOk;
             }
             case "service_type": return serviceType !== null;
@@ -391,8 +396,8 @@ export default function BookingWizard() {
                 const volumeOption = VOLUME_OPTIONS.find(v => v.id === volume);
                 const locationOption = LOCATION_OPTIONS.find(l => l.id === location);
                 const categoryLabels = selectedCategories.map(catId => JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId);
-                const minPrice = tierData ? tierData.min + priceAdj : 0;
-                const maxPrice = tierData ? tierData.max + priceAdj : 0;
+                const minPrice = tierData ? tierData.min + totalAdj : 0;
+                const maxPrice = tierData ? tierData.max + totalAdj : 0;
                 const quoteRangeStr = tierData ? `$${minPrice} – $${maxPrice}` : "";
                 const stairsAccessLabel = locationOption?.label || "Ground Floor";
 
@@ -409,7 +414,10 @@ export default function BookingWizard() {
                         junkLocation: locationOption?.label || "", stairsAccess: stairsAccessLabel,
                         categories: categoryLabels, items: structuredItems, piles: structuredPiles,
                         priceRange: tierData ? [minPrice, maxPrice] : null,
-                        surcharges: priceAdj > 0 ? [{ id: "stairs", label: stairsSurcharge?.label, amount: priceAdj }] : [],
+                        surcharges: [
+                            ...(priceAdj > 0 ? [{ id: "stairs", label: stairsSurcharge?.label, amount: priceAdj }] : []),
+                            ...(distanceSurcharge > 0 ? [{ id: "distance", label: "Distance surcharge", amount: distanceSurcharge }] : []),
+                        ],
                         termsAcceptedAt: new Date().toISOString(),
                         signatureDataUrl: signatureDataUrl || undefined,
                     },
@@ -510,7 +518,7 @@ export default function BookingWizard() {
         } finally {
             setSubmitting(false);
         }
-    }, [contact, selectedCategories, selectedItems, pileSizes, volume, location, selectedDate, selectedTime, tierData, priceAdj, stairsSurcharge, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret]);
+    }, [contact, selectedCategories, selectedItems, pileSizes, volume, location, selectedDate, selectedTime, tierData, priceAdj, distanceSurcharge, totalAdj, stairsSurcharge, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret]);
 
     const formatPhone = (val: string) => {
         const digits = val.replace(/\D/g, "").slice(0, 10);
@@ -578,14 +586,46 @@ export default function BookingWizard() {
                                     onChange={(val) => setContact(c => ({ ...c, address: val }))}
                                     onPlaceSelect={(place) => {
                                         setContact(c => ({ ...c, address: place.address }));
+                                        // ZIP-based area check (existing)
                                         const zips = siteConfig.serviceAreaZips;
+                                        let zipOk = true;
                                         if (zips.length > 0 && place.zip) {
-                                            setAddressInArea(zips.includes(place.zip));
+                                            zipOk = zips.includes(place.zip);
+                                        }
+                                        // Distance-based area check + surcharge (new)
+                                        let radiusOk = true;
+                                        let newDistanceSurcharge = 0;
+                                        if (siteConfig.centerLat != null && siteConfig.centerLng != null && place.lat && place.lng) {
+                                            const dist = haversineDistance(place.lat, place.lng, siteConfig.centerLat, siteConfig.centerLng);
+                                            setDistanceMiles(Math.round(dist * 10) / 10);
+                                            if (siteConfig.maxRadius && dist > siteConfig.maxRadius) {
+                                                radiusOk = false;
+                                            } else {
+                                                // Find matching distance tier
+                                                const dTiers = pricing.distanceTiers || [];
+                                                const sorted = [...dTiers].sort((a, b) => a.maxMiles - b.maxMiles);
+                                                const matchedTier = sorted.find(t => dist <= t.maxMiles);
+                                                newDistanceSurcharge = matchedTier ? matchedTier.additionalCost : (sorted.length > 0 ? sorted[sorted.length - 1].additionalCost : 0);
+                                            }
+                                        } else {
+                                            setDistanceMiles(null);
+                                        }
+                                        setDistanceSurcharge(newDistanceSurcharge);
+                                        if (!zipOk || !radiusOk) {
+                                            setAddressInArea(false);
+                                            setOutOfAreaMsg("We do not service your area. Sorry for the inconvenience.");
                                         } else {
                                             setAddressInArea(true);
+                                            setOutOfAreaMsg(null);
                                         }
                                     }}
                                 />
+                                {outOfAreaMsg && (
+                                    <div style={{ marginTop: 8, padding: "10px 14px", borderRadius: 10, background: "#FEF2F2", border: "1px solid #FECACA", fontSize: 13, color: "#DC2626", display: "flex", alignItems: "flex-start", gap: 8 }}>
+                                        <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+                                        <span>{outOfAreaMsg}</span>
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <label className="label">Property Type</label>
@@ -1154,9 +1194,13 @@ export default function BookingWizard() {
                                         {serviceType === "both" ? "Junk Removal Estimate" : "Estimated Price Range"}
                                     </div>
                                     <div style={{ fontFamily: "var(--heading-font)", fontSize: 44, fontWeight: 800, color: "var(--hero-text)", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
-                                        ${tierData ? tierData.min + priceAdj : "—"} – ${tierData ? tierData.max + priceAdj : "—"}
+                                        ${tierData ? tierData.min + totalAdj : "—"} – ${tierData ? tierData.max + totalAdj : "—"}
                                     </div>
-                                    {priceAdj > 0 && <div style={{ fontSize: 12, color: "#FBBF24", marginTop: 6, position: "relative", zIndex: 1 }}>Includes +${priceAdj} {stairsSurcharge?.label?.toLowerCase() || "stairs"} surcharge</div>}
+                                    {totalAdj > 0 && <div style={{ fontSize: 12, color: "#FBBF24", marginTop: 6, position: "relative", zIndex: 1 }}>
+                                        {priceAdj > 0 && <>+${priceAdj} {stairsSurcharge?.label?.toLowerCase() || "stairs"}</>}
+                                        {priceAdj > 0 && distanceSurcharge > 0 && " · "}
+                                        {distanceSurcharge > 0 && <>+${distanceSurcharge} distance surcharge</>}
+                                    </div>}
                                 </div>
                             )}
                             {/* Dumpster pending banner */}
