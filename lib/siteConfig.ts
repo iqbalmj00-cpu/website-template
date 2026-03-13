@@ -17,11 +17,21 @@ export type BusinessHoursConfig = Record<string, BusinessDayHours>;
 export type DumpsterPriceTier = {
     sizeCuYd: number;
     baseRate: number;
+    baseRateMin: number | null;
+    baseRateMax: number | null;
     includedDays: number;
     weightAllowanceTons: number;
     overageRatePerTon: number;
     extendedDailyRate: number | null;
 };
+
+/** Format dumpster price as range or "Starting at" */
+export function formatDumpsterPrice(tier: DumpsterPriceTier): string {
+    const min = tier.baseRateMin ?? tier.baseRate;
+    const max = tier.baseRateMax;
+    if (max && max > min) return `$${min} – $${max}`;
+    return `Starting at $${min}`;
+}
 export type DumpsterSurcharge = { name: string; type: string; amount: number };
 export type DumpsterPricingConfig = { tiers: DumpsterPriceTier[]; surcharges: DumpsterSurcharge[] };
 

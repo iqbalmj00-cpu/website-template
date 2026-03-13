@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { siteConfig, type DumpsterPriceTier } from "@/lib/siteConfig";
+import { siteConfig, formatDumpsterPrice } from "@/lib/siteConfig";
+import type { DumpsterPriceTier } from "@/lib/siteConfig";
 import { CONTAINER_SIZES, DEBRIS_TYPES } from "@/lib/wizardData";
 import ServiceIcon from "@/components/ServiceIcon";
 import FAQAccordion from "@/components/FAQAccordion";
@@ -86,7 +87,7 @@ export default function DumpsterRentalPage() {
                         {CONTAINER_SIZES.map(cs => {
                             const sizeNum = parseInt(cs.id);
                             const tier: DumpsterPriceTier | undefined = siteConfig.dumpsterPricing?.tiers.find(t => t.sizeCuYd === sizeNum);
-                            const hasPrice = tier && tier.baseRate > 0;
+                            const hasPrice = tier && (tier.baseRate > 0 || (tier.baseRateMin != null && tier.baseRateMin > 0));
                             return (
                                 <div key={cs.id} className="card" style={{ padding: "2rem 1.5rem", textAlign: "center", display: "flex", flexDirection: "column" }}>
                                     <ServiceIcon name={cs.icon} size={40} color="var(--brand)" />
@@ -95,7 +96,7 @@ export default function DumpsterRentalPage() {
                                     {/* Price */}
                                     {hasPrice ? (
                                         <div style={{ margin: "0.25rem 0 0.75rem" }}>
-                                            <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "var(--foreground)" }}>${tier.baseRate}</div>
+                                            <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "var(--foreground)" }}>{formatDumpsterPrice(tier)}</div>
                                             <div style={{ fontSize: "0.75rem", color: "var(--muted)", lineHeight: 1.5, marginTop: 4 }}>
                                                 {tier.includedDays}-day rental · {tier.weightAllowanceTons}T included · ${tier.overageRatePerTon}/ton overage{tier.extendedDailyRate ? ` · $${tier.extendedDailyRate}/day extended` : ""}
                                             </div>
