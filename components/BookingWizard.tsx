@@ -921,17 +921,17 @@ export default function BookingWizard() {
                                 const tier = siteConfig.dumpsterPricing?.tiers.find(t => t.sizeCuYd === sizeNum);
                                 const hasPrice = tier && (tier.baseRate > 0 || (tier.baseRateMin != null && tier.baseRateMin > 0));
                                 return (
-                                <div key={cs.id} onClick={() => setContainerSize(cs.id)} style={{ background: containerSize === cs.id ? "#FFF7ED" : "var(--card)", border: `2px solid ${containerSize === cs.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`, borderRadius: 16, padding: "20px 18px", cursor: "pointer", transition: "all 0.2s", position: "relative" }}>
+                                <div key={cs.id} onClick={() => setContainerSize(cs.id)} style={{ background: containerSize === cs.id ? "#FFF7ED" : "var(--card)", border: `2px solid ${containerSize === cs.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`, borderRadius: 16, padding: "20px 18px", cursor: "pointer", transition: "all 0.2s", position: "relative", display: "flex", flexDirection: "column" }}>
                                     {containerSize === cs.id && <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={14} /></div>}
-                                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                                        <ServiceIcon name={cs.icon} size={28} color="var(--brand)" />
-                                        <div style={{ fontWeight: 800, fontSize: 22, color: "var(--brand)" }}>{cs.yards}</div>
-                                        {hasPrice && <div style={{ marginLeft: "auto", fontWeight: 900, fontSize: 20, color: "var(--foreground)" }}>{formatDumpsterPrice(tier)}</div>}
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                                        <ServiceIcon name={cs.icon} size={24} color="var(--brand)" />
+                                        <div style={{ fontWeight: 800, fontSize: 26, color: "var(--brand)" }}>{cs.yards}</div>
                                     </div>
-                                    <div style={{ fontWeight: 700, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{cs.label}{hasPrice ? ` — ${formatDumpsterPrice(tier)}` : ""}</div>
+                                    {hasPrice && <div style={{ fontWeight: 900, fontSize: 18, color: "var(--foreground)", marginBottom: 4 }}>{formatDumpsterPrice(tier)}</div>}
+                                    <div style={{ fontWeight: 700, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{cs.label}</div>
                                     {hasPrice && <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>{tier.includedDays}-day rental · {tier.weightAllowanceTons}T included</div>}
                                     <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8 }}>{cs.desc}</div>
-                                    <div style={{ fontSize: 12, color: "var(--foreground)", background: "var(--background)", padding: "6px 10px", borderRadius: 8, lineHeight: 1.4 }}><strong>Good for:</strong> {cs.goodFor}</div>
+                                    <div style={{ fontSize: 12, color: "var(--foreground)", background: "var(--background)", padding: "6px 10px", borderRadius: 8, lineHeight: 1.4, marginTop: "auto" }}><strong>Good for:</strong> {cs.goodFor}</div>
                                 </div>
                                 );
                             })}
