@@ -13,8 +13,23 @@ function ConfirmationContent() {
     const time = params.get("time") || "";
     const price = params.get("price") || "";
     const st = params.get("serviceType") || "junk";
+    const autoBooked = params.get("autoBooked") === "true";
     const hasDumpster = st === "dumpster" || st === "both";
     const hasJunk = st === "junk" || st === "both";
+
+    // Determine heading and message based on service type + auto-booking result
+    const getHeading = () => {
+        if (hasDumpster && !hasJunk && !autoBooked) return (<>Request <span style={{ color: "var(--brand)" }}>Received!</span></>);
+        return (<>Booking <span style={{ color: "var(--brand)" }}>Confirmed!</span></>);
+    };
+
+    const getMessage = () => {
+        if (st === "both" && autoBooked) return `Thanks, ${name}! Your junk removal is scheduled and your dumpster is confirmed for delivery on ${date}!`;
+        if (st === "both") return `Thanks, ${name}! Your junk removal is scheduled. We'll confirm dumpster availability shortly.`;
+        if (hasDumpster && autoBooked) return `Thanks, ${name}! Your dumpster is confirmed for delivery on ${date}! We'll notify you when the crew is en route.`;
+        if (hasDumpster) return `Thanks, ${name}! We've received your dumpster rental request. We'll confirm availability and reach out shortly.`;
+        return `Thanks, ${name}! Your junk removal has been scheduled.`;
+    };
 
     return (
         <main>
@@ -29,10 +44,10 @@ function ConfirmationContent() {
                         <CheckCircle size={40} color="#22c55e" />
                     </div>
                     <h1 style={{ fontSize: "2.5rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "0.75rem" }}>
-                        {hasDumpster && !hasJunk ? (<>Request <span style={{ color: "var(--brand)" }}>Received!</span></>) : (<>Booking <span style={{ color: "var(--brand)" }}>Confirmed!</span></>)}
+                        {getHeading()}
                     </h1>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem" }}>
-                        {st === "both" ? `Thanks, ${name}! Your junk removal is scheduled and we'll call within 2 hours to confirm dumpster availability.` : hasDumpster ? `Thanks, ${name}! We'll call you within 2 hours to confirm dumpster availability and pricing.` : `Thanks, ${name}! Your junk removal has been scheduled.`}
+                        {getMessage()}
                     </p>
                 </div>
             </section>

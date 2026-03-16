@@ -20,9 +20,9 @@ import { loadStripe, type Stripe, type StripeCardElement } from "@stripe/stripe-
 type ItemQtyMap = Record<string, Record<string, number>>;
 type ContactInfo = { name: string; phone: string; email: string; address: string; notes: string; customerType: "residential" | "commercial" };
 
-/* ── Stripe (loaded lazily for Growth tier only) ── */
-const isGrowth = siteConfig.tier === "growth";
-const stripePromise = isGrowth && siteConfig.stripePublishableKey
+/* ── Stripe (loaded lazily when configured) ── */
+const hasStripe = !!siteConfig.stripePublishableKey;
+const stripePromise = hasStripe
     ? loadStripe(siteConfig.stripePublishableKey, siteConfig.stripeConnectAccountId ? { stripeAccount: siteConfig.stripeConnectAccountId } : undefined)
     : null;
 
@@ -140,11 +140,19 @@ export default function BookingWizard() {
     const [debrisType, setDebrisType] = useState<string | null>(null);
     const [rentalDuration, setRentalDuration] = useState<string | null>(null);
 
+    /* ── Container availability state ── */
+    const [containerAvailability, setContainerAvailability] = useState<{
+        available: boolean; baseRate?: number; includedDays?: number;
+        extendedDailyRate?: number; weightAllowanceTons?: number;
+        overageRatePerTon?: number; alternativeSizes?: number[];
+    } | null>(null);
+    const [checkingAvailability, setCheckingAvailability] = useState(false);
+
     /* ── Phase system ── */
     const phases = useMemo(() => getPhases(serviceType, siteConfig.offersDumpsterRental), [serviceType]);
     const currentPhase = phases[step] || "contact";
 
-    /* ── Stripe card-on-file state (Growth tier only) ── */
+    /* ── Stripe card-on-file state ── */
     const [stripeReady, setStripeReady] = useState(false);
     const [cardComplete, setCardComplete] = useState(false);
     const [cardError, setCardError] = useState("");
@@ -153,9 +161,28 @@ export default function BookingWizard() {
     const cardRef = useRef<StripeCardElement | null>(null);
     const cardMountRef = useRef<HTMLDivElement | null>(null);
 
-    // Create SetupIntent + mount card element when entering quote phase (Growth only)
+    // Check container availability when size is selected
     useEffect(() => {
-        if (!isGrowth || currentPhase !== "quote" || stripeReady) return;
+        if (!containerSize) { setContainerAvailability(null); return; }
+        let cancelled = false;
+        setCheckingAvailability(true);
+        (async () => {
+            try {
+                const res = await fetch(`/api/container-availability?size=${parseInt(containerSize)}`);
+                const data = await res.json();
+                if (!cancelled) setContainerAvailability(data);
+            } catch {
+                if (!cancelled) setContainerAvailability(null);
+            } finally {
+                if (!cancelled) setCheckingAvailability(false);
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [containerSize]);
+
+    // Create SetupIntent + mount card element when entering quote phase
+    useEffect(() => {
+        if (!hasStripe || currentPhase !== "quote" || stripeReady) return;
         let cancelled = false;
 
         (async () => {
@@ -365,6 +392,20 @@ export default function BookingWizard() {
             const leadId = typeof window !== "undefined" ? localStorage.getItem("syjLeadId") : null;
             const timeSlotOption = TIME_SLOTS.find(t => t.id === selectedTime);
 
+            // Shared card confirmation (runs once, caches result)
+            let confirmedPaymentMethodId: string | null = null;
+            const confirmCard = async (): Promise<string | null> => {
+                if (confirmedPaymentMethodId) return confirmedPaymentMethodId;
+                if (!hasStripe || !stripeRef.current || !cardRef.current || !setupClientSecret) return null;
+                const { setupIntent, error: stripeErr } = await stripeRef.current.confirmCardSetup(
+                    setupClientSecret,
+                    { payment_method: { card: cardRef.current, billing_details: { name: contact.name, phone: contact.phone, email: contact.email } } }
+                );
+                if (stripeErr) throw new Error(stripeErr.message || "Card save failed");
+                confirmedPaymentMethodId = (setupIntent?.payment_method as string) || null;
+                return confirmedPaymentMethodId;
+            };
+
             /* ── JUNK REMOVAL payload ── */
             const sendJunkBooking = async () => {
                 const structuredItems: { category: string; item: string; qty: number }[] = [];
@@ -425,15 +466,9 @@ export default function BookingWizard() {
                 };
                 if (leadId) payload.leadId = leadId;
 
-                // Stripe card-on-file (Growth only)
-                if (isGrowth && stripeRef.current && cardRef.current && setupClientSecret) {
-                    const { setupIntent, error: stripeErr } = await stripeRef.current.confirmCardSetup(
-                        setupClientSecret,
-                        { payment_method: { card: cardRef.current, billing_details: { name: contact.name, phone: contact.phone, email: contact.email } } }
-                    );
-                    if (stripeErr) throw new Error(stripeErr.message || "Card save failed");
-                    if (setupIntent?.payment_method) payload.stripePaymentMethodId = setupIntent.payment_method;
-                }
+                // Stripe card-on-file
+                const pmId = await confirmCard();
+                if (pmId) (payload.metadata as Record<string, unknown>).stripePaymentMethodId = pmId;
 
                 const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 const data = await res.json();
@@ -443,7 +478,7 @@ export default function BookingWizard() {
             };
 
             /* ── DUMPSTER RENTAL payload ── */
-            const sendDumpsterLead = async () => {
+            const sendDumpsterLead = async (): Promise<{ autoBooked?: boolean }> => {
                 const containerLabel = CONTAINER_SIZES.find(c => c.id === containerSize)?.label || containerSize || "";
                 const debrisLabel = DEBRIS_TYPES.find(d => d.id === debrisType)?.label || debrisType || "";
                 const durationLabel = RENTAL_DURATIONS.find(r => r.id === rentalDuration)?.label || rentalDuration || "";
@@ -468,10 +503,15 @@ export default function BookingWizard() {
                 };
                 if (leadId) payload.leadId = leadId;
 
+                // Stripe card-on-file
+                const pmId = await confirmCard();
+                if (pmId) (payload.metadata as Record<string, unknown>).stripePaymentMethodId = pmId;
+
                 const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Rental request failed");
                 if (data.leadId) localStorage.setItem("syjLeadId", data.leadId);
+                return { autoBooked: data.autoBooked };
             };
 
             /* ── Send signed waiver to dashboard ── */
@@ -496,12 +536,14 @@ export default function BookingWizard() {
 
             /* ── Execute based on service type ── */
             let priceStr = "";
+            let dumpsterAutoBooked = false;
             const waiverPromise = sendWaiver(); // fire in parallel
             if (serviceType === "junk" || serviceType === "both") {
                 priceStr = await sendJunkBooking();
             }
             if (serviceType === "dumpster" || serviceType === "both") {
-                await sendDumpsterLead();
+                const dumpsterResult = await sendDumpsterLead();
+                dumpsterAutoBooked = !!dumpsterResult.autoBooked;
             }
             await waiverPromise; // ensure waiver completes before redirect
 
@@ -511,6 +553,7 @@ export default function BookingWizard() {
                 time: timeSlotOption?.label || "",
                 price: priceStr,
                 serviceType: serviceType || "junk",
+                ...(dumpsterAutoBooked ? { autoBooked: "true" } : {}),
             });
             router.push(`/booking-confirmed?${params.toString()}`);
         } catch (err: unknown) {
@@ -920,21 +963,41 @@ export default function BookingWizard() {
                                 const sizeNum = parseInt(cs.id);
                                 const tier = siteConfig.dumpsterPricing?.tiers.find(t => t.sizeCuYd === sizeNum);
                                 const hasPrice = tier && (tier.baseRate > 0 || (tier.baseRateMin != null && tier.baseRateMin > 0));
+                                // Use live availability data if this is the selected size
+                                const isSelected = containerSize === cs.id;
+                                const liveAvail = isSelected ? containerAvailability : null;
+                                const liveRate = liveAvail?.available && liveAvail.baseRate ? liveAvail.baseRate : null;
+                                const liveDays = liveAvail?.available && liveAvail.includedDays ? liveAvail.includedDays : null;
                                 return (
-                                <div key={cs.id} onClick={() => setContainerSize(cs.id)} style={{ background: containerSize === cs.id ? "#FFF7ED" : "var(--card)", border: `2px solid ${containerSize === cs.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`, borderRadius: 16, padding: "20px 18px", cursor: "pointer", transition: "all 0.2s", position: "relative", display: "flex", flexDirection: "column" }}>
-                                    {containerSize === cs.id && <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={14} /></div>}
+                                <div key={cs.id} onClick={() => setContainerSize(cs.id)} style={{ background: isSelected ? "#FFF7ED" : "var(--card)", border: `2px solid ${isSelected ? "var(--brand)" : "var(--border, #E2E8F0)"}`, borderRadius: 16, padding: "20px 18px", cursor: "pointer", transition: "all 0.2s", position: "relative", display: "flex", flexDirection: "column" }}>
+                                    {isSelected && <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={14} /></div>}
                                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                                         <ServiceIcon name={cs.icon} size={24} color="var(--brand)" />
                                         <div style={{ fontWeight: 800, fontSize: 26, color: "var(--brand)" }}>{cs.yards}</div>
                                     </div>
-                                    {hasPrice && <div style={{ fontWeight: 900, fontSize: 18, color: "var(--foreground)", marginBottom: 4 }}>{formatDumpsterPrice(tier)}</div>}
-                                    {hasPrice && <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>{tier.includedDays}-day rental · {tier.weightAllowanceTons}T included</div>}
+                                    {/* Live price from availability API or static fallback */}
+                                    {liveRate ? (
+                                        <div style={{ fontWeight: 900, fontSize: 18, color: "var(--foreground)", marginBottom: 4 }}>From ${liveRate}</div>
+                                    ) : hasPrice ? (
+                                        <div style={{ fontWeight: 900, fontSize: 18, color: "var(--foreground)", marginBottom: 4 }}>{formatDumpsterPrice(tier)}</div>
+                                    ) : null}
+                                    {liveDays ? (
+                                        <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>{liveDays}-day rental included</div>
+                                    ) : hasPrice ? (
+                                        <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>{tier.includedDays}-day rental · {tier.weightAllowanceTons}T included</div>
+                                    ) : null}
                                     <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8 }}>{cs.desc}</div>
                                     <div style={{ fontSize: 12, color: "var(--foreground)", background: "var(--background)", padding: "6px 10px", borderRadius: 8, lineHeight: 1.4, marginTop: "auto" }}><strong>Good for:</strong> {cs.goodFor}</div>
                                 </div>
                                 );
                             })}
                         </div>
+                        {/* Availability indicator */}
+                        {containerSize && (
+                            <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, textAlign: "center", fontSize: 14, fontWeight: 600, ...(checkingAvailability ? { background: "#F8FAFC", border: "1px solid #E2E8F0", color: "var(--muted)" } : containerAvailability?.available ? { background: "#F0FDF4", border: "1px solid #BBF7D0", color: "#16A34A" } : containerAvailability && !containerAvailability.available ? { background: "#FFFBEB", border: "1px solid #FEF3C7", color: "#92400E" } : { background: "#F8FAFC", border: "1px solid #E2E8F0", color: "var(--muted)" }) }}>
+                                {checkingAvailability ? "Checking availability..." : containerAvailability?.available ? "✓ Available for your date" : containerAvailability && !containerAvailability.available ? (<>{"Limited availability — call for details"}{containerAvailability.alternativeSizes && containerAvailability.alternativeSizes.length > 0 && (<span style={{ display: "block", fontSize: 12, fontWeight: 500, marginTop: 4 }}>Available sizes: {containerAvailability.alternativeSizes.map(s => `${s}yd³`).join(", ")}</span>)}</>) : null}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -1268,8 +1331,8 @@ export default function BookingWizard() {
                             </div>
                         </div>
 
-                        {/* ── Card on File (Growth tier only) ── */}
-                        {isGrowth && siteConfig.stripePublishableKey && (
+                        {/* ── Card on File ── */}
+                        {hasStripe && (
                             <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border, #E2E8F0)", padding: 24, marginBottom: 24 }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                                     <CreditCard size={20} style={{ color: "var(--brand)" }} />
@@ -1288,8 +1351,12 @@ export default function BookingWizard() {
                                     <p style={{ fontSize: 12, color: "#DC2626", marginTop: 8 }}>{cardError}</p>
                                 )}
                                 <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 12, lineHeight: 1.5 }}>
-                                    <LockKeyhole size={14} style={{ display: "inline", verticalAlign: "middle" }} /> Your card will be saved on file and <strong>will not be charged</strong> until your job is complete.
-                                    The final price will be confirmed by your crew on-site.
+                                    <LockKeyhole size={14} style={{ display: "inline", verticalAlign: "middle" }} />{" "}
+                                    {serviceType === "dumpster"
+                                        ? <>Your card will be saved on file and <strong>will not be charged</strong> until the container is delivered to your location.</>
+                                        : serviceType === "both"
+                                            ? <>Your card will be saved on file and <strong>will not be charged</strong> until services are rendered.</>
+                                            : <>Your card will be saved on file and <strong>will not be charged</strong> until your job is complete. The final price will be confirmed by your crew on-site.</>}
                                 </p>
                             </div>
                         )}
@@ -1300,7 +1367,7 @@ export default function BookingWizard() {
                             </div>
                         )}
 
-                        <button onClick={handleSubmit} disabled={submitting || (isGrowth && !!siteConfig.stripePublishableKey && !cardComplete && serviceType !== "dumpster")}
+                        <button onClick={handleSubmit} disabled={submitting || (hasStripe && !cardComplete)}
                             style={{
                                 width: "100%", marginTop: 24, padding: 18, borderRadius: "var(--btn-radius)", border: "none",
                                 background: !submitting ? "linear-gradient(135deg, var(--brand), var(--brand-dark))" : "#E2E8F0",
@@ -1309,10 +1376,10 @@ export default function BookingWizard() {
                                 fontFamily: "var(--heading-font)", boxShadow: !submitting ? "0 8px 24px rgba(249,115,22,0.3)" : "none",
                                 transition: "all 0.2s",
                             }}>
-                            {submitting ? "Submitting..." : serviceType === "dumpster" ? "Request Dumpster Rental →" : serviceType === "both" ? "Confirm & Book →" : "Confirm & Book My Pickup →"}
+                            {submitting ? "Submitting..." : serviceType === "dumpster" ? "Confirm Dumpster Rental →" : serviceType === "both" ? "Confirm & Book →" : "Confirm & Book My Pickup →"}
                         </button>
                         <p style={{ textAlign: "center", fontSize: 12, color: "var(--muted)", marginTop: 12 }}>
-                            {serviceType === "dumpster" ? "We\u0027ll call within 2 hours to confirm availability and pricing." : serviceType === "both" ? "Junk removal auto-booked. Dumpster confirmed by phone." : "No commitment \u2014 final price confirmed when our crew arrives."}
+                            {serviceType === "dumpster" ? "Your card will not be charged until delivery." : serviceType === "both" ? "Junk removal auto-booked. Dumpster delivery confirmed separately." : "No commitment \u2014 final price confirmed when our crew arrives."}
                         </p>
                     </div>
                 )}
