@@ -6,7 +6,7 @@ import { Check, ChevronLeft, ArrowRight, CreditCard, Lock, Trash2, ClipboardList
 import ServiceIcon from "@/components/ServiceIcon";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { haversineDistance } from "@/lib/haversine";
-import { siteConfig, formatDumpsterPrice } from "@/lib/siteConfig";
+import { siteConfig, formatDumpsterPrice, roundTo5 } from "@/lib/siteConfig";
 import {
     JUNK_CATEGORIES, CATEGORY_ITEMS, VOLUME_OPTIONS,
     LOCATION_OPTIONS, TIME_SLOTS, PILE_SIZES,
@@ -145,6 +145,7 @@ export default function BookingWizard() {
         available: boolean; baseRate?: number; includedDays?: number;
         extendedDailyRate?: number; weightAllowanceTons?: number;
         overageRatePerTon?: number; alternativeSizes?: number[];
+        nextAvailableDate?: string;
     } | null>(null);
     const [checkingAvailability, setCheckingAvailability] = useState(false);
 
@@ -161,14 +162,20 @@ export default function BookingWizard() {
     const cardRef = useRef<StripeCardElement | null>(null);
     const cardMountRef = useRef<HTMLDivElement | null>(null);
 
-    // Check container availability when size is selected
+    // Check container availability — re-fires when date or duration changes for date-aware check
     useEffect(() => {
         if (!containerSize) { setContainerAvailability(null); return; }
         let cancelled = false;
         setCheckingAvailability(true);
         (async () => {
             try {
-                const res = await fetch(`/api/container-availability?size=${parseInt(containerSize)}`);
+                const qs = new URLSearchParams({ size: String(parseInt(containerSize)) });
+                if (selectedDate) qs.set("date", selectedDate.toISOString().split("T")[0]);
+                if (rentalDuration) {
+                    const daysMap: Record<string, string> = { "1_week": "7", "2_weeks": "14", "call_when_full": "14" };
+                    qs.set("days", daysMap[rentalDuration] || "14");
+                }
+                const res = await fetch(`/api/container-availability?${qs.toString()}`);
                 const data = await res.json();
                 if (!cancelled) setContainerAvailability(data);
             } catch {
@@ -178,7 +185,7 @@ export default function BookingWizard() {
             }
         })();
         return () => { cancelled = true; };
-    }, [containerSize]);
+    }, [containerSize, selectedDate, rentalDuration]);
 
     // Create SetupIntent + mount card element when entering quote phase
     useEffect(() => {
@@ -346,7 +353,12 @@ export default function BookingWizard() {
             case "junk_location": return location !== null;
             case "dumpster_size": return containerSize !== null;
             case "dumpster_details": return debrisType !== null && rentalDuration !== null;
-            case "schedule": return selectedDate !== null && selectedTime !== null;
+            case "schedule": {
+                if (!selectedDate || !selectedTime) return false;
+                // Block dumpster bookings when date-specific check says unavailable
+                if ((serviceType === "dumpster" || serviceType === "both") && containerAvailability?.available === false) return false;
+                return true;
+            }
             case "terms": return termsAccepted && !!signatureDataUrl;
             case "quote": return true;
             default: return false;
@@ -437,8 +449,8 @@ export default function BookingWizard() {
                 const volumeOption = VOLUME_OPTIONS.find(v => v.id === volume);
                 const locationOption = LOCATION_OPTIONS.find(l => l.id === location);
                 const categoryLabels = selectedCategories.map(catId => JUNK_CATEGORIES.find(c => c.id === catId)?.label || catId);
-                const minPrice = tierData ? tierData.min + totalAdj : 0;
-                const maxPrice = tierData ? tierData.max + totalAdj : 0;
+                const minPrice = tierData ? roundTo5(tierData.min + totalAdj) : 0;
+                const maxPrice = tierData ? roundTo5(tierData.max + totalAdj) : 0;
                 const quoteRangeStr = tierData ? `$${minPrice} – $${maxPrice}` : "";
                 const stairsAccessLabel = locationOption?.label || "Ground Floor";
 
@@ -910,7 +922,7 @@ export default function BookingWizard() {
                                         </div>
                                         <div style={{ fontSize: 12, color: "var(--muted)" }}><Truck size={12} style={{ display: "inline", verticalAlign: "middle" }} /> {v.comparison}</div>
                                         {tier && (
-                                            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--brand)", marginTop: 8 }}>${tier.min} – ${tier.max}</div>
+                                            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--brand)", marginTop: 8 }}>${roundTo5(tier.min)} – ${roundTo5(tier.max)}</div>
                                         )}
                                     </div>
                                 );
@@ -977,7 +989,7 @@ export default function BookingWizard() {
                                     </div>
                                     {/* Live price from availability API or static fallback */}
                                     {liveRate ? (
-                                        <div style={{ fontWeight: 900, fontSize: 18, color: "var(--foreground)", marginBottom: 4 }}>From ${liveRate}</div>
+                                        <div style={{ fontWeight: 900, fontSize: 18, color: "var(--foreground)", marginBottom: 4 }}>From ${roundTo5(liveRate)}</div>
                                     ) : hasPrice ? (
                                         <div style={{ fontWeight: 900, fontSize: 18, color: "var(--foreground)", marginBottom: 4 }}>{formatDumpsterPrice(tier)}</div>
                                     ) : null}
@@ -994,8 +1006,8 @@ export default function BookingWizard() {
                         </div>
                         {/* Availability indicator */}
                         {containerSize && (
-                            <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, textAlign: "center", fontSize: 14, fontWeight: 600, ...(checkingAvailability ? { background: "#F8FAFC", border: "1px solid #E2E8F0", color: "var(--muted)" } : containerAvailability?.available ? { background: "#F0FDF4", border: "1px solid #BBF7D0", color: "#16A34A" } : containerAvailability && !containerAvailability.available ? { background: "#FFFBEB", border: "1px solid #FEF3C7", color: "#92400E" } : { background: "#F8FAFC", border: "1px solid #E2E8F0", color: "var(--muted)" }) }}>
-                                {checkingAvailability ? "Checking availability..." : containerAvailability?.available ? "✓ Available for your date" : containerAvailability && !containerAvailability.available ? (<>{"Limited availability — call for details"}{containerAvailability.alternativeSizes && containerAvailability.alternativeSizes.length > 0 && (<span style={{ display: "block", fontSize: 12, fontWeight: 500, marginTop: 4 }}>Available sizes: {containerAvailability.alternativeSizes.map(s => `${s}yd³`).join(", ")}</span>)}</>) : null}
+                            <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, textAlign: "center", fontSize: 14, fontWeight: 600, ...(checkingAvailability ? { background: "#F8FAFC", border: "1px solid #E2E8F0", color: "var(--muted)" } : containerAvailability?.available ? { background: "#F0FDF4", border: "1px solid #BBF7D0", color: "#16A34A" } : containerAvailability && !containerAvailability.available ? { background: "#FEF2F2", border: "1px solid #FECACA", color: "#DC2626" } : { background: "#F8FAFC", border: "1px solid #E2E8F0", color: "var(--muted)" }) }}>
+                                {checkingAvailability ? "Checking availability..." : containerAvailability?.available ? "✓ In stock" : containerAvailability && !containerAvailability.available ? (<>{containerAvailability.nextAvailableDate ? `Next available: ${new Date(containerAvailability.nextAvailableDate).toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "Currently unavailable"}{containerAvailability.alternativeSizes && containerAvailability.alternativeSizes.length > 0 && (<span style={{ display: "block", fontSize: 12, fontWeight: 500, marginTop: 4 }}>Other sizes in stock: {containerAvailability.alternativeSizes.map(s => `${s}yd³`).join(", ")}</span>)}</>) : null}
                             </div>
                         )}
                     </div>
@@ -1078,6 +1090,12 @@ export default function BookingWizard() {
                                 </div>
                             );
                         })()}
+                        {/* Date-specific availability indicator for dumpster rentals */}
+                        {selectedDate && (serviceType === "dumpster" || serviceType === "both") && containerSize && (
+                            <div style={{ marginTop: 16, padding: "14px 18px", borderRadius: 12, textAlign: "center", fontSize: 14, fontWeight: 600, ...(checkingAvailability ? { background: "#F8FAFC", border: "1px solid #E2E8F0", color: "var(--muted)" } : containerAvailability?.available ? { background: "#F0FDF4", border: "1px solid #BBF7D0", color: "#16A34A" } : containerAvailability && !containerAvailability.available ? { background: "#FEF2F2", border: "1px solid #FECACA", color: "#DC2626" } : { background: "#F8FAFC", border: "1px solid #E2E8F0", color: "var(--muted)" }) }}>
+                                {checkingAvailability ? "Checking availability for your date..." : containerAvailability?.available ? `✓ ${CONTAINER_SIZES.find(c => c.id === containerSize)?.label || "Container"} available for ${selectedDate.toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : containerAvailability && !containerAvailability.available ? (<><AlertTriangle size={16} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />{containerAvailability.nextAvailableDate ? (<>No {CONTAINER_SIZES.find(c => c.id === containerSize)?.label || "containers"} available for this date.<span style={{ display: "block", fontSize: 13, fontWeight: 500, marginTop: 6 }}>Next available: <button onClick={() => { setSelectedDate(new Date(containerAvailability.nextAvailableDate!)); setSelectedTime(null); }} style={{ background: "none", border: "none", color: "var(--brand)", fontWeight: 700, cursor: "pointer", textDecoration: "underline", fontFamily: "inherit", fontSize: 13, padding: 0 }}>{new Date(containerAvailability.nextAvailableDate!).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</button></span></>) : `No ${CONTAINER_SIZES.find(c => c.id === containerSize)?.label || "containers"} available for this date.`}{containerAvailability.alternativeSizes && containerAvailability.alternativeSizes.length > 0 && (<span style={{ display: "block", fontSize: 12, fontWeight: 500, marginTop: 4, color: "var(--muted)" }}>Or try a different size: {containerAvailability.alternativeSizes.map(s => <button key={s} onClick={() => { setContainerSize(String(s)); setStep(phases.indexOf("dumpster_size")); }} style={{ background: "none", border: "none", color: "var(--brand)", fontWeight: 700, cursor: "pointer", textDecoration: "underline", fontFamily: "inherit", fontSize: 12, padding: 0 }}>{s}yd³</button>).reduce<React.ReactNode[]>((acc, el, i) => i === 0 ? [el] : [...acc, ", ", el], [])}</span>)}</>) : null}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -1256,7 +1274,7 @@ export default function BookingWizard() {
                                         {serviceType === "both" ? "Junk Removal Estimate" : "Estimated Price Range"}
                                     </div>
                                     <div style={{ fontFamily: "var(--heading-font)", fontSize: 44, fontWeight: 800, color: "var(--hero-text)", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
-                                        ${tierData ? tierData.min + totalAdj : "—"} – ${tierData ? tierData.max + totalAdj : "—"}
+                                        ${tierData ? roundTo5(tierData.min + totalAdj) : "—"} – ${tierData ? roundTo5(tierData.max + totalAdj) : "—"}
                                     </div>
                                     {totalAdj > 0 && <div style={{ fontSize: 12, color: "#FBBF24", marginTop: 6, position: "relative", zIndex: 1 }}>
                                         {priceAdj > 0 && <>+${priceAdj} {stairsSurcharge?.label?.toLowerCase() || "stairs"}</>}

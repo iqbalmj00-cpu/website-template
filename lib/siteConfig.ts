@@ -25,10 +25,13 @@ export type DumpsterPriceTier = {
     extendedDailyRate: number | null;
 };
 
-/** Format dumpster price as range or "Starting at" */
+/** Round to nearest $5 */
+export function roundTo5(n: number): number { return Math.round(n / 5) * 5; }
+
+/** Format dumpster price as range or "Starting at", rounded to nearest $5 */
 export function formatDumpsterPrice(tier: DumpsterPriceTier): string {
-    const min = tier.baseRateMin ?? tier.baseRate;
-    const max = tier.baseRateMax;
+    const min = roundTo5(tier.baseRateMin ?? tier.baseRate);
+    const max = tier.baseRateMax ? roundTo5(tier.baseRateMax) : null;
     if (max && max > min) return `$${min} – $${max}`;
     return `Starting at $${min}`;
 }

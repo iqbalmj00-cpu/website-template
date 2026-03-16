@@ -20,8 +20,14 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "size parameter is required" }, { status: 400 });
         }
 
+        const qs = new URLSearchParams({ size });
+        const date = req.nextUrl.searchParams.get("date");
+        const days = req.nextUrl.searchParams.get("days");
+        if (date) qs.set("date", date);
+        if (days) qs.set("days", days);
+
         const response = await fetch(
-            `${dashboardUrl}/api/booking/container-availability?size=${encodeURIComponent(size)}`,
+            `${dashboardUrl}/api/booking/container-availability?${qs.toString()}`,
             {
                 headers: {
                     "x-api-key": ingestApiKey,
