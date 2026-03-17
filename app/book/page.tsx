@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import BookingWizard from "@/components/BookingWizard";
 import { siteConfig } from "@/lib/siteConfig";
 
@@ -9,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function BookPage() {
-    return <BookingWizard />;
+    return <Suspense><BookingWizard /></Suspense>;
 }

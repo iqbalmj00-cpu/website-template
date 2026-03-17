@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, ChevronLeft, ArrowRight, CreditCard, Lock, Trash2, ClipboardList, Truck, MapPin, CalendarDays, BarChart3, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, PenTool, Home, Building2 } from "lucide-react";
 import ServiceIcon from "@/components/ServiceIcon";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
@@ -149,6 +149,16 @@ export default function BookingWizard() {
     } | null>(null);
     const [checkingAvailability, setCheckingAvailability] = useState(false);
 
+    /* ── Promo code state ── */
+    const searchParams = useSearchParams();
+    const [promoCode, setPromoCode] = useState<string | null>(searchParams.get("promo"));
+    const [promoResult, setPromoResult] = useState<{
+        valid: boolean; discountType?: string; discountValue?: number; label?: string; reason?: string;
+    } | null>(null);
+    const [promoValidating, setPromoValidating] = useState(false);
+    const [promoInputOpen, setPromoInputOpen] = useState(false);
+    const [promoInputValue, setPromoInputValue] = useState("");
+
     /* ── Phase system ── */
     const phases = useMemo(() => getPhases(serviceType, siteConfig.offersDumpsterRental), [serviceType]);
     const currentPhase = phases[step] || "contact";
@@ -186,6 +196,27 @@ export default function BookingWizard() {
         })();
         return () => { cancelled = true; };
     }, [containerSize, selectedDate, rentalDuration]);
+
+    // Validate promo code when set (from URL or manual input)
+    useEffect(() => {
+        if (!promoCode) { setPromoResult(null); return; }
+        let cancelled = false;
+        setPromoValidating(true);
+        fetch(`/api/validate-promo?code=${encodeURIComponent(promoCode)}`)
+            .then(r => r.json())
+            .then(data => { if (!cancelled) setPromoResult(data); })
+            .catch(() => { if (!cancelled) setPromoResult({ valid: false, reason: "Validation failed" }); })
+            .finally(() => { if (!cancelled) setPromoValidating(false); });
+        return () => { cancelled = true; };
+    }, [promoCode]);
+
+    // Apply discount to a price
+    const applyDiscount = (price: number): number => {
+        if (!promoResult?.valid || !promoResult.discountValue) return price;
+        if (promoResult.discountType === "percentage") return roundTo5(price * (1 - promoResult.discountValue / 100));
+        if (promoResult.discountType === "flat") return roundTo5(Math.max(0, price - promoResult.discountValue));
+        return price;
+    };
 
     // Create SetupIntent + mount card element when entering quote phase
     useEffect(() => {
@@ -475,6 +506,7 @@ export default function BookingWizard() {
                         signatureDataUrl: signatureDataUrl || undefined,
                     },
                     source: "WEBSITE",
+                    ...(promoCode ? { promoCode } : {}),
                 };
                 if (leadId) payload.leadId = leadId;
 
@@ -512,6 +544,7 @@ export default function BookingWizard() {
                         signatureDataUrl: signatureDataUrl || undefined,
                     },
                     source: "WEBSITE",
+                    ...(promoCode ? { promoCode } : {}),
                 };
                 if (leadId) payload.leadId = leadId;
 
@@ -573,7 +606,7 @@ export default function BookingWizard() {
         } finally {
             setSubmitting(false);
         }
-    }, [contact, selectedCategories, selectedItems, pileSizes, volume, location, selectedDate, selectedTime, tierData, priceAdj, distanceSurcharge, totalAdj, stairsSurcharge, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret]);
+    }, [contact, selectedCategories, selectedItems, pileSizes, volume, location, selectedDate, selectedTime, tierData, priceAdj, distanceSurcharge, totalAdj, stairsSurcharge, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret, promoCode]);
 
     const formatPhone = (val: string) => {
         const digits = val.replace(/\D/g, "").slice(0, 10);
@@ -599,6 +632,18 @@ export default function BookingWizard() {
                     <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= step ? "var(--brand)" : "#E2E8F0", transition: "background 0.3s" }} />
                 ))}
             </div>
+            {/* Promo banner */}
+            {promoResult?.valid && (
+                <div style={{ maxWidth: 720, margin: "8px auto 0", padding: "10px 20px", background: "linear-gradient(135deg, #059669, #10B981)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>🎉 {promoResult.discountValue}{promoResult.discountType === "percentage" ? "%" : "$"} off applied!</span>
+                    <button onClick={() => { setPromoCode(null); setPromoResult(null); setPromoInputValue(""); }} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 6, color: "#fff", fontSize: 11, padding: "4px 10px", cursor: "pointer", fontFamily: "inherit" }}>Remove</button>
+                </div>
+            )}
+            {promoResult && !promoResult.valid && promoCode && (
+                <div style={{ maxWidth: 720, margin: "8px auto 0", padding: "10px 20px", background: "#FEF2F2", borderRadius: 10, border: "1px solid #FECACA" }}>
+                    <span style={{ color: "#991B1B", fontSize: 13, fontWeight: 600 }}>Code &ldquo;{promoCode}&rdquo; is not valid{promoResult.reason === "expired" ? " (expired)" : promoResult.reason === "max_uses_reached" ? " (fully redeemed)" : ""}.</span>
+                </div>
+            )}
             <div style={{ maxWidth: 720, margin: "0 auto", padding: "8px 20px 0", display: "flex", justifyContent: "space-between" }}>
                 <span style={{ fontSize: 11, fontWeight: 600, color: "var(--brand)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                     Step {step + 1} of {phases.length}
@@ -1273,9 +1318,20 @@ export default function BookingWizard() {
                                     <div style={{ fontSize: 12, color: "var(--hero-muted, #94A3B8)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, position: "relative", zIndex: 1 }}>
                                         {serviceType === "both" ? "Junk Removal Estimate" : "Estimated Price Range"}
                                     </div>
-                                    <div style={{ fontFamily: "var(--heading-font)", fontSize: 44, fontWeight: 800, color: "var(--hero-text)", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
-                                        ${tierData ? roundTo5(tierData.min + totalAdj) : "—"} – ${tierData ? roundTo5(tierData.max + totalAdj) : "—"}
-                                    </div>
+                                    {promoResult?.valid && tierData ? (
+                                        <>
+                                            <div style={{ fontSize: 18, color: "var(--hero-muted, #94A3B8)", textDecoration: "line-through", position: "relative", zIndex: 1 }}>
+                                                ${roundTo5(tierData.min + totalAdj)} – ${roundTo5(tierData.max + totalAdj)}
+                                            </div>
+                                            <div style={{ fontFamily: "var(--heading-font)", fontSize: 44, fontWeight: 800, color: "#10B981", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
+                                                ${applyDiscount(roundTo5(tierData.min + totalAdj))} – ${applyDiscount(roundTo5(tierData.max + totalAdj))}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div style={{ fontFamily: "var(--heading-font)", fontSize: 44, fontWeight: 800, color: "var(--hero-text)", letterSpacing: "-0.03em", position: "relative", zIndex: 1 }}>
+                                            ${tierData ? roundTo5(tierData.min + totalAdj) : "—"} – ${tierData ? roundTo5(tierData.max + totalAdj) : "—"}
+                                        </div>
+                                    )}
                                     {totalAdj > 0 && <div style={{ fontSize: 12, color: "#FBBF24", marginTop: 6, position: "relative", zIndex: 1 }}>
                                         {priceAdj > 0 && <>+${priceAdj} {stairsSurcharge?.label?.toLowerCase() || "stairs"}</>}
                                         {priceAdj > 0 && distanceSurcharge > 0 && " · "}
@@ -1313,6 +1369,33 @@ export default function BookingWizard() {
                                     </div>
                                 );
                             })()}
+                            {/* Have a promo code? */}
+                            {!promoResult?.valid && (
+                                <div style={{ padding: "12px 24px", borderBottom: "1px solid var(--border, #E2E8F0)" }}>
+                                    {!promoInputOpen ? (
+                                        <button onClick={() => setPromoInputOpen(true)} style={{ background: "none", border: "none", color: "var(--brand)", fontSize: 13, fontWeight: 600, cursor: "pointer", padding: 0, fontFamily: "inherit" }}>
+                                            🏷️ Have a promo code?
+                                        </button>
+                                    ) : (
+                                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                            <input
+                                                type="text" placeholder="Enter code" value={promoInputValue}
+                                                onChange={(e) => setPromoInputValue(e.target.value.toUpperCase())}
+                                                style={{ flex: 1, padding: "8px 12px", borderRadius: 8, border: "1px solid var(--border, #E2E8F0)", fontSize: 14, fontFamily: "inherit", textTransform: "uppercase", letterSpacing: "0.05em" }}
+                                                onKeyDown={(e) => { if (e.key === "Enter" && promoInputValue.trim()) { setPromoCode(promoInputValue.trim()); } }}
+                                            />
+                                            <button
+                                                onClick={() => { if (promoInputValue.trim()) setPromoCode(promoInputValue.trim()); }}
+                                                disabled={!promoInputValue.trim() || promoValidating}
+                                                style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "var(--brand)", color: "#fff", fontSize: 13, fontWeight: 600, cursor: promoInputValue.trim() ? "pointer" : "default", opacity: promoInputValue.trim() ? 1 : 0.5, fontFamily: "inherit" }}
+                                            >
+                                                {promoValidating ? "..." : "Apply"}
+                                            </button>
+                                            <button onClick={() => { setPromoInputOpen(false); setPromoInputValue(""); }} style={{ background: "none", border: "none", color: "var(--muted)", fontSize: 18, cursor: "pointer", padding: "0 4px" }}>×</button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                             <div style={{ padding: 24 }}>
                                 {(() => {
                                     const rows: { label: string; value: string }[] = [
