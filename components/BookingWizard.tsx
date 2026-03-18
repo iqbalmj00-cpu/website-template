@@ -108,37 +108,50 @@ function Calendar({ selected, onSelect, isDisabled }: { selected: Date | null; o
     );
 }
 
+/* ── Session persistence helpers ────────────────────────────────────────── */
+const WIZARD_STORAGE_KEY = "syjBookingWizard";
+
+function loadSavedWizard() {
+    if (typeof window === "undefined") return null;
+    try {
+        const raw = sessionStorage.getItem(WIZARD_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+}
+
 /* ── Main Wizard ───────────────────────────────────────────────────────── */
 export default function BookingWizard() {
     const router = useRouter();
-    const [step, setStep] = useState(0);
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [selectedItems, setSelectedItems] = useState<ItemQtyMap>({});
-    const [pileSizes, setPileSizes] = useState<Record<string, string>>({});
-    const [volume, setVolume] = useState<string | null>(null);
-    const [location, setLocation] = useState<string | null>(null);
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-    const [selectedTime, setSelectedTime] = useState<string | null>(null);
-    const [contact, setContact] = useState<ContactInfo>({ name: "", phone: "", email: "", address: "", notes: "", customerType: "residential" });
+    const saved = useRef(loadSavedWizard()).current;
+
+    const [step, setStep] = useState(saved?.step ?? 0);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>(saved?.selectedCategories ?? []);
+    const [selectedItems, setSelectedItems] = useState<ItemQtyMap>(saved?.selectedItems ?? {});
+    const [pileSizes, setPileSizes] = useState<Record<string, string>>(saved?.pileSizes ?? {});
+    const [volume, setVolume] = useState<string | null>(saved?.volume ?? null);
+    const [location, setLocation] = useState<string | null>(saved?.location ?? null);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(saved?.selectedDate ? new Date(saved.selectedDate) : null);
+    const [selectedTime, setSelectedTime] = useState<string | null>(saved?.selectedTime ?? null);
+    const [contact, setContact] = useState<ContactInfo>(saved?.contact ?? { name: "", phone: "", email: "", address: "", notes: "", customerType: "residential" });
     const [addressInArea, setAddressInArea] = useState(true);
     const [outOfAreaMsg, setOutOfAreaMsg] = useState<string | null>(null);
-    const [distanceSurcharge, setDistanceSurcharge] = useState(0);
-    const [distanceMiles, setDistanceMiles] = useState<number | null>(null);
+    const [distanceSurcharge, setDistanceSurcharge] = useState(saved?.distanceSurcharge ?? 0);
+    const [distanceMiles, setDistanceMiles] = useState<number | null>(saved?.distanceMiles ?? null);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
-    const [leadCaptured, setLeadCaptured] = useState(false);
+    const [leadCaptured, setLeadCaptured] = useState(saved?.leadCaptured ?? false);
 
     /* ── Terms & signature state ── */
-    const [termsAccepted, setTermsAccepted] = useState(false);
-    const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+    const [termsAccepted, setTermsAccepted] = useState(saved?.termsAccepted ?? false);
+    const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(saved?.signatureDataUrl ?? null);
     const sigCanvasRef = useRef<HTMLCanvasElement>(null);
     const sigDrawingRef = useRef(false);
 
     /* ── Dumpster rental state ── */
-    const [serviceType, setServiceType] = useState<ServiceType | null>(siteConfig.offersDumpsterRental ? null : "junk");
-    const [containerSize, setContainerSize] = useState<string | null>(null);
-    const [debrisType, setDebrisType] = useState<string | null>(null);
-    const [rentalDuration, setRentalDuration] = useState<string | null>(null);
+    const [serviceType, setServiceType] = useState<ServiceType | null>(saved?.serviceType ?? (siteConfig.offersDumpsterRental ? null : "junk"));
+    const [containerSize, setContainerSize] = useState<string | null>(saved?.containerSize ?? null);
+    const [debrisType, setDebrisType] = useState<string | null>(saved?.debrisType ?? null);
+    const [rentalDuration, setRentalDuration] = useState<string | null>(saved?.rentalDuration ?? null);
 
     /* ── Container availability state ── */
     const [containerAvailability, setContainerAvailability] = useState<{
@@ -151,16 +164,16 @@ export default function BookingWizard() {
 
     /* ── Promo code state ── */
     const searchParams = useSearchParams();
-    const [promoCode, setPromoCode] = useState<string | null>(searchParams.get("promo"));
+    const [promoCode, setPromoCode] = useState<string | null>(searchParams.get("promo") || saved?.promoCode || null);
     const [promoResult, setPromoResult] = useState<{
         valid: boolean; discountType?: string; discountValue?: number; label?: string; reason?: string;
     } | null>(null);
     const [promoValidating, setPromoValidating] = useState(false);
-    const [promoInputOpen, setPromoInputOpen] = useState(false);
-    const [promoInputValue, setPromoInputValue] = useState("");
+    const [promoInputOpen, setPromoInputOpen] = useState(saved?.promoInputOpen ?? false);
+    const [promoInputValue, setPromoInputValue] = useState(saved?.promoInputValue ?? "");
 
     /* ── Payment preference state ── */
-    const [paymentPreference, setPaymentPreference] = useState<"card" | "on_site" | null>(null);
+    const [paymentPreference, setPaymentPreference] = useState<"card" | "on_site" | null>(saved?.paymentPreference ?? null);
 
     /* ── Phase system ── */
     const phases = useMemo(() => getPhases(serviceType, siteConfig.offersDumpsterRental), [serviceType]);
@@ -174,6 +187,21 @@ export default function BookingWizard() {
     const stripeRef = useRef<Stripe | null>(null);
     const cardRef = useRef<StripeCardElement | null>(null);
     const cardMountRef = useRef<HTMLDivElement | null>(null);
+
+    /* ── Save wizard state to sessionStorage on every change ── */
+    useEffect(() => {
+        const data = {
+            step, selectedCategories, selectedItems, pileSizes, volume, location,
+            selectedDate: selectedDate?.toISOString() ?? null,
+            selectedTime, contact, distanceSurcharge, distanceMiles, leadCaptured,
+            termsAccepted, signatureDataUrl, serviceType, containerSize, debrisType,
+            rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference,
+        };
+        try { sessionStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(data)); } catch {}
+    }, [step, selectedCategories, selectedItems, pileSizes, volume, location,
+        selectedDate, selectedTime, contact, distanceSurcharge, distanceMiles, leadCaptured,
+        termsAccepted, signatureDataUrl, serviceType, containerSize, debrisType,
+        rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference]);
 
     // Check container availability — only fires when date is selected for accurate date-aware check
     useEffect(() => {
@@ -605,6 +633,7 @@ export default function BookingWizard() {
                 serviceType: serviceType || "junk",
                 ...(dumpsterAutoBooked ? { autoBooked: "true" } : {}),
             });
+            try { sessionStorage.removeItem(WIZARD_STORAGE_KEY); } catch {}
             router.push(`/booking-confirmed?${params.toString()}`);
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
