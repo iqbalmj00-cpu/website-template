@@ -22,9 +22,6 @@ type ContactInfo = { name: string; phone: string; email: string; address: string
 
 /* ── Stripe (loaded lazily when configured) ── */
 const hasStripe = !!siteConfig.stripePublishableKey;
-const stripePromise = hasStripe
-    ? loadStripe(siteConfig.stripePublishableKey, siteConfig.stripeConnectAccountId ? { stripeAccount: siteConfig.stripeConnectAccountId } : undefined)
-    : null;
 
 /* ── Truck SVG ─────────────────────────────────────────────────────────── */
 function TruckVisual({ fillPercent }: { fillPercent: number }) {
@@ -191,6 +188,7 @@ export default function BookingWizard() {
     const [cardComplete, setCardComplete] = useState(false);
     const [cardError, setCardError] = useState("");
     const [setupClientSecret, setSetupClientSecret] = useState<string | null>(null);
+    const [connectedAccountId, setConnectedAccountId] = useState<string | null>(null);
     const stripeRef = useRef<Stripe | null>(null);
     const cardRef = useRef<StripeCardElement | null>(null);
     const cardMountRef = useRef<HTMLDivElement | null>(null);
@@ -266,6 +264,7 @@ export default function BookingWizard() {
                 const data = await res.json();
                 if (cancelled || !data.clientSecret) return;
                 setSetupClientSecret(data.clientSecret);
+                if (data.connectedAccountId) setConnectedAccountId(data.connectedAccountId);
             } catch (err) {
                 console.error("SetupIntent creation error:", err);
             }
@@ -279,7 +278,11 @@ export default function BookingWizard() {
         let cancelled = false;
         (async () => {
             try {
-                const stripe = await stripePromise;
+                // Load Stripe with connected account from API response (not from env var)
+                const stripe = await loadStripe(
+                    siteConfig.stripePublishableKey,
+                    connectedAccountId ? { stripeAccount: connectedAccountId } : undefined,
+                );
                 if (cancelled || !stripe || !cardMountRef.current) return;
                 stripeRef.current = stripe;
                 const elements = stripe.elements({ clientSecret: setupClientSecret });
@@ -301,7 +304,7 @@ export default function BookingWizard() {
             }
         })();
         return () => { cancelled = true; };
-    }, [paymentPreference, setupClientSecret, hasStripe]);
+    }, [paymentPreference, setupClientSecret, hasStripe, connectedAccountId]);
 
     // 3. Cleanup card element when switching away from "card"
     useEffect(() => {

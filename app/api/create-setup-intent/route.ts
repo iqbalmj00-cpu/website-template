@@ -21,7 +21,10 @@ export async function POST() {
             connectAccountId ? { stripeAccount: connectAccountId } : undefined,
         );
 
-        return NextResponse.json({ clientSecret: setupIntent.client_secret });
+        return NextResponse.json({
+            clientSecret: setupIntent.client_secret,
+            connectedAccountId: connectAccountId || null,
+        });
     } catch (err) {
         console.error("SetupIntent error:", err);
         return NextResponse.json({ error: "Failed to create setup intent" }, { status: 500 });
