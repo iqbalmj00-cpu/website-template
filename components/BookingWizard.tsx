@@ -1463,8 +1463,13 @@ export default function BookingWizard() {
                                     ))}
                                 </div>
 
-                                {/* ── Card on File (hidden via display:none when not selected to keep Stripe Elements mounted) ── */}
-                                <div style={{ display: paymentPreference === "card" ? undefined : "none" }}>
+                                {/* ── Card on File (visibility:hidden keeps Stripe Elements rendered; display:none breaks iframe sizing) ── */}
+                                <div style={{
+                                    visibility: paymentPreference === "card" ? "visible" : "hidden",
+                                    height: paymentPreference === "card" ? "auto" : 0,
+                                    overflow: paymentPreference === "card" ? "visible" : "hidden",
+                                    transition: "height 0.2s",
+                                }}>
                                     <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border, #E2E8F0)", padding: 24 }}>
                                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                                             <Lock size={14} style={{ color: "#16A34A" }} />
