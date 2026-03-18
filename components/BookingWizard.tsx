@@ -577,6 +577,16 @@ export default function BookingWizard() {
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Booking failed");
                 if (data.leadId) localStorage.setItem("syjLeadId", data.leadId);
+
+                // Confirm card-on-file with dashboard (non-blocking)
+                if (pmId && data.customerId) {
+                    fetch("/api/confirm-card", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ customerId: data.customerId, paymentMethodId: pmId }),
+                    }).catch(err => console.warn("Card confirmation failed:", err));
+                }
+
                 return quoteRangeStr;
             };
 
@@ -616,6 +626,16 @@ export default function BookingWizard() {
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Rental request failed");
                 if (data.leadId) localStorage.setItem("syjLeadId", data.leadId);
+
+                // Confirm card-on-file with dashboard (non-blocking)
+                if (pmId && data.customerId) {
+                    fetch("/api/confirm-card", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ customerId: data.customerId, paymentMethodId: pmId }),
+                    }).catch(err => console.warn("Card confirmation failed:", err));
+                }
+
                 return { autoBooked: data.autoBooked };
             };
 
