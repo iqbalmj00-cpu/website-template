@@ -1055,7 +1055,7 @@ export default function BookingWizard() {
                             })}
                         </div>
                         {/* Availability indicator */}
-                        {containerSize && (
+                        {containerSize && (checkingAvailability || containerAvailability) && (
                             <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, textAlign: "center", fontSize: 14, fontWeight: 600, ...(checkingAvailability ? { background: "#F8FAFC", border: "1px solid #E2E8F0", color: "var(--muted)" } : containerAvailability?.available ? { background: "#F0FDF4", border: "1px solid #BBF7D0", color: "#16A34A" } : containerAvailability && !containerAvailability.available ? { background: "#FEF2F2", border: "1px solid #FECACA", color: "#DC2626" } : { background: "#F8FAFC", border: "1px solid #E2E8F0", color: "var(--muted)" }) }}>
                                 {checkingAvailability ? "Checking availability..." : containerAvailability?.available ? "✓ In stock" : containerAvailability && !containerAvailability.available ? (<>{containerAvailability.nextAvailableDate ? `Next available: ${new Date(containerAvailability.nextAvailableDate).toLocaleDateString("en-US", { month: "long", day: "numeric" })}` : "Currently unavailable"}{containerAvailability.alternativeSizes && containerAvailability.alternativeSizes.length > 0 && (<span style={{ display: "block", fontSize: 12, fontWeight: 500, marginTop: 4 }}>Other sizes in stock: {containerAvailability.alternativeSizes.map(s => `${s}yd³`).join(", ")}</span>)}</>) : null}
                             </div>
