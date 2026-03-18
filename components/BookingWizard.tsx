@@ -114,6 +114,13 @@ const WIZARD_STORAGE_KEY = "syjBookingWizard";
 function loadSavedWizard() {
     if (typeof window === "undefined") return null;
     try {
+        // Only restore on actual page refresh (F5), not fresh navigation to /book
+        const navEntries = performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
+        const isReload = navEntries.length > 0 && navEntries[0].type === "reload";
+        if (!isReload) {
+            sessionStorage.removeItem(WIZARD_STORAGE_KEY);
+            return null;
+        }
         const raw = sessionStorage.getItem(WIZARD_STORAGE_KEY);
         return raw ? JSON.parse(raw) : null;
     } catch { return null; }
