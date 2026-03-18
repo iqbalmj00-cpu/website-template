@@ -249,26 +249,33 @@ export default function BookingWizard() {
         return price;
     };
 
-    // Create SetupIntent + mount card element when entering quote phase
+    // 1. Create SetupIntent when entering quote phase (independent of payment preference)
     useEffect(() => {
-        if (!hasStripe || currentPhase !== "quote" || stripeReady) return;
+        if (!hasStripe || currentPhase !== "quote" || setupClientSecret) return;
         let cancelled = false;
-
         (async () => {
             try {
-                // 1. Create SetupIntent
                 const res = await fetch("/api/create-setup-intent", { method: "POST" });
                 const data = await res.json();
                 if (cancelled || !data.clientSecret) return;
                 setSetupClientSecret(data.clientSecret);
+            } catch (err) {
+                console.error("SetupIntent creation error:", err);
+            }
+        })();
+        return () => { cancelled = true; };
+    }, [currentPhase, hasStripe, setupClientSecret]);
 
-                // 2. Load Stripe
+    // 2. Mount card element ONLY when Pay Online selected + SetupIntent ready + mount ref available
+    useEffect(() => {
+        if (!hasStripe || paymentPreference !== "card" || !setupClientSecret || cardRef.current) return;
+        let cancelled = false;
+        (async () => {
+            try {
                 const stripe = await stripePromise;
                 if (cancelled || !stripe || !cardMountRef.current) return;
                 stripeRef.current = stripe;
-
-                // 3. Mount card element
-                const elements = stripe.elements({ clientSecret: data.clientSecret });
+                const elements = stripe.elements({ clientSecret: setupClientSecret });
                 const card = elements.create("card", {
                     style: {
                         base: { fontSize: "16px", color: "#1E293B", fontFamily: "inherit", "::placeholder": { color: "#94A3B8" } },
@@ -283,12 +290,22 @@ export default function BookingWizard() {
                 cardRef.current = card;
                 setStripeReady(true);
             } catch (err) {
-                console.error("Stripe setup error:", err);
+                console.error("Stripe card mount error:", err);
             }
         })();
-
         return () => { cancelled = true; };
-    }, [step, stripeReady, currentPhase]);
+    }, [paymentPreference, setupClientSecret, hasStripe]);
+
+    // 3. Cleanup card element when switching away from "card"
+    useEffect(() => {
+        if (paymentPreference !== "card" && cardRef.current) {
+            cardRef.current.destroy();
+            cardRef.current = null;
+            setStripeReady(false);
+            setCardComplete(false);
+            setCardError("");
+        }
+    }, [paymentPreference]);
 
     /* ── Browser back-button integration ── */
     useEffect(() => {
@@ -1492,13 +1509,8 @@ export default function BookingWizard() {
                                     ))}
                                 </div>
 
-                                {/* ── Card on File (visibility:hidden keeps Stripe Elements rendered; display:none breaks iframe sizing) ── */}
-                                <div style={{
-                                    visibility: paymentPreference === "card" ? "visible" : "hidden",
-                                    height: paymentPreference === "card" ? "auto" : 0,
-                                    overflow: paymentPreference === "card" ? "visible" : "hidden",
-                                    transition: "height 0.2s",
-                                }}>
+                                {/* ── Card on File (conditionally rendered — only in DOM when Pay Online selected) ── */}
+                                {paymentPreference === "card" && (
                                     <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border, #E2E8F0)", padding: 24 }}>
                                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                                             <Lock size={14} style={{ color: "#16A34A" }} />
@@ -1515,7 +1527,7 @@ export default function BookingWizard() {
                                             <p style={{ fontSize: 12, color: "#DC2626", marginTop: 8 }}>{cardError}</p>
                                         )}
                                     </div>
-                                </div>
+                                )}
 
                                 {/* ── "Not charged" warning banner ── */}
                                 <div style={{
