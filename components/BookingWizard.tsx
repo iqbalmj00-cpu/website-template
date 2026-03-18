@@ -159,6 +159,9 @@ export default function BookingWizard() {
     const [promoInputOpen, setPromoInputOpen] = useState(false);
     const [promoInputValue, setPromoInputValue] = useState("");
 
+    /* ── Payment preference state ── */
+    const [paymentPreference, setPaymentPreference] = useState<"card" | "on_site" | null>(null);
+
     /* ── Phase system ── */
     const phases = useMemo(() => getPhases(serviceType, siteConfig.offersDumpsterRental), [serviceType]);
     const currentPhase = phases[step] || "contact";
@@ -504,6 +507,7 @@ export default function BookingWizard() {
                         ],
                         termsAcceptedAt: new Date().toISOString(),
                         signatureDataUrl: signatureDataUrl || undefined,
+                        ...(paymentPreference ? { paymentPreference } : {}),
                     },
                     source: "WEBSITE",
                     ...(promoCode ? { promoCode } : {}),
@@ -511,7 +515,7 @@ export default function BookingWizard() {
                 if (leadId) payload.leadId = leadId;
 
                 // Stripe card-on-file
-                const pmId = await confirmCard();
+                const pmId = paymentPreference === "card" ? await confirmCard() : null;
                 if (pmId) (payload.metadata as Record<string, unknown>).stripePaymentMethodId = pmId;
 
                 const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -542,6 +546,7 @@ export default function BookingWizard() {
                         timeSlot: timeSlotOption?.period || selectedTime || "",
                         termsAcceptedAt: new Date().toISOString(),
                         signatureDataUrl: signatureDataUrl || undefined,
+                        ...(paymentPreference ? { paymentPreference } : {}),
                     },
                     source: "WEBSITE",
                     ...(promoCode ? { promoCode } : {}),
@@ -549,7 +554,7 @@ export default function BookingWizard() {
                 if (leadId) payload.leadId = leadId;
 
                 // Stripe card-on-file
-                const pmId = await confirmCard();
+                const pmId = paymentPreference === "card" ? await confirmCard() : null;
                 if (pmId) (payload.metadata as Record<string, unknown>).stripePaymentMethodId = pmId;
 
                 const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -606,7 +611,7 @@ export default function BookingWizard() {
         } finally {
             setSubmitting(false);
         }
-    }, [contact, selectedCategories, selectedItems, pileSizes, volume, location, selectedDate, selectedTime, tierData, priceAdj, distanceSurcharge, totalAdj, stairsSurcharge, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret, promoCode]);
+    }, [contact, selectedCategories, selectedItems, pileSizes, volume, location, selectedDate, selectedTime, tierData, priceAdj, distanceSurcharge, totalAdj, stairsSurcharge, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret, promoCode, paymentPreference]);
 
     const formatPhone = (val: string) => {
         const digits = val.replace(/\D/g, "").slice(0, 10);
@@ -1432,33 +1437,72 @@ export default function BookingWizard() {
                             </div>
                         </div>
 
-                        {/* ── Card on File ── */}
+                        {/* ── Payment Preference ── */}
                         {hasStripe && (
-                            <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border, #E2E8F0)", padding: 24, marginBottom: 24 }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                            <div style={{ marginBottom: 24 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                                     <CreditCard size={20} style={{ color: "var(--brand)" }} />
-                                    <span style={{ fontWeight: 700, fontSize: 15, color: "var(--foreground)" }}>Save Card on File</span>
-                                    <Lock size={14} style={{ color: "#16A34A", marginLeft: "auto" }} />
-                                    <span style={{ fontSize: 11, color: "#16A34A", fontWeight: 600 }}>Secure</span>
+                                    <span style={{ fontWeight: 700, fontSize: 15, color: "var(--foreground)" }}>How would you like to pay?</span>
                                 </div>
-                                <div
-                                    ref={cardMountRef}
-                                    style={{
-                                        padding: "14px 16px", borderRadius: 10, border: "1.5px solid var(--border, #E2E8F0)",
-                                        background: "#FAFAFA", minHeight: 44, transition: "border-color 0.2s",
-                                    }}
-                                />
-                                {cardError && (
-                                    <p style={{ fontSize: 12, color: "#DC2626", marginTop: 8 }}>{cardError}</p>
-                                )}
-                                <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 12, lineHeight: 1.5 }}>
-                                    <LockKeyhole size={14} style={{ display: "inline", verticalAlign: "middle" }} />{" "}
-                                    {serviceType === "dumpster"
-                                        ? <>Your card will be saved on file and <strong>will not be charged</strong> until the container is delivered to your location.</>
-                                        : serviceType === "both"
-                                            ? <>Your card will be saved on file and <strong>will not be charged</strong> until services are rendered.</>
-                                            : <>Your card will be saved on file and <strong>will not be charged</strong> until your job is complete. The final price will be confirmed by your crew on-site.</>}
-                                </p>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+                                    {([
+                                        { id: "card" as const, icon: "💳", label: "Pay Online", sub: "Save card on file" },
+                                        { id: "on_site" as const, icon: "💵", label: "Pay On-Site", sub: "Cash or check" },
+                                    ]).map((opt) => (
+                                        <button key={opt.id} onClick={() => setPaymentPreference(opt.id)}
+                                            style={{
+                                                padding: "16px 14px", borderRadius: 14, cursor: "pointer", textAlign: "center", fontFamily: "inherit",
+                                                border: paymentPreference === opt.id ? "2px solid var(--brand)" : "1.5px solid var(--border, #E2E8F0)",
+                                                background: paymentPreference === opt.id ? "var(--hero-bg, #F8FAFC)" : "var(--card)",
+                                                transition: "all 0.2s",
+                                            }}>
+                                            <div style={{ fontSize: 28, marginBottom: 6 }}>{opt.icon}</div>
+                                            <div style={{ fontWeight: 700, fontSize: 14, color: "var(--foreground)" }}>{opt.label}</div>
+                                            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{opt.sub}</div>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* ── Card on File (hidden via display:none when not selected to keep Stripe Elements mounted) ── */}
+                                <div style={{ display: paymentPreference === "card" ? undefined : "none" }}>
+                                    <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border, #E2E8F0)", padding: 24 }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                                            <Lock size={14} style={{ color: "#16A34A" }} />
+                                            <span style={{ fontSize: 13, color: "#16A34A", fontWeight: 600 }}>Secure & encrypted</span>
+                                        </div>
+                                        <div
+                                            ref={cardMountRef}
+                                            style={{
+                                                padding: "14px 16px", borderRadius: 10, border: "1.5px solid var(--border, #E2E8F0)",
+                                                background: "#FAFAFA", minHeight: 44, transition: "border-color 0.2s",
+                                            }}
+                                        />
+                                        {cardError && (
+                                            <p style={{ fontSize: 12, color: "#DC2626", marginTop: 8 }}>{cardError}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* ── "Not charged" warning banner ── */}
+                                <div style={{
+                                    marginTop: 16, padding: "16px 20px", borderRadius: 14,
+                                    background: "linear-gradient(135deg, #F0FDF4, #DCFCE7)", border: "1px solid #BBF7D0",
+                                    display: "flex", alignItems: "flex-start", gap: 12,
+                                }}>
+                                    <LockKeyhole size={22} style={{ color: "#16A34A", flexShrink: 0, marginTop: 2 }} />
+                                    <div>
+                                        <div style={{ fontWeight: 700, fontSize: 15, color: "#166534", marginBottom: 4 }}>
+                                            {paymentPreference === "card" ? "You will NOT be charged today" : "No payment required now"}
+                                        </div>
+                                        <div style={{ fontSize: 13, color: "#166534", lineHeight: 1.5 }}>
+                                            {paymentPreference === "card"
+                                                ? (serviceType === "dumpster"
+                                                    ? "Your card is saved securely and will only be charged after the container is delivered to your location."
+                                                    : "Your card is saved securely and will only be charged after your job is complete. The final price will be confirmed by your crew on-site.")
+                                                : "You\u2019ll pay your crew directly when the job is complete. Cash, check, or card accepted on-site."}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -1468,7 +1512,7 @@ export default function BookingWizard() {
                             </div>
                         )}
 
-                        <button onClick={handleSubmit} disabled={submitting || (hasStripe && !cardComplete)}
+                        <button onClick={handleSubmit} disabled={submitting || (hasStripe && (paymentPreference === null || (paymentPreference === "card" && !cardComplete)))}
                             style={{
                                 width: "100%", marginTop: 24, padding: 18, borderRadius: "var(--btn-radius)", border: "none",
                                 background: !submitting ? "linear-gradient(135deg, var(--brand), var(--brand-dark))" : "#E2E8F0",
@@ -1480,7 +1524,7 @@ export default function BookingWizard() {
                             {submitting ? "Submitting..." : serviceType === "dumpster" ? "Confirm Dumpster Rental →" : serviceType === "both" ? "Confirm & Book →" : "Confirm & Book My Pickup →"}
                         </button>
                         <p style={{ textAlign: "center", fontSize: 12, color: "var(--muted)", marginTop: 12 }}>
-                            {serviceType === "dumpster" ? "Your card will not be charged until delivery." : serviceType === "both" ? "Junk removal auto-booked. Dumpster delivery confirmed separately." : "No commitment \u2014 final price confirmed when our crew arrives."}
+                            {serviceType === "dumpster" ? "Your card will not be charged until delivery." : serviceType === "both" ? "Junk removal auto-booked. Dumpster delivery confirmed separately." : "No payment today — final price confirmed when our crew arrives."}
                         </p>
                     </div>
                 )}
