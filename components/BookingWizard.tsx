@@ -175,9 +175,9 @@ export default function BookingWizard() {
     const cardRef = useRef<StripeCardElement | null>(null);
     const cardMountRef = useRef<HTMLDivElement | null>(null);
 
-    // Check container availability — re-fires when date or duration changes for date-aware check
+    // Check container availability — only fires when date is selected for accurate date-aware check
     useEffect(() => {
-        if (!containerSize) { setContainerAvailability(null); return; }
+        if (!containerSize || !selectedDate) { setContainerAvailability(null); return; }
         let cancelled = false;
         setCheckingAvailability(true);
         (async () => {
