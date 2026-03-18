@@ -544,7 +544,7 @@ export default function BookingWizard() {
                 const stairsAccessLabel = locationOption?.label || "Ground Floor";
 
                 const payload: Record<string, unknown> = {
-                    type: "booking", status: "booked",
+                    type: "booking", status: "booked", serviceType: "junk_removal",
                     name: contact.name, phone: contact.phone, email: contact.email, address: contact.address,
                     description, requestedDate: selectedDate?.toISOString().split("T")[0],
                     value: minPrice || undefined, notes: contact.notes || "",
