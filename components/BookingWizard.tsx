@@ -138,6 +138,7 @@ export default function BookingWizard() {
     const [selectedTime, setSelectedTime] = useState<string | null>(saved?.selectedTime ?? null);
     const [contact, setContact] = useState<ContactInfo>(saved?.contact ?? { name: "", phone: "", email: "", address: "", notes: "", customerType: "residential" });
     const [addressInArea, setAddressInArea] = useState(true);
+    const [addressConfirmed, setAddressConfirmed] = useState(saved?.addressConfirmed ?? false);
     const [outOfAreaMsg, setOutOfAreaMsg] = useState<string | null>(null);
     const [distanceSurcharge, setDistanceSurcharge] = useState(saved?.distanceSurcharge ?? 0);
     const [distanceMiles, setDistanceMiles] = useState<number | null>(saved?.distanceMiles ?? null);
@@ -201,12 +202,14 @@ export default function BookingWizard() {
             selectedTime, contact, distanceSurcharge, distanceMiles, leadCaptured,
             termsAccepted, signatureDataUrl, serviceType, containerSize, debrisType,
             rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference,
+            addressConfirmed,
         };
         try { sessionStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(data)); } catch {}
     }, [step, selectedCategories, selectedItems, pileSizes, volume, location,
         selectedDate, selectedTime, contact, distanceSurcharge, distanceMiles, leadCaptured,
         termsAccepted, signatureDataUrl, serviceType, containerSize, debrisType,
-        rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference]);
+        rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference,
+        addressConfirmed]);
 
     // Check container availability — only fires when date is selected for accurate date-aware check
     useEffect(() => {
@@ -425,7 +428,7 @@ export default function BookingWizard() {
         switch (currentPhase) {
             case "contact": {
                 const hasRequired = !!(contact.name && contact.phone && contact.email && contact.address);
-                const areaOk = addressInArea && !outOfAreaMsg;
+                const areaOk = addressConfirmed && addressInArea && !outOfAreaMsg;
                 return hasRequired && areaOk;
             }
             case "service_type": return serviceType !== null;
@@ -765,9 +768,15 @@ export default function BookingWizard() {
                                 <label className="label">Service Address *</label>
                                 <AddressAutocomplete
                                     value={contact.address}
-                                    onChange={(val) => setContact(c => ({ ...c, address: val }))}
+                                    onChange={(val) => {
+                                        setContact(c => ({ ...c, address: val }));
+                                        setAddressConfirmed(false);
+                                        setAddressInArea(true);
+                                        setOutOfAreaMsg(null);
+                                    }}
                                     onPlaceSelect={(place) => {
                                         setContact(c => ({ ...c, address: place.address }));
+                                        setAddressConfirmed(true);
                                         // ZIP-based area check (existing)
                                         const zips = siteConfig.serviceAreaZips;
                                         let zipOk = true;
@@ -807,6 +816,11 @@ export default function BookingWizard() {
                                         <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
                                         <span>{outOfAreaMsg}</span>
                                     </div>
+                                )}
+                                {!addressConfirmed && contact.address.length > 5 && !outOfAreaMsg && (
+                                    <p style={{ marginTop: 6, fontSize: 13, color: "var(--muted)" }}>
+                                        Please select an address from the dropdown.
+                                    </p>
                                 )}
                             </div>
                             <div>
