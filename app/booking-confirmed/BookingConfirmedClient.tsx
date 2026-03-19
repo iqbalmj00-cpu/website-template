@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
-import { CheckCircle, Phone, Calendar, MapPin, DollarSign, Truck } from "lucide-react";
+import { CheckCircle, Phone, Calendar, MapPin, DollarSign, Truck, Box } from "lucide-react";
 import { Suspense } from "react";
 
 function ConfirmationContent() {
@@ -14,6 +14,7 @@ function ConfirmationContent() {
     const price = params.get("price") || "";
     const st = params.get("serviceType") || "junk";
     const address = params.get("address") || "";
+    const dumpsterPrice = params.get("dumpsterPrice") || "";
     const autoBooked = params.get("autoBooked") === "true";
     const hasDumpster = st === "dumpster" || st === "both";
     const hasJunk = st === "junk" || st === "both";
@@ -78,7 +79,13 @@ function ConfirmationContent() {
                             {price && (
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                                     <DollarSign size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
-                                    <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>Estimated: {price}</p>
+                                    <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>{dumpsterPrice ? "Junk Removal: " : "Estimated: "}{price}</p>
+                                </div>
+                            )}
+                            {dumpsterPrice && (
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                    <Box size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
+                                    <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>{price ? "Dumpster: " : ""}{dumpsterPrice}</p>
                                 </div>
                             )}
                             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>

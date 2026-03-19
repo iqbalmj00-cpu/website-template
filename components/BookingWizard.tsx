@@ -664,6 +664,7 @@ export default function BookingWizard() {
 
             /* ── Execute based on service type ── */
             let priceStr = "";
+            let dumpsterPriceStr = "";
             let dumpsterAutoBooked = false;
             const waiverPromise = sendWaiver(); // fire in parallel
             if (serviceType === "junk" || serviceType === "both") {
@@ -672,6 +673,13 @@ export default function BookingWizard() {
             if (serviceType === "dumpster" || serviceType === "both") {
                 const dumpsterResult = await sendDumpsterLead();
                 dumpsterAutoBooked = !!dumpsterResult.autoBooked;
+                // Build dumpster price string from pricing tiers
+                const sizeNum = containerSize ? parseInt(containerSize) : 0;
+                const dTier = siteConfig.dumpsterPricing?.tiers.find(t => t.sizeCuYd === sizeNum);
+                if (dTier && (dTier.baseRate > 0 || (dTier.baseRateMin != null && dTier.baseRateMin > 0))) {
+                    const sizeLabel = CONTAINER_SIZES.find(c => c.id === containerSize)?.label || "";
+                    dumpsterPriceStr = `${sizeLabel} — ${formatDumpsterPrice(dTier)}`;
+                }
             }
             await waiverPromise; // ensure waiver completes before redirect
 
@@ -682,6 +690,7 @@ export default function BookingWizard() {
                 price: priceStr,
                 serviceType: serviceType || "junk",
                 ...(contact.address ? { address: contact.address } : {}),
+                ...(dumpsterPriceStr ? { dumpsterPrice: dumpsterPriceStr } : {}),
                 ...(dumpsterAutoBooked ? { autoBooked: "true" } : {}),
             });
             try { sessionStorage.removeItem(WIZARD_STORAGE_KEY); } catch {}
