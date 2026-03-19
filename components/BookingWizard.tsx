@@ -678,6 +678,7 @@ export default function BookingWizard() {
                 time: timeSlotOption?.label || "",
                 price: priceStr,
                 serviceType: serviceType || "junk",
+                ...(contact.address ? { address: contact.address } : {}),
                 ...(dumpsterAutoBooked ? { autoBooked: "true" } : {}),
             });
             try { sessionStorage.removeItem(WIZARD_STORAGE_KEY); } catch {}

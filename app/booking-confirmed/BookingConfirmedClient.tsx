@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
-import { CheckCircle, Phone, Calendar, MapPin } from "lucide-react";
+import { CheckCircle, Phone, Calendar, MapPin, DollarSign, Truck } from "lucide-react";
 import { Suspense } from "react";
 
 function ConfirmationContent() {
@@ -13,9 +13,14 @@ function ConfirmationContent() {
     const time = params.get("time") || "";
     const price = params.get("price") || "";
     const st = params.get("serviceType") || "junk";
+    const address = params.get("address") || "";
     const autoBooked = params.get("autoBooked") === "true";
     const hasDumpster = st === "dumpster" || st === "both";
     const hasJunk = st === "junk" || st === "both";
+
+    const serviceLabel = st === "both" ? "Junk Removal + Dumpster Rental"
+        : st === "dumpster" ? "Dumpster Rental"
+        : "Junk Removal";
 
     // Determine heading and message based on service type + auto-booking result
     const getHeading = () => {
@@ -57,6 +62,10 @@ function ConfirmationContent() {
                     <div style={{ background: "var(--background)", border: "1px solid var(--border)", borderRadius: 16, padding: "2rem", marginBottom: "2rem" }}>
                         <h2 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem" }}>Booking Details</h2>
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                <Truck size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
+                                <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>{serviceLabel}</p>
+                            </div>
                             {date && (
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                                     <Calendar size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
@@ -68,13 +77,13 @@ function ConfirmationContent() {
                             )}
                             {price && (
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                                    <span style={{ fontSize: "1.25rem", flexShrink: 0 }}>💰</span>
+                                    <DollarSign size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
                                     <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>Estimated: {price}</p>
                                 </div>
                             )}
                             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                                 <MapPin size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
-                                <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>{siteConfig.city}{siteConfig.state ? `, ${siteConfig.state}` : ""}</p>
+                                <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>{address || `${siteConfig.city}${siteConfig.state ? `, ${siteConfig.state}` : ""}`}</p>
                             </div>
                         </div>
                     </div>
