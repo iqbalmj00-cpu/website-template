@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
-import { CheckCircle, Phone, Calendar, MapPin, DollarSign, Truck, Box } from "lucide-react";
+import { CheckCircle, Phone, Calendar, MapPin, DollarSign, Truck, Box, HardHat, Clock } from "lucide-react";
 import { Suspense } from "react";
 
 function ConfirmationContent() {
@@ -15,6 +15,8 @@ function ConfirmationContent() {
     const st = params.get("serviceType") || "junk";
     const address = params.get("address") || "";
     const dumpsterPrice = params.get("dumpsterPrice") || "";
+    const debrisType = params.get("debrisType") || "";
+    const rentalDuration = params.get("rentalDuration") || "";
     const autoBooked = params.get("autoBooked") === "true";
     const hasDumpster = st === "dumpster" || st === "both";
     const hasJunk = st === "junk" || st === "both";
@@ -86,6 +88,18 @@ function ConfirmationContent() {
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                                     <Box size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
                                     <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>{price ? "Dumpster: " : ""}{dumpsterPrice}</p>
+                                </div>
+                            )}
+                            {debrisType && (
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                    <HardHat size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
+                                    <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>{debrisType}</p>
+                                </div>
+                            )}
+                            {rentalDuration && (
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                                    <Clock size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
+                                    <p style={{ fontWeight: 600, fontSize: "0.95rem" }}>Duration: {rentalDuration}</p>
                                 </div>
                             )}
                             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>

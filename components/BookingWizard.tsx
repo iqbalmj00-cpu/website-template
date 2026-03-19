@@ -691,6 +691,8 @@ export default function BookingWizard() {
                 serviceType: serviceType || "junk",
                 ...(contact.address ? { address: contact.address } : {}),
                 ...(dumpsterPriceStr ? { dumpsterPrice: dumpsterPriceStr } : {}),
+                ...(debrisType ? { debrisType: DEBRIS_TYPES.find(d => d.id === debrisType)?.label || debrisType } : {}),
+                ...(rentalDuration ? { rentalDuration: RENTAL_DURATIONS.find(r => r.id === rentalDuration)?.label || rentalDuration } : {}),
                 ...(dumpsterAutoBooked ? { autoBooked: "true" } : {}),
             });
             try { sessionStorage.removeItem(WIZARD_STORAGE_KEY); } catch {}
