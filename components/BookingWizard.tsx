@@ -12,7 +12,8 @@ import {
     LOCATION_OPTIONS, TIME_SLOTS, PILE_SIZES,
     CONTAINER_SIZES, DEBRIS_TYPES, RENTAL_DURATIONS,
     getPhases, getPhaseLabel, isDayClosed, getAvailableTimeSlots,
-    type ServiceType, type WizardPhase,
+    formatSlotTime,
+    type ServiceType, type WizardPhase, type DynamicSlot,
 } from "@/lib/wizardData";
 import { loadStripe, type Stripe, type StripeCardElement } from "@stripe/stripe-js";
 
@@ -135,7 +136,14 @@ export default function BookingWizard() {
     const [volume, setVolume] = useState<string | null>(saved?.volume ?? null);
     const [location, setLocation] = useState<string | null>(saved?.location ?? null);
     const [selectedDate, setSelectedDate] = useState<Date | null>(saved?.selectedDate ? new Date(saved.selectedDate) : null);
-    const [selectedTime, setSelectedTime] = useState<string | null>(saved?.selectedTime ?? null);
+    const [selectedTime, setSelectedTime] = useState<string | null>(() => {
+        const t = saved?.selectedTime ?? null;
+        // Migration: clear old-format values ("morning", "midday" etc.) that don't contain "-"
+        if (t && !t.includes("-")) return null;
+        return t;
+    });
+    const [dynamicSlots, setDynamicSlots] = useState<DynamicSlot[] | null>(null);
+    const [loadingSlots, setLoadingSlots] = useState(false);
     const [contact, setContact] = useState<ContactInfo>(saved?.contact ?? { name: "", phone: "", email: "", address: "", notes: "", customerType: "residential" });
     const [addressInArea, setAddressInArea] = useState(true);
     const [addressConfirmed, setAddressConfirmed] = useState(saved?.addressConfirmed ?? false);
@@ -235,6 +243,27 @@ export default function BookingWizard() {
         })();
         return () => { cancelled = true; };
     }, [containerSize, selectedDate, rentalDuration]);
+
+    // Fetch dynamic time slots when date changes
+    useEffect(() => {
+        if (!selectedDate) { setDynamicSlots(null); return; }
+        let cancelled = false;
+        setLoadingSlots(true);
+        const dateStr = selectedDate.toISOString().split("T")[0];
+        fetch(`/api/available-slots?date=${dateStr}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!cancelled && data.slots) {
+                    setDynamicSlots(data.slots);
+                }
+            })
+            .catch(() => {
+                // API unavailable — fall back to static slots
+                if (!cancelled) setDynamicSlots(null);
+            })
+            .finally(() => { if (!cancelled) setLoadingSlots(false); });
+        return () => { cancelled = true; };
+    }, [selectedDate]);
 
     // Validate promo code when set (from URL or manual input)
     useEffect(() => {
@@ -494,7 +523,8 @@ export default function BookingWizard() {
         setError("");
         try {
             const leadId = typeof window !== "undefined" ? localStorage.getItem("syjLeadId") : null;
-            const timeSlotOption = TIME_SLOTS.find(t => t.id === selectedTime);
+            const timeSlotOption = dynamicSlots?.find(s => `${s.start}-${s.end}` === selectedTime)
+                ?? TIME_SLOTS.find(t => t.id === selectedTime);
 
             // Shared card confirmation (runs once, caches result)
             let confirmedPaymentMethodId: string | null = null;
@@ -554,7 +584,7 @@ export default function BookingWizard() {
                     metadata: {
                         serviceType: "junk_removal",
                         customerType: contact.customerType,
-                        timeSlot: timeSlotOption?.period || selectedTime || "",
+                        timeSlot: selectedTime || "",
                         truckLoad: volumeOption?.fraction || "", quoteRange: quoteRangeStr,
                         junkLocation: locationOption?.label || "", stairsAccess: stairsAccessLabel,
                         categories: categoryLabels, items: structuredItems, piles: structuredPiles,
@@ -578,6 +608,14 @@ export default function BookingWizard() {
 
                 const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 const data = await res.json();
+                if (data.error === "slot_full") {
+                    setDynamicSlots(data.availableSlots || []);
+                    setSelectedTime(null);
+                    setStep(phases.indexOf("schedule"));
+                    setError("That time slot just filled up. Please pick a new time.");
+                    setSubmitting(false);
+                    return "";
+                }
                 if (!res.ok) throw new Error(data.error || "Booking failed");
                 if (data.leadId) localStorage.setItem("syjLeadId", data.leadId);
 
@@ -611,7 +649,7 @@ export default function BookingWizard() {
                         customerType: contact.customerType,
                         containerSize: containerSize || "", debrisType: debrisType || "",
                         rentalDuration: rentalDuration || "",
-                        timeSlot: timeSlotOption?.period || selectedTime || "",
+                        timeSlot: selectedTime || "",
                         termsAcceptedAt: new Date().toISOString(),
                         signatureDataUrl: signatureDataUrl || undefined,
                         ...(paymentPreference ? { paymentPreference } : {}),
@@ -627,6 +665,14 @@ export default function BookingWizard() {
 
                 const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
                 const data = await res.json();
+                if (data.error === "slot_full") {
+                    setDynamicSlots(data.availableSlots || []);
+                    setSelectedTime(null);
+                    setStep(phases.indexOf("schedule"));
+                    setError("That time slot just filled up. Please pick a new time.");
+                    setSubmitting(false);
+                    return { autoBooked: false };
+                }
                 if (!res.ok) throw new Error(data.error || "Rental request failed");
                 if (data.leadId) localStorage.setItem("syjLeadId", data.leadId);
 
@@ -686,7 +732,7 @@ export default function BookingWizard() {
             const params = new URLSearchParams({
                 name: contact.name,
                 date: selectedDate?.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) || "",
-                time: timeSlotOption?.label || "",
+                time: timeSlotOption?.label || formatSlotTime(selectedTime) || "",
                 price: priceStr,
                 serviceType: serviceType || "junk",
                 ...(contact.address ? { address: contact.address } : {}),
@@ -1214,30 +1260,61 @@ export default function BookingWizard() {
                             <Calendar selected={selectedDate} onSelect={(d) => { setSelectedDate(d); setSelectedTime(null); }} isDisabled={(d) => isDayClosed(d, siteConfig.businessHours)} />
                         </div>
                         {selectedDate && (() => {
-                            const availableSlots = getAvailableTimeSlots(selectedDate, siteConfig.businessHours);
-                            if (availableSlots.length === 0) return (
+                            if (loadingSlots) return (
+                                <div style={{ textAlign: "center", padding: 24, color: "var(--muted)", fontSize: 14 }}>Checking available times...</div>
+                            );
+                            const slotsToRender: DynamicSlot[] | null = dynamicSlots;
+                            // Fallback to static slots if API failed
+                            const fallbackSlots = getAvailableTimeSlots(selectedDate, siteConfig.businessHours);
+                            const renderSlots = slotsToRender ?? fallbackSlots.map(s => ({
+                                start: String(s.startHour).padStart(2, "0") + ":00",
+                                end: String(s.startHour + 2).padStart(2, "0") + ":00",
+                                label: s.label, available: true, remainingCapacity: 99,
+                            }));
+                            if (renderSlots.length === 0) return (
                                 <div style={{ textAlign: "center", padding: 24, background: "#FEF2F2", borderRadius: 12, border: "1px solid #FECACA" }}>
                                     <AlertTriangle size={20} color="#DC2626" style={{ marginBottom: 8 }} />
-                                    <div style={{ fontSize: 14, color: "#DC2626", fontWeight: 600 }}>We&apos;re closed on this day</div>
+                                    <div style={{ fontSize: 14, color: "#DC2626", fontWeight: 600 }}>{dynamicSlots ? "No availability on this day" : "We\u0027re closed on this day"}</div>
                                     <div style={{ fontSize: 13, color: "#DC2626", marginTop: 4 }}>Please select a different date.</div>
                                 </div>
                             );
+                            const allFull = renderSlots.every(s => !s.available);
                             return (
                                 <div>
                                     <div style={{ fontFamily: "var(--heading-font)", fontSize: 16, fontWeight: 700, color: "var(--foreground)", marginBottom: 12, textAlign: "center" }}>
                                         Available times for {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
                                     </div>
+                                    {allFull && (
+                                        <div style={{ textAlign: "center", padding: 16, marginBottom: 12, background: "#FEF2F2", borderRadius: 12, border: "1px solid #FECACA" }}>
+                                            <div style={{ fontSize: 14, color: "#DC2626", fontWeight: 600 }}>All time slots are fully booked</div>
+                                            <div style={{ fontSize: 13, color: "#DC2626", marginTop: 4 }}>Please try a different date.</div>
+                                        </div>
+                                    )}
                                     <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
-                                        {availableSlots.map(slot => (
-                                            <button key={slot.id} onClick={() => setSelectedTime(slot.id)}
-                                                style={{
-                                                    border: `2px solid ${selectedTime === slot.id ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: selectedTime === slot.id ? "#FFF7ED" : "var(--card)",
-                                                    borderRadius: 12, padding: 16, textAlign: "center", cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit",
-                                                }}>
-                                                <div style={{ fontWeight: 600, fontSize: 14, color: selectedTime === slot.id ? "var(--brand)" : "var(--foreground)" }}>{slot.label}</div>
-                                                <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>{slot.period}</div>
-                                            </button>
-                                        ))}
+                                        {renderSlots.map(slot => {
+                                            const slotKey = `${slot.start}-${slot.end}`;
+                                            const isSelected = selectedTime === slotKey;
+                                            const isFull = !slot.available;
+                                            return (
+                                                <button key={slotKey} onClick={() => !isFull && setSelectedTime(slotKey)}
+                                                    disabled={isFull}
+                                                    style={{
+                                                        border: `2px solid ${isSelected ? "var(--brand)" : isFull ? "#E2E8F0" : "var(--border, #E2E8F0)"}`,
+                                                        background: isSelected ? "#FFF7ED" : isFull ? "#F8FAFC" : "var(--card)",
+                                                        borderRadius: 12, padding: 16, textAlign: "center",
+                                                        cursor: isFull ? "not-allowed" : "pointer",
+                                                        transition: "all 0.15s", fontFamily: "inherit",
+                                                        opacity: isFull ? 0.5 : 1,
+                                                    }}>
+                                                    <div style={{ fontWeight: 600, fontSize: 14, color: isSelected ? "var(--brand)" : isFull ? "var(--muted)" : "var(--foreground)" }}>
+                                                        {formatSlotTime(slot.start)} – {formatSlotTime(slot.end)}
+                                                    </div>
+                                                    <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
+                                                        {isFull ? "Fully booked" : slot.label}
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             );
@@ -1527,7 +1604,7 @@ export default function BookingWizard() {
                                     }
                                     rows.push(
                                         { label: serviceType === "dumpster" ? "Delivery Date" : "Date", value: selectedDate?.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }) || "—" },
-                                        { label: "Time", value: TIME_SLOTS.find(t => t.id === selectedTime)?.label || "—" },
+                                        { label: "Time", value: dynamicSlots?.find(s => `${s.start}-${s.end}` === selectedTime)?.label || formatSlotTime(selectedTime) || "—" },
                                     );
                                     return rows.map((row, i) => (
                                         <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0", borderBottom: i < rows.length - 1 ? "1px solid var(--border, #F1F5F9)" : "none" }}>
