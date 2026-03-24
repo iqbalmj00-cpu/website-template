@@ -59,6 +59,7 @@ export default function Footer() {
         { label: "About Us", href: "/about" },
         { label: "FAQ", href: "/faq" },
         { label: "Contact", href: "/contact" },
+        { label: "Customer Portal", href: "/customer-portal" },
     ];
 
     const hoursGroups = siteConfig.businessHours ? groupBusinessHours(siteConfig.businessHours) : null;
