@@ -2,48 +2,8 @@
 
 import Link from "next/link";
 import { Phone, Mail, MapPin, Facebook, Instagram, Clock } from "lucide-react";
-import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref, groupBusinessHours } from "@/lib/siteConfig";
 import type { BusinessDayHours } from "@/lib/siteConfig";
-
-/** Convert "08:00" → "8 AM", "14:30" → "2:30 PM" */
-function fmt24to12(time: string | undefined): string {
-    if (!time) return "";
-    const [hStr, mStr] = time.split(":");
-    let h = parseInt(hStr, 10);
-    if (isNaN(h)) return time;
-    const m = parseInt(mStr || "0", 10);
-    const ampm = h >= 12 ? "PM" : "AM";
-    if (h === 0) h = 12;
-    else if (h > 12) h -= 12;
-    return m > 0 ? `${h}:${mStr} ${ampm}` : `${h} ${ampm}`;
-}
-
-/** Group consecutive days with identical hours */
-function groupBusinessHours(hours: Record<string, BusinessDayHours>): { days: string; label: string }[] {
-    const DAY_ORDER = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-    const DAY_LABELS: Record<string, string> = { mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat", sun: "Sun" };
-    const groups: { days: string[]; label: string }[] = [];
-
-    for (const day of DAY_ORDER) {
-        const entry = hours[day];
-        if (!entry) continue;
-        const isClosed = entry.closed || (!entry.start && !entry.end);
-        const label = isClosed ? "Closed" : `${fmt24to12(entry.start)} – ${fmt24to12(entry.end)}`;
-        const last = groups[groups.length - 1];
-        if (last && last.label === label) {
-            last.days.push(day);
-        } else {
-            groups.push({ days: [day], label });
-        }
-    }
-
-    return groups.map(g => ({
-        days: g.days.length === 1
-            ? DAY_LABELS[g.days[0]]
-            : `${DAY_LABELS[g.days[0]]}–${DAY_LABELS[g.days[g.days.length - 1]]}`,
-        label: g.label,
-    }));
-}
 
 export default function Footer() {
     const year = new Date().getFullYear();

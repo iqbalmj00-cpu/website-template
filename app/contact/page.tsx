@@ -1,25 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Phone, MapPin, Clock, CalendarDays, MessageSquare, Truck } from "lucide-react";
-import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref, groupBusinessHours, fmt24to12 } from "@/lib/siteConfig";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 const areas = (siteConfig.serviceArea || "").split(",").map(s => s.trim()).filter(Boolean);
 
-function formatHoursDisplay(): string {
-    const hours = siteConfig.businessHours;
-    if (!hours) return "Mon – Sat, 7am – 7pm";
-    const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-    const dayLabels: Record<string, string> = { mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat", sun: "Sun" };
-    const open = days.filter(d => hours[d] && !hours[d].closed);
-    if (open.length === 0) return "By appointment only";
-    const firstDay = open[0];
-    const lastDay = open[open.length - 1];
-    const sample = hours[firstDay];
-    if (!sample) return "Mon – Sat, 7am – 7pm";
-    const fmt = (t: string | undefined) => { if (!t) return "?"; const [h] = t.split(":").map(Number); return h > 12 ? `${h - 12}pm` : `${h}am`; };
-    return `${dayLabels[firstDay]} – ${dayLabels[lastDay]}, ${fmt(sample.start)} – ${fmt(sample.end)}`;
-}
+const hoursGroups = siteConfig.businessHours ? groupBusinessHours(siteConfig.businessHours) : null;
 
 export const metadata: Metadata = {
     title: `Contact ${siteConfig.companyName} — Junk Removal in ${cityState}`,
@@ -28,10 +15,9 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
-    const contactInfo = [
-        { icon: Phone, label: "Phone", value: formatPhone(siteConfig.phoneNumber), href: telHref(siteConfig.phoneNumber) },
-        { icon: MapPin, label: "Service Area", value: siteConfig.serviceArea, href: undefined },
-        { icon: Clock, label: "Hours", value: formatHoursDisplay(), href: undefined },
+    const contactCards = [
+        { icon: Phone, label: "Phone", content: <a href={telHref(siteConfig.phoneNumber)} style={{ fontWeight: 600, color: "var(--foreground)", textDecoration: "none" }}>{formatPhone(siteConfig.phoneNumber)}</a> },
+        { icon: MapPin, label: "Service Area", content: <div style={{ fontWeight: 600, color: "var(--foreground)" }}>{siteConfig.serviceArea}</div> },
     ];
 
     return (
@@ -53,21 +39,37 @@ export default function ContactPage() {
                     <div>
                         <h2 style={{ fontSize: "1.5rem", color: "var(--foreground)", marginBottom: "1.5rem" }}>Contact Info</h2>
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                            {contactInfo.map(({ icon: Icon, label, value, href }) => (
+                            {contactCards.map(({ icon: Icon, label, content }) => (
                                 <div key={label} className="card" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                                     <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(var(--brand-rgb, 249, 115, 22), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                                         <Icon size={22} style={{ color: "var(--brand)" }} />
                                     </div>
                                     <div>
                                         <div style={{ fontSize: "0.8rem", color: "var(--muted)", fontWeight: 500 }}>{label}</div>
-                                        {href ? (
-                                            <a href={href} style={{ fontWeight: 600, color: "var(--foreground)", textDecoration: "none" }}>{value}</a>
-                                        ) : (
-                                            <div style={{ fontWeight: 600, color: "var(--foreground)" }}>{value}</div>
-                                        )}
+                                        {content}
                                     </div>
                                 </div>
                             ))}
+                            {/* Hours card — shows grouped hours like the footer */}
+                            <div className="card" style={{ display: "flex", alignItems: "flex-start", gap: "1rem" }}>
+                                <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(var(--brand-rgb, 249, 115, 22), 0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                    <Clock size={22} style={{ color: "var(--brand)" }} />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: "0.8rem", color: "var(--muted)", fontWeight: 500 }}>Hours</div>
+                                    {hoursGroups ? (
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem" }}>
+                                            {hoursGroups.map(g => (
+                                                <div key={g.days} style={{ fontWeight: 600, color: "var(--foreground)", fontSize: "0.95rem" }}>
+                                                    {g.days}: {g.label}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div style={{ fontWeight: 600, color: "var(--foreground)" }}>Mon – Sat, 7am – 7pm</div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
