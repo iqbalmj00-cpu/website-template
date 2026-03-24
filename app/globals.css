@@ -391,20 +391,24 @@ h5 {
 }
 
 /* ── Google Places Autocomplete Dropdown ─────────────────────────────── */
+/* NOTE: Google injects .pac-container into <body> with a white background.
+   We MUST use hardcoded dark colors here — CSS theme vars like --foreground
+   can resolve to white on dark themes, causing invisible text. */
 .pac-container {
+  background: #ffffff !important;
   border: 1.5px solid var(--brand);
   border-radius: var(--radius);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   font-family: var(--body-font);
   margin-top: 4px;
-  z-index: 10000;
+  z-index: 10001;
 }
 
 .pac-item {
   padding: 0.75rem 1rem;
   font-size: 0.95rem;
-  color: var(--foreground);
-  border-top: 1px solid var(--border);
+  color: #1e293b !important;
+  border-top: 1px solid #e2e8f0;
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -415,7 +419,12 @@ h5 {
 
 .pac-item-query {
   font-weight: 600;
-  color: var(--foreground);
+  color: #0f172a !important;
+}
+
+.pac-matched {
+  color: var(--brand) !important;
+  font-weight: 600;
 }
 
 .pac-icon { display: none; }
