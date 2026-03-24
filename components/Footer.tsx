@@ -6,9 +6,11 @@ import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import type { BusinessDayHours } from "@/lib/siteConfig";
 
 /** Convert "08:00" → "8 AM", "14:30" → "2:30 PM" */
-function fmt24to12(time: string): string {
+function fmt24to12(time: string | undefined): string {
+    if (!time) return "";
     const [hStr, mStr] = time.split(":");
     let h = parseInt(hStr, 10);
+    if (isNaN(h)) return time;
     const m = parseInt(mStr || "0", 10);
     const ampm = h >= 12 ? "PM" : "AM";
     if (h === 0) h = 12;
@@ -25,7 +27,8 @@ function groupBusinessHours(hours: Record<string, BusinessDayHours>): { days: st
     for (const day of DAY_ORDER) {
         const entry = hours[day];
         if (!entry) continue;
-        const label = entry.closed ? "Closed" : `${fmt24to12(entry.start)} – ${fmt24to12(entry.end)}`;
+        const isClosed = entry.closed || (!entry.start && !entry.end);
+        const label = isClosed ? "Closed" : `${fmt24to12(entry.start)} – ${fmt24to12(entry.end)}`;
         const last = groups[groups.length - 1];
         if (last && last.label === label) {
             last.days.push(day);

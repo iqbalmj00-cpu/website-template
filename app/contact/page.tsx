@@ -4,7 +4,7 @@ import { Phone, MapPin, Clock, CalendarDays, MessageSquare, Truck } from "lucide
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
-const areas = siteConfig.serviceArea.split(",").map(s => s.trim()).filter(Boolean);
+const areas = (siteConfig.serviceArea || "").split(",").map(s => s.trim()).filter(Boolean);
 
 function formatHoursDisplay(): string {
     const hours = siteConfig.businessHours;
@@ -17,7 +17,7 @@ function formatHoursDisplay(): string {
     const lastDay = open[open.length - 1];
     const sample = hours[firstDay];
     if (!sample) return "Mon – Sat, 7am – 7pm";
-    const fmt = (t: string) => { const [h] = t.split(":").map(Number); return h > 12 ? `${h - 12}pm` : `${h}am`; };
+    const fmt = (t: string | undefined) => { if (!t) return "?"; const [h] = t.split(":").map(Number); return h > 12 ? `${h - 12}pm` : `${h}am`; };
     return `${dayLabels[firstDay]} – ${dayLabels[lastDay]}, ${fmt(sample.start)} – ${fmt(sample.end)}`;
 }
 

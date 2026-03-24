@@ -5,7 +5,7 @@ import { siteConfig } from "@/lib/siteConfig";
 import SafeImage from "@/components/SafeImage";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
-const areas = siteConfig.serviceArea.split(",").map(s => s.trim()).filter(Boolean);
+const areas = (siteConfig.serviceArea || "").split(",").map(s => s.trim()).filter(Boolean);
 
 export const metadata: Metadata = {
     title: `About ${siteConfig.companyName} — Junk Removal in ${cityState}`,

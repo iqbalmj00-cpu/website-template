@@ -47,6 +47,21 @@ function parseJSON<T>(value: string | undefined, fallback: T): T {
     }
 }
 
+/** Normalize business hours — dashboard may store {open,close}, template expects {start,end} */
+function normalizeBusinessHours(raw: Record<string, Record<string, unknown>> | null): BusinessHoursConfig | null {
+    if (!raw || typeof raw !== "object") return null;
+    const result: BusinessHoursConfig = {};
+    for (const [day, entry] of Object.entries(raw)) {
+        if (!entry || typeof entry !== "object") continue;
+        result[day] = {
+            start: (entry.start as string) || (entry.open as string) || "",
+            end: (entry.end as string) || (entry.close as string) || "",
+            ...(entry.closed != null && { closed: Boolean(entry.closed) }),
+        };
+    }
+    return Object.keys(result).length > 0 ? result : null;
+}
+
 export const siteConfig = {
     // Theme
     theme: process.env.NEXT_PUBLIC_THEME ?? "classic",
@@ -127,7 +142,8 @@ export const siteConfig = {
 
     // Business hours (provisioned from CompanyProfile.businessHours)
     // Format: {"mon":{"start":"08:00","end":"18:00"},"sun":{"closed":true}}
-    businessHours: parseJSON<BusinessHoursConfig | null>(process.env.NEXT_PUBLIC_BUSINESS_HOURS, null),
+    // Note: dashboard may store as {open,close} — normalizeBusinessHours converts to {start,end}
+    businessHours: normalizeBusinessHours(parseJSON<Record<string, Record<string, unknown>> | null>(process.env.NEXT_PUBLIC_BUSINESS_HOURS, null)),
 
     // Google Maps (for address autocomplete)
     googleMapsKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "",
