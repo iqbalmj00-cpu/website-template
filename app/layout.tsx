@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Space_Grotesk, Bebas_Neue, DM_Sans, Fraunces, Nunito, Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/siteConfig";
+import { getTheme } from "@/lib/themeConfig";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -32,6 +33,36 @@ const baseUrl = siteConfig.subdomain
 
 const ogImage = siteConfig.heroImageUrl || siteConfig.logoUrl || null;
 
+/* ── Dynamic favicon from company initials + brand color ──────────────── */
+const faviconInitials = siteConfig.companyName
+    .split(/\s+/)
+    .map(w => w[0])
+    .filter(Boolean)
+    .join("")
+    .toUpperCase()
+    .slice(0, 3); // Max 3 characters (e.g. "JJR")
+
+// Map themes to system fonts that approximate the Google Fonts (SVG can't load external fonts)
+const THEME_FAVICON_FONTS: Record<string, string> = {
+    classic: "'Trebuchet MS', system-ui, sans-serif",
+    industrial: "Impact, 'Arial Narrow', sans-serif",
+    eco: "Georgia, 'Times New Roman', serif",
+    editorial: "Georgia, 'Palatino Linotype', serif",
+};
+const faviconFont = THEME_FAVICON_FONTS[siteConfig.theme] || THEME_FAVICON_FONTS.classic;
+
+// Scale font size based on number of initials
+const faviconFontSize = faviconInitials.length <= 2 ? 14 : 11;
+
+const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="${siteConfig.brandColor}"/>
+  <text x="16" y="17" text-anchor="middle" dominant-baseline="central"
+    font-family="${faviconFont}" font-size="${faviconFontSize}" font-weight="700"
+    fill="white" letter-spacing="-0.5">${faviconInitials}</text>
+</svg>`;
+
+const faviconDataUrl = `data:image/svg+xml,${encodeURIComponent(faviconSvg)}`;
+
 export const metadata: Metadata = {
     metadataBase: new URL(baseUrl),
     title: `${siteConfig.companyName} | Junk Removal in ${siteConfig.city}`,
@@ -56,6 +87,9 @@ export const metadata: Metadata = {
     robots: {
         index: true,
         follow: true,
+    },
+    icons: {
+        icon: faviconDataUrl,
     },
 };
 
