@@ -11,7 +11,7 @@ export async function POST() {
             return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
         }
 
-        const stripe = new Stripe(stripeSecretKey, { apiVersion: "2024-06-20" });
+        const stripe = new Stripe(stripeSecretKey);
 
         // Create SetupIntent on the client's connected Stripe account
         const setupIntent = await stripe.setupIntents.create(
