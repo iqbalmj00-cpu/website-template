@@ -4,11 +4,12 @@ import Link from "next/link";
 import { Phone, Mail, MapPin, Facebook, Instagram, Clock } from "lucide-react";
 import { siteConfig, formatPhone, telHref, groupBusinessHours } from "@/lib/siteConfig";
 import type { BusinessDayHours } from "@/lib/siteConfig";
+import { getClientServices } from "@/lib/serviceData";
 
 export default function Footer() {
     const year = new Date().getFullYear();
 
-    const services = siteConfig.services.slice(0, 6);
+    const services = getClientServices().slice(0, 6);
     const quickLinks = [
         { label: "Book a Pickup", href: "/book" },
         { label: "Services", href: "/services" },
@@ -95,19 +96,16 @@ export default function Footer() {
                         Services
                     </p>
                     <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        {services.map((s) => {
-                            const slug = s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-                            return (
-                                <li key={s}>
-                                    <Link href={`/services/${slug}`} style={{ color: "var(--footer-muted)", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.15s" }}
+                        {services.map((s) => (
+                                <li key={s.slug}>
+                                    <Link href={`/services/${s.slug}`} style={{ color: "var(--footer-muted)", textDecoration: "none", fontSize: "0.9rem", transition: "color 0.15s" }}
                                         onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "var(--footer-text)")}
                                         onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "var(--footer-muted)")}
                                     >
-                                        {s}
+                                        {s.title}
                                     </Link>
                                 </li>
-                            );
-                        })}
+                            ))}
                     </ul>
                 </div>
 

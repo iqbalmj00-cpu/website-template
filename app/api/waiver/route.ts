@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeJson } from "@/lib/safeJson";
 
 /**
  * POST /api/waiver — Proxy the signed booking waiver to the dashboard.
@@ -28,11 +29,11 @@ export async function POST(req: Request) {
             body: JSON.stringify(body),
         });
 
-        const data = await response.json();
+        const { data, parseError } = await safeJson(response, "waiver");
 
-        if (!response.ok) {
+        if (parseError || !response.ok) {
             console.error("Waiver proxy error:", data);
-            return NextResponse.json({ error: data.error || "Waiver upload failed" }, { status: response.status });
+            return NextResponse.json({ error: (data as Record<string, unknown>).error || "Waiver upload failed" }, { status: response.ok ? 502 : response.status });
         }
 
         return NextResponse.json(data);

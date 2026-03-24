@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeJson } from "@/lib/safeJson";
 
 export async function GET(req: Request) {
     try {
@@ -16,13 +17,15 @@ export async function GET(req: Request) {
             headers: { "x-api-key": ingestApiKey, "x-site-token": siteToken },
         });
 
-        const data = await response.json();
-        if (!response.ok) {
-            return NextResponse.json({ error: data.error || "Lookup failed" }, { status: response.status });
+        const { data, parseError } = await safeJson(response, "booking-lookup");
+
+        if (parseError || !response.ok) {
+            return NextResponse.json({ error: (data as Record<string, unknown>).error || "Lookup failed" }, { status: response.ok ? 502 : response.status });
         }
 
         return NextResponse.json(data);
-    } catch {
+    } catch (err) {
+        console.error("Booking lookup proxy error:", err);
         return NextResponse.json({ error: "Lookup failed" }, { status: 500 });
     }
 }

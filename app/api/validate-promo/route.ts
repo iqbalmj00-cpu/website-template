@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { safeJson } from "@/lib/safeJson";
 
 /**
  * GET /api/validate-promo?code=SUMMER20
@@ -30,10 +31,10 @@ export async function GET(req: NextRequest) {
             },
         );
 
-        const data = await response.json();
+        const { data, parseError } = await safeJson(response, "validate-promo");
 
-        if (!response.ok) {
-            return NextResponse.json(data, { status: response.status });
+        if (parseError || !response.ok) {
+            return NextResponse.json(data, { status: response.ok ? 502 : response.status });
         }
 
         return NextResponse.json(data);

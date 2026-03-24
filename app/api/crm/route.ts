@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeJson } from "@/lib/safeJson";
 
 export async function POST(req: Request) {
     try {
@@ -35,11 +36,11 @@ export async function POST(req: Request) {
             body: JSON.stringify(payload),
         });
 
-        const data = await response.json();
+        const { data, parseError } = await safeJson(response, "crm");
 
-        if (!response.ok) {
+        if (parseError || !response.ok) {
             console.error("CRM proxy error:", data);
-            return NextResponse.json({ error: data.error || "CRM error" }, { status: response.status });
+            return NextResponse.json({ error: (data as Record<string, unknown>).error || "CRM error" }, { status: response.ok ? 502 : response.status });
         }
 
         return NextResponse.json(data);

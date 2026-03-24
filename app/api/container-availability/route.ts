@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { safeJson } from "@/lib/safeJson";
 
 /**
  * GET /api/container-availability?size=20
@@ -36,10 +37,10 @@ export async function GET(req: NextRequest) {
             },
         );
 
-        const data = await response.json();
+        const { data, parseError } = await safeJson(response, "container-availability");
 
-        if (!response.ok) {
-            return NextResponse.json({ error: data.error || "Availability check failed" }, { status: response.status });
+        if (parseError || !response.ok) {
+            return NextResponse.json({ error: (data as Record<string, unknown>).error || "Availability check failed" }, { status: response.ok ? 502 : response.status });
         }
 
         return NextResponse.json(data);
