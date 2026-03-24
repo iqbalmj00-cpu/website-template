@@ -767,21 +767,19 @@ export default function BookingWizard() {
             const sendJunkBooking = async () => {
                 const loadTier = LOAD_TIERS[tierIndex];
                 const edgeCaseIds = Object.entries(edgeCases).filter(([, v]) => v).map(([k]) => k);
-                const description = isOnSiteEstimate
-                    ? `${loadTier.title} — on-site estimate (${edgeCaseIds.join(", ")})`
-                    : `${loadTier.title} junk removal${edgeCaseIds.length ? ` (${edgeCaseIds.join(", ")})` : ""}`;
+                const description = `${loadTier.title} junk removal${edgeCaseIds.length ? ` (${edgeCaseIds.join(", ")})` : ""}`;
                 const volumeOption = VOLUME_OPTIONS.find(v => v.id === volume);
                 const locationOption = LOCATION_OPTIONS.find(l => l.id === location);
                 const minPrice = tierData ? roundTo5(tierData.min + totalAdj) : 0;
                 const maxPrice = tierData ? roundTo5(tierData.max + totalAdj) : 0;
-                const quoteRangeStr = isOnSiteEstimate ? "On-Site Estimate" : (tierData ? `$${minPrice} – $${maxPrice}` : "");
+                const quoteRangeStr = tierData ? `$${minPrice} – $${maxPrice}` : "";
                 const stairsAccessLabel = locationOption?.label || "Ground Floor";
 
                 const payload: Record<string, unknown> = {
                     type: "booking", status: "booked", serviceType: "junk_removal",
                     name: contact.name, phone: contact.phone, email: contact.email, address: contact.address,
                     description, requestedDate: selectedDate?.toISOString().split("T")[0],
-                    value: isOnSiteEstimate ? undefined : (minPrice || undefined), notes: contact.notes || "",
+                    value: minPrice || undefined, notes: contact.notes || "",
                     metadata: {
                         serviceType: "junk_removal",
                         customerType: contact.customerType,
@@ -790,8 +788,9 @@ export default function BookingWizard() {
                         loadTier: loadTier.title,
                         junkLocation: locationOption?.label || "", stairsAccess: stairsAccessLabel,
                         specialConditions: edgeCaseIds,
-                        edgeCaseNote: isOnSiteEstimate ? "On-site estimate — customer unsure of load" : (hasSpecialConditions ? `Flagged: ${edgeCaseIds.join(", ")}` : ""),
-                        priceRange: isOnSiteEstimate ? null : (tierData ? [minPrice, maxPrice] : null),
+                        isOnSiteEstimate,
+                        edgeCaseNote: hasSpecialConditions ? `Flagged: ${edgeCaseIds.join(", ")}` : "",
+                        priceRange: tierData ? [minPrice, maxPrice] : null,
                         surcharges: [
                             ...(priceAdj > 0 ? [{ id: "stairs", label: stairsSurcharge?.label, amount: priceAdj }] : []),
                             ...(distanceSurcharge > 0 ? [{ id: "distance", label: "Distance surcharge", amount: distanceSurcharge }] : []),
@@ -1203,7 +1202,7 @@ export default function BookingWizard() {
                                     <Truck size={20} color="var(--brand)" style={{ position: "relative", zIndex: 1 }} />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontFamily: "var(--heading-font)", fontSize: 17, fontWeight: 700, color: "var(--foreground)", marginBottom: 3, lineHeight: 1.3 }}>
+                                    <div style={{ fontFamily: "var(--heading-font)", fontSize: 22, fontWeight: 700, color: "var(--foreground)", marginBottom: 3, lineHeight: 1.3 }}>
                                         {LOAD_TIERS[tierIndex].title}
                                         {LOAD_TIERS[tierIndex].popular && (
                                             <span style={{ fontSize: 10, fontWeight: 700, color: "var(--brand)", background: "rgba(var(--brand-rgb, 249,115,22),0.06)", padding: "2px 8px", borderRadius: 999, marginLeft: 8, verticalAlign: "middle", letterSpacing: 0.3, textTransform: "uppercase" }}>
@@ -1211,7 +1210,7 @@ export default function BookingWizard() {
                                             </span>
                                         )}
                                     </div>
-                                    <p style={{ fontSize: 14, color: "var(--muted)", margin: 0, lineHeight: 1.55 }}>{LOAD_TIERS[tierIndex].desc}</p>
+                                    <p style={{ fontSize: 15, color: "var(--muted)", margin: 0, lineHeight: 1.55 }}>{LOAD_TIERS[tierIndex].desc}</p>
                                 </div>
                                 <div style={{ flexShrink: 0, textAlign: "right" }}>
                                     {isOnSiteEstimate ? (
@@ -1220,14 +1219,14 @@ export default function BookingWizard() {
                                             <div style={{ fontFamily: "var(--heading-font)", fontSize: 11, fontWeight: 700, color: "var(--foreground)" }}>Estimate</div>
                                         </div>
                                     ) : (
-                                        <div style={{ background: "rgba(var(--brand-rgb, 249,115,22),0.05)", borderRadius: 10, padding: "8px 12px", textAlign: "center" }}>
-                                            <div style={{ fontSize: 9, color: "var(--muted)", fontWeight: 500, marginBottom: 2 }}>Estimated Range</div>
+                                        <div style={{ background: "rgba(var(--brand-rgb, 249,115,22),0.08)", borderRadius: 10, padding: "10px 16px", textAlign: "center" }}>
+                                            <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 500, marginBottom: 2 }}>Estimated Range</div>
                                             {tierData && (
-                                                <div style={{ fontFamily: "var(--heading-font)", fontSize: 18, fontWeight: 800, color: "var(--foreground)", letterSpacing: -0.5, lineHeight: 1.2 }}>
+                                                <div style={{ fontFamily: "var(--heading-font)", fontSize: 22, fontWeight: 800, color: "var(--foreground)", letterSpacing: -0.5, lineHeight: 1.2 }}>
                                                     ${roundTo5(tierData.min + totalAdj)} – ${roundTo5(tierData.max + totalAdj)}
                                                 </div>
                                             )}
-                                            <div style={{ fontSize: 9, color: "var(--muted)", marginTop: 3, lineHeight: 1.2 }}>Finalized on-site</div>
+                                            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 3, lineHeight: 1.2 }}>Finalized on-site</div>
                                         </div>
                                     )}
                                 </div>

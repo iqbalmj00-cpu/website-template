@@ -1,8 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, Mail, MapPin, Facebook, Instagram } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Instagram, Clock } from "lucide-react";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import type { BusinessDayHours } from "@/lib/siteConfig";
+
+/** Convert "08:00" → "8 AM", "14:30" → "2:30 PM" */
+function fmt24to12(time: string): string {
+    const [hStr, mStr] = time.split(":");
+    let h = parseInt(hStr, 10);
+    const m = parseInt(mStr || "0", 10);
+    const ampm = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+    return m > 0 ? `${h}:${mStr} ${ampm}` : `${h} ${ampm}`;
+}
+
+/** Group consecutive days with identical hours */
+function groupBusinessHours(hours: Record<string, BusinessDayHours>): { days: string; label: string }[] {
+    const DAY_ORDER = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+    const DAY_LABELS: Record<string, string> = { mon: "Mon", tue: "Tue", wed: "Wed", thu: "Thu", fri: "Fri", sat: "Sat", sun: "Sun" };
+    const groups: { days: string[]; label: string }[] = [];
+
+    for (const day of DAY_ORDER) {
+        const entry = hours[day];
+        if (!entry) continue;
+        const label = entry.closed ? "Closed" : `${fmt24to12(entry.start)} – ${fmt24to12(entry.end)}`;
+        const last = groups[groups.length - 1];
+        if (last && last.label === label) {
+            last.days.push(day);
+        } else {
+            groups.push({ days: [day], label });
+        }
+    }
+
+    return groups.map(g => ({
+        days: g.days.length === 1
+            ? DAY_LABELS[g.days[0]]
+            : `${DAY_LABELS[g.days[0]]}–${DAY_LABELS[g.days[g.days.length - 1]]}`,
+        label: g.label,
+    }));
+}
 
 export default function Footer() {
     const year = new Date().getFullYear();
@@ -22,6 +60,8 @@ export default function Footer() {
         { label: "FAQ", href: "/faq" },
         { label: "Contact", href: "/contact" },
     ];
+
+    const hoursGroups = siteConfig.businessHours ? groupBusinessHours(siteConfig.businessHours) : null;
 
     return (
         <footer style={{ background: "var(--footer-bg)", color: "var(--footer-text)" }}>
@@ -65,6 +105,24 @@ export default function Footer() {
                             {siteConfig.city}{siteConfig.state ? `, ${siteConfig.state}` : ""}
                         </span>
                     </div>
+
+                    {/* Business Hours */}
+                    {hoursGroups && hoursGroups.length > 0 && (
+                        <div style={{ marginTop: "1.25rem" }}>
+                            <p style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", fontWeight: 700, color: "var(--footer-text)", marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                <Clock size={13} style={{ color: "var(--brand)" }} />
+                                Business Hours
+                            </p>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                                {hoursGroups.map(g => (
+                                    <div key={g.days} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "var(--footer-muted)" }}>
+                                        <span style={{ fontWeight: 600, color: "var(--footer-text)", minWidth: 65 }}>{g.days}</span>
+                                        <span>{g.label}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Services */}

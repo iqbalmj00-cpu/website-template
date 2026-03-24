@@ -118,7 +118,7 @@ export default function Navbar() {
                                         background: "none", border: "none", cursor: "pointer",
                                         display: "flex", alignItems: "center", gap: "0.25rem",
                                         padding: "0.5rem 0.6rem", whiteSpace: "nowrap" as const,
-                                        fontSize: "0.875rem", fontWeight: 700,
+                                        fontSize: "1rem", fontWeight: 700,
                                         color: isActive(link.href) ? "var(--nav-hover)" : "var(--nav-text)",
                                         borderBottom: isActive(link.href) ? "3px solid var(--brand)" : "3px solid transparent",
                                         transition: "color 0.15s",
@@ -149,7 +149,7 @@ export default function Navbar() {
                                                         {cat.links.map(sl => (
                                                             <li key={sl.href}>
                                                                 <Link href={sl.href} onClick={() => setActiveDropdown(null)}
-                                                                    style={{ color: "var(--muted)", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500, transition: "color 0.15s" }}
+                                                                    style={{ color: "var(--muted)", textDecoration: "none", fontSize: "0.95rem", fontWeight: 500, transition: "color 0.15s" }}
                                                                     onMouseEnter={e => (e.currentTarget.style.color = "var(--foreground)")}
                                                                     onMouseLeave={e => (e.currentTarget.style.color = "var(--muted)")}
                                                                 >
