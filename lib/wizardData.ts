@@ -144,10 +144,9 @@ export const EDGE_CASES: EdgeCase[] = [
 ];
 
 export const TIME_SLOTS: TimeSlot[] = [
-    { id: "morning", label: "8:00 – 10:00 AM", period: "Morning", startHour: 8 },
-    { id: "midday", label: "10:00 AM – 12:00 PM", period: "Midday", startHour: 10 },
-    { id: "afternoon", label: "12:00 – 2:00 PM", period: "Afternoon", startHour: 12 },
-    { id: "late", label: "2:00 – 4:00 PM", period: "Late Afternoon", startHour: 14 },
+    { id: "morning", label: "8:00 – 11:00 AM", period: "Morning", startHour: 8 },
+    { id: "midday", label: "11:00 AM – 1:00 PM", period: "Midday", startHour: 11 },
+    { id: "afternoon", label: "1:00 – 4:00 PM", period: "Afternoon", startHour: 13 },
 ];
 
 /* ── Dumpster Rental Data ──────────────────────────────────────────────── */
