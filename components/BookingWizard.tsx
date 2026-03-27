@@ -473,6 +473,10 @@ export default function BookingWizard() {
     const [promoInputOpen, setPromoInputOpen] = useState(saved?.promoInputOpen ?? false);
     const [promoInputValue, setPromoInputValue] = useState(saved?.promoInputValue ?? "");
 
+    /* ── UTM source tracking (phone agent SMS → website conversion) ── */
+    const utmSource = searchParams.get("utm_source");
+    const bookingSource = utmSource === "phone_agent" ? "phone_agent_sms" : "WEBSITE";
+
     /* ── Payment preference state ── */
     const [paymentPreference, setPaymentPreference] = useState<"card" | "on_site" | null>(saved?.paymentPreference ?? null);
 
@@ -731,7 +735,7 @@ export default function BookingWizard() {
                     email: contact.email,
                     address: contact.address,
                     description: contact.notes || "Website booking started",
-                    source: "WEBSITE",
+                    source: bookingSource,
                     metadata: { customerType: contact.customerType },
                 }),
             });
