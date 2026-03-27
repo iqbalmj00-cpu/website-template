@@ -637,6 +637,13 @@ export default function BookingWizard() {
         }
     }, [paymentPreference]);
 
+    // 4. Auto-select card for dumpster rentals (card-on-file required)
+    useEffect(() => {
+        if (hasStripe && (serviceType === "dumpster" || serviceType === "both") && paymentPreference !== "card") {
+            setPaymentPreference("card");
+        }
+    }, [serviceType, hasStripe]);
+
     /* ── Browser back-button integration ── */
     useEffect(() => {
         // Replace current entry so we have step=0 as base
@@ -922,19 +929,29 @@ export default function BookingWizard() {
             let priceStr = "";
             let dumpsterPriceStr = "";
             let dumpsterAutoBooked = false;
+            let dumpsterError = "";
             const waiverPromise = sendWaiver(); // fire in parallel
             if (serviceType === "junk" || serviceType === "both") {
                 priceStr = await sendJunkBooking();
             }
             if (serviceType === "dumpster" || serviceType === "both") {
-                const dumpsterResult = await sendDumpsterLead();
-                dumpsterAutoBooked = !!dumpsterResult.autoBooked;
-                // Build dumpster price string from pricing tiers
-                const sizeNum = containerSize ? parseInt(containerSize) : 0;
-                const dTier = siteConfig.dumpsterPricing?.tiers.find(t => t.sizeCuYd === sizeNum);
-                if (dTier && (dTier.baseRate > 0 || (dTier.baseRateMin != null && dTier.baseRateMin > 0))) {
-                    const sizeLabel = CONTAINER_SIZES.find(c => c.id === containerSize)?.label || "";
-                    dumpsterPriceStr = `${sizeLabel} — ${formatDumpsterPrice(dTier)}`;
+                try {
+                    const dumpsterResult = await sendDumpsterLead();
+                    dumpsterAutoBooked = !!dumpsterResult.autoBooked;
+                    // Build dumpster price string from pricing tiers
+                    const sizeNum = containerSize ? parseInt(containerSize) : 0;
+                    const dTier = siteConfig.dumpsterPricing?.tiers.find(t => t.sizeCuYd === sizeNum);
+                    if (dTier && (dTier.baseRate > 0 || (dTier.baseRateMin != null && dTier.baseRateMin > 0))) {
+                        const sizeLabel = CONTAINER_SIZES.find(c => c.id === containerSize)?.label || "";
+                        dumpsterPriceStr = `${sizeLabel} — ${formatDumpsterPrice(dTier)}`;
+                    }
+                } catch (dumpErr) {
+                    if (serviceType === "both") {
+                        // Junk already succeeded — capture error, don't rethrow
+                        dumpsterError = dumpErr instanceof Error ? dumpErr.message : "Dumpster request failed";
+                    } else {
+                        throw dumpErr; // dumpster-only — rethrow to outer catch
+                    }
                 }
             }
             await waiverPromise; // ensure waiver completes before redirect
@@ -950,6 +967,7 @@ export default function BookingWizard() {
                 ...(debrisType ? { debrisType: DEBRIS_TYPES.find(d => d.id === debrisType)?.label || debrisType } : {}),
                 ...(rentalDuration ? { rentalDuration: RENTAL_DURATIONS.find(r => r.id === rentalDuration)?.label || rentalDuration } : {}),
                 ...(dumpsterAutoBooked ? { autoBooked: "true" } : {}),
+                ...(dumpsterError ? { dumpsterError } : {}),
             });
             try { sessionStorage.removeItem(WIZARD_STORAGE_KEY); } catch {}
             router.push(`/booking-confirmed?${params.toString()}`);
@@ -1778,10 +1796,15 @@ export default function BookingWizard() {
                                     <span style={{ fontWeight: 700, fontSize: 15, color: "var(--foreground)" }}>How would you like to pay?</span>
                                 </div>
                                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-                                    {([
+                                {((serviceType === "dumpster" || serviceType === "both")
+                                    ? [
+                                        { id: "card" as const, icon: "💳", label: "Card on File", sub: "Required for dumpster rentals" },
+                                    ]
+                                    : [
                                         { id: "card" as const, icon: "💳", label: "Pay Online", sub: "Save card on file" },
                                         { id: "on_site" as const, icon: "💵", label: "Pay On-Site", sub: "Cash or check" },
-                                    ]).map((opt) => (
+                                    ]
+                                ).map((opt) => (
                                         <button key={opt.id} onClick={() => setPaymentPreference(opt.id)}
                                             style={{
                                                 padding: "16px 14px", borderRadius: 14, cursor: "pointer", textAlign: "center", fontFamily: "inherit",
