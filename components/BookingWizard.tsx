@@ -123,14 +123,14 @@ function VehicleVisual({ tierIndex, mounted }: { tierIndex: number; mounted: boo
                 <JunkLayer src={PICKUP_QUARTER} clipPath={PICKUP_CLIP} visible={tierIndex >= 1 && isPickup} transition="opacity 0.4s ease 0.15s" />
 
                 {isPickup && (
-                    <div style={{ position: "absolute", left: 12, top: "32%", zIndex: 10 }}>
+                    <div style={{ position: "absolute", left: 12, top: 8, zIndex: 10 }}>
                         <div style={{
                             background: "var(--brand)", color: "#fff",
                             fontFamily: "var(--heading-font)",
-                            fontSize: 12, fontWeight: 700,
-                            padding: "4px 12px", borderRadius: 8,
+                            fontSize: 20, fontWeight: 800,
+                            padding: "6px 16px", borderRadius: 999,
                             whiteSpace: "nowrap",
-                            boxShadow: "0 2px 8px rgba(var(--brand-rgb, 249,115,22),0.25)",
+                            boxShadow: "0 4px 16px rgba(var(--brand-rgb, 249,115,22),0.3)",
                         }}>
                             {tier.label}
                         </div>
@@ -156,14 +156,14 @@ function VehicleVisual({ tierIndex, mounted }: { tierIndex: number; mounted: boo
                 <JunkLayer src={BOX_FULL} clipPath={BOXTRUCK_CLIP} visible={tierIndex >= 4 && isBoxtruck} transition="opacity 0.4s ease 0.25s" />
 
                 {isBoxtruck && (
-                    <div style={{ position: "absolute", left: 12, top: "15%", zIndex: 10 }}>
+                    <div style={{ position: "absolute", left: 12, top: 8, zIndex: 10 }}>
                         <div style={{
                             background: "var(--brand)", color: "#fff",
                             fontFamily: "var(--heading-font)",
-                            fontSize: 12, fontWeight: 700,
-                            padding: "4px 12px", borderRadius: 8,
+                            fontSize: 20, fontWeight: 800,
+                            padding: "6px 16px", borderRadius: 999,
                             whiteSpace: "nowrap",
-                            boxShadow: "0 2px 8px rgba(var(--brand-rgb, 249,115,22),0.25)",
+                            boxShadow: "0 4px 16px rgba(var(--brand-rgb, 249,115,22),0.3)",
                         }}>
                             {tier.label}
                         </div>
@@ -258,7 +258,7 @@ function StepSlider({ value, onChange }: { value: number; onChange: (v: number) 
             <div style={{ display:"flex", justifyContent:"space-between" }}>
                 {LOAD_TIERS.map((t,i)=>(
                     <span key={i} style={{
-                        fontSize:9.5, fontWeight:i===value?700:500,
+                        fontSize:13, fontWeight:i===value?700:500,
                         color:i===value?"var(--brand)":"var(--muted, #b0b8c4)",
                         fontFamily:"var(--heading-font)",
                         textAlign:"center", flex:1, transition:"all 0.2s",
@@ -693,6 +693,7 @@ export default function BookingWizard() {
     const pricing = siteConfig.pricing;
     const tierData = pricing.tiers.find(t => t.id === volume);
     const stairsSurcharge = pricing.surcharges.find(s => s.id === "stairs");
+    const heavySurcharge = pricing.surcharges.find(s => s.id === "heavy_item");
     const priceAdj = (location === "upstairs" || location === "basement") && stairsSurcharge?.enabled
         ? stairsSurcharge.amount : 0;
     const totalAdj = priceAdj + distanceSurcharge;
@@ -1022,7 +1023,7 @@ export default function BookingWizard() {
             </div>
 
             {/* Content */}
-            <div key={step} className="fade-up" style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 140px" }}>
+            <div key={step} className="fade-up" style={{ maxWidth: 920, margin: "0 auto", padding: "32px 20px 140px" }}>
 
                 {/* ── CONTACT: Contact Info (Lead Capture) ────────────────────────── */}
                 {currentPhase === "contact" && (
@@ -1240,30 +1241,23 @@ export default function BookingWizard() {
                                             </span>
                                         )}
                                     </div>
-                                    <p style={{ fontSize: 15, color: "var(--muted)", margin: 0, lineHeight: 1.55 }}>{LOAD_TIERS[tierIndex].desc}</p>
-                                </div>
-                                <div style={{ flexShrink: 0, textAlign: "right" }}>
+                                    <p style={{ fontSize: 15, color: "var(--muted)", margin: "0 0 12px", lineHeight: 1.55 }}>{LOAD_TIERS[tierIndex].desc}</p>
                                     {isOnSiteEstimate ? (
-                                        <div style={{ background: "rgba(var(--foreground-rgb, 0,0,0),0.04)", borderRadius: 10, padding: "8px 12px" }}>
-                                            <div style={{ fontFamily: "var(--heading-font)", fontSize: 11, fontWeight: 700, color: "var(--foreground)", lineHeight: 1.3, whiteSpace: "nowrap" }}>Free On-Site</div>
-                                            <div style={{ fontFamily: "var(--heading-font)", fontSize: 11, fontWeight: 700, color: "var(--foreground)" }}>Estimate</div>
+                                        <div style={{ display: "inline-block", background: "rgba(var(--foreground-rgb, 0,0,0),0.04)", borderRadius: 10, padding: "8px 14px" }}>
+                                            <div style={{ fontFamily: "var(--heading-font)", fontSize: 13, fontWeight: 700, color: "var(--foreground)", lineHeight: 1.3 }}>Free On-Site Estimate</div>
                                         </div>
                                     ) : (
-                                        <div style={{ background: "rgba(var(--brand-rgb, 249,115,22),0.08)", borderRadius: 10, padding: "10px 16px", textAlign: "center" }}>
-                                            <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 500, marginBottom: 2 }}>Estimated Range</div>
+                                        <div style={{ display: "inline-flex", alignItems: "baseline", gap: 10, background: "rgba(var(--brand-rgb, 249,115,22),0.06)", borderRadius: 10, padding: "8px 14px" }}>
+                                            <div style={{ fontSize: 12, color: "var(--muted)", fontWeight: 500 }}>Estimated Range</div>
                                             {tierData && (
-                                                <div style={{ fontFamily: "var(--heading-font)", fontSize: 22, fontWeight: 800, color: "var(--foreground)", letterSpacing: -0.5, lineHeight: 1.2 }}>
+                                                <div style={{ fontFamily: "var(--heading-font)", fontSize: 24, fontWeight: 800, color: "var(--foreground)", letterSpacing: -0.5, lineHeight: 1 }}>
                                                     ${roundTo5(tierData.min + totalAdj)} – ${roundTo5(tierData.max + totalAdj)}
                                                 </div>
                                             )}
-                                            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 3, lineHeight: 1.2 }}>Finalized on-site</div>
+                                            <div style={{ fontSize: 12, color: "var(--muted)" }}>Finalized on-site</div>
                                         </div>
                                     )}
                                 </div>
-                            </div>
-                            <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--border, #f1f5f9)", fontSize: 12.5, color: "var(--muted)", lineHeight: 1.6, display: "flex", gap: 6 }}>
-                                <span style={{ fontSize: 14, lineHeight: "18px", flexShrink: 0 }}>💡</span>
-                                <span>This is an estimate based on load size. <strong style={{ color: "var(--foreground)" }}>Your crew will confirm the final price on-site before any work begins.</strong> You only pay for what we actually haul.</span>
                             </div>
                         </div>
 
@@ -1293,6 +1287,16 @@ export default function BookingWizard() {
                                     <EdgeToggle item={item} checked={!!edgeCases[item.id]} onChange={() => toggleEdge(item.id)} />
                                 </div>
                             ))}
+                            {edgeCases.heavy && heavySurcharge?.enabled && (
+                                <div style={{ marginTop: 12, padding: "12px 18px", borderRadius: 12, background: "#FFFBEB", border: "1px solid #FEF3C7", fontSize: 13, color: "#92400E", display: "flex", alignItems: "center", gap: 8 }}>
+                                    <AlertTriangle size={16} style={{ display: "inline", verticalAlign: "middle", flexShrink: 0 }} /> Heavy or dense items may add ${heavySurcharge.amount} to the estimate due to extra labor.
+                                </div>
+                            )}
+                            {edgeCases.specialty && heavySurcharge?.enabled && (
+                                <div style={{ marginTop: 12, padding: "12px 18px", borderRadius: 12, background: "#FFFBEB", border: "1px solid #FEF3C7", fontSize: 13, color: "#92400E", display: "flex", alignItems: "center", gap: 8 }}>
+                                    <AlertTriangle size={16} style={{ display: "inline", verticalAlign: "middle", flexShrink: 0 }} /> Appliances and e-waste may add ${heavySurcharge.amount} to the estimate due to special handling.
+                                </div>
+                            )}
                             {isOnSiteEstimate && (
                                 <div style={{ marginTop: 12, padding: "10px 14px", background: "#FFFBEB", borderRadius: 10, border: "1px solid #FDE68A", display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13, color: "#92400E", lineHeight: 1.5 }}>
                                     <span style={{ fontSize: 16, lineHeight: "20px", flexShrink: 0 }}>⚠️</span>

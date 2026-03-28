@@ -138,8 +138,8 @@ export const LOAD_TIERS: LoadTier[] = [
 export type EdgeCase = { id: string; label: string; detail: string };
 
 export const EDGE_CASES: EdgeCase[] = [
-    { id: "heavy",     label: "Extremely heavy or dense items",                  detail: "Concrete, dirt, shingles, tile" },
-    { id: "specialty", label: "Specialty items requiring disassembly",            detail: "Hot tubs, pianos, sheds" },
+    { id: "heavy",     label: "Extremely heavy or dense items",                  detail: "Concrete, dirt, mattress, hot tub" },
+    { id: "specialty", label: "Appliances or E-waste",                           detail: "Refrigerators, freezer, T.V" },
     { id: "unknown",   label: "Junk is scattered everywhere / I have no idea",   detail: "" },
 ];
 
