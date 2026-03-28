@@ -810,7 +810,7 @@ export default function BookingWizard() {
                         signatureDataUrl: signatureDataUrl || undefined,
                         ...(paymentPreference ? { paymentPreference } : {}),
                     },
-                    source: "WEBSITE",
+                    source: bookingSource,
                     ...(promoCode ? { promoCode } : {}),
                 };
                 if (leadId) payload.leadId = leadId;
@@ -871,7 +871,7 @@ export default function BookingWizard() {
                         signatureDataUrl: signatureDataUrl || undefined,
                         ...(paymentPreference ? { paymentPreference } : {}),
                     },
-                    source: "WEBSITE",
+                    source: bookingSource,
                     ...(promoCode ? { promoCode } : {}),
                 };
                 if (leadId) payload.leadId = leadId;
