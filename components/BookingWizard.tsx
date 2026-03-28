@@ -685,7 +685,7 @@ export default function BookingWizard() {
         return () => clearTimeout(t);
     }, []);
 
-    const isOnSiteEstimate = !!edgeCases["unknown"];
+    const isOnSiteEstimate = !!edgeCases["unknown"] || volume === "multi";
     const hasSpecialConditions = Object.values(edgeCases).some(Boolean);
     const toggleEdge = (id: string) => setEdgeCases(prev => ({ ...prev, [id]: !prev[id] }));
 
