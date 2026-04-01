@@ -161,8 +161,8 @@ export default function Footer() {
             >
                 <span>© {year} {siteConfig.companyName}. All rights reserved.</span>
                 <div style={{ display: "flex", gap: "1.5rem" }}>
-                    <Link href="/legal" style={{ color: "var(--footer-muted)", textDecoration: "none" }}>Privacy Policy</Link>
-                    <Link href="/legal" style={{ color: "var(--footer-muted)", textDecoration: "none" }}>Terms</Link>
+                    <Link href="/privacy" style={{ color: "var(--footer-muted)", textDecoration: "none" }}>Privacy Policy</Link>
+                    <Link href="/terms" style={{ color: "var(--footer-muted)", textDecoration: "none" }}>Terms</Link>
                 </div>
             </div>
         </footer>

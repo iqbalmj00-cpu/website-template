@@ -445,6 +445,7 @@ export default function BookingWizard() {
     /* ── Terms & signature state ── */
     const [termsAccepted, setTermsAccepted] = useState(saved?.termsAccepted ?? false);
     const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(saved?.signatureDataUrl ?? null);
+    const [smsConsent, setSmsConsent] = useState(saved?.smsConsent ?? false);
     const sigCanvasRef = useRef<HTMLCanvasElement>(null);
     const sigDrawingRef = useRef(false);
 
@@ -500,14 +501,14 @@ export default function BookingWizard() {
             step, tierIndex, edgeCases, volume, location,
             selectedDate: selectedDate?.toISOString() ?? null,
             selectedTime, contact, distanceSurcharge, distanceMiles, leadCaptured,
-            termsAccepted, signatureDataUrl, serviceType, containerSize, debrisType,
+            termsAccepted, signatureDataUrl, smsConsent, serviceType, containerSize, debrisType,
             rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference,
             addressConfirmed,
         };
         try { sessionStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(data)); } catch {}
     }, [step, tierIndex, edgeCases, volume, location,
         selectedDate, selectedTime, contact, distanceSurcharge, distanceMiles, leadCaptured,
-        termsAccepted, signatureDataUrl, serviceType, containerSize, debrisType,
+        termsAccepted, signatureDataUrl, smsConsent, serviceType, containerSize, debrisType,
         rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference,
         addressConfirmed]);
 
@@ -737,7 +738,11 @@ export default function BookingWizard() {
                     address: contact.address,
                     description: contact.notes || "Website booking started",
                     source: bookingSource,
-                    metadata: { customerType: contact.customerType },
+                    smsOptIn: false,
+                    metadata: {
+                        customerType: contact.customerType,
+                        smsConsent: { optedIn: null, source: "website", timestamp: new Date().toISOString(), consentTextVersion: "v1" },
+                    },
                 }),
             });
             const data = await res.json();
@@ -792,6 +797,7 @@ export default function BookingWizard() {
                     name: contact.name, phone: contact.phone, email: contact.email, address: contact.address,
                     description, requestedDate: selectedDate?.toISOString().split("T")[0],
                     value: minPrice || undefined, notes: contact.notes || "",
+                    smsOptIn: smsConsent,
                     metadata: {
                         serviceType: "junk_removal",
                         customerType: contact.customerType,
@@ -809,6 +815,7 @@ export default function BookingWizard() {
                         ],
                         termsAcceptedAt: new Date().toISOString(),
                         signatureDataUrl: signatureDataUrl || undefined,
+                        smsConsent: { optedIn: smsConsent, source: "website", timestamp: new Date().toISOString(), consentTextVersion: "v1" },
                         ...(paymentPreference ? { paymentPreference } : {}),
                     },
                     source: bookingSource,
@@ -862,6 +869,7 @@ export default function BookingWizard() {
                     name: contact.name, phone: contact.phone, email: contact.email, address: contact.address,
                     description, requestedDate: selectedDate?.toISOString().split("T")[0],
                     notes: contact.notes || "",
+                    smsOptIn: smsConsent,
                     metadata: {
                         serviceType: "dumpster_rental",
                         customerType: contact.customerType,
@@ -870,6 +878,7 @@ export default function BookingWizard() {
                         timeSlot: selectedTime || "",
                         termsAcceptedAt: new Date().toISOString(),
                         signatureDataUrl: signatureDataUrl || undefined,
+                        smsConsent: { optedIn: smsConsent, source: "website", timestamp: new Date().toISOString(), consentTextVersion: "v1" },
                         ...(paymentPreference ? { paymentPreference } : {}),
                     },
                     source: bookingSource,
@@ -1535,18 +1544,33 @@ export default function BookingWizard() {
                                     </div>
                                 ))}
                             </div>
-                            <a href="/legal" target="_blank" rel="noopener noreferrer"
-                                style={{ display: "inline-block", marginTop: 16, fontSize: 13, color: "var(--brand)", fontWeight: 600, textDecoration: "underline" }}>
-                                Read full Terms of Service & Privacy Policy →
-                            </a>
+                            <div style={{ display: "flex", gap: 16, marginTop: 16 }}>
+                                <a href="/terms" target="_blank" rel="noopener noreferrer"
+                                    style={{ fontSize: 13, color: "var(--brand)", fontWeight: 600, textDecoration: "underline" }}>
+                                    Terms of Service →
+                                </a>
+                                <a href="/privacy" target="_blank" rel="noopener noreferrer"
+                                    style={{ fontSize: 13, color: "var(--brand)", fontWeight: 600, textDecoration: "underline" }}>
+                                    Privacy Policy →
+                                </a>
+                            </div>
                         </div>
 
-                        {/* Checkbox */}
-                        <label style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px 20px", borderRadius: 12, border: `2px solid ${termsAccepted ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: termsAccepted ? "#FFF7ED" : "var(--card)", cursor: "pointer", transition: "all 0.15s", marginBottom: 24 }}>
+                        {/* Terms Checkbox */}
+                        <label style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px 20px", borderRadius: 12, border: `2px solid ${termsAccepted ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: termsAccepted ? "#FFF7ED" : "var(--card)", cursor: "pointer", transition: "all 0.15s", marginBottom: 12 }}>
                             <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)}
                                 style={{ width: 20, height: 20, accentColor: "var(--brand)", flexShrink: 0, marginTop: 1 }} />
                             <span style={{ fontSize: 14, color: "var(--foreground)", lineHeight: 1.5 }}>
-                                I agree to the <a href="/legal" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Terms of Service</a> and <a href="/legal" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>
+                                I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>
+                            </span>
+                        </label>
+
+                        {/* SMS Consent Checkbox (separate, non-blocking) */}
+                        <label style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px 20px", borderRadius: 12, border: `2px solid ${smsConsent ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: smsConsent ? "#FFF7ED" : "var(--card)", cursor: "pointer", transition: "all 0.15s", marginBottom: 24 }}>
+                            <input type="checkbox" checked={smsConsent} onChange={(e) => setSmsConsent(e.target.checked)}
+                                style={{ width: 20, height: 20, accentColor: "var(--brand)", flexShrink: 0, marginTop: 1 }} />
+                            <span style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.5 }}>
+                                I agree to receive text messages from {siteConfig.companyName} about my booking, including confirmations and updates. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to cancel, HELP for help. View our <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>.
                             </span>
                         </label>
 

@@ -8,6 +8,7 @@ import { ArrowRight, Phone } from "lucide-react";
 export default function GetStartedForm() {
     const router = useRouter();
     const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "" });
+    const [smsConsent, setSmsConsent] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
 
@@ -33,6 +34,10 @@ export default function GetStartedForm() {
                     email: form.email,
                     description: "Lead from Get Started form",
                     source: "WEBSITE",
+                    smsOptIn: smsConsent,
+                    metadata: {
+                        smsConsent: { optedIn: smsConsent, source: "website", timestamp: new Date().toISOString(), consentTextVersion: "v1" },
+                    },
                 }),
             });
             const data = await res.json();
@@ -102,6 +107,13 @@ export default function GetStartedForm() {
                             value={form.phone} onChange={(e) => setForm({ ...form, phone: formatPhoneInput(e.target.value) })}
                             style={inputStyle}
                         />
+                        <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
+                            <input type="checkbox" checked={smsConsent} onChange={(e) => setSmsConsent(e.target.checked)}
+                                style={{ width: 16, height: 16, accentColor: "var(--brand)", flexShrink: 0, marginTop: 2 }} />
+                            <span style={{ fontSize: "0.75rem", color: "var(--muted)", lineHeight: 1.4 }}>
+                                I agree to receive text messages from {siteConfig.companyName} about my inquiry. Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to cancel. <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>
+                            </span>
+                        </label>
                         {error && (
                             <p style={{ color: "#dc2626", fontSize: "0.875rem", textAlign: "center" }}>{error}</p>
                         )}
