@@ -118,7 +118,7 @@ export default function Navbar() {
                                         background: "none", border: "none", cursor: "pointer",
                                         display: "flex", alignItems: "center", gap: "0.25rem",
                                         padding: "0.5rem 0.6rem", whiteSpace: "nowrap" as const,
-                                        fontSize: "1rem", fontWeight: 700,
+                                        fontSize: "0.875rem", fontWeight: 700,
                                         color: isActive(link.href) ? "var(--nav-hover)" : "var(--nav-text)",
                                         borderBottom: isActive(link.href) ? "3px solid var(--brand)" : "3px solid transparent",
                                         transition: "color 0.15s",
