@@ -145,7 +145,19 @@ export default function HomePage() {
                                 maxWidth: 560,
                             }}
                         >
-                            {siteConfig.tagline} Looking for junk removal near you? We serve {cityState} and surrounding areas with same-day pickup available.
+                            {siteConfig.tagline}
+                        </p>
+                        <p
+                            style={{
+                                fontSize: "1rem",
+                                color: "var(--hero-muted)",
+                                lineHeight: 1.7,
+                                marginBottom: "2.5rem",
+                                maxWidth: 560,
+                                opacity: 0.85,
+                            }}
+                        >
+                            Serving {cityState} and surrounding areas with same-day junk removal near you. Book online in minutes or call anytime.
                         </p>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
                             <Link href="/book" className="btn-primary" style={{ fontSize: "1.1rem", padding: "1rem 2.25rem" }}>
