@@ -80,7 +80,7 @@ export default function HowItWorksPage() {
 
             {/* Guarantees */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
+                <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
                     <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "3rem" }}>Our Guarantee</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "2rem" }}>
                         {[

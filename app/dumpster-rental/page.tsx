@@ -161,13 +161,13 @@ export default function DumpsterRentalPage() {
 
             {/* ── Why Choose Us ── */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--card)" }}>
-                <div style={{ maxWidth: 800, margin: "0 auto" }}>
+                <div style={{ maxWidth: 1100, margin: "0 auto" }}>
                     <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
                         <h2 style={{ fontSize: "clamp(1.5rem, 4vw, 2.25rem)", fontWeight: 800, color: "var(--foreground)" }}>
                             Why Rent With <span style={{ color: "var(--brand)" }}>{siteConfig.companyName}</span>
                         </h2>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1.5rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
                         {[
                             { icon: <Truck size={28} color="var(--brand)" />, title: "Fast Delivery", desc: "Same-day or next-day delivery available in most areas." },
                             { icon: <Clock size={28} color="var(--brand)" />, title: "Flexible Rentals", desc: "Keep it for a week, two weeks, or longer — your timeline." },

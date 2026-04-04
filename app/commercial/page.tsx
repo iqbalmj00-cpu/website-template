@@ -66,9 +66,9 @@ export default function CommercialPage() {
 
             {/* Why Us */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
+                <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
                     <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "3rem" }}>Why Businesses Choose Us</h2>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "2rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "2rem" }}>
                         {[
                             { Icon: Moon, title: "After-Hours Service", desc: "We work evenings and weekends to avoid disrupting your business." },
                             { Icon: ClipboardList, title: "Volume Pricing", desc: "Discounted rates for recurring cleanouts and large-scale projects." },
