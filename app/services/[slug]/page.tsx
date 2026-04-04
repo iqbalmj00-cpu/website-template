@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref, roundTo5 } from "@/lib/siteConfig";
 import { ALL_SERVICES, getServiceBySlug, getClientServices } from "@/lib/serviceData";
+import { getLocations } from "@/lib/locationData";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ServiceIcon from "@/components/ServiceIcon";
-import { Phone, CalendarDays } from "lucide-react";
+import { Phone, CalendarDays, CheckCircle, Shield, Clock, Recycle, MapPin } from "lucide-react";
 
 export async function generateStaticParams() {
     return ALL_SERVICES.map((svc) => ({ slug: svc.slug }));
@@ -265,6 +266,91 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                     </div>
                 </div>
             </section>
+
+            {/* Pricing */}
+            {siteConfig.pricing?.tiers?.length > 0 && (
+                <section style={{ padding: "5rem 1.5rem", background: "var(--background)", borderTop: "1px solid var(--border)" }}>
+                    <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+                        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+                            <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>
+                                How Much Does {svc.title} Cost in {city}?
+                            </h2>
+                            <p style={{ color: "var(--muted)", fontSize: "1.05rem", marginTop: "0.75rem", maxWidth: 600, margin: "0.75rem auto 0" }}>
+                                {svc.title} pricing is based on volume — how much space your items take up in our truck. Here are our standard rates for {city}{state ? `, ${state}` : ""}.
+                            </p>
+                        </div>
+                        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "1rem" }}>
+                            {siteConfig.pricing.tiers.filter(t => t.id !== "multi").map((tier) => (
+                                <div key={tier.id} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: "1.25rem", textAlign: "center", minWidth: 150, flex: "0 1 170px" }}>
+                                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>{tier.label}</div>
+                                    <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--foreground)" }}>${roundTo5(tier.min)} – ${roundTo5(tier.max)}</div>
+                                </div>
+                            ))}
+                        </div>
+                        <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "var(--muted)" }}>
+                            Every job includes loading, hauling, disposal, and cleanup. Our crew confirms the exact price on-site before starting. <Link href="/pricing" style={{ color: "var(--brand)", fontWeight: 600 }}>See full pricing details</Link>.
+                        </p>
+                    </div>
+                </section>
+            )}
+
+            {/* Why Choose Us */}
+            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+                    <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+                        <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>
+                            Why Choose {companyName} for {svc.title}?
+                        </h2>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
+                        {[
+                            { icon: CheckCircle, title: "Upfront Pricing", desc: `No hidden fees on your ${svc.title.toLowerCase()} job. We give you a firm price before we start — what we quote is what you pay.` },
+                            { icon: Clock, title: "Same-Day Service", desc: `Need ${svc.title.toLowerCase()} today? We frequently have same-day availability in ${city} and surrounding areas.` },
+                            { icon: Recycle, title: "Eco-Friendly Disposal", desc: `We donate and recycle items from every ${svc.title.toLowerCase()} job whenever possible. Landfill is always our last resort.` },
+                            { icon: Shield, title: "Licensed & Insured", desc: `${companyName} is fully licensed and insured. Your property is protected when our crew handles your ${svc.title.toLowerCase()}.` },
+                        ].map((item) => (
+                            <div key={item.title} style={{ background: "var(--background)", border: "1px solid var(--border)", borderRadius: 16, padding: "1.5rem" }}>
+                                <item.icon size={28} color="var(--brand)" style={{ marginBottom: "0.75rem" }} />
+                                <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{item.title}</h3>
+                                <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Service Area */}
+            {(() => {
+                const locations = getLocations();
+                const areaNames = locations.slice(0, 8).map(l => l.name);
+                return areaNames.length > 1 ? (
+                    <section style={{ padding: "4rem 1.5rem", background: "var(--background)", borderTop: "1px solid var(--border)" }}>
+                        <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
+                            <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginBottom: "1rem" }}>
+                                {svc.title} Across {city} &amp; Surrounding Areas
+                            </h2>
+                            <p style={{ color: "var(--muted)", fontSize: "1rem", lineHeight: 1.7, marginBottom: "1.5rem", maxWidth: 600, margin: "0 auto 1.5rem" }}>
+                                {companyName} provides professional {svc.title.toLowerCase()} services throughout {city}{state ? `, ${state}` : ""} and the surrounding communities. No matter where you are in the area, our crew can be there — often the same day.
+                            </p>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
+                                {areaNames.map((name) => (
+                                    <span key={name} style={{
+                                        display: "inline-flex", alignItems: "center", gap: "0.3rem",
+                                        padding: "0.4rem 0.75rem", borderRadius: "var(--btn-radius)",
+                                        background: "var(--card)", border: "1px solid var(--border)",
+                                        fontSize: "0.85rem", fontWeight: 600, color: "var(--foreground)",
+                                    }}>
+                                        <MapPin size={12} color="var(--brand)" /> {name}
+                                    </span>
+                                ))}
+                            </div>
+                            <p style={{ marginTop: "1rem", fontSize: "0.9rem" }}>
+                                <Link href="/locations" style={{ color: "var(--brand)", fontWeight: 600 }}>View all service areas →</Link>
+                            </p>
+                        </div>
+                    </section>
+                ) : null;
+            })()}
 
             {/* Other Services */}
             {otherServices.length > 0 && (
