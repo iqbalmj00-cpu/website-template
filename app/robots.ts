@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { siteConfig } from "@/lib/siteConfig";
 
 export default function robots(): MetadataRoute.Robots {
     return {
@@ -9,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
                 disallow: ["/api/", "/booking-confirmed", "/booking-details", "/thank-you"],
             },
         ],
-        sitemap: "/sitemap.xml",
+        sitemap: `${siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com` : "https://scaleyourjunk.com"}/sitemap.xml`,
     };
 }

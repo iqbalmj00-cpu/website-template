@@ -59,8 +59,30 @@ export default function HomePage() {
         },
     ];
 
+    const baseUrl = siteConfig.subdomain
+        ? `https://${siteConfig.subdomain}.scaleyourjunk.com`
+        : "https://scaleyourjunk.com";
+
     return (
         <>
+            {/* ── JSON-LD: WebSite + Organization ── */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "WebSite",
+                        name: siteConfig.companyName,
+                        url: baseUrl,
+                        potentialAction: {
+                            "@type": "SearchAction",
+                            target: `${baseUrl}/services/{search_term_string}`,
+                            "query-input": "required name=search_term_string",
+                        },
+                    }),
+                }}
+            />
+
             {/* ── Hero ──────────────────────────────────────────────────────────── */}
             <section
                 style={{
@@ -123,7 +145,7 @@ export default function HomePage() {
                                 maxWidth: 560,
                             }}
                         >
-                            {siteConfig.tagline}
+                            {siteConfig.tagline} Looking for junk removal near you? We serve {cityState} and surrounding areas with same-day pickup available.
                         </p>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
                             <Link href="/book" className="btn-primary" style={{ fontSize: "1.1rem", padding: "1rem 2.25rem" }}>

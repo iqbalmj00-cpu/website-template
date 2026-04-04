@@ -84,10 +84,26 @@ export function getLocations(): LocationData[] {
         ],
     };
 
-    // 2. Individual neighborhood pages
-    const neighborhoodPages: LocationData[] = allNeighborhoodNames.map((hood) => {
-        // Other neighborhoods to show on this page (exclude current)
+    // 2. Individual neighborhood pages — varied content per location
+    const heroVariants = [
+        (hood: string) => `Looking for junk removal near ${hood}? ${companyName} offers fast, same-day service throughout ${hood} and the surrounding ${city} area. From single-item pickups to full property cleanouts, we handle it all.`,
+        (hood: string) => `${companyName} is the trusted junk removal team in ${hood}. We haul away furniture, appliances, yard waste, construction debris, and more — with upfront pricing and eco-friendly disposal.`,
+        (hood: string) => `Need junk hauled away in ${hood}? ${companyName} provides reliable, affordable junk removal with same-day availability. Our crew handles loading, hauling, and cleanup so you don't have to.`,
+        (hood: string) => `Reclaim your space with professional junk removal in ${hood}. ${companyName} serves homeowners and businesses across ${hood} and neighboring communities with fast, insured service.`,
+        (hood: string) => `${hood} residents trust ${companyName} for hassle-free junk removal. We offer transparent volume-based pricing, same-day pickup, and responsible disposal with donation and recycling whenever possible.`,
+    ];
+
+    const localInfoVariants = [
+        (hood: string, nearby: string[]) => `${companyName} proudly serves ${hood} and nearby areas including ${nearby.slice(0, 3).join(", ")}. Our local crew knows the area well and can navigate HOA requirements, gated communities, and narrow streets with ease.`,
+        (hood: string, nearby: string[]) => `Our ${city}-based team provides junk removal across ${hood} and the surrounding neighborhoods of ${nearby.slice(0, 3).join(", ")}. We're familiar with local disposal regulations and recycling options to keep costs down.`,
+        (hood: string, nearby: string[]) => `${companyName} operates throughout ${hood} and neighboring communities like ${nearby.slice(0, 3).join(", ")}. Whether you're decluttering, renovating, or moving, our insured crew gets the job done quickly.`,
+        (hood: string, nearby: string[]) => `Serving ${hood} and the greater ${city} area, ${companyName} provides licensed and insured junk removal with a focus on responsible disposal. We donate usable items and recycle whenever possible.`,
+    ];
+
+    const neighborhoodPages: LocationData[] = allNeighborhoodNames.map((hood, idx) => {
         const nearby = allNeighborhoodNames.filter((n) => n !== hood);
+        const heroFn = heroVariants[idx % heroVariants.length];
+        const localFn = localInfoVariants[idx % localInfoVariants.length];
 
         return {
             slug: toSlug(hood),
@@ -97,14 +113,15 @@ export function getLocations(): LocationData[] {
             metaTitle: `Junk Removal in ${hood}, ${state} | ${companyName}`,
             metaDescription: `Professional junk removal in ${hood}, ${state}. Fast, affordable, and eco-friendly service by ${companyName}. Book your free estimate.`,
             heroBadge: `Serving ${hood} & Surrounding Areas`,
-            heroDescription: `Need junk removed in ${hood}? ${companyName} provides fast, reliable junk removal. We handle furniture, appliances, yard waste, construction debris, and full property cleanouts.`,
+            heroDescription: heroFn(hood),
             neighborhoods: nearby.slice(0, 6),
-            localInfo: `${companyName} proudly serves ${hood} and the surrounding ${city} area. Our local crew knows the area well and can navigate HOA requirements, gated communities, and narrow streets with ease.`,
+            localInfo: localFn(hood, nearby),
             faqs: [
-                { q: `Do you serve ${hood}?`, a: `Yes! ${hood} is one of our core service areas. We're familiar with the neighborhoods and can typically offer same-day or next-day service.` },
-                { q: `How fast can you get to ${hood}?`, a: `We usually have same-day availability for ${hood}. Book online or call before noon for the best chance of a same-day pickup.` },
-                { q: `What does junk removal cost in ${hood}?`, a: `Pricing is based on volume — how much space your items take up in our truck. We'll give you a firm price before we start. No surprises.` },
-                { q: `Do you handle estate cleanouts in ${hood}?`, a: `Absolutely. We do full property cleanouts, garage cleanouts, and estate cleanouts throughout the ${city} area including ${hood}.` },
+                { q: `Do you offer junk removal near ${hood}?`, a: `Yes! ${hood} is one of our core service areas in ${city}. We're familiar with the neighborhoods and can typically offer same-day or next-day pickup. Book online or call us anytime.` },
+                { q: `How fast can you get to ${hood}?`, a: `We usually have same-day availability for ${hood} and the surrounding ${city} area. Book online or call before noon for the best chance of a same-day pickup.` },
+                { q: `What does junk removal cost in ${hood}?`, a: `Pricing is based on volume — how much space your items take up in our truck. Most jobs in ${hood} range from $${siteConfig.pricing?.tiers?.[0]?.min ?? 75} to $${siteConfig.pricing?.tiers?.[5]?.max ?? 800}. We'll give you a firm price before we start.` },
+                { q: `Do you handle estate cleanouts in ${hood}?`, a: `Absolutely. We do full property cleanouts, garage cleanouts, and estate cleanouts throughout ${hood} and the greater ${city} area. Our crew handles everything from start to finish.` },
+                { q: `What items can you haul away in ${hood}?`, a: `We remove furniture, appliances, mattresses, yard waste, construction debris, electronics, and much more. Visit our items we take page for the full list.` },
             ],
         };
     });

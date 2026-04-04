@@ -7,7 +7,7 @@ import type { MetadataRoute } from "next";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = siteConfig.subdomain
         ? `https://${siteConfig.subdomain}.scaleyourjunk.com`
-        : "https://example.com";
+        : "https://scaleyourjunk.com";
 
     const now = new Date();
 

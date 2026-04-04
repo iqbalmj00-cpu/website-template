@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref, roundTo5 } from "@/lib/siteConfig";
 import SafeImage from "@/components/SafeImage";
 import { getLocations, getLocationBySlug } from "@/lib/locationData";
 import { getClientServices } from "@/lib/serviceData";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ServiceIcon from "@/components/ServiceIcon";
-import { MapPin, Truck, Phone } from "lucide-react";
+import { MapPin, Truck, Phone, CheckCircle, Shield, Clock, Leaf, Recycle, Armchair, Plug, TreePine, HardHat, Monitor, Package } from "lucide-react";
 
 export async function generateStaticParams() {
     return getLocations().map((loc) => ({ slug: loc.slug }));
@@ -161,11 +161,122 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
             <section style={{ padding: "4rem 1.5rem", background: "var(--background)", borderBottom: "1px solid var(--border)" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>
                     <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "1rem" }}>About Junk Removal in {location.name}</h2>
-                    <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem" }}>
-                        {companyName} provides fast, professional junk removal services across {location.name}, {location.state} and the surrounding area.
-                        Whether you need a single item picked up or a full property cleanout, our licensed and insured crew handles it all — from furniture and appliances to yard waste and construction debris.
-                        We donate reusable items to local charities and recycle whenever possible.
+                    <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem", marginBottom: "1rem" }}>
+                        {location.localInfo}
                     </p>
+                    <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem", marginBottom: "1rem" }}>
+                        Whether you&apos;re clearing out a garage, renovating a room, or handling an estate cleanout, {companyName} provides full-service junk removal in {location.name} and the surrounding {siteConfig.city} area. Our licensed and insured crew handles everything — loading, hauling, and cleanup — so you don&apos;t have to lift a finger.
+                    </p>
+                    <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem" }}>
+                        We proudly donate reusable items to local charities and recycle materials whenever possible, keeping as much as we can out of the landfill. {location.neighborhoods.length > 0 && `We also serve nearby areas including ${location.neighborhoods.slice(0, 4).join(", ")}, and more.`}
+                    </p>
+                </div>
+            </section>
+
+            {/* What We Haul Away */}
+            <section style={{ padding: "4rem 1.5rem", background: "var(--card)", borderBottom: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+                    <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+                        <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>What We Haul Away in {location.name}</h2>
+                        <p style={{ color: "var(--muted)", fontSize: "1.05rem", marginTop: "0.75rem", maxWidth: 600, margin: "0.75rem auto 0" }}>
+                            From a single piece of furniture to a full property cleanout, our crew handles it all. Here&apos;s what we commonly pick up in {location.name}.
+                        </p>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
+                        {[
+                            { icon: Armchair, title: "Furniture Removal", items: ["Sofas & couches", "Mattresses & box springs", "Tables & chairs", "Dressers & bookshelves", "Patio furniture"] },
+                            { icon: Plug, title: "Appliance Removal", items: ["Refrigerators & freezers", "Washers & dryers", "Ovens & dishwashers", "Water heaters", "A/C units"] },
+                            { icon: TreePine, title: "Yard Waste Removal", items: ["Branches & tree limbs", "Soil & sod", "Fencing & lattice", "Swing sets & trampolines", "Hot tub removal"] },
+                            { icon: HardHat, title: "Construction Debris", items: ["Drywall & lumber", "Tile & carpet", "Roofing shingles", "Concrete (small amounts)", "Renovation debris"] },
+                            { icon: Monitor, title: "Electronics & E-Waste", items: ["TVs & monitors", "Computers & printers", "Speakers & stereos", "Gaming consoles", "Cables & peripherals"] },
+                            { icon: Package, title: "General Junk", items: ["Boxes & packing materials", "Exercise equipment", "Tires & bikes", "Old paint cans (dried)", "Books & clothing"] },
+                        ].map((cat) => (
+                            <div key={cat.title} style={{ background: "var(--background)", border: "1px solid var(--border)", borderRadius: 16, padding: "1.5rem" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
+                                    <cat.icon size={24} color="var(--brand)" />
+                                    <h3 style={{ fontSize: "1rem", fontWeight: 700 }}>{cat.title}</h3>
+                                </div>
+                                <ul style={{ margin: 0, paddingLeft: "1.25rem", color: "var(--muted)", lineHeight: 1.8, fontSize: "0.9rem" }}>
+                                    {cat.items.map((item) => (
+                                        <li key={item}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                    <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "var(--muted)" }}>
+                        Not sure if we can take it? <Link href="/items-we-take" style={{ color: "var(--brand)", fontWeight: 600 }}>See the full list</Link> or <a href={telHref(phoneNumber)} style={{ color: "var(--brand)", fontWeight: 600 }}>call us</a> — we&apos;re happy to help.
+                    </p>
+                </div>
+            </section>
+
+            {/* Pricing */}
+            {siteConfig.pricing?.tiers?.length > 0 && (
+                <section style={{ padding: "4rem 1.5rem", background: "var(--background)", borderBottom: "1px solid var(--border)" }}>
+                    <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+                        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+                            <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Junk Removal Pricing in {location.name}</h2>
+                            <p style={{ color: "var(--muted)", fontSize: "1.05rem", marginTop: "0.75rem", maxWidth: 600, margin: "0.75rem auto 0" }}>
+                                Our pricing is simple — you only pay for the space your items take up in our truck. No hidden fees, no surprises.
+                            </p>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "1rem" }}>
+                            {siteConfig.pricing.tiers.map((tier) => (
+                                <div key={tier.id} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: "1.25rem", textAlign: "center" }}>
+                                    <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>{tier.label}</div>
+                                    <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--foreground)" }}>${roundTo5(tier.min)} – ${roundTo5(tier.max)}</div>
+                                </div>
+                            ))}
+                        </div>
+                        <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "var(--muted)" }}>
+                            Every job includes loading, hauling, disposal, and cleanup. <Link href="/pricing" style={{ color: "var(--brand)", fontWeight: 600 }}>See full pricing details</Link>.
+                        </p>
+                    </div>
+                </section>
+            )}
+
+            {/* How It Works */}
+            <section style={{ padding: "4rem 1.5rem", background: "var(--card)", borderBottom: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 900, margin: "0 auto" }}>
+                    <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+                        <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>How Junk Removal Works in {location.name}</h2>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "2rem" }}>
+                        {[
+                            { step: "1", title: "Book Your Pickup", desc: `Schedule online in minutes or call ${formatPhone(phoneNumber)}. Pick a date and time that works for you — same-day service is often available in ${location.name}.` },
+                            { step: "2", title: "We Confirm", desc: "Our team reviews your booking and confirms your appointment. You'll receive a confirmation with your date, time window, and estimated price range." },
+                            { step: "3", title: "We Show Up & Haul", desc: `Our insured crew arrives on time, confirms the final price, and handles everything — loading, hauling, sweeping up, and responsible disposal. You don't lift a finger.` },
+                        ].map((s) => (
+                            <div key={s.step} style={{ textAlign: "center" }}>
+                                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", fontWeight: 800, margin: "0 auto 1rem" }}>{s.step}</div>
+                                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{s.title}</h3>
+                                <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>{s.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Why Choose Us */}
+            <section style={{ padding: "4rem 1.5rem", background: "var(--background)", borderBottom: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+                    <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+                        <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Why Choose {companyName} in {location.name}?</h2>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.5rem" }}>
+                        {[
+                            { icon: CheckCircle, title: "Upfront Pricing", desc: `No hidden fees or surprise charges. We give you a firm price before we start any work in ${location.name}. What we quote is what you pay.` },
+                            { icon: Clock, title: "Same-Day Service", desc: `Need junk removed today? We frequently have same-day availability in ${location.name} and the surrounding ${siteConfig.city} area. Book before noon for the best chance.` },
+                            { icon: Recycle, title: "Eco-Friendly Disposal", desc: "We donate usable items to local charities and recycle materials whenever possible. We're committed to keeping as much as we can out of the landfill." },
+                            { icon: Shield, title: "Licensed & Insured", desc: `${companyName} is fully licensed and insured, so you have zero liability when we work on your property. Your home and belongings are protected.` },
+                        ].map((item) => (
+                            <div key={item.title} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 16, padding: "1.5rem" }}>
+                                <item.icon size={28} color="var(--brand)" style={{ marginBottom: "0.75rem" }} />
+                                <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{item.title}</h3>
+                                <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
 

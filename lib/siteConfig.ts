@@ -135,7 +135,7 @@ export const siteConfig = {
     tier: (process.env.NEXT_PUBLIC_TIER ?? "starter") as "starter" | "growth",
 
     // Dumpster rental (gated per client during onboarding)
-    offersDumpsterRental: (process.env.NEXT_PUBLIC_OFFERS_DUMPSTER_RENTAL ?? "true") === "true",
+    offersDumpsterRental: (process.env.NEXT_PUBLIC_OFFERS_DUMPSTER_RENTAL ?? "false") === "true",
 
     // Dumpster rental pricing (provisioned from DumpsterPriceTier table)
     dumpsterPricing: parseJSON<DumpsterPricingConfig | null>(process.env.NEXT_PUBLIC_DUMPSTER_PRICING, null),
