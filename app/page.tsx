@@ -87,7 +87,7 @@ export default function HomePage() {
             <section
                 style={{
                     background: "var(--hero-bg)",
-                    padding: "7rem 1.5rem 6rem",
+                    padding: "9rem 1.5rem 6rem",
                     position: "relative",
                     overflow: "hidden",
                 }}

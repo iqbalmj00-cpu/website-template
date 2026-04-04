@@ -17,7 +17,7 @@ export default function TermsOfServicePage() {
     const { companyName, city, state, phoneNumber } = siteConfig;
 
     return (
-        <main style={{ padding: "7rem 1.5rem 4rem" }}>
+        <main style={{ padding: "9rem 1.5rem 4rem" }}>
             <div style={{ maxWidth: 800, margin: "0 auto" }}>
                 <h1 style={{ fontSize: "2.5rem", fontWeight: 900, marginBottom: "3rem" }}>Terms of Service</h1>
 

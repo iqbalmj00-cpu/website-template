@@ -28,7 +28,7 @@ export default function ItemsWeTakePage() {
     return (
         <>
             {/* Hero */}
-            <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 4rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 4rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>
                     <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1rem" }}>
                         Items We <span style={{ color: "var(--brand)" }}>Haul Away</span> in {siteConfig.city}

@@ -24,7 +24,7 @@ export default function ServicesPage() {
             <section
                 style={{
                     background: "var(--hero-bg)",
-                    padding: "7rem 1.5rem 5rem",
+                    padding: "9rem 1.5rem 5rem",
                     textAlign: "center",
                     position: "relative",
                     overflow: "hidden",

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function LegalPage() {
     return (
-        <main style={{ padding: "7rem 1.5rem 4rem" }}>
+        <main style={{ padding: "9rem 1.5rem 4rem" }}>
             <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
                 <h1 style={{ fontSize: "2.5rem", fontWeight: 900, marginBottom: "1.5rem" }}>Legal</h1>
                 <p style={{ color: "var(--muted)", fontSize: "1.1rem", marginBottom: "3rem", lineHeight: 1.6 }}>

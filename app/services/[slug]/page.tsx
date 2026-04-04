@@ -91,7 +91,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                 }}
             />
             {/* Hero */}
-            <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>
                     <span
                         style={{

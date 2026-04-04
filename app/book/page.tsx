@@ -16,7 +16,7 @@ export default function BookPage() {
     return (
         <main>
             {/* Server-rendered SEO content */}
-            <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 2rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 2rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 640, margin: "0 auto" }}>
                     <h1 style={{ fontSize: "2.25rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "0.75rem", fontFamily: "var(--heading-font)" }}>
                         Book Junk Removal in {siteConfig.city}

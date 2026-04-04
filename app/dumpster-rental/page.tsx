@@ -50,7 +50,7 @@ export default function DumpsterRentalPage() {
                 }}
             />
             {/* ── Hero ── */}
-            <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
                     <p style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--brand)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "1rem" }}>
                         Dumpster Rental
