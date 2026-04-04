@@ -80,7 +80,7 @@ export default function Footer() {
                             </p>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
                                 {hoursGroups.map(g => (
-                                    <div key={g.days} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", color: "var(--footer-muted)" }}>
+                                    <div key={g.days} style={{ display: "flex", gap: "1rem", fontSize: "0.82rem", color: "var(--footer-muted)" }}>
                                         <span style={{ fontWeight: 600, color: "var(--footer-text)", minWidth: 65 }}>{g.days}</span>
                                         <span>{g.label}</span>
                                     </div>
