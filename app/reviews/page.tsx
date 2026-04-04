@@ -25,27 +25,29 @@ export default function ReviewsPage() {
 
     return (
         <>
-            {/* AggregateRating JSON-LD */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "LocalBusiness",
-                        name: companyName,
-                        aggregateRating: {
-                            "@type": "AggregateRating",
-                            ratingValue: "5.0",
-                            bestRating: "5",
-                            worstRating: "1",
-                            reviewCount: String(reviewCount),
-                        },
-                    }),
-                }}
-            />
+            {/* AggregateRating JSON-LD — only render if real testimonials exist */}
+            {testimonials.length > 0 && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "LocalBusiness",
+                            name: companyName,
+                            aggregateRating: {
+                                "@type": "AggregateRating",
+                                ratingValue: "5.0",
+                                bestRating: "5",
+                                worstRating: "1",
+                                reviewCount: String(testimonials.length),
+                            },
+                        }),
+                    }}
+                />
+            )}
 
             {/* Hero */}
-            <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "8rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>
                     <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
                         Junk Removal Reviews in{" "}
@@ -59,17 +61,19 @@ export default function ReviewsPage() {
 
             {/* Stats Bar */}
             <section style={{ background: "var(--brand)", padding: "1.5rem" }}>
-                <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "1.5rem", textAlign: "center" }}>
+                <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1.5rem" }}>
                     {[
-                        { icon: Star, value: "5.0 ★", label: "Average Rating" },
-                        { icon: Users, value: `${reviewCount}+`, label: "Happy Customers" },
+                        { icon: Star, value: "5-Star", label: "Rated Service" },
+                        { icon: Users, value: "Trusted", label: "By Local Customers" },
                         { icon: Truck, value: "Same-Day", label: "Service Available" },
                         { icon: CheckCircle, value: "100%", label: "Satisfaction" },
                     ].map(stat => (
-                        <div key={stat.label}>
-                            <stat.icon size={20} color="#fff" style={{ marginBottom: "0.25rem" }} />
-                            <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#fff" }}>{stat.value}</div>
-                            <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.8)" }}>{stat.label}</div>
+                        <div key={stat.label} style={{ display: "flex", alignItems: "center", gap: "0.75rem", justifyContent: "center" }}>
+                            <stat.icon size={22} color="#fff" style={{ flexShrink: 0 }} />
+                            <div>
+                                <div style={{ fontSize: "1.35rem", fontWeight: 900, color: "#fff", lineHeight: 1.2 }}>{stat.value}</div>
+                                <div style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.8)" }}>{stat.label}</div>
+                            </div>
                         </div>
                     ))}
                 </div>
