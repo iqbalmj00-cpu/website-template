@@ -69,6 +69,7 @@ export default function PricingPage() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                         {volumes.map((v, i) => {
                             const tier = tiers.find(t => t.id === v.id);
+                            const isMulti = v.id === "multi";
                             return (
                                 <div key={v.id} style={{
                                     background: "var(--card)", borderRadius: 12, padding: "1.5rem",
@@ -84,17 +85,21 @@ export default function PricingPage() {
                                     </div>
                                     <div>
                                         <h3 style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.25rem" }}>
-                                            {tier?.label || v.id} {tier && <span style={{ fontSize: "0.8rem", color: "var(--muted)", fontWeight: 500 }}>({tier.fraction} truck)</span>}
+                                            {isMulti ? "1+ Truck Loads" : (tier?.label || v.id)} {tier && !isMulti && <span style={{ fontSize: "0.8rem", color: "var(--muted)", fontWeight: 500 }}>({tier.fraction} truck)</span>}
                                         </h3>
                                         <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.5 }}>{v.desc}</p>
                                     </div>
-                                    {tier && (
-                                        <div style={{ textAlign: "right", minWidth: 120 }}>
+                                    <div style={{ textAlign: "right", minWidth: 120 }}>
+                                        {isMulti ? (
+                                            <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--muted)", fontStyle: "italic" }}>
+                                                On-site estimate required
+                                            </div>
+                                        ) : tier ? (
                                             <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--brand)" }}>
                                                 ${tier.min} – ${tier.max}
                                             </div>
-                                        </div>
-                                    )}
+                                        ) : null}
+                                    </div>
                                 </div>
                             );
                         })}
@@ -140,9 +145,8 @@ export default function PricingPage() {
             {/* Free Estimate CTA */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
-                    <Truck size={40} style={{ color: "var(--brand)", marginBottom: "1rem" }} />
-                    <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.25rem)", fontWeight: 800, marginBottom: "1rem" }}>
-                        Free On-Site Estimates
+                    <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.25rem)", fontWeight: 800, marginBottom: "1rem", display: "inline-flex", alignItems: "center", gap: "0.75rem" }}>
+                        <Truck size={36} style={{ color: "var(--brand)" }} /> Free On-Site Estimates
                     </h2>
                     <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.7, marginBottom: "2rem" }}>
                         Not sure how much it&apos;ll cost? No problem. Book a pickup and our crew will give you an

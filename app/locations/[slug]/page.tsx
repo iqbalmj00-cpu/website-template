@@ -220,9 +220,9 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                                 Our pricing is simple — you only pay for the space your items take up in our truck. No hidden fees, no surprises.
                             </p>
                         </div>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "1rem" }}>
-                            {siteConfig.pricing.tiers.map((tier) => (
-                                <div key={tier.id} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: "1.25rem", textAlign: "center" }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "1rem" }}>
+                            {siteConfig.pricing.tiers.filter(t => t.id !== "multi").map((tier) => (
+                                <div key={tier.id} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: "1.25rem", textAlign: "center", minWidth: 150, flex: "0 1 170px" }}>
                                     <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.5rem" }}>{tier.label}</div>
                                     <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--foreground)" }}>${roundTo5(tier.min)} – ${roundTo5(tier.max)}</div>
                                 </div>
