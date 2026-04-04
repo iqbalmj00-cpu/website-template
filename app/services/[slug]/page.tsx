@@ -270,10 +270,10 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
             {otherServices.length > 0 && (
                 <section style={{ padding: "4rem 1.5rem", background: "var(--background)", borderTop: "1px solid var(--border)" }}>
                     <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-                        <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+                        <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem", textTransform: "uppercase", letterSpacing: "0.03em", textAlign: "center" }}>
                             Other Services
                         </h3>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", justifyContent: "center" }}>
                             {otherServices.map((s) => (
                                 <Link
                                     key={s.slug}
@@ -288,6 +288,9 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                                         fontWeight: 600,
                                         fontSize: "0.9rem",
                                         transition: "all 0.2s",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "0.5rem",
                                     }}
                                 >
                                     <ServiceIcon name={s.icon} size={16} color="var(--brand)" /> {s.title} →
