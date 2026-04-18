@@ -1,32 +1,45 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import { safeJson } from "@/lib/safeJson";
 
 export async function POST() {
     try {
-        const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-        const connectAccountId = process.env.STRIPE_CONNECT_ACCOUNT_ID;
+        const siteToken = process.env.SITE_TOKEN;
+        const dashboardUrl = process.env.DASHBOARD_URL;
+        const ingestApiKey = process.env.INGEST_API_KEY;
 
-        if (!stripeSecretKey) {
-            console.error("SetupIntent: missing STRIPE_SECRET_KEY");
+        if (!siteToken || !dashboardUrl || !ingestApiKey) {
+            console.error("create-setup-intent proxy: missing SITE_TOKEN, DASHBOARD_URL, or INGEST_API_KEY");
             return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
         }
 
-        const stripe = new Stripe(stripeSecretKey);
-
-        // Create SetupIntent on the client's connected Stripe account
-        const setupIntent = await stripe.setupIntents.create(
-            {
-                payment_method_types: ["card"],
+        // Proxy to SYJ dashboard — keeps the platform Stripe secret key on SYJ infrastructure.
+        // Empty body = "bare" SetupIntent (no customer attached yet); card gets linked to
+        // a customer later via /api/confirm-card after booking succeeds.
+        const response = await fetch(`${dashboardUrl}/api/booking/setup-card`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": ingestApiKey,
+                "x-site-token": siteToken,
             },
-            connectAccountId ? { stripeAccount: connectAccountId } : undefined,
-        );
-
-        return NextResponse.json({
-            clientSecret: setupIntent.client_secret,
-            connectedAccountId: connectAccountId || null,
+            body: JSON.stringify({}),
         });
+
+        const { data, parseError } = await safeJson(response, "create-setup-intent");
+
+        if (parseError || !response.ok) {
+            console.error("create-setup-intent proxy error:", data);
+            return NextResponse.json(
+                { error: (data as Record<string, unknown>).error || "Failed to create setup intent" },
+                { status: response.ok ? 502 : response.status }
+            );
+        }
+
+        // SYJ response shape: { clientSecret, connectedAccountId }
+        // Matches the previous direct-Stripe response shape — BookingWizard needs no changes.
+        return NextResponse.json(data);
     } catch (err) {
-        console.error("SetupIntent error:", err);
-        return NextResponse.json({ error: "Failed to create setup intent" }, { status: 500 });
+        console.error("create-setup-intent proxy exception:", err);
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
