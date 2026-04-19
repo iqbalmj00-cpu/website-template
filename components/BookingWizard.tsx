@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, ChevronLeft, CreditCard, Lock, Truck, MapPin, CalendarDays, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, PenTool, Home, Building2 } from "lucide-react";
+import { Check, ChevronLeft, CreditCard, Lock, Truck, MapPin, CalendarDays, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, Home, Building2 } from "lucide-react";
 import ServiceIcon from "@/components/ServiceIcon";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { haversineDistance } from "@/lib/haversine";
@@ -442,12 +442,9 @@ export default function BookingWizard() {
     const [error, setError] = useState("");
     const [leadCaptured, setLeadCaptured] = useState(saved?.leadCaptured ?? false);
 
-    /* ── Terms & signature state ── */
+    /* ── Terms & consent state ── */
     const [termsAccepted, setTermsAccepted] = useState(saved?.termsAccepted ?? false);
-    const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(saved?.signatureDataUrl ?? null);
     const [smsConsent, setSmsConsent] = useState(saved?.smsConsent ?? false);
-    const sigCanvasRef = useRef<HTMLCanvasElement>(null);
-    const sigDrawingRef = useRef(false);
 
     /* ── Dumpster rental state ── */
     const [serviceType, setServiceType] = useState<ServiceType | null>(saved?.serviceType ?? (siteConfig.offersDumpsterRental ? null : "junk"));
@@ -501,14 +498,14 @@ export default function BookingWizard() {
             step, tierIndex, edgeCases, volume, location,
             selectedDate: selectedDate?.toISOString() ?? null,
             selectedTime, contact, distanceSurcharge, distanceMiles, leadCaptured,
-            termsAccepted, signatureDataUrl, smsConsent, serviceType, containerSize, debrisType,
+            termsAccepted, smsConsent, serviceType, containerSize, debrisType,
             rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference,
             addressConfirmed,
         };
         try { sessionStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(data)); } catch {}
     }, [step, tierIndex, edgeCases, volume, location,
         selectedDate, selectedTime, contact, distanceSurcharge, distanceMiles, leadCaptured,
-        termsAccepted, signatureDataUrl, smsConsent, serviceType, containerSize, debrisType,
+        termsAccepted, smsConsent, serviceType, containerSize, debrisType,
         rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference,
         addressConfirmed]);
 
@@ -717,11 +714,13 @@ export default function BookingWizard() {
                 if ((serviceType === "dumpster" || serviceType === "both") && containerAvailability?.available === false) return false;
                 return true;
             }
-            case "terms": return termsAccepted && !!signatureDataUrl;
-            case "quote": return true;
+            case "quote": return termsAccepted;
             default: return false;
         }
     };
+
+    /* ── SMS consent text (shown verbatim to the customer) ─────────── */
+    const SMS_CONSENT_TEXT = `I agree to receive SMS and email communications from ${siteConfig.companyName} about my booking, including confirmations, reminders, and updates. Msg frequency varies. Msg & data rates may apply. Reply STOP to cancel, HELP for help.`;
 
     /* ── Capture lead on Step 0 completion ─────────────────────────── */
     const captureLead = useCallback(async () => {
@@ -739,10 +738,10 @@ export default function BookingWizard() {
                     address: contact.address,
                     description: contact.notes || "Website booking started",
                     source: bookingSource,
-                    smsOptIn: false,
+                    smsOptIn: smsConsent,
+                    ...(smsConsent ? { consentText: SMS_CONSENT_TEXT } : {}),
                     metadata: {
                         customerType: contact.customerType,
-                        smsConsent: { optedIn: null, source: "website", timestamp: new Date().toISOString(), consentTextVersion: "v1" },
                     },
                 }),
             });
@@ -756,7 +755,7 @@ export default function BookingWizard() {
         } finally {
             setSubmitting(false);
         }
-    }, [contact, leadCaptured]);
+    }, [contact, leadCaptured, smsConsent, SMS_CONSENT_TEXT, bookingSource, goNext]);
 
     /* ── Final booking submit ─────────────────────────────────────── */
     const handleSubmit = useCallback(async () => {
@@ -799,6 +798,7 @@ export default function BookingWizard() {
                     description, requestedDate: selectedDate?.toISOString().split("T")[0],
                     value: minPrice || undefined, notes: contact.notes || "",
                     smsOptIn: smsConsent,
+                    ...(smsConsent ? { consentText: SMS_CONSENT_TEXT } : {}),
                     metadata: {
                         serviceType: "junk_removal",
                         customerType: contact.customerType,
@@ -815,8 +815,6 @@ export default function BookingWizard() {
                             ...(distanceSurcharge > 0 ? [{ id: "distance", label: "Distance surcharge", amount: distanceSurcharge }] : []),
                         ],
                         termsAcceptedAt: new Date().toISOString(),
-                        signatureDataUrl: signatureDataUrl || undefined,
-                        smsConsent: { optedIn: smsConsent, source: "website", timestamp: new Date().toISOString(), consentTextVersion: "v1" },
                         ...(paymentPreference ? { paymentPreference } : {}),
                     },
                     source: bookingSource,
@@ -871,6 +869,7 @@ export default function BookingWizard() {
                     description, requestedDate: selectedDate?.toISOString().split("T")[0],
                     notes: contact.notes || "",
                     smsOptIn: smsConsent,
+                    ...(smsConsent ? { consentText: SMS_CONSENT_TEXT } : {}),
                     metadata: {
                         serviceType: "dumpster_rental",
                         customerType: contact.customerType,
@@ -878,8 +877,6 @@ export default function BookingWizard() {
                         rentalDuration: rentalDuration || "",
                         timeSlot: selectedTime || "",
                         termsAcceptedAt: new Date().toISOString(),
-                        signatureDataUrl: signatureDataUrl || undefined,
-                        smsConsent: { optedIn: smsConsent, source: "website", timestamp: new Date().toISOString(), consentTextVersion: "v1" },
                         ...(paymentPreference ? { paymentPreference } : {}),
                     },
                     source: bookingSource,
@@ -920,32 +917,11 @@ export default function BookingWizard() {
                 return { autoBooked: data.autoBooked };
             };
 
-            /* ── Send signed waiver to dashboard ── */
-            const sendWaiver = async () => {
-                if (!signatureDataUrl || !leadId) return;
-                try {
-                    await fetch("/api/waiver", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            leadId,
-                            signature: signatureDataUrl,
-                            waiverType: "damage_waiver",
-                            customerName: contact.name,
-                        }),
-                    });
-                } catch {
-                    // Non-blocking — don't fail the booking if waiver upload fails
-                    console.warn("Waiver upload failed silently");
-                }
-            };
-
             /* ── Execute based on service type ── */
             let priceStr = "";
             let dumpsterPriceStr = "";
             let dumpsterAutoBooked = false;
             let dumpsterError = "";
-            const waiverPromise = sendWaiver(); // fire in parallel
             if (serviceType === "junk" || serviceType === "both") {
                 priceStr = await sendJunkBooking();
             }
@@ -969,8 +945,6 @@ export default function BookingWizard() {
                     }
                 }
             }
-            await waiverPromise; // ensure waiver completes before redirect
-
             const params = new URLSearchParams({
                 name: contact.name,
                 date: selectedDate?.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) || "",
@@ -1206,6 +1180,15 @@ export default function BookingWizard() {
                                 <textarea className="input" rows={3} placeholder="Gate code, special instructions, etc." value={contact.notes} onChange={e => setContact(c => ({ ...c, notes: e.target.value }))} style={{ resize: "vertical" }} />
                             </div>
                         </div>
+
+                        {/* SMS + Email Consent (optional, TCPA-compliant) */}
+                        <label style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 18px", borderRadius: 12, border: `2px solid ${smsConsent ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: smsConsent ? "#FFF7ED" : "var(--card)", cursor: "pointer", transition: "all 0.15s", marginTop: 20 }}>
+                            <input type="checkbox" checked={smsConsent} onChange={(e) => setSmsConsent(e.target.checked)}
+                                style={{ width: 20, height: 20, accentColor: "var(--brand)", flexShrink: 0, marginTop: 1 }} />
+                            <span style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.5 }}>
+                                I agree to receive SMS and email communications from {siteConfig.companyName} about my booking, including confirmations, reminders, and updates. Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to cancel, HELP for help. View our <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>.
+                            </span>
+                        </label>
 
                         {error && (
                             <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, background: "#FEF2F2", border: "1px solid #FECACA", fontSize: 14, color: "#DC2626" }}>
@@ -1582,175 +1565,7 @@ export default function BookingWizard() {
                     </div>
                 )}
 
-                {/* ── TERMS & SIGNATURE ───────────────────────────────────────── */}
-                {currentPhase === "terms" && (
-                    <div>
-                        <div style={{ textAlign: "center", marginBottom: 32 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><FileText size={26} color="var(--brand)" /></div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Terms & Signature</h1>
-                            <p style={{ color: "var(--muted)", fontSize: 15 }}>Please review and sign below to proceed.</p>
-                        </div>
-
-                        {/* Simplified Terms */}
-                        <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border, #E2E8F0)", padding: 24, marginBottom: 24 }}>
-                            <div style={{ fontSize: 15, fontWeight: 700, color: "var(--foreground)", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-                                <FileText size={18} color="var(--brand)" />
-                                Key Terms
-                            </div>
-                            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                                {[
-                                    "Final pricing is confirmed on-site based on actual volume.",
-                                    "24-hour cancellation notice required. Late cancellations may incur a trip fee.",
-                                    "We cannot haul hazardous materials, asbestos, or medical waste.",
-                                    `${siteConfig.companyName} is fully licensed and insured.`,
-                                ].map((term, i) => (
-                                    <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                                        <Check size={16} style={{ color: "var(--brand)", flexShrink: 0, marginTop: 2 }} />
-                                        <span style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.5 }}>{term}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <div style={{ display: "flex", gap: 16, marginTop: 16 }}>
-                                <a href="/terms" target="_blank" rel="noopener noreferrer"
-                                    style={{ fontSize: 13, color: "var(--brand)", fontWeight: 600, textDecoration: "underline" }}>
-                                    Terms of Service →
-                                </a>
-                                <a href="/privacy" target="_blank" rel="noopener noreferrer"
-                                    style={{ fontSize: 13, color: "var(--brand)", fontWeight: 600, textDecoration: "underline" }}>
-                                    Privacy Policy →
-                                </a>
-                            </div>
-                        </div>
-
-                        {/* Terms Checkbox */}
-                        <label style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px 20px", borderRadius: 12, border: `2px solid ${termsAccepted ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: termsAccepted ? "#FFF7ED" : "var(--card)", cursor: "pointer", transition: "all 0.15s", marginBottom: 12 }}>
-                            <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)}
-                                style={{ width: 20, height: 20, accentColor: "var(--brand)", flexShrink: 0, marginTop: 1 }} />
-                            <span style={{ fontSize: 14, color: "var(--foreground)", lineHeight: 1.5 }}>
-                                I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>
-                            </span>
-                        </label>
-
-                        {/* SMS Consent Checkbox (separate, non-blocking) */}
-                        <label style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px 20px", borderRadius: 12, border: `2px solid ${smsConsent ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: smsConsent ? "#FFF7ED" : "var(--card)", cursor: "pointer", transition: "all 0.15s", marginBottom: 24 }}>
-                            <input type="checkbox" checked={smsConsent} onChange={(e) => setSmsConsent(e.target.checked)}
-                                style={{ width: 20, height: 20, accentColor: "var(--brand)", flexShrink: 0, marginTop: 1 }} />
-                            <span style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.5 }}>
-                                I agree to receive text messages from {siteConfig.companyName} about my booking, including confirmations and updates. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to cancel, HELP for help. View our <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>.
-                            </span>
-                        </label>
-
-                        {/* Signature Pad */}
-                        <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border, #E2E8F0)", padding: 24 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--foreground)", display: "flex", alignItems: "center", gap: 8 }}>
-                                    <PenTool size={18} color="var(--brand)" />
-                                    Your Signature
-                                </div>
-                                {signatureDataUrl && (
-                                    <button onClick={() => {
-                                        const canvas = sigCanvasRef.current;
-                                        if (canvas) {
-                                            const ctx = canvas.getContext("2d");
-                                            ctx?.clearRect(0, 0, canvas.width, canvas.height);
-                                        }
-                                        setSignatureDataUrl(null);
-                                    }} style={{ border: "none", background: "none", fontSize: 13, color: "#DC2626", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontFamily: "inherit" }}>
-                                        ✕ Clear
-                                    </button>
-                                )}
-                            </div>
-                            <canvas
-                                ref={sigCanvasRef}
-                                width={560}
-                                height={180}
-                                style={{
-                                    width: "100%", height: 180, borderRadius: 12,
-                                    border: `2px dashed ${signatureDataUrl ? "var(--brand)" : "var(--border, #CBD5E1)"}`,
-                                    background: "#FAFAFA", cursor: "crosshair", touchAction: "none",
-                                }}
-                                onMouseDown={(e) => {
-                                    sigDrawingRef.current = true;
-                                    const canvas = sigCanvasRef.current;
-                                    if (!canvas) return;
-                                    const ctx = canvas.getContext("2d");
-                                    if (!ctx) return;
-                                    const rect = canvas.getBoundingClientRect();
-                                    const scaleX = canvas.width / rect.width;
-                                    const scaleY = canvas.height / rect.height;
-                                    ctx.beginPath();
-                                    ctx.moveTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
-                                }}
-                                onMouseMove={(e) => {
-                                    if (!sigDrawingRef.current) return;
-                                    const canvas = sigCanvasRef.current;
-                                    if (!canvas) return;
-                                    const ctx = canvas.getContext("2d");
-                                    if (!ctx) return;
-                                    const rect = canvas.getBoundingClientRect();
-                                    const scaleX = canvas.width / rect.width;
-                                    const scaleY = canvas.height / rect.height;
-                                    ctx.lineWidth = 2.5;
-                                    ctx.lineCap = "round";
-                                    ctx.strokeStyle = "#1E293B";
-                                    ctx.lineTo((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
-                                    ctx.stroke();
-                                }}
-                                onMouseUp={() => {
-                                    sigDrawingRef.current = false;
-                                    if (sigCanvasRef.current) setSignatureDataUrl(sigCanvasRef.current.toDataURL("image/png"));
-                                }}
-                                onMouseLeave={() => {
-                                    if (sigDrawingRef.current) {
-                                        sigDrawingRef.current = false;
-                                        if (sigCanvasRef.current) setSignatureDataUrl(sigCanvasRef.current.toDataURL("image/png"));
-                                    }
-                                }}
-                                onTouchStart={(e) => {
-                                    e.preventDefault();
-                                    sigDrawingRef.current = true;
-                                    const canvas = sigCanvasRef.current;
-                                    if (!canvas) return;
-                                    const ctx = canvas.getContext("2d");
-                                    if (!ctx) return;
-                                    const rect = canvas.getBoundingClientRect();
-                                    const scaleX = canvas.width / rect.width;
-                                    const scaleY = canvas.height / rect.height;
-                                    const touch = e.touches[0];
-                                    ctx.beginPath();
-                                    ctx.moveTo((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY);
-                                }}
-                                onTouchMove={(e) => {
-                                    e.preventDefault();
-                                    if (!sigDrawingRef.current) return;
-                                    const canvas = sigCanvasRef.current;
-                                    if (!canvas) return;
-                                    const ctx = canvas.getContext("2d");
-                                    if (!ctx) return;
-                                    const rect = canvas.getBoundingClientRect();
-                                    const scaleX = canvas.width / rect.width;
-                                    const scaleY = canvas.height / rect.height;
-                                    const touch = e.touches[0];
-                                    ctx.lineWidth = 2.5;
-                                    ctx.lineCap = "round";
-                                    ctx.strokeStyle = "#1E293B";
-                                    ctx.lineTo((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY);
-                                    ctx.stroke();
-                                }}
-                                onTouchEnd={(e) => {
-                                    e.preventDefault();
-                                    sigDrawingRef.current = false;
-                                    if (sigCanvasRef.current) setSignatureDataUrl(sigCanvasRef.current.toDataURL("image/png"));
-                                }}
-                            />
-                            <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 10, textAlign: "center" }}>
-                                Draw your signature above using your mouse or finger
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {/* ── QUOTE: Summary & Book ─────────────────────────────── */}
+{/* ── QUOTE: Summary & Book ─────────────────────────────── */}
                 {currentPhase === "quote" && (
                     <div>
                         <div style={{ textAlign: "center", marginBottom: 32 }}>
@@ -1971,13 +1786,22 @@ export default function BookingWizard() {
                             </div>
                         )}
 
+                        {/* Terms acceptance (required to book) */}
+                        <label style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "16px 20px", borderRadius: 12, border: `2px solid ${termsAccepted ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: termsAccepted ? "#FFF7ED" : "var(--card)", cursor: "pointer", transition: "all 0.15s", marginTop: 24 }}>
+                            <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)}
+                                style={{ width: 20, height: 20, accentColor: "var(--brand)", flexShrink: 0, marginTop: 1 }} />
+                            <span style={{ fontSize: 14, color: "var(--foreground)", lineHeight: 1.5 }}>
+                                I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>. I understand that pricing is finalized on-site, 24-hour cancellation notice is required, and hazardous materials cannot be hauled.
+                            </span>
+                        </label>
+
                         {error && (
                             <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, background: "#FEF2F2", border: "1px solid #FECACA", fontSize: 14, color: "#DC2626" }}>
                                 {error}
                             </div>
                         )}
 
-                        <button onClick={handleSubmit} disabled={submitting || (hasStripe && (paymentPreference === null || (paymentPreference === "card" && !cardComplete)))}
+                        <button onClick={handleSubmit} disabled={submitting || !termsAccepted || (hasStripe && (paymentPreference === null || (paymentPreference === "card" && !cardComplete)))}
                             style={{
                                 width: "100%", marginTop: 24, padding: 18, borderRadius: "var(--btn-radius)", border: "none",
                                 background: !submitting ? "linear-gradient(135deg, var(--brand), var(--brand-dark))" : "#E2E8F0",
