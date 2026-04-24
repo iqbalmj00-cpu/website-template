@@ -119,7 +119,13 @@ export default function PricingPage() {
                                     padding: "1rem 1.25rem", background: "var(--card)", borderRadius: 10, border: "1px solid var(--border)",
                                 }}>
                                     <span style={{ fontWeight: 600 }}>{s.label}</span>
-                                    <span style={{ fontWeight: 700, color: "var(--brand)" }}>+${s.amount}</span>
+                                    {s.amountsByTier && s.amountsByTier.length === 6 ? (
+                                        <span style={{ fontWeight: 700, color: "var(--brand)" }}>
+                                            +${s.amountsByTier[0]}–${s.amountsByTier[5]} <span style={{ fontWeight: 500, color: "var(--muted)", fontSize: "0.85em" }}>(scales with load size)</span>
+                                        </span>
+                                    ) : (
+                                        <span style={{ fontWeight: 700, color: "var(--brand)" }}>+${s.amount}</span>
+                                    )}
                                 </div>
                             ))}
                         </div>

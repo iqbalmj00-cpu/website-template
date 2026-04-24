@@ -8,7 +8,15 @@ export type ServiceItem = string;
 export type Testimonial = { name: string; role: string; text: string };
 
 export type PricingTier = { id: string; label: string; fraction: string; min: number; max: number };
-export type Surcharge = { id: string; label: string; amount: number; enabled: boolean };
+export type Surcharge = {
+    id: string;
+    label: string;
+    amount: number;
+    enabled: boolean;
+    /** Density-scaled surcharges (Heavy Material) carry one amount per tier:
+     *  [1/8, 1/4, 1/2, 3/4, Full, 1+]. If absent, use flat `amount`. */
+    amountsByTier?: number[];
+};
 export type DistanceTier = { id: string; maxMiles: number; additionalCost: number };
 export type PricingConfig = { truckSize: string; fullLoadPrice?: number; tiers: PricingTier[]; distanceTiers?: DistanceTier[]; surcharges: Surcharge[] };
 export type BusinessDayHours = { start: string; end: string; closed?: boolean };
@@ -125,7 +133,8 @@ export const siteConfig = {
         ],
         surcharges: [
             { id: "stairs", label: "Upstairs / Basement", amount: 50, enabled: true },
-            { id: "heavy_item", label: "Heavy Item (piano, hot tub, safe)", amount: 75, enabled: true },
+            { id: "appliance", label: "Appliance", amount: 50, enabled: true },
+            { id: "heavy_material", label: "Heavy Material (concrete, dirt, shingles)", amount: 50, enabled: true, amountsByTier: [50, 100, 150, 200, 250, 300] },
             { id: "same_day", label: "Same-Day Service", amount: 50, enabled: false },
             { id: "minimum", label: "Minimum Trip Fee", amount: 75, enabled: true },
         ],
