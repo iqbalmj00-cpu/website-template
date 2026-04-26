@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, ChevronLeft, CreditCard, Lock, Truck, MapPin, CalendarDays, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, Home, Building2 } from "lucide-react";
+import { Check, ChevronLeft, CreditCard, Lock, Truck, CalendarDays, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, Home, Building2 } from "lucide-react";
 import ServiceIcon from "@/components/ServiceIcon";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { haversineDistance } from "@/lib/haversine";
@@ -685,16 +685,25 @@ export default function BookingWizard() {
 
     const isOnSiteEstimate = !!edgeCases["unknown"] || volume === "multi";
     const hasSpecialConditions = Object.values(edgeCases).some(Boolean);
-    const toggleEdge = (id: string) => setEdgeCases(prev => ({ ...prev, [id]: !prev[id] }));
+    const toggleEdge = (id: string) => setEdgeCases(prev => {
+        const next = { ...prev, [id]: !prev[id] };
+        // When "scattered everywhere / I have no idea" gets checked,
+        // clear access — the dropdown disappears and the info is
+        // irrelevant for an on-site estimate anyway.
+        if (id === "unknown" && next.unknown) setLocation(null);
+        return next;
+    });
 
     /* ── Pricing from config ─────────────────────────────────────── */
     const pricing = siteConfig.pricing;
     const tierData = pricing.tiers.find(t => t.id === volume);
-    const stairsSurcharge = pricing.surcharges.find(s => s.id === "stairs");
+    const accessSurcharge = pricing.surcharges.find(s => s.id === "access");
     const heavySurcharge = pricing.surcharges.find(s => s.id === "heavy_material");
     const applianceSurcharge = pricing.surcharges.find(s => s.id === "appliance");
-    const priceAdj = (location === "upstairs" || location === "basement") && stairsSurcharge?.enabled
-        ? stairsSurcharge.amount : 0;
+    // Access surcharge is keyed by location id via amountsByLocation map.
+    const accessAmount = (location && accessSurcharge?.enabled)
+        ? (accessSurcharge.amountsByLocation?.[location] ?? 0)
+        : 0;
     // Heavy Material scales with load size: amountsByTier[tierIndex] when present, else flat amount.
     const heavyAmount = (edgeCases.heavy && heavySurcharge?.enabled)
         ? (heavySurcharge.amountsByTier?.[tierIndex] ?? heavySurcharge.amount)
@@ -703,7 +712,7 @@ export default function BookingWizard() {
     const applianceAmount = (edgeCases.specialty && applianceSurcharge?.enabled)
         ? applianceSurcharge.amount
         : 0;
-    const totalAdj = priceAdj + distanceSurcharge + heavyAmount + applianceAmount;
+    const totalAdj = accessAmount + distanceSurcharge + heavyAmount + applianceAmount;
 
     const canProceed = () => {
         switch (currentPhase) {
@@ -714,8 +723,9 @@ export default function BookingWizard() {
                 return hasRequired && areaOk && emailOk;
             }
             case "service_type": return serviceType !== null;
-            case "load_estimate": return volume !== null;
-            case "junk_location": return location !== null;
+            case "load_estimate":
+                // Volume always required. Access required UNLESS "scattered everywhere" is checked.
+                return volume !== null && (!!edgeCases.unknown || location !== null);
             case "dumpster_size": return containerSize !== null;
             case "dumpster_details": return debrisType !== null && rentalDuration !== null;
             case "schedule": {
@@ -820,7 +830,7 @@ export default function BookingWizard() {
                         edgeCaseNote: hasSpecialConditions ? `Flagged: ${edgeCaseIds.join(", ")}` : "",
                         priceRange: tierData ? [minPrice, maxPrice] : null,
                         surcharges: [
-                            ...(priceAdj > 0 ? [{ id: "stairs", label: stairsSurcharge?.label, amount: priceAdj }] : []),
+                            ...(accessAmount > 0 ? [{ id: "access", label: accessSurcharge?.label || "Access surcharge", amount: accessAmount, location: location || undefined }] : []),
                             ...(distanceSurcharge > 0 ? [{ id: "distance", label: "Distance surcharge", amount: distanceSurcharge }] : []),
                             ...(heavyAmount > 0 ? [{ id: "heavy_material", label: heavySurcharge?.label || "Heavy Material", amount: heavyAmount }] : []),
                             ...(applianceAmount > 0 ? [{ id: "appliance", label: applianceSurcharge?.label || "Appliance", amount: applianceAmount }] : []),
@@ -976,7 +986,7 @@ export default function BookingWizard() {
         } finally {
             setSubmitting(false);
         }
-    }, [contact, tierIndex, edgeCases, volume, location, selectedDate, selectedTime, tierData, priceAdj, distanceSurcharge, totalAdj, stairsSurcharge, heavySurcharge, applianceSurcharge, heavyAmount, applianceAmount, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret, promoCode, paymentPreference]);
+    }, [contact, tierIndex, edgeCases, volume, location, selectedDate, selectedTime, tierData, accessAmount, distanceSurcharge, totalAdj, accessSurcharge, heavySurcharge, applianceSurcharge, heavyAmount, applianceAmount, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret, promoCode, paymentPreference]);
 
     const formatPhone = (val: string) => {
         const digits = val.replace(/\D/g, "").slice(0, 10);
@@ -1294,9 +1304,8 @@ export default function BookingWizard() {
                             <CompareGrid currentStep={tierIndex} onChange={setTierIndex} pricing={pricing} />
                         )}
 
-                        {/* Info Card with client pricing */}
-                        <div style={{ margin: "20px 12px 0", padding: "24px 24px 20px", background: "var(--card, #fff)", borderRadius: "var(--card-radius, 16px)", border: "1px solid var(--border, #e2e8f0)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
-                            {/* Title row */}
+                        {/* Tier Title + Description (price moved to bottom of phase) */}
+                        <div style={{ margin: "20px 12px 0", padding: "20px 24px", background: "var(--card, #fff)", borderRadius: "var(--card-radius, 16px)", border: "1px solid var(--border, #e2e8f0)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
                                 <div style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 10, background: "rgba(var(--brand-rgb, 249,115,22),0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                     <Truck size={20} color="var(--brand)" />
@@ -1310,24 +1319,7 @@ export default function BookingWizard() {
                                     )}
                                 </div>
                             </div>
-                            {/* Description */}
-                            <p style={{ fontSize: 14, color: "var(--muted)", margin: "0 0 16px", lineHeight: 1.55, paddingLeft: 52 }}>{LOAD_TIERS[tierIndex].desc}</p>
-                            {/* Price strip */}
-                            {isOnSiteEstimate ? (
-                                <div style={{ padding: "14px 20px", background: "rgba(var(--foreground-rgb, 0,0,0),0.03)", borderRadius: 12, textAlign: "center" }}>
-                                    <span style={{ fontFamily: "var(--heading-font)", fontSize: 15, fontWeight: 700, color: "var(--foreground)" }}>Free On-Site Estimate</span>
-                                </div>
-                            ) : (
-                                <div style={{ padding: "14px 20px", background: "linear-gradient(135deg, rgba(var(--brand-rgb, 249,115,22),0.06) 0%, rgba(var(--brand-rgb, 249,115,22),0.02) 100%)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                    <span style={{ fontSize: 13, color: "var(--muted)", fontWeight: 500 }}>Estimated Range</span>
-                                    {tierData && (
-                                        <span style={{ fontFamily: "var(--heading-font)", fontSize: 26, fontWeight: 800, color: "var(--foreground)", letterSpacing: -0.5 }}>
-                                            ${roundTo5(tierData.min + totalAdj)} – ${roundTo5(tierData.max + totalAdj)}
-                                        </span>
-                                    )}
-                                    <span style={{ fontSize: 12, color: "var(--muted)", fontWeight: 500 }}>Finalized on-site</span>
-                                </div>
-                            )}
+                            <p style={{ fontSize: 14, color: "var(--muted)", margin: 0, lineHeight: 1.55, paddingLeft: 52 }}>{LOAD_TIERS[tierIndex].desc}</p>
                         </div>
 
                         {/* Guarantee badge */}
@@ -1345,6 +1337,37 @@ export default function BookingWizard() {
                                 <strong>You only pay for what we haul!</strong> This is just an estimate we provide you and final price is finalized on-site.
                             </span>
                         </div>
+
+                        {/* Access dropdown — hidden when "scattered everywhere" is checked */}
+                        {!edgeCases.unknown && (
+                            <div style={{ margin: "12px 12px 0", padding: "18px 20px", background: "var(--card, #fff)", borderRadius: "var(--card-radius, 16px)", border: "1px solid var(--border, #e2e8f0)", boxShadow: "0 1px 4px rgba(0,0,0,0.03)" }}>
+                                <label htmlFor="access-select" style={{ display: "block", fontSize: 13, fontWeight: 600, color: "var(--foreground)", marginBottom: 4 }}>
+                                    Where is the junk located?
+                                </label>
+                                <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 10 }}>
+                                    Helps us plan access and price it accurately.
+                                </p>
+                                <select
+                                    id="access-select"
+                                    className="input"
+                                    value={location || ""}
+                                    onChange={(e) => setLocation(e.target.value || null)}
+                                    style={{ width: "100%", cursor: "pointer" }}
+                                >
+                                    <option value="">Select access location...</option>
+                                    {LOCATION_OPTIONS.map(loc => {
+                                        const surchargeForLoc = accessSurcharge?.enabled
+                                            ? (accessSurcharge.amountsByLocation?.[loc.id] ?? 0)
+                                            : 0;
+                                        return (
+                                            <option key={loc.id} value={loc.id}>
+                                                {loc.label}{surchargeForLoc > 0 ? ` (+$${surchargeForLoc})` : ""}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
+                        )}
 
                         {/* Edge Cases */}
                         <div style={{ margin: "12px 12px 0", padding: "18px 20px", background: "var(--card, #fff)", borderRadius: "var(--card-radius, 16px)", border: "1px solid var(--border, #e2e8f0)", boxShadow: "0 1px 4px rgba(0,0,0,0.03)" }}>
@@ -1373,40 +1396,40 @@ export default function BookingWizard() {
                                 </div>
                             )}
                         </div>
-                    </div>
-                )}
 
-
-                {/* ── JUNK LOCATION ────────────────────────────────────────────── */}
-                {currentPhase === "junk_location" && (
-                    <div>
-                        <div style={{ textAlign: "center", marginBottom: 32 }}>
-                            <div style={{ width: 56, height: 56, borderRadius: 16, background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.15)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}><MapPin size={26} color="var(--brand)" /></div>
-                            <h1 style={{ fontSize: 26, marginBottom: 8, color: "var(--foreground)" }}>Where is the junk located?</h1>
-                            <p style={{ color: "var(--muted)", fontSize: 15 }}>This helps us plan access and determine crew size.</p>
-                        </div>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
-                            {LOCATION_OPTIONS.map(loc => (
-                                <div key={loc.id} className="card" onClick={() => setLocation(loc.id)}
-                                    style={{ textAlign: "center", cursor: "pointer", position: "relative", background: location === loc.id ? "#FFF7ED" : "var(--card)", borderColor: location === loc.id ? "var(--brand)" : undefined }}>
-                                    {location === loc.id && (
-                                        <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                            <Check size={14} />
+                        {/* Estimated Price — moved to the bottom so the customer fills in access + edge cases first */}
+                        <div style={{ margin: "12px 12px 0", padding: "20px 24px", background: "var(--card, #fff)", borderRadius: "var(--card-radius, 16px)", border: "1px solid var(--border, #e2e8f0)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+                            {isOnSiteEstimate ? (
+                                <div style={{ padding: "14px 20px", background: "rgba(var(--foreground-rgb, 0,0,0),0.03)", borderRadius: 12, textAlign: "center" }}>
+                                    <span style={{ fontFamily: "var(--heading-font)", fontSize: 15, fontWeight: 700, color: "var(--foreground)" }}>Free On-Site Estimate</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <div style={{ padding: "14px 20px", background: "linear-gradient(135deg, rgba(var(--brand-rgb, 249,115,22),0.06) 0%, rgba(var(--brand-rgb, 249,115,22),0.02) 100%)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                        <span style={{ fontSize: 13, color: "var(--muted)", fontWeight: 500 }}>Estimated Range</span>
+                                        {tierData && (
+                                            <span style={{ fontFamily: "var(--heading-font)", fontSize: 26, fontWeight: 800, color: "var(--foreground)", letterSpacing: -0.5 }}>
+                                                ${roundTo5(tierData.min + totalAdj)} – ${roundTo5(tierData.max + totalAdj)}
+                                            </span>
+                                        )}
+                                        <span style={{ fontSize: 12, color: "var(--muted)", fontWeight: 500 }}>Finalized on-site</span>
+                                    </div>
+                                    {totalAdj > 0 && (
+                                        <div style={{ marginTop: 10, fontSize: 12, color: "var(--muted)", textAlign: "center", lineHeight: 1.5 }}>
+                                            {[
+                                                accessAmount > 0 && location ? `+$${accessAmount} ${LOCATION_OPTIONS.find(l => l.id === location)?.label.toLowerCase() || "access"}` : null,
+                                                distanceSurcharge > 0 ? `+$${distanceSurcharge} distance` : null,
+                                                heavyAmount > 0 ? `+$${heavyAmount} heavy material` : null,
+                                                applianceAmount > 0 ? `+$${applianceAmount} appliance` : null,
+                                            ].filter(Boolean).join(" · ")}
                                         </div>
                                     )}
-                                    <div style={{ marginBottom: 8, display: "flex", justifyContent: "center" }}><ServiceIcon name={loc.icon} size={32} color="var(--brand)" /></div>
-                                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--foreground)", marginBottom: 4 }}>{loc.label}</div>
-                                    <div style={{ fontSize: 11, color: "var(--muted)", lineHeight: 1.4 }}>{loc.desc}</div>
-                                </div>
-                            ))}
+                                </>
+                            )}
                         </div>
-                        {(location === "upstairs" || location === "basement") && stairsSurcharge?.enabled && (
-                            <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, background: "#FFFBEB", border: "1px solid #FEF3C7", fontSize: 13, color: "#92400E", display: "flex", alignItems: "center", gap: 8 }}>
-                                <AlertTriangle size={16} style={{ display: "inline", verticalAlign: "middle", flexShrink: 0 }} /> Stairs access may add ${stairsSurcharge.amount} to the estimate due to extra labor.
-                            </div>
-                        )}
                     </div>
                 )}
+
 
                 {/* ── DUMPSTER SIZE ────────────────────────────────────────────── */}
                 {currentPhase === "dumpster_size" && (
@@ -1612,9 +1635,12 @@ export default function BookingWizard() {
                                         </div>
                                     )}
                                     {totalAdj > 0 && <div style={{ fontSize: 12, color: "#FBBF24", marginTop: 6, position: "relative", zIndex: 1 }}>
-                                        {priceAdj > 0 && <>+${priceAdj} {stairsSurcharge?.label?.toLowerCase() || "stairs"}</>}
-                                        {priceAdj > 0 && distanceSurcharge > 0 && " · "}
-                                        {distanceSurcharge > 0 && <>+${distanceSurcharge} distance surcharge</>}
+                                        {[
+                                            accessAmount > 0 && location ? `+$${accessAmount} ${LOCATION_OPTIONS.find(l => l.id === location)?.label.toLowerCase() || "access"}` : null,
+                                            distanceSurcharge > 0 ? `+$${distanceSurcharge} distance` : null,
+                                            heavyAmount > 0 ? `+$${heavyAmount} heavy material` : null,
+                                            applianceAmount > 0 ? `+$${applianceAmount} appliance` : null,
+                                        ].filter(Boolean).join(" · ")}
                                     </div>}
                                 </div>
                             )}
