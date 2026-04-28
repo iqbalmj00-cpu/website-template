@@ -1,30 +1,33 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { siteConfig, formatDumpsterPrice } from "@/lib/siteConfig";
+import { notFound } from "next/navigation";
+import { hasInsurance, hasLicense, isSameDayEnabled, siteConfig, formatDumpsterPrice } from "@/lib/siteConfig";
 import type { DumpsterPriceTier } from "@/lib/siteConfig";
 import { CONTAINER_SIZES, DEBRIS_TYPES } from "@/lib/wizardData";
 import ServiceIcon from "@/components/ServiceIcon";
 import FAQAccordion from "@/components/FAQAccordion";
 import { Phone, ArrowRight, Truck, Clock, CheckCircle, ShieldCheck } from "lucide-react";
 import { formatPhone, telHref } from "@/lib/siteConfig";
+import { createPageMetadata, serviceJsonLd } from "@/lib/seo";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
-export const metadata: Metadata = {
-    title: `Dumpster Rental in ${cityState} | ${siteConfig.companyName}`,
-    description: `Rent a dumpster in ${cityState}. 10–40 yard containers for construction, cleanouts, and more. Fast delivery from ${siteConfig.companyName}. Book online today.`,
-    alternates: { canonical: "/dumpster-rental" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: `Dumpster Rental in ${cityState}`,
+    description: `Rent a dumpster in ${cityState}. Containers for construction debris, cleanouts, yard waste, and household junk from ${siteConfig.companyName}.`,
+    path: "/dumpster-rental",
+    noIndex: !siteConfig.offersDumpsterRental,
+});
 
 const STEPS = [
     { icon: "ClipboardList", title: "Request", desc: "Tell us your project details and pick a container size." },
     { icon: "Truck", title: "Delivery", desc: "We deliver the dumpster right to your driveway or job site." },
-    { icon: "Package", title: "Fill It Up", desc: "Take your time filling it — keep it for up to 2 weeks." },
+    { icon: "Package", title: "Fill It Up", desc: "Load approved materials during your confirmed rental period." },
     { icon: "Recycle", title: "Pickup", desc: "Call us when you're done. We haul it away and handle disposal." },
 ];
 
 const FAQ_ITEMS = [
-    { question: "How long can I keep the dumpster?", answer: "Standard rental periods are 1–2 weeks. Need it longer? Just let us know and we can extend your rental." },
+    { question: "How long can I keep the dumpster?", answer: "The rental period is confirmed when booking and may vary by container size and local availability." },
     { question: "What can I put in the dumpster?", answer: "Most household junk, construction debris, yard waste, and roofing materials. Hazardous materials, tires, batteries, and paint are not allowed." },
     { question: "Where will the dumpster be placed?", answer: "We typically place dumpsters on driveways, but we can work with you on placement. Just make sure the area is clear and accessible for our truck." },
     { question: "Do I need a permit?", answer: "If the dumpster will be placed on a public street or right-of-way, you may need a permit from your local city. Driveway placement typically doesn't require one." },
@@ -32,21 +35,31 @@ const FAQ_ITEMS = [
 ];
 
 export default function DumpsterRentalPage() {
+    // Gate the page on the client's offering — sitemap, navbar, and footer
+    // already exclude it when offersDumpsterRental is false; this closes the
+    // direct-URL gap so visitors can't see dumpster info on a non-offering site.
+    if (!siteConfig.offersDumpsterRental) notFound();
+    const whyRent = [
+        { icon: <Truck size={28} color="var(--brand)" />, title: "Scheduled Delivery", desc: "Delivery timing is confirmed based on route capacity and container availability." },
+        { icon: <Clock size={28} color="var(--brand)" />, title: "Confirmed Rental Period", desc: "The rental period and extension options are confirmed before booking." },
+        { icon: <CheckCircle size={28} color="var(--brand)" />, title: "Clear Pricing", desc: "Container pricing, included days, and overage terms are shown before checkout when configured." },
+        ...((hasLicense() || hasInsurance()) ? [{ icon: <ShieldCheck size={28} color="var(--brand)" />, title: "Verified Credentials", desc: [hasLicense() ? "license on file" : "", hasInsurance() ? "insurance carrier on file" : ""].filter(Boolean).join(" and ") }] : []),
+    ];
+
     return (
         <main>
-            {/* FAQ JSON-LD */}
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "FAQPage",
-                        mainEntity: FAQ_ITEMS.map(f => ({
-                            "@type": "Question",
-                            name: f.question,
-                            acceptedAnswer: { "@type": "Answer", text: f.answer },
-                        })),
-                    }),
+                    __html: JSON.stringify(serviceJsonLd({
+                        service: {
+                            title: "Dumpster Rental",
+                            shortDesc: `Dumpster rental in ${cityState} for cleanouts, construction debris, and household junk.`,
+                        },
+                        path: "/dumpster-rental",
+                        description: `Dumpster rental in ${cityState} for cleanouts, construction debris, and household junk.`,
+                        offers: false,
+                    })),
                 }}
             />
             {/* ── Hero ── */}
@@ -83,7 +96,7 @@ export default function DumpsterRentalPage() {
                             Not sure which size? Give us a call and we&apos;ll help you pick the perfect fit.
                         </p>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: "1.5rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 250px), 1fr))", gap: "1.5rem" }}>
                         {CONTAINER_SIZES.map(cs => {
                             const sizeNum = parseInt(cs.id);
                             const tier: DumpsterPriceTier | undefined = siteConfig.dumpsterPricing?.tiers.find(t => t.sizeCuYd === sizeNum);
@@ -123,7 +136,7 @@ export default function DumpsterRentalPage() {
                             How It <span style={{ color: "var(--brand)" }}>Works</span>
                         </h2>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "2rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 200px), 1fr))", gap: "2rem" }}>
                         {STEPS.map((s, i) => (
                             <div key={i} style={{ textAlign: "center" }}>
                                 <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(249,115,22,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem", border: "2px solid var(--brand)" }}>
@@ -145,7 +158,7 @@ export default function DumpsterRentalPage() {
                             What Can Go in Our <span style={{ color: "var(--brand)" }}>Dumpsters</span>
                         </h2>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 200px), 1fr))", gap: "1rem" }}>
                         {DEBRIS_TYPES.map(dt => (
                             <div key={dt.id} className="card" style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "1.25rem 1.5rem" }}>
                                 <ServiceIcon name={dt.icon} size={28} color="var(--brand)" />
@@ -168,12 +181,7 @@ export default function DumpsterRentalPage() {
                         </h2>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
-                        {[
-                            { icon: <Truck size={28} color="var(--brand)" />, title: "Fast Delivery", desc: "Same-day or next-day delivery available in most areas." },
-                            { icon: <Clock size={28} color="var(--brand)" />, title: "Flexible Rentals", desc: "Keep it for a week, two weeks, or longer — your timeline." },
-                            { icon: <CheckCircle size={28} color="var(--brand)" />, title: "Transparent Pricing", desc: "No hidden fees. We quote the full price upfront." },
-                            { icon: <ShieldCheck size={28} color="var(--brand)" />, title: "Fully Licensed", desc: "Licensed, insured, and ready to handle your project." },
-                        ].map((item, i) => (
+                        {whyRent.map((item, i) => (
                             <div key={i} className="card" style={{ padding: "1.5rem", textAlign: "center" }}>
                                 <div style={{ marginBottom: "0.75rem" }}>{item.icon}</div>
                                 <h3 style={{ fontWeight: 700, fontSize: "1rem", marginBottom: "0.5rem" }}>{item.title}</h3>
@@ -203,7 +211,7 @@ export default function DumpsterRentalPage() {
                         Ready to Rent a <span style={{ color: "var(--brand)" }}>Dumpster</span>?
                     </h2>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", marginBottom: "2rem" }}>
-                        Book online in 2 minutes or call us for immediate assistance.
+                        Book online or call to confirm container availability. {isSameDayEnabled() ? "Same-day windows may be available when route capacity allows." : ""}
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" className="btn-primary" style={{ padding: "1rem 2.5rem", fontSize: "1.05rem" }}>

@@ -1,15 +1,16 @@
 import Link from "next/link";
-import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import { getVerifiableTrustSignals, isSameDayEnabled, siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import type { Metadata } from "next";
-import { Smartphone, Truck, CircleCheckBig, BadgeDollarSign, Clock, Recycle, ShieldCheck, CalendarDays, Phone } from "lucide-react";
+import { Smartphone, Truck, CircleCheckBig, BadgeDollarSign, CalendarDays, Phone } from "lucide-react";
+import { createPageMetadata, howToJsonLd } from "@/lib/seo";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
-export const metadata: Metadata = {
-    title: `How Junk Removal Works in ${siteConfig.city} | ${siteConfig.companyName}`,
-    description: `Book junk removal in ${cityState} in 3 easy steps with ${siteConfig.companyName}. Schedule online, we show up with a free quote, and your junk is gone. Same-day service available.`,
-    alternates: { canonical: "/how-it-works" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: `How Junk Removal Works in ${siteConfig.city}`,
+    description: `Book junk removal in ${cityState} in 3 steps with ${siteConfig.companyName}: share item details, confirm the appointment, and approve the final quote before loading.`,
+    path: "/how-it-works",
+});
 
 export default function HowItWorksPage() {
     const { companyName, phoneNumber, city, state } = siteConfig;
@@ -25,18 +26,33 @@ export default function HowItWorksPage() {
             num: "02",
             Icon: CircleCheckBig,
             title: "We Confirm Your Appointment",
-            desc: "Our team reviews your booking details and confirms your date, time, and estimated price. You'll get a confirmation with everything you need to know — no guesswork, no surprises.",
+            desc: "Our team reviews your booking details and confirms your date, time, and estimated price. You get a confirmation with the details needed for pickup.",
         },
         {
             num: "03",
             Icon: Truck,
             title: "We Show Up & Haul It Away",
-            desc: "Our uniformed, insured crew arrives within your time window. We confirm the final price on-site, load everything up, sweep the area clean, and haul it all away. Usable items are donated, the rest is recycled or disposed of responsibly.",
+            desc: "The crew arrives within the scheduled window, confirms the final price on-site, loads the approved items, sweeps the area, and hauls everything away. Usable or recyclable items are routed responsibly when local options are available.",
         },
     ];
+    const trustSignals = getVerifiableTrustSignals();
 
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(howToJsonLd({
+                        name: `How junk removal works with ${companyName}`,
+                        description: `Book junk removal in ${cityState}, confirm the appointment, and approve the final quote before loading.`,
+                        steps: steps.map((step) => ({
+                            name: step.title,
+                            text: step.desc,
+                            url: "/how-it-works",
+                        })),
+                    })),
+                }}
+            />
             {/* Hero */}
             <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -45,7 +61,7 @@ export default function HowItWorksPage() {
                         <span style={{ color: "var(--brand)" }}>{siteConfig.city}</span>
                     </h1>
                     <p style={{ fontSize: "1.2rem", color: "var(--hero-muted)", maxWidth: 550, margin: "0 auto" }}>
-                        Junk removal in {cityState} shouldn&apos;t be complicated. {companyName} makes it fast, fair, and hands-free — from booking to cleanup.
+                        Junk removal in {cityState} should be straightforward. {companyName} keeps the process clear from booking to final quote.
                     </p>
                 </div>
             </section>
@@ -78,21 +94,16 @@ export default function HowItWorksPage() {
                 </div>
             </section>
 
-            {/* Guarantees */}
+            {/* Trust Signals */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
                 <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
-                    <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "3rem" }}>Our Guarantee</h2>
+                    <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "3rem" }}>What To Expect</h2>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "2rem" }}>
-                        {[
-                            { Icon: BadgeDollarSign, title: "No Hidden Fees", desc: "The price we quote is the price you pay. Period. No extra charges for loading, hauling, or disposal." },
-                            { Icon: Clock, title: "On-Time Arrival", desc: `We show up within your scheduled window, every time. Same-day service often available in ${siteConfig.city}.` },
-                            { Icon: Recycle, title: "Eco-Friendly", desc: "We donate usable items to local charities and recycle everything we can. Landfill is our last resort." },
-                            { Icon: ShieldCheck, title: "Fully Insured", desc: "Licensed and insured with comprehensive liability coverage, so you have zero risk when we're on your property." },
-                        ].map((g) => (
-                            <div key={g.title} style={{ padding: "2rem", background: "var(--background)", borderRadius: 16, border: "1px solid var(--border)" }}>
-                                <div style={{ marginBottom: "0.75rem" }}><g.Icon size={28} color="var(--brand)" /></div>
-                                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{g.title}</h3>
-                                <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>{g.desc}</p>
+                        {trustSignals.map((signal) => (
+                            <div key={signal} style={{ padding: "2rem", background: "var(--background)", borderRadius: 16, border: "1px solid var(--border)" }}>
+                                <div style={{ marginBottom: "0.75rem" }}><BadgeDollarSign size={28} color="var(--brand)" /></div>
+                                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{signal}</h3>
+                                <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>{trustSignalDescription(signal)}</p>
                             </div>
                         ))}
                     </div>
@@ -103,7 +114,9 @@ export default function HowItWorksPage() {
             <section style={{ background: "var(--brand)", padding: "4rem 1.5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
                     <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Ready to Get Started?</h2>
-                    <p style={{ color: "var(--hero-text)", fontSize: "1.1rem", marginBottom: "2rem" }}>Book online in 2 minutes. Same-day service available in {city}{state ? `, ${state}` : ""}.</p>
+                    <p style={{ color: "var(--hero-text)", fontSize: "1.1rem", marginBottom: "2rem" }}>
+                        Book online in minutes. {isSameDayEnabled() ? `Same-day windows may be available in ${city}${state ? `, ${state}` : ""}.` : "Pickup windows depend on route availability."}
+                    </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><CalendarDays size={18} /> Book Online Now</Link>
                         <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--hero-text)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Phone size={18} /> {formatPhone(phoneNumber)}</a>
@@ -112,4 +125,13 @@ export default function HowItWorksPage() {
             </section>
         </>
     );
+}
+
+function trustSignalDescription(signal: string): string {
+    if (signal.includes("Same-day")) return "Pickup may be available today when schedule capacity allows.";
+    if (signal.includes("Licensed")) return "A license number is available for this operator.";
+    if (signal.includes("Insured")) return "Insurance carrier information is available for this operator.";
+    if (signal.includes("recycling")) return "Eligible materials are routed with this target in mind.";
+    if (signal.includes("pricing")) return "The crew confirms the final price before loading begins.";
+    return "Local junk removal service for the configured service area.";
 }

@@ -1,20 +1,19 @@
 import Link from "next/link";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
-import { getClientServices } from "@/lib/serviceData";
 import type { Metadata } from "next";
 import { CalendarDays } from "lucide-react";
+import { createPageMetadata } from "@/lib/seo";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
-export const metadata: Metadata = {
-    title: `Items We Haul Away in ${siteConfig.city} | ${siteConfig.companyName}`,
-    description: `See the full list of items ${siteConfig.companyName} can haul away in ${cityState} — furniture, appliances, yard waste, construction debris, electronics, and more. We recycle and donate.`,
-    alternates: { canonical: "/items-we-take" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: `Items We Haul Away in ${siteConfig.city}`,
+    description: `See items ${siteConfig.companyName} can haul away in ${cityState}: furniture, appliances, yard waste, construction debris, electronics, and more.`,
+    path: "/items-we-take",
+});
 
 export default function ItemsWeTakePage() {
-    const { companyName, phoneNumber } = siteConfig;
-    const services = getClientServices();
+    const { phoneNumber } = siteConfig;
 
     const generalItems = [
         { cat: "Furniture", items: ["Sofas & Couches", "Mattresses & Beds", "Tables & Chairs", "Dressers & Desks", "Bookshelves", "Patio Furniture"] },
@@ -34,17 +33,17 @@ export default function ItemsWeTakePage() {
                         Items We <span style={{ color: "var(--brand)" }}>Haul Away</span> in {siteConfig.city}
                     </h1>
                     <p style={{ fontSize: "1.1rem", color: "var(--hero-muted)", maxWidth: 550, margin: "0 auto" }}>
-                        If it fits in our truck, we can probably haul it. We serve all of {cityState} with eco-friendly junk removal — we donate usable items, recycle what we can, and responsibly dispose of the rest.
+                        If it fits in the truck and is not prohibited, we can probably haul it. We serve {cityState} with junk removal for homes, businesses, moves, and cleanouts.
                     </p>
                 </div>
             </section>
 
             {/* Items Grid */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
-                <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
+                <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", gap: "1.5rem" }}>
                     {generalItems.map((cat) => (
                         <div key={cat.cat} style={{ background: "var(--card)", borderRadius: 16, padding: "2rem", border: "1px solid var(--border)" }}>
-                            <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "0.03em" }}>{cat.cat}</h3>
+                            <h2 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "0.03em" }}>{cat.cat}</h2>
                             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
                                 {cat.items.map((item) => (
                                     <li key={item} style={{ padding: "0.5rem 0", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--muted)", fontSize: "0.9rem" }}>
@@ -69,16 +68,15 @@ export default function ItemsWeTakePage() {
                         See items we don&apos;t take →
                     </Link>
                 </div>
-            </section >
+            </section>
 
             {/* CTA */}
-            < section style={{ background: "var(--brand)", padding: "4rem 1.5rem", textAlign: "center" }
-            }>
+            <section style={{ background: "var(--brand)", padding: "4rem 1.5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 600, margin: "0 auto" }}>
                     <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Ready to Haul It Away?</h2>
                     <Link href="/book" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}><CalendarDays size={18} /> Book Your Pickup</Link>
                 </div>
-            </section >
+            </section>
         </>
     );
 }

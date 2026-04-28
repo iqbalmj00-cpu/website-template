@@ -1,98 +1,87 @@
 import Link from "next/link";
-import { siteConfig, formatPhone, telHref, roundTo5 } from "@/lib/siteConfig";
-import { ALL_SERVICES, getServiceBySlug, getClientServices } from "@/lib/serviceData";
-import { getLocations } from "@/lib/locationData";
+import { siteConfig, formatPhone, telHref, roundTo5, getVerifiableTrustSignals, hasInsurance, hasLicense, isSameDayEnabled } from "@/lib/siteConfig";
+import { getServiceBySlug, getClientServices, getServiceSynonyms } from "@/lib/serviceData";
+import { getIndexableLocations } from "@/lib/locationData";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ServiceIcon from "@/components/ServiceIcon";
 import { Phone, CalendarDays, CheckCircle, Shield, Clock, Recycle, MapPin } from "lucide-react";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { breadcrumbJsonLd, createPageMetadata, serviceJsonLd } from "@/lib/seo";
 
 export async function generateStaticParams() {
-    return ALL_SERVICES.map((svc) => ({ slug: svc.slug }));
+    // Only generate pages for services the client actually offers (per siteConfig.services).
+    return getClientServices().map((svc) => ({ slug: svc.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-    const { slug } = await params;
-    const svc = getServiceBySlug(slug);
-    if (!svc) return { title: "Service Not Found" };
-    const pageTitle = `${svc.title} in ${siteConfig.city}, ${siteConfig.state} | ${siteConfig.companyName}`;
-    const pageDesc = `${svc.shortDesc} Professional ${svc.title.toLowerCase()} service in ${siteConfig.city} by ${siteConfig.companyName}. Book your free estimate today.`;
-    const svcImage = siteConfig.serviceImages?.[slug] || null;
-    return {
-        title: pageTitle,
+// Reject any slug not in generateStaticParams at runtime — required because
+// getServiceBySlug() looks across ALL_SERVICES, so without this Next.js would
+// happily render a service the client doesn't offer when visited directly.
+// Old indexed URLs for disabled services will 404, which is the correct
+// de-indexing signal to Google.
+export const dynamicParams = false;
+
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+    const svc = getClientServices().find((service) => service.slug === params.slug);
+    if (!svc) {
+        return createPageMetadata({
+            title: "Service Not Found",
+            description: "This service is not available.",
+            path: `/services/${params.slug}`,
+            noIndex: true,
+        });
+    }
+
+    const pageDesc = `${svc.shortDesc} ${siteConfig.companyName} provides ${svc.title.toLowerCase()} in ${siteConfig.city}.`;
+    return createPageMetadata({
+        title: `${svc.title} in ${siteConfig.city}`,
         description: pageDesc,
-        alternates: { canonical: `/services/${slug}` },
-        openGraph: {
-            title: pageTitle,
-            description: pageDesc,
-            type: "article",
-            ...(svcImage ? { images: [{ url: svcImage, width: 1200, height: 630, alt: `${svc.title} in ${siteConfig.city}` }] } : {}),
-        },
-    };
+        path: `/services/${svc.slug}`,
+        image: siteConfig.serviceImages?.[svc.slug] || null,
+    });
 }
 
-export default async function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = await params;
-    const svc = getServiceBySlug(slug);
-    if (!svc) notFound();
+export default function ServiceDetailPage({ params }: { params: { slug: string } }) {
+    const svc = getClientServices().find((service) => service.slug === params.slug) || getServiceBySlug(params.slug);
+    if (!svc || !getClientServices().some((service) => service.slug === svc.slug)) notFound();
 
     const { companyName, city, state, phoneNumber } = siteConfig;
-    const otherServices = getClientServices().filter((s) => s.slug !== slug).slice(0, 4);
+    const otherServices = getClientServices().filter((s) => s.slug !== svc.slug).slice(0, 4);
+    const titleParts = svc.title.split(" ");
+    const titleAccent = titleParts.pop() || svc.title;
+    const titlePrefix = titleParts.join(" ");
+    const trustSignals = getVerifiableTrustSignals();
+    const synonyms = getServiceSynonyms(svc).slice(0, 3);
+    const breadcrumbs = [
+        { label: "Home", href: "/" },
+        { label: "Services", href: "/services" },
+        { label: svc.title, href: `/services/${svc.slug}` },
+    ];
+    const whyChoose = [
+        { icon: CheckCircle, title: "Upfront Pricing", desc: `We confirm your ${svc.title.toLowerCase()} price before loading begins.` },
+        ...(isSameDayEnabled() ? [{ icon: Clock, title: "Same-Day Availability", desc: `Same-day ${svc.title.toLowerCase()} may be available in ${city} when route capacity allows.` }] : []),
+        ...(siteConfig.recyclingRate !== null ? [{ icon: Recycle, title: "Recycling Target", desc: `${companyName} has a ${siteConfig.recyclingRate}% recycling target for eligible materials.` }] : []),
+        ...((hasLicense() || hasInsurance()) ? [{ icon: Shield, title: "Verified Credentials", desc: [hasLicense() ? "license on file" : "", hasInsurance() ? "insurance carrier on file" : ""].filter(Boolean).join(" and ") }] : []),
+    ];
 
     return (
         <>
-            {/* JSON-LD: Service schema */}
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "Service",
-                        name: `${svc.title} in ${city}, ${state}`,
-                        description: `${svc.shortDesc} Professional ${svc.title.toLowerCase()} service in ${city} by ${companyName}.`,
-                        provider: {
-                            "@type": "LocalBusiness",
-                            name: companyName,
-                            telephone: phoneNumber,
-                            address: { "@type": "PostalAddress", addressLocality: city, addressRegion: state, addressCountry: "US" },
-                        },
-                        areaServed: { "@type": "City", name: city },
-                        ...(siteConfig.subdomain ? { url: `https://${siteConfig.subdomain}.scaleyourjunk.com/services/${slug}` } : {}),
-                    }),
+                    __html: JSON.stringify([
+                        breadcrumbJsonLd(breadcrumbs.map(item => ({ name: item.label, path: item.href }))),
+                        serviceJsonLd({
+                            service: svc,
+                            path: `/services/${svc.slug}`,
+                            description: `${svc.shortDesc} ${companyName} provides ${svc.title.toLowerCase()} in ${city}.`,
+                        }),
+                    ]),
                 }}
             />
-            {/* JSON-LD: BreadcrumbList */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "BreadcrumbList",
-                        itemListElement: [
-                            { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com` : "/" },
-                            { "@type": "ListItem", position: 2, name: "Services", item: siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com/services` : "/services" },
-                            { "@type": "ListItem", position: 3, name: svc.title },
-                        ],
-                    }),
-                }}
-            />
-            {/* JSON-LD: FAQPage */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "FAQPage",
-                        mainEntity: svc.faqs.map((faq: { q: string; a: string }) => ({
-                            "@type": "Question",
-                            name: faq.q,
-                            acceptedAnswer: { "@type": "Answer", text: faq.a },
-                        })),
-                    }),
-                }}
-            />
+            <Breadcrumbs items={breadcrumbs} />
             {/* Hero */}
-            <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 5rem", textAlign: "center" }}>
+            <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>
                     <span
                         style={{
@@ -111,8 +100,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                             marginBottom: "2rem",
                         }}
                     >
-                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} />
-                        <ServiceIcon name={svc.icon} size={16} color="var(--brand)" /> Available for same-day pickup
+                        <ServiceIcon name={svc.icon} size={16} color="var(--brand)" /> {isSameDayEnabled() ? "Same-day may be available" : "Online booking available"}
                     </span>
                     <h1
                         style={{
@@ -123,8 +111,8 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                             marginBottom: "1.5rem",
                         }}
                     >
-                        {svc.title.split(" ").slice(0, -1).join(" ")}{" "}
-                        <span style={{ color: "var(--brand)" }}>{svc.title.split(" ").pop()}</span>
+                        {titlePrefix && `${titlePrefix} `}
+                        <span style={{ color: "var(--brand)" }}>{titleAccent}</span>
                         <span style={{ display: "block", fontSize: "clamp(1rem, 2.5vw, 1.3rem)", fontWeight: 400, color: "var(--hero-muted)", marginTop: "0.5rem", textTransform: "none" }}>
                             in {city}{state ? `, ${state}` : ""}
                         </span>
@@ -132,6 +120,11 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                     <p style={{ fontSize: "1.15rem", color: "var(--hero-muted)", maxWidth: 600, margin: "0 auto 2.5rem", lineHeight: 1.7 }}>
                         {svc.heroSubtitle}
                     </p>
+                    {synonyms.length > 0 && (
+                        <p style={{ color: "var(--hero-muted)", fontSize: "0.95rem", lineHeight: 1.6, margin: "-1.5rem auto 2rem", maxWidth: 620 }}>
+                            Also available for: {synonyms.join(", ")}.
+                        </p>
+                    )}
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap", marginBottom: "2rem" }}>
                         <Link href="/book" className="btn-primary" style={{ padding: "1rem 2.5rem", fontSize: "1.05rem" }}>
                             Get a Free Quote →
@@ -144,7 +137,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                         </a>
                     </div>
                     <div style={{ display: "flex", gap: "2rem", justifyContent: "center", flexWrap: "wrap" }}>
-                        {["Upfront Pricing", "Fully Insured", "Eco-Friendly"].map((t) => (
+                        {trustSignals.map((t) => (
                             <span key={t} style={{ color: "var(--hero-muted)", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
                                 <span style={{ color: "var(--brand)" }}>✓</span> {t}
                             </span>
@@ -303,12 +296,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                         </h2>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
-                        {[
-                            { icon: CheckCircle, title: "Upfront Pricing", desc: `No hidden fees on your ${svc.title.toLowerCase()} job. We give you a firm price before we start — what we quote is what you pay.` },
-                            { icon: Clock, title: "Same-Day Service", desc: `Need ${svc.title.toLowerCase()} today? We frequently have same-day availability in ${city} and surrounding areas.` },
-                            { icon: Recycle, title: "Eco-Friendly Disposal", desc: `We donate and recycle items from every ${svc.title.toLowerCase()} job whenever possible. Landfill is always our last resort.` },
-                            { icon: Shield, title: "Licensed & Insured", desc: `${companyName} is fully licensed and insured. Your property is protected when our crew handles your ${svc.title.toLowerCase()}.` },
-                        ].map((item) => (
+                        {whyChoose.map((item) => (
                             <div key={item.title} style={{ background: "var(--background)", border: "1px solid var(--border)", borderRadius: 16, padding: "1.5rem" }}>
                                 <item.icon size={28} color="var(--brand)" style={{ marginBottom: "0.75rem" }} />
                                 <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{item.title}</h3>
@@ -321,27 +309,28 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
 
             {/* Service Area */}
             {(() => {
-                const locations = getLocations();
-                const areaNames = locations.slice(0, 8).map(l => l.name);
-                return areaNames.length > 1 ? (
+                const locations = getIndexableLocations();
+                const serviceLocations = locations.slice(0, 8);
+                return serviceLocations.length > 1 ? (
                     <section style={{ padding: "4rem 1.5rem", background: "var(--background)", borderTop: "1px solid var(--border)" }}>
                         <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
                             <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginBottom: "1rem" }}>
                                 {svc.title} Across {city} &amp; Surrounding Areas
                             </h2>
                             <p style={{ color: "var(--muted)", fontSize: "1rem", lineHeight: 1.7, marginBottom: "1.5rem", maxWidth: 600, margin: "0 auto 1.5rem" }}>
-                                {companyName} provides professional {svc.title.toLowerCase()} services throughout {city}{state ? `, ${state}` : ""} and the surrounding communities. No matter where you are in the area, our crew can be there — often the same day.
+                                {companyName} provides professional {svc.title.toLowerCase()} services throughout {city}{state ? `, ${state}` : ""} and the configured surrounding communities. {isSameDayEnabled() ? "Same-day windows may be available when route capacity allows." : "Book online or call to find the next available pickup window."}
                             </p>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
-                                {areaNames.map((name) => (
-                                    <span key={name} style={{
+                                {serviceLocations.map((location) => (
+                                    <Link key={location.slug} href={`/locations/${location.slug}/${svc.slug}`} style={{
                                         display: "inline-flex", alignItems: "center", gap: "0.3rem",
                                         padding: "0.4rem 0.75rem", borderRadius: "var(--btn-radius)",
                                         background: "var(--card)", border: "1px solid var(--border)",
                                         fontSize: "0.85rem", fontWeight: 600, color: "var(--foreground)",
+                                        textDecoration: "none",
                                     }}>
-                                        <MapPin size={12} color="var(--brand)" /> {name}
-                                    </span>
+                                        <MapPin size={12} color="var(--brand)" /> {location.name}
+                                    </Link>
                                 ))}
                             </div>
                             <p style={{ marginTop: "1rem", fontSize: "0.9rem" }}>
@@ -400,7 +389,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                         Ready to Reclaim Your Space?
                     </h2>
                     <p style={{ color: "var(--hero-text)", fontSize: "1.05rem", marginBottom: "2rem" }}>
-                        Get a free estimate today. Same-day service available in {city}{state ? `, ${state}` : ""}.
+                        Get an estimate today for {svc.title.toLowerCase()} in {city}{state ? `, ${state}` : ""}.
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link

@@ -1,103 +1,79 @@
 import Link from "next/link";
-import { siteConfig, formatPhone, telHref, roundTo5 } from "@/lib/siteConfig";
+import { siteConfig, formatPhone, telHref, roundTo5, hasInsurance, hasLicense, isSameDayEnabled } from "@/lib/siteConfig";
 import SafeImage from "@/components/SafeImage";
-import { getLocations, getLocationBySlug } from "@/lib/locationData";
+import { getIndexableLocations, getLocations, getLocationBySlug } from "@/lib/locationData";
 import { getClientServices } from "@/lib/serviceData";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ServiceIcon from "@/components/ServiceIcon";
-import { MapPin, Truck, Phone, CheckCircle, Shield, Clock, Leaf, Recycle, Armchair, Plug, TreePine, HardHat, Monitor, Package } from "lucide-react";
+import { MapPin, Truck, Phone, CheckCircle, Shield, Clock, Recycle } from "lucide-react";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { breadcrumbJsonLd, createPageMetadata, localBusinessJsonLd } from "@/lib/seo";
 
 export async function generateStaticParams() {
     return getLocations().map((loc) => ({ slug: loc.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-    const { slug } = await params;
-    const loc = getLocationBySlug(slug);
-    if (!loc) return { title: "Location Not Found" };
-    const locImage = siteConfig.locationImages?.[slug] || null;
-    return {
-        title: loc.metaTitle,
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+    const loc = getLocationBySlug(params.slug);
+    if (!loc) {
+        return createPageMetadata({
+            title: "Location Not Found",
+            description: "This location page is not available.",
+            path: `/locations/${params.slug}`,
+            noIndex: true,
+        });
+    }
+
+    return createPageMetadata({
+        title: `Junk Removal in ${loc.name}`,
         description: loc.metaDescription,
-        alternates: { canonical: `/locations/${slug}` },
-        openGraph: {
-            title: loc.metaTitle,
-            description: loc.metaDescription,
-            type: "article",
-            ...(locImage ? { images: [{ url: locImage, width: 1200, height: 630, alt: `Junk removal in ${loc.name}, ${loc.state}` }] } : {}),
-        },
-    };
+        path: `/locations/${loc.slug}`,
+        image: siteConfig.locationImages?.[loc.slug] || null,
+        noIndex: !loc.isMainCity && !loc.isExplicit,
+    });
 }
 
-export default async function LocationDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = await params;
-    const location = getLocationBySlug(slug);
+export default function LocationDetailPage({ params }: { params: { slug: string } }) {
+    const location = getLocationBySlug(params.slug);
     if (!location) notFound();
 
     const { companyName, phoneNumber } = siteConfig;
     const services = getClientServices().slice(0, 4);
-    const locations = getLocations().filter((l) => l.slug !== slug);
+    const locations = getIndexableLocations().filter((l) => l.slug !== location.slug);
+    const isIndexableLocation = location.isMainCity || location.isExplicit;
+    const breadcrumbs = [
+        { label: "Home", href: "/" },
+        { label: "Locations", href: "/locations" },
+        { label: `${location.name}, ${location.state}`, href: `/locations/${location.slug}` },
+    ];
+    const whyChoose = [
+        { icon: CheckCircle, title: "Upfront Pricing", desc: `We confirm the price before loading begins for jobs in ${location.name}.` },
+        ...(isSameDayEnabled() ? [{ icon: Clock, title: "Same-Day Availability", desc: `Same-day windows may be available in ${location.name} when route capacity allows.` }] : []),
+        ...(siteConfig.recyclingRate !== null ? [{ icon: Recycle, title: "Recycling Target", desc: `${companyName} has a ${siteConfig.recyclingRate}% recycling target for eligible materials.` }] : []),
+        ...((hasLicense() || hasInsurance()) ? [{ icon: Shield, title: "Verified Credentials", desc: [hasLicense() ? "license on file" : "", hasInsurance() ? "insurance carrier on file" : ""].filter(Boolean).join(" and ") }] : []),
+    ];
 
     return (
         <>
-            {/* JSON-LD: Location-specific LocalBusiness */}
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "LocalBusiness",
-                        name: `${companyName} — ${location.name}, ${location.state}`,
-                        description: location.heroDescription,
-                        telephone: phoneNumber,
-                        address: {
-                            "@type": "PostalAddress",
-                            addressLocality: location.name,
-                            addressRegion: location.state,
-                            addressCountry: "US",
-                        },
-                        areaServed: [
-                            { "@type": "City", name: location.name },
-                            ...location.neighborhoods.map(n => ({ "@type": "Place", name: n })),
-                        ],
-                        ...(siteConfig.subdomain ? { url: `https://${siteConfig.subdomain}.scaleyourjunk.com/locations/${slug}` } : {}),
-                    }),
+                    __html: JSON.stringify([
+                        breadcrumbJsonLd(breadcrumbs.map(item => ({ name: item.label, path: item.href }))),
+                        localBusinessJsonLd({
+                            areaServed: [
+                                { "@type": "City", name: location.name },
+                                ...location.neighborhoods.map(n => ({ "@type": "Place", name: n })),
+                            ],
+                        }),
+                    ]),
                 }}
             />
-            {/* JSON-LD: BreadcrumbList */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "BreadcrumbList",
-                        itemListElement: [
-                            { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com` : "/" },
-                            { "@type": "ListItem", position: 2, name: "Locations", item: siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com/locations` : "/locations" },
-                            { "@type": "ListItem", position: 3, name: `${location.name}, ${location.state}` },
-                        ],
-                    }),
-                }}
-            />
-            {/* JSON-LD: FAQPage */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "FAQPage",
-                        mainEntity: location.faqs.map((faq: { q: string; a: string }) => ({
-                            "@type": "Question",
-                            name: faq.q,
-                            acceptedAnswer: { "@type": "Answer", text: faq.a },
-                        })),
-                    }),
-                }}
-            />
+            <Breadcrumbs items={breadcrumbs} />
             {/* Hero */}
             <section style={{ background: "var(--hero-bg)", padding: "7rem 1.5rem 5rem", overflow: "hidden" }}>
-                <div data-image-grid style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "center" }}>
+                <div data-image-grid style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: "2rem", alignItems: "center" }}>
                     <div>
                         {(() => {
                             const badgeNames = (location.heroBadge || location.name).split(",").map(s => s.trim()).filter(Boolean);
@@ -148,9 +124,10 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                     </div>
                     <div style={{ display: "flex", justifyContent: "center" }}>
                         <SafeImage
-                            src={siteConfig.locationImages[slug] || `/images/generated/locations/${slug}.png`}
+                            src={siteConfig.locationImages[location.slug] || `/images/generated/locations/${location.slug}.png`}
                             alt={`Junk removal in ${location.name}, ${location.state}`}
                             collapseParentGrid
+                            loading="eager"
                             style={{ width: "100%", maxWidth: 500, borderRadius: 16, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}
                         />
                     </div>
@@ -165,48 +142,36 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                         {location.localInfo}
                     </p>
                     <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem", marginBottom: "1rem" }}>
-                        Whether you&apos;re clearing out a garage, renovating a room, or handling an estate cleanout, {companyName} provides full-service junk removal in {location.name} and the surrounding {siteConfig.city} area. Our licensed and insured crew handles everything — loading, hauling, and cleanup — so you don&apos;t have to lift a finger.
+                        Whether you&apos;re clearing out a garage, renovating a room, or handling an estate cleanout, {companyName} provides full-service junk removal in {location.name} and the surrounding {siteConfig.city} area. The crew handles loading, hauling, and cleanup so you do not have to lift a finger.
                     </p>
                     <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem" }}>
-                        We proudly donate reusable items to local charities and recycle materials whenever possible, keeping as much as we can out of the landfill. {location.neighborhoods.length > 0 && `We also serve nearby areas including ${location.neighborhoods.slice(0, 4).join(", ")}, and more.`}
+                        Usable or recyclable items are routed responsibly when local options are available. {location.neighborhoods.length > 0 && `We also serve nearby areas including ${location.neighborhoods.slice(0, 4).join(", ")}, and more.`}
                     </p>
                 </div>
             </section>
 
-            {/* What We Haul Away */}
-            <section style={{ padding: "4rem 1.5rem", background: "var(--card)", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-                    <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>What We Haul Away in {location.name}</h2>
-                        <p style={{ color: "var(--muted)", fontSize: "1.05rem", marginTop: "0.75rem", maxWidth: 600, margin: "0.75rem auto 0" }}>
-                            From a single piece of furniture to a full property cleanout, our crew handles it all. Here&apos;s what we commonly pick up in {location.name}.
+            {/* Per-location service highlight — pulls from client's configured services
+                so this paragraph differs across clients AND across neighborhoods. */}
+            {location.serviceHighlight && (
+                <section style={{ padding: "2rem 1.5rem", background: "var(--background)", borderBottom: "1px solid var(--border)" }}>
+                    <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
+                        <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem", fontStyle: "italic" }}>
+                            {location.serviceHighlight}
                         </p>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
-                        {[
-                            { icon: Armchair, title: "Furniture Removal", items: ["Sofas & couches", "Mattresses & box springs", "Tables & chairs", "Dressers & bookshelves", "Patio furniture"] },
-                            { icon: Plug, title: "Appliance Removal", items: ["Refrigerators & freezers", "Washers & dryers", "Ovens & dishwashers", "Water heaters", "A/C units"] },
-                            { icon: TreePine, title: "Yard Waste Removal", items: ["Branches & tree limbs", "Soil & sod", "Fencing & lattice", "Swing sets & trampolines", "Hot tub removal"] },
-                            { icon: HardHat, title: "Construction Debris", items: ["Drywall & lumber", "Tile & carpet", "Roofing shingles", "Concrete (small amounts)", "Renovation debris"] },
-                            { icon: Monitor, title: "Electronics & E-Waste", items: ["TVs & monitors", "Computers & printers", "Speakers & stereos", "Gaming consoles", "Cables & peripherals"] },
-                            { icon: Package, title: "General Junk", items: ["Boxes & packing materials", "Exercise equipment", "Tires & bikes", "Old paint cans (dried)", "Books & clothing"] },
-                        ].map((cat) => (
-                            <div key={cat.title} style={{ background: "var(--background)", border: "1px solid var(--border)", borderRadius: 16, padding: "1.5rem" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
-                                    <cat.icon size={24} color="var(--brand)" />
-                                    <h3 style={{ fontSize: "1rem", fontWeight: 700 }}>{cat.title}</h3>
-                                </div>
-                                <ul style={{ margin: 0, paddingLeft: "1.25rem", color: "var(--muted)", lineHeight: 1.8, fontSize: "0.9rem" }}>
-                                    {cat.items.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ))}
-                    </div>
-                    <p style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "var(--muted)" }}>
-                        Not sure if we can take it? <Link href="/items-we-take" style={{ color: "var(--brand)", fontWeight: 600 }}>See the full list</Link> or <a href={telHref(phoneNumber)} style={{ color: "var(--brand)", fontWeight: 600 }}>call us</a> — we&apos;re happy to help.
+                </section>
+            )}
+
+            {/* What We Haul Away — short summary linking to dedicated items page (avoids duplicate content across all location pages) */}
+            <section style={{ padding: "3rem 1.5rem", background: "var(--card)", borderBottom: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
+                    <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginBottom: "1rem" }}>What We Haul Away in {location.name}</h2>
+                    <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem", marginBottom: "1.25rem" }}>
+                        Furniture, appliances, e-waste, yard waste, construction debris, and general junk — our crew handles it all in {location.name}, from single-item pickups to full property cleanouts.
                     </p>
+                    <Link href="/items-we-take" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 1.5rem", borderRadius: "var(--btn-radius)", background: "var(--background)", border: "2px solid var(--brand)", color: "var(--brand)", fontWeight: 700, fontSize: "0.95rem", textDecoration: "none" }}>
+                        See the full list of items we take in {location.name} →
+                    </Link>
                 </div>
             </section>
 
@@ -217,7 +182,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
                             <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Junk Removal Pricing in {location.name}</h2>
                             <p style={{ color: "var(--muted)", fontSize: "1.05rem", marginTop: "0.75rem", maxWidth: 600, margin: "0.75rem auto 0" }}>
-                                Our pricing is simple — you only pay for the space your items take up in our truck. No hidden fees, no surprises.
+                                Pricing is based on the space your items take up in the truck. The crew confirms the final price before loading begins.
                             </p>
                         </div>
                         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "1rem" }}>
@@ -235,25 +200,16 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                 </section>
             )}
 
-            {/* How It Works */}
-            <section style={{ padding: "4rem 1.5rem", background: "var(--card)", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 900, margin: "0 auto" }}>
-                    <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>How Junk Removal Works in {location.name}</h2>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "2rem" }}>
-                        {[
-                            { step: "1", title: "Book Your Pickup", desc: `Schedule online in minutes or call ${formatPhone(phoneNumber)}. Pick a date and time that works for you — same-day service is often available in ${location.name}.` },
-                            { step: "2", title: "We Confirm", desc: "Our team reviews your booking and confirms your appointment. You'll receive a confirmation with your date, time window, and estimated price range." },
-                            { step: "3", title: "We Show Up & Haul", desc: `Our insured crew arrives on time, confirms the final price, and handles everything — loading, hauling, sweeping up, and responsible disposal. You don't lift a finger.` },
-                        ].map((s) => (
-                            <div key={s.step} style={{ textAlign: "center" }}>
-                                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem", fontWeight: 800, margin: "0 auto 1rem" }}>{s.step}</div>
-                                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{s.title}</h3>
-                                <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.6 }}>{s.desc}</p>
-                            </div>
-                        ))}
-                    </div>
+            {/* How It Works — short summary linking to dedicated page (avoids duplicate content across all location pages) */}
+            <section style={{ padding: "3rem 1.5rem", background: "var(--card)", borderBottom: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
+                    <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginBottom: "1rem" }}>How Junk Removal Works in {location.name}</h2>
+                    <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem", marginBottom: "1.25rem" }}>
+                        Booking is a simple 3-step process: pick your date, we confirm, and the crew arrives in {location.name} to review the final price before loading begins. {isSameDayEnabled() ? "Same-day windows may be available when route capacity allows." : "Pickup windows depend on route availability."}
+                    </p>
+                    <Link href="/how-it-works" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 1.5rem", borderRadius: "var(--btn-radius)", background: "var(--background)", border: "2px solid var(--brand)", color: "var(--brand)", fontWeight: 700, fontSize: "0.95rem", textDecoration: "none" }}>
+                        See how junk removal works step-by-step →
+                    </Link>
                 </div>
             </section>
 
@@ -264,12 +220,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                         <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Why Choose {companyName} in {location.name}?</h2>
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.5rem" }}>
-                        {[
-                            { icon: CheckCircle, title: "Upfront Pricing", desc: `No hidden fees or surprise charges. We give you a firm price before we start any work in ${location.name}. What we quote is what you pay.` },
-                            { icon: Clock, title: "Same-Day Service", desc: `Need junk removed today? We frequently have same-day availability in ${location.name} and the surrounding ${siteConfig.city} area. Book before noon for the best chance.` },
-                            { icon: Recycle, title: "Eco-Friendly Disposal", desc: "We donate usable items to local charities and recycle materials whenever possible. We're committed to keeping as much as we can out of the landfill." },
-                            { icon: Shield, title: "Licensed & Insured", desc: `${companyName} is fully licensed and insured, so you have zero liability when we work on your property. Your home and belongings are protected.` },
-                        ].map((item) => (
+                        {whyChoose.map((item) => (
                             <div key={item.title} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 16, padding: "1.5rem" }}>
                                 <item.icon size={28} color="var(--brand)" style={{ marginBottom: "0.75rem" }} />
                                 <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{item.title}</h3>
@@ -289,7 +240,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.5rem" }}>
                         {services.map((svc) => (
-                            <Link key={svc.slug} href={`/services/${svc.slug}`} style={{ padding: "2rem", background: "var(--background)", border: "1px solid var(--border)", borderRadius: 16, textDecoration: "none", color: "inherit", transition: "transform 0.2s" }}>
+                            <Link key={svc.slug} href={isIndexableLocation ? `/locations/${location.slug}/${svc.slug}` : `/services/${svc.slug}`} style={{ padding: "2rem", background: "var(--background)", border: "1px solid var(--border)", borderRadius: 16, textDecoration: "none", color: "inherit", transition: "transform 0.2s" }}>
                                 <div style={{ marginBottom: "0.75rem" }}><ServiceIcon name={svc.icon} size={28} color="var(--brand)" /></div>
                                 <h3 style={{ fontSize: "1rem", fontWeight: 700, textTransform: "uppercase", marginBottom: "0.5rem" }}>{svc.title}</h3>
                                 <p style={{ color: "var(--muted)", fontSize: "0.85rem", lineHeight: 1.5 }}>{svc.shortDesc}</p>
@@ -357,7 +308,7 @@ export default async function LocationDetailPage({ params }: { params: Promise<{
                         Book online in 2 minutes or call for an instant estimate.
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                        <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Truck size={18} /> Get Instant Quote</Link>
+                        <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Truck size={18} /> Book Junk Removal in {location.name}</Link>
                         <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Phone size={18} /> {formatPhone(phoneNumber)}</a>
                     </div>
                 </div>

@@ -1,67 +1,53 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Phone, Star, CheckCircle, ArrowRight, Truck, Clock, Shield, Leaf, MapPin } from "lucide-react";
-import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
-import { getClientServices, ALL_SERVICES } from "@/lib/serviceData";
+import { Phone, Star, CheckCircle, ArrowRight } from "lucide-react";
+import { getSiteBaseUrl, getVerifiableTrustSignals, hasInsurance, hasLicense, isSameDayEnabled, siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import { getClientServices } from "@/lib/serviceData";
 import ServiceIcon from "@/components/ServiceIcon";
 import SafeImage from "@/components/SafeImage";
+import { createPageMetadata } from "@/lib/seo";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
-export const metadata: Metadata = {
-    title: `Junk Removal in ${cityState} | ${siteConfig.companyName}`,
-    description: `${siteConfig.companyName} offers fast, affordable junk removal in ${cityState}. Furniture, appliances, yard waste & more. Same-day service available. Book online in minutes.`,
-    alternates: { canonical: "/" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: `Junk Removal in ${cityState}`,
+    description: `${siteConfig.companyName} provides junk removal in ${cityState}: furniture, appliances, yard waste, cleanouts, construction debris, and more.`,
+    path: "/",
+});
 
 export default function HomePage() {
     const howItWorks = [
         {
             step: "1",
             title: "Book & Get Your Estimate",
-            desc: "Book online in 2 minutes — select your items, see your price range instantly. Or call our 24/7 AI phone agent.",
+            desc: "Book online, select your items, and see an estimated price range. You can also call with questions before scheduling.",
         },
         {
             step: "2",
             title: "We Confirm",
-            desc: "Our team reviews your booking and confirms your date, time, and price. You'll get a confirmation with all the details.",
+            desc: "Our team reviews your booking and confirms your date, time, and estimated price.",
         },
         {
             step: "3",
             title: "We Show Up & Haul",
-            desc: "Our crew arrives on time, confirms the final price, and gets to work. We load, sweep up, and haul everything away.",
+            desc: "The crew confirms the final price before loading, then hauls away the approved items.",
         },
     ];
 
-    const trustItems = [
-        { icon: Shield, label: "Fully Insured" },
-        { icon: CheckCircle, label: "Upfront Pricing" },
-        { icon: Clock, label: "Same-Day Available" },
-        { icon: Leaf, label: "Eco-Friendly" },
-    ];
+    const trustItems = getVerifiableTrustSignals().map((label) => ({ icon: CheckCircle, label }));
 
     const whyUs = [
         {
-            title: "No Hidden Fees",
-            desc: "We give you a firm price before we start — no surprises on the invoice.",
+            title: "Upfront Pricing",
+            desc: "The crew confirms the final price before loading begins.",
         },
-        {
-            title: "Fast & Reliable",
-            desc: "We show up on time, every time. Many jobs completed the same day you call.",
-        },
-        {
-            title: "We Donate & Recycle",
-            desc: "Items in good condition are donated to local charities. We keep landfill waste to a minimum.",
-        },
-        {
-            title: "Licensed & Insured",
-            desc: "Fully licensed and insured so you have zero liability when we work on your property.",
-        },
+        ...(isSameDayEnabled() ? [{ title: "Same-Day Availability", desc: "Same-day pickup may be available when route capacity allows." }] : []),
+        ...(siteConfig.recyclingRate !== null ? [{ title: "Recycling Target", desc: `${siteConfig.recyclingRate}% recycling target for eligible materials.` }] : []),
+        ...((hasLicense() || hasInsurance()) ? [{ title: "Verified Credentials", desc: [hasLicense() ? "license on file" : "", hasInsurance() ? "insurance carrier on file" : ""].filter(Boolean).join(" and ") }] : []),
     ];
 
-    const baseUrl = siteConfig.subdomain
-        ? `https://${siteConfig.subdomain}.scaleyourjunk.com`
-        : "https://scaleyourjunk.com";
+    const baseUrl = getSiteBaseUrl();
+    const clientServices = getClientServices();
 
     return (
         <>
@@ -92,22 +78,7 @@ export default function HomePage() {
                     overflow: "hidden",
                 }}
             >
-                {/* Decorative blob */}
-                <div
-                    style={{
-                        position: "absolute",
-                        top: "-10%",
-                        right: "-5%",
-                        width: 500,
-                        height: 500,
-                        borderRadius: "50%",
-                        background: "var(--brand)",
-                        opacity: 0.07,
-                        filter: "blur(80px)",
-                        pointerEvents: "none",
-                    }}
-                />
-                <div data-image-grid style={{ maxWidth: 1200, margin: "0 auto", position: "relative", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "3rem", alignItems: "center" }}>
+                <div data-image-grid style={{ maxWidth: 1200, margin: "0 auto", position: "relative", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: "3rem", alignItems: "center" }}>
                     <div style={{ maxWidth: 700 }}>
                         <div
                             style={{
@@ -157,7 +128,7 @@ export default function HomePage() {
                                 opacity: 0.85,
                             }}
                         >
-                            Serving {cityState} and surrounding areas with same-day junk removal near you. Book online in minutes or call anytime.
+                            Serving {cityState} and surrounding areas. {isSameDayEnabled() ? "Same-day pickup may be available when route capacity allows." : "Book online or call to find the next available pickup window."}
                         </p>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
                             <Link href="/book" className="btn-primary" style={{ fontSize: "1.1rem", padding: "1rem 2.25rem" }}>
@@ -186,6 +157,7 @@ export default function HomePage() {
                             fallbackSrc="/images/default-hero.png"
                             alt={`${siteConfig.companyName} junk removal in ${siteConfig.city}`}
                             collapseParentGrid
+                            loading="eager"
                             style={{ width: "100%", maxWidth: 520, borderRadius: 20, objectFit: "cover", aspectRatio: "4/3", boxShadow: "0 25px 80px rgba(0,0,0,0.5)" }}
                         />
                     </div>
@@ -229,20 +201,17 @@ export default function HomePage() {
                             gap: "1rem",
                         }}
                     >
-                        {siteConfig.services.map((service) => {
-                            const slug = service.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-                            const svcData = getClientServices().find(s => s.slug === slug) || ALL_SERVICES.find(s => s.slug === slug);
-                            const iconName = svcData?.icon || "Truck";
+                        {clientServices.map((service) => {
                             return (
                                 <Link
-                                    key={service}
-                                    href={`/services/${slug}`}
+                                    key={service.slug}
+                                    href={`/services/${service.slug}`}
                                     className="card"
                                     style={{ textAlign: "center", padding: "1.5rem 1rem", textDecoration: "none", color: "inherit" }}
                                 >
-                                    <div style={{ marginBottom: "0.75rem", display: "flex", justifyContent: "center" }}><ServiceIcon name={iconName} size={32} color="var(--brand)" /></div>
+                                    <div style={{ marginBottom: "0.75rem", display: "flex", justifyContent: "center" }}><ServiceIcon name={service.icon} size={32} color="var(--brand)" /></div>
                                     <p style={{ fontWeight: 600, fontSize: "0.95rem", color: "var(--foreground)" }}>
-                                        {service}
+                                        {service.title}
                                     </p>
                                 </Link>
                             );
@@ -301,6 +270,11 @@ export default function HomePage() {
                             </div>
                         ))}
                     </div>
+                    <div style={{ textAlign: "center", marginTop: "2rem" }}>
+                        <Link href="/how-it-works" style={{ color: "var(--brand)", fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
+                            Learn more <ArrowRight size={16} />
+                        </Link>
+                    </div>
                 </div>
             </section>
 
@@ -310,7 +284,7 @@ export default function HomePage() {
                     <div style={{ marginBottom: "3rem" }}>
                         <h2 className="section-title">Why {siteConfig.companyName}?</h2>
                         <p className="section-subtitle">
-                            We're your local junk removal experts in {siteConfig.city}. Here's why customers keep coming back.
+                            Local junk removal in {siteConfig.city} with clear pricing and online booking.
                         </p>
                     </div>
                     <div
@@ -389,7 +363,7 @@ export default function HomePage() {
                         Ready to reclaim your space?
                     </h2>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7, marginBottom: "2.5rem" }}>
-                        Book your pickup online in 2 minutes. Same-day service available in {siteConfig.city}.
+                        Book your pickup online in minutes. {isSameDayEnabled() ? `Same-day windows may be available in ${siteConfig.city}.` : "Pickup windows depend on route availability."}
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" className="btn-primary" style={{ fontSize: "1.1rem", padding: "1rem 2.25rem" }}>

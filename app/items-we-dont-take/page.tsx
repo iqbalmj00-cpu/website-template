@@ -1,29 +1,18 @@
 import Link from "next/link";
 import { siteConfig } from "@/lib/siteConfig";
 import type { Metadata } from "next";
+import { PROHIBITED_ITEMS } from "@/lib/prohibitedItems";
+import { createPageMetadata } from "@/lib/seo";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
-export const metadata: Metadata = {
-    title: `Items We Don't Take | ${siteConfig.companyName} — ${siteConfig.city} Junk Removal`,
-    description: `For safety and legal reasons, ${siteConfig.companyName} in ${cityState} cannot transport certain hazardous materials. See the full list and find safe disposal alternatives.`,
-    alternates: { canonical: "/items-we-dont-take" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: `Items We Don't Take in ${siteConfig.city}`,
+    description: `For safety and legal reasons, ${siteConfig.companyName} in ${cityState} cannot transport certain hazardous or regulated materials.`,
+    path: "/items-we-dont-take",
+});
 
 export default function ItemsWeDontTakePage() {
-    const { companyName, phoneNumber } = siteConfig;
-
-    const prohibited = [
-        { item: "Hazardous Chemicals", detail: "Pesticides, herbicides, pool chemicals, and industrial solvents." },
-        { item: "Paint & Solvents", detail: "Liquid paint, paint thinner, varnish, and stains. Dried paint cans are OK." },
-        { item: "Asbestos", detail: "Any material containing asbestos requires a licensed abatement contractor." },
-        { item: "Car Batteries", detail: "Lead-acid batteries must be recycled at auto parts stores or hazardous waste sites." },
-        { item: "Medical Waste", detail: "Needles, sharps, pharmaceuticals, and biohazard materials." },
-        { item: "Oil Drums & Tanks", detail: "Full or partially full oil drums, fuel tanks, and chemical containers." },
-        { item: "Propane Tanks", detail: "Any pressurized gas tank. Exchange programs at hardware stores." },
-        { item: "Explosives & Ammunition", detail: "Firearms, ammunition, fireworks, and flares. Contact local PD for disposal." },
-    ];
-
     return (
         <>
             {/* Hero */}
@@ -41,7 +30,7 @@ export default function ItemsWeDontTakePage() {
             {/* List */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    {prohibited.map((p) => (
+                    {PROHIBITED_ITEMS.map((p) => (
                         <div key={p.item} style={{ background: "var(--card)", borderRadius: 12, padding: "1.5rem 2rem", border: "1px solid var(--border)", display: "flex", gap: "1rem", alignItems: "flex-start" }}>
                             <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#ef4444", flexShrink: 0, marginTop: 6 }} />
                             <div>

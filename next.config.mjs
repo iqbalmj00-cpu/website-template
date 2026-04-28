@@ -5,6 +5,39 @@ const nextConfig = {
       { protocol: "https", hostname: "**" },
     ],
   },
+  async headers() {
+    return [
+      {
+        // /customer-portal redirects to the dashboard with the siteToken in
+        // the query string. This header tells browsers NOT to send a Referer
+        // header on the redirect-following request, so the dashboard's logs
+        // and any caching layers in between don't capture the previous URL.
+        // (Partial mitigation — full fix needs dashboard to switch the auth
+        // transport off the URL. See dashboard coordination backlog.)
+        source: "/customer-portal",
+        headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
+      },
+    ];
+  },
+  async redirects() {
+    return [
+      {
+        source: "/get-started",
+        destination: "/book",
+        permanent: true,
+      },
+      {
+        source: "/legal",
+        destination: "/terms",
+        permanent: true,
+      },
+      {
+        source: "/booking-details",
+        destination: "/customer-portal",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

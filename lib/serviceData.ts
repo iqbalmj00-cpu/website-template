@@ -3,12 +3,13 @@
  * Each client's website only renders services that match siteConfig.services.
  */
 
-import { siteConfig } from "./siteConfig";
+import { isSameDayEnabled, siteConfig } from "./siteConfig";
 
 export interface ServiceDetail {
     slug: string;
     title: string;
     names: string[];          // possible siteConfig.services values that map to this service
+    keywordSynonyms?: string[];
     icon: string;             // Lucide icon name
     shortDesc: string;
     fullDesc: string;
@@ -23,10 +24,11 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "junk-removal",
         title: "Junk Removal",
         names: ["Junk Removal", "General Junk Removal", "junk-removal"],
+        keywordSynonyms: ["junk pickup", "junk hauling", "trash removal", "debris removal"],
         icon: "Trash2",
         shortDesc: "Full-service junk removal for homes and businesses. We haul away anything you don't want.",
-        fullDesc: "From a single item to a full truckload, our crew handles all the heavy lifting. We sort everything for donation, recycling, or disposal so you don't have to worry about where it ends up.",
-        heroSubtitle: "Point at what you want gone — we take care of the rest. Fast, affordable, and eco-friendly.",
+        fullDesc: "From a single item to a full truckload, our crew handles the heavy lifting. Items are routed for donation, recycling, or disposal when appropriate local options are available.",
+        heroSubtitle: "Point at what you want gone — we take care of the rest with clear pricing and professional hauling.",
         items: [
             { title: "Household Junk", desc: "Old furniture, boxes, bags, and miscellaneous clutter." },
             { title: "Garage & Basement", desc: "Years of accumulated items cleared in hours." },
@@ -43,13 +45,14 @@ export const ALL_SERVICES: ServiceDetail[] = [
         faqs: [
             { q: "What items do you take?", a: "Almost everything — furniture, appliances, electronics, yard waste, and more. See our Items We Take page for the full list." },
             { q: "How much does it cost?", a: "Pricing is based on how much space your items take in our truck. We give you a firm quote before we start." },
-            { q: "Do you offer same-day service?", a: "Yes! Same-day and next-day pickups are available depending on availability." },
+            { q: "Do you offer same-day service?", a: isSameDayEnabled() ? "Same-day and next-day pickups may be available depending on schedule capacity." : "Availability depends on the schedule. Book online or call to see the next open pickup window." },
         ],
     },
     {
         slug: "demolition",
         title: "Demolition",
         names: ["Demolition", "Light Demolition", "Demo", "demolition"],
+        keywordSynonyms: ["light demolition", "demo debris removal", "shed demolition", "tear-out removal"],
         icon: "Hammer",
         shortDesc: "Light demolition services for sheds, decks, fences, and interior tear-outs.",
         fullDesc: "We handle small to medium demolition projects including shed removal, deck tear-down, fence demolition, and interior gut-outs. All debris is hauled away in the same visit.",
@@ -77,9 +80,10 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "furniture-removal",
         title: "Furniture Removal",
         names: ["Furniture Removal", "Furniture", "furniture-removal"],
+        keywordSynonyms: ["furniture pickup", "furniture disposal", "couch removal", "sofa removal", "mattress removal"],
         icon: "Armchair",
         shortDesc: "We handle heavy lifting for couches, tables, mattresses, chairs, and more.",
-        fullDesc: "Our team safely maneuvers large items through tight hallways and stairwells without damaging your property. We disassemble bulky pieces when necessary and ensure every item is donated or recycled whenever possible.",
+        fullDesc: "Our team maneuvers large items through tight hallways and stairwells with care. Bulky pieces can be disassembled when necessary, and usable or recyclable items are routed responsibly when local options are available.",
         heroSubtitle: "Don't break your back moving that old couch. We handle the heavy lifting for sofa removal, mattress disposal, and more.",
         items: [
             { title: "Sofas & Sectionals", desc: "Large sectionals, sleeper sofas, loveseats, and heavy couches." },
@@ -96,7 +100,7 @@ export const ALL_SERVICES: ServiceDetail[] = [
         ],
         faqs: [
             { q: "Do you take apart large furniture?", a: "Yes! Our crew can disassemble sofas, bed frames, desks, and other bulky items at no extra charge." },
-            { q: "What happens to my old furniture?", a: "Items in good condition are donated to local charities. Everything else is recycled or responsibly disposed of." },
+            { q: "What happens to my old furniture?", a: "Items in good condition may be routed for donation when a local option is available. Other items are taken to an appropriate disposal facility." },
             { q: "Can you remove furniture from upstairs?", a: "Absolutely. Our team is trained to safely navigate stairs, narrow hallways, and tight corners." },
         ],
     },
@@ -104,12 +108,13 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "appliance-removal",
         title: "Appliance Removal",
         names: ["Appliance Removal", "Appliance Disposal", "Appliances", "appliance-removal"],
+        keywordSynonyms: ["appliance pickup", "appliance disposal", "refrigerator removal", "washer removal", "dryer removal"],
         icon: "Plug",
         shortDesc: "Responsible disposal of fridges, washers, dryers, and ovens.",
-        fullDesc: "Old appliances often contain hazardous chemicals like freon that require specialized handling. We partner with certified recycling facilities to ensure safe extraction and proper disposal.",
-        heroSubtitle: "Old appliances are heavy, awkward, and often contain hazardous materials. Let our trained crew handle it safely.",
+        fullDesc: "Old appliances are heavy and may require special handling depending on the item. We review appliance type, access, and any local disposal requirements before pickup.",
+        heroSubtitle: "Old appliances are heavy and awkward. Let our crew handle the lifting, loading, and hauling.",
         items: [
-            { title: "Refrigerators", desc: "All sizes including commercial units. Freon safely extracted." },
+            { title: "Refrigerators", desc: "All sizes including commercial units. Refrigerant requirements are reviewed before pickup." },
             { title: "Washers & Dryers", desc: "Front-load, top-load, stackable units. Gas line disconnection available." },
             { title: "Ovens & Stoves", desc: "Electric and gas ranges. We handle disconnection safely." },
             { title: "Dishwashers", desc: "Built-in and portable units removed and hauled." },
@@ -119,11 +124,11 @@ export const ALL_SERVICES: ServiceDetail[] = [
         procesSteps: [
             { title: "Schedule Pickup", desc: "Tell us what appliances need to go and we'll give you a price upfront." },
             { title: "Safe Removal", desc: "Our crew disconnects and removes appliances safely, protecting your floors and walls." },
-            { title: "Eco Disposal", desc: "Refrigerants are extracted by certified techs. Metals are recycled." },
+            { title: "Proper Routing", desc: "Appliances are routed through appropriate local disposal or recycling channels when available." },
         ],
         faqs: [
             { q: "Do you disconnect appliances?", a: "We can disconnect standard electrical connections. For gas lines, we recommend having a plumber disconnect first." },
-            { q: "Is freon removal included?", a: "Yes. All refrigerants are extracted by EPA-certified technicians at no extra charge." },
+            { q: "Is freon removal included?", a: "Refrigerant handling requirements vary by location and appliance type. We confirm any required handling before pickup." },
             { q: "Can you remove built-in appliances?", a: "Yes, we handle built-in dishwashers, microwaves, and wall ovens." },
         ],
     },
@@ -131,10 +136,11 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "e-waste-recycling",
         title: "E-Waste Recycling",
         names: ["E-Waste Recycling", "E-Waste", "Electronics", "e-waste-recycling"],
+        keywordSynonyms: ["electronics pickup", "electronics disposal", "computer recycling", "tv removal"],
         icon: "Monitor",
-        shortDesc: "Secure and eco-friendly disposal for computers, monitors, printers, and TVs.",
-        fullDesc: "Electronic waste is a growing global problem. We ensure your old devices are stripped for valuable components while hazardous elements are responsibly contained.",
-        heroSubtitle: "Old electronics don't belong in landfills. We recycle them responsibly and securely.",
+        shortDesc: "Pickup and hauling for computers, monitors, printers, TVs, and other electronics.",
+        fullDesc: "Electronic waste can require special routing. We collect electronics and route them through available local disposal or recycling options.",
+        heroSubtitle: "Old electronics are awkward to move. We pick them up and route them through appropriate local channels.",
         items: [
             { title: "TVs & Monitors", desc: "LCD, LED, plasma, CRT — all sizes accepted." },
             { title: "Computers & Laptops", desc: "Desktops, laptops, servers, and peripherals." },
@@ -146,10 +152,10 @@ export const ALL_SERVICES: ServiceDetail[] = [
         procesSteps: [
             { title: "Gather Electronics", desc: "Collect all the old electronics you want gone." },
             { title: "We Pick Up", desc: "Our team carefully collects and sorts all items." },
-            { title: "Certified Recycling", desc: "Everything goes to certified e-waste recyclers. Data privacy respected." },
+            { title: "Proper Routing", desc: "Electronics are routed through available local recycling or disposal options." },
         ],
         faqs: [
-            { q: "Is my data safe?", a: "We partner with certified e-waste facilities that destroy hard drives and storage media. We can provide certificates of destruction on request." },
+            { q: "Is my data safe?", a: "Remove or wipe storage devices before pickup when data privacy matters. Ask before booking if you need a specific destruction process." },
             { q: "Do you take CRT monitors and TVs?", a: "Yes, we accept all types of screens including older CRT models." },
             { q: "Is there a minimum for e-waste pickup?", a: "No minimum. We'll pick up a single monitor or an entire office of electronics." },
         ],
@@ -158,9 +164,10 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "mattress-disposal",
         title: "Mattress Disposal",
         names: ["Mattress Disposal", "Mattress Removal", "Mattresses", "mattress-disposal"],
+        keywordSynonyms: ["mattress pickup", "mattress removal", "box spring disposal", "bed removal"],
         icon: "BedDouble",
         shortDesc: "We pick up mattresses and box springs of any size — king, queen, twin, and more.",
-        fullDesc: "Curbside pickup won't take mattresses and they don't fit in your car. Our crew handles all the heavy lifting, donating good-condition mattresses and recycling the rest.",
+        fullDesc: "Mattresses are bulky, awkward, and often excluded from standard curbside pickup. Our crew handles the heavy lifting and routes mattresses through appropriate local options.",
         heroSubtitle: "Too big for the curb, too heavy for your car. We make mattress removal effortless.",
         items: [
             { title: "King Mattress", desc: "King and California King sizes. We navigate any stairway." },
@@ -173,7 +180,7 @@ export const ALL_SERVICES: ServiceDetail[] = [
         procesSteps: [
             { title: "Book Removal", desc: "Tell us the size and location of your mattress." },
             { title: "We Carry It Out", desc: "Our crew navigates stairs and tight spaces — you don't lift a finger." },
-            { title: "Donate or Recycle", desc: "Clean mattresses donated. Others sent to mattress recycling." },
+            { title: "Haul Away", desc: "The mattress is loaded and routed through available local disposal or recycling options." },
         ],
         faqs: [
             { q: "Do you take mattresses with stains?", a: "Yes, we take mattresses in any condition. Stained mattresses go to recycling rather than donation." },
@@ -185,9 +192,10 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "yard-waste-removal",
         title: "Yard Waste Removal",
         names: ["Yard Waste Removal", "Yard Waste", "Yard", "yard-waste-removal"],
+        keywordSynonyms: ["yard debris pickup", "brush removal", "branch removal", "landscaping debris removal"],
         icon: "TreePine",
         shortDesc: "Seasonal cleanup made easy. Branches, leaves, dirt, mulch, and small trees removed.",
-        fullDesc: "From storm cleanup to annual landscaping projects, organic waste piles up fast. We compost the majority of yard waste, turning your clippings into nutrient-rich soil.",
+        fullDesc: "From storm cleanup to annual landscaping projects, organic waste piles up fast. We load and haul yard debris, then route it through local disposal or composting options when available.",
         heroSubtitle: "Storm damage? Landscaping project? We haul away branches, leaves, soil, and more.",
         items: [
             { title: "Branches & Limbs", desc: "Tree branches, trimmed limbs, and brush piles." },
@@ -200,7 +208,7 @@ export const ALL_SERVICES: ServiceDetail[] = [
         procesSteps: [
             { title: "Show Us the Pile", desc: "Point to whatever needs to go in your yard." },
             { title: "We Load Everything", desc: "Our crew shovels, rakes, and loads it all into our truck." },
-            { title: "Green Disposal", desc: "Organic waste is composted. Non-organic items recycled or disposed." },
+            { title: "Proper Routing", desc: "Organic waste is routed through local composting or disposal options when available." },
         ],
         faqs: [
             { q: "Do you remove tree stumps?", a: "We can haul away stumps that have already been cut. For full stump grinding, we recommend a tree service first." },
@@ -212,6 +220,7 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "construction-debris",
         title: "Construction Debris Removal",
         names: ["Construction Debris", "Construction Debris Removal", "Construction", "construction-debris"],
+        keywordSynonyms: ["construction debris pickup", "renovation debris removal", "contractor debris hauling", "demo debris removal"],
         icon: "HardHat",
         shortDesc: "Fast cleanup for renovation sites. Drywall, wood, tiles, flooring, and roofing.",
         fullDesc: "Whether you're a DIY enthusiast or a professional contractor, job site debris slows you down. We offer scheduled pickups to keep your workspace clear and compliant.",
@@ -227,7 +236,7 @@ export const ALL_SERVICES: ServiceDetail[] = [
         procesSteps: [
             { title: "Request a Pickup", desc: "Tell us the type and volume of debris at your site." },
             { title: "We Clear the Site", desc: "Our crew loads everything — no need to pile it yourself." },
-            { title: "Proper Disposal", desc: "Materials sorted for recycling. Compliant with local regulations." },
+            { title: "Proper Disposal", desc: "Materials are routed through appropriate local disposal channels." },
         ],
         faqs: [
             { q: "Do you work with contractors?", a: "Yes! We offer recurring pickup schedules and volume pricing for contractors and builders." },
@@ -239,10 +248,11 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "estate-cleanout",
         title: "Estate Cleanouts",
         names: ["Estate Cleanouts", "Estate Cleanout", "Estate", "estate-cleanout"],
+        keywordSynonyms: ["estate cleanout service", "house cleanout", "property cleanout", "full home cleanout"],
         icon: "Home",
         shortDesc: "Total property cleanouts for garages, attics, basements, and estates.",
         fullDesc: "Dealing with a hoard or an estate cleanout can be emotional and overwhelming. Our compassionate team handles these large-scale jobs with discretion and efficiency.",
-        heroSubtitle: "Full property cleanouts handled with care and respect. We sort, donate, and haul everything.",
+        heroSubtitle: "Full property cleanouts handled with care. We sort as requested, load, and haul unwanted items.",
         items: [
             { title: "Full Home Cleanouts", desc: "Every room cleared — bedrooms, living areas, kitchen, garage." },
             { title: "Garage & Attic", desc: "Decades of accumulated items cleared in hours." },
@@ -253,22 +263,23 @@ export const ALL_SERVICES: ServiceDetail[] = [
         ],
         procesSteps: [
             { title: "Walk-Through", desc: "We tour the property and give you a firm, upfront price." },
-            { title: "Sort & Remove", desc: "We separate items for donation, recycling, and disposal." },
+            { title: "Sort & Remove", desc: "We separate items by destination and haul away what needs to go." },
             { title: "Property Ready", desc: "Space is cleared, swept, and ready for its next chapter." },
         ],
         faqs: [
             { q: "How long does an estate cleanout take?", a: "Most single-family homes are completed in 1-2 days. Larger properties may take longer." },
             { q: "Do you handle hoarding situations?", a: "Yes. Our crews are trained to work with patience and discretion in hoarding situations." },
-            { q: "Can you separate items for donation?", a: "Absolutely. We sort usable items for donation and provide receipts for tax purposes." },
+            { q: "Can you separate items for donation?", a: "We can set aside items you want donated when a local donation option accepts them." },
         ],
     },
     {
         slug: "garage-cleanout",
         title: "Garage Cleanout",
         names: ["Garage Cleanouts", "Garage Cleanout", "Garage", "garage-cleanout"],
+        keywordSynonyms: ["garage junk removal", "garage cleanup", "garage cleanout service", "garage debris removal"],
         icon: "Warehouse",
         shortDesc: "Can't park in your garage anymore? We clear decades of accumulated clutter.",
-        fullDesc: "Over the years, tools, decorations, and forgotten boxes pile up. Our crew removes everything you point to, donating usable items and recycling what we can.",
+        fullDesc: "Over the years, tools, decorations, and forgotten boxes pile up. Our crew removes everything you point to and routes usable or recyclable items responsibly when local options are available.",
         heroSubtitle: "Reclaim your garage. We clear the clutter so you can actually park your car again.",
         items: [
             { title: "Old Tools & Equipment", desc: "Broken tools, rusted equipment, and workbenches." },
@@ -293,9 +304,10 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "hot-tub-removal",
         title: "Hot Tub Removal",
         names: ["Hot Tub Removal", "Hot Tub", "hot-tub-removal"],
+        keywordSynonyms: ["hot tub disposal", "spa removal", "hot tub pickup", "jacuzzi removal"],
         icon: "Bath",
         shortDesc: "We safely disconnect, disassemble, and haul away your old hot tub or spa.",
-        fullDesc: "Our crew handles the full process: disconnecting, draining, disassembling, and hauling everything away. Acrylic, wood, and metal components are recycled wherever possible.",
+        fullDesc: "Our crew can handle draining, disassembly, loading, and hauling. Acrylic, wood, and metal components are routed through local disposal or recycling options when available.",
         heroSubtitle: "That old hot tub isn't going to move itself. We handle the whole process start to finish.",
         items: [
             { title: "Acrylic Hot Tubs", desc: "Standard residential hot tubs in any condition." },
@@ -320,6 +332,7 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "commercial-cleanout",
         title: "Commercial Cleanout",
         names: ["Commercial Cleanout", "Commercial", "Office Furniture", "Office", "commercial-cleanout"],
+        keywordSynonyms: ["office cleanout", "commercial junk removal", "business cleanout", "office furniture removal"],
         icon: "Building2",
         shortDesc: "Cubicles, desks, chairs, filing cabinets, and full office cleanouts.",
         fullDesc: "We work evenings and weekends to minimize disruption to your business. Our crews handle cubicle systems, conference tables, and can clear entire floors.",
@@ -347,9 +360,10 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "storage-unit-cleanout",
         title: "Storage Unit Cleanout",
         names: ["Storage Unit Cleanout", "Storage Unit", "Storage", "storage-unit-cleanout"],
+        keywordSynonyms: ["storage cleanout", "storage unit junk removal", "storage locker cleanout"],
         icon: "Package",
         shortDesc: "Stop paying rent on stuff you don't need. We clear units of any size.",
-        fullDesc: "We handle units from 5x5 lockers to 10x30 warehouse-style units. Everything is loaded into our truck, sorted for donations and recyclables. Most units cleared in under 2 hours.",
+        fullDesc: "We handle units from 5x5 lockers to 10x30 warehouse-style units. Everything you want removed is loaded into our truck and routed by item type.",
         heroSubtitle: "Stop paying monthly rent on junk. We clear your storage unit fast so you can cancel.",
         items: [
             { title: "Small Units (5x5 – 5x10)", desc: "Lockers and small units with boxes and miscellaneous items." },
@@ -374,6 +388,7 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "hoarder-cleanout",
         title: "Hoarder Cleanout",
         names: ["Hoarder Cleanout", "Hoarder", "Hoarding", "hoarder-cleanout"],
+        keywordSynonyms: ["hoarding cleanout", "clutter cleanout", "home cleanout help"],
         icon: "Container",
         shortDesc: "Compassionate, non-judgmental cleanout services for hoarding situations.",
         fullDesc: "Our crews are trained to work with patience and discretion. We work at the homeowner's pace, carefully setting aside sentimental items. Our service is confidential with unmarked vehicles.",
@@ -401,6 +416,7 @@ export const ALL_SERVICES: ServiceDetail[] = [
         slug: "foreclosure-cleanout",
         title: "Foreclosure Cleanout",
         names: ["Foreclosure Cleanout", "Foreclosure", "REO Cleanout", "foreclosure-cleanout"],
+        keywordSynonyms: ["reo cleanout", "foreclosure junk removal", "property cleanout"],
         icon: "KeyRound",
         shortDesc: "Fast property clearing for banks, REO companies, and property managers.",
         fullDesc: "We remove all contents, sweep and clean the property, and haul everything away in a single visit. Most properties ready to list within 24 hours. Volume pricing available.",
@@ -449,4 +465,16 @@ export function getClientServices(): ServiceDetail[] {
 /** Get a service by its URL slug */
 export function getServiceBySlug(slug: string): ServiceDetail | undefined {
     return ALL_SERVICES.find((svc) => svc.slug === slug);
+}
+
+export function getServiceSynonyms(service: ServiceDetail): string[] {
+    if (service.keywordSynonyms && service.keywordSynonyms.length > 0) {
+        return service.keywordSynonyms;
+    }
+
+    return [
+        `${service.title.toLowerCase()} pickup`,
+        `${service.title.toLowerCase()} disposal`,
+        `${service.title.toLowerCase()} hauling`,
+    ];
 }

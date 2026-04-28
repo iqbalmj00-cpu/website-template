@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { siteConfig } from "@/lib/siteConfig";
+import { absoluteUrl } from "@/lib/siteConfig";
 
 export default function robots(): MetadataRoute.Robots {
     return {
@@ -7,9 +7,9 @@ export default function robots(): MetadataRoute.Robots {
             {
                 userAgent: "*",
                 allow: "/",
-                disallow: ["/api/", "/booking-confirmed", "/booking-details", "/thank-you"],
+                disallow: ["/api/", "/booking-confirmed", "/customer-portal", "/thank-you"],
             },
         ],
-        sitemap: `${siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com` : "https://scaleyourjunk.com"}/sitemap.xml`,
+        sitemap: absoluteUrl("/sitemap.xml"),
     };
 }

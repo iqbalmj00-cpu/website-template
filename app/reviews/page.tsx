@@ -1,18 +1,19 @@
 import Link from "next/link";
-import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import { isSameDayEnabled, siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { fetchReviews } from "@/lib/reviewData";
 import type { Metadata } from "next";
 import { ClipboardList, Phone, Star, CheckCircle, Users, Truck } from "lucide-react";
+import { createPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
-export const metadata: Metadata = {
-    title: `Junk Removal Reviews in ${siteConfig.city} | ${siteConfig.companyName}`,
-    description: `See what real customers in ${cityState} say about ${siteConfig.companyName}. 5-star rated junk removal service. Read reviews from homeowners, property managers, and businesses.`,
-    alternates: { canonical: "/reviews" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: `Junk Removal Reviews in ${siteConfig.city}`,
+    description: `Read available customer reviews for ${siteConfig.companyName}, a junk removal service in ${cityState}.`,
+    path: "/reviews",
+});
 
 export default async function ReviewsPage() {
     const { companyName, phoneNumber, testimonials } = siteConfig;
@@ -20,13 +21,7 @@ export default async function ReviewsPage() {
     // Fetch real Google reviews from dashboard
     const { reviews: googleReviews, stats } = await fetchReviews(12);
 
-    const defaultReviews = [
-        { name: "Happy Customer", role: "Homeowner", text: "Fast, professional, and the price was exactly what they quoted. Highly recommend!" },
-        { name: "Satisfied Client", role: "Property Manager", text: "We use them for all our rental turnovers. Always on time and always thorough." },
-        { name: "Repeat Customer", role: "Business Owner", text: "Third time using them. Consistent quality every single time. Great crew." },
-    ];
-
-    // Priority: Google reviews → siteConfig testimonials → defaults
+    // Priority: Google reviews -> operator-provided testimonials -> clean empty state.
     const hasGoogleReviews = googleReviews.length > 0;
     const displayReviews = hasGoogleReviews
         ? googleReviews.map(r => ({
@@ -36,7 +31,7 @@ export default async function ReviewsPage() {
             role: "Google Review",
             date: r.reviewedAt,
         }))
-        : (testimonials.length > 0 ? testimonials : defaultReviews).map(r => ({
+        : testimonials.map(r => ({
             name: r.name,
             rating: 5,
             text: r.text,
@@ -44,33 +39,17 @@ export default async function ReviewsPage() {
             date: null as string | null,
         }));
 
-    // Stats: use real data or fallback
-    const avgRating = stats?.averageRating ?? 5.0;
-    const totalCount = stats?.totalCount ?? displayReviews.length;
+    const avgRating = stats?.averageRating;
+    const totalCount = stats?.totalCount;
+    const statsItems = [
+        ...(hasGoogleReviews && avgRating ? [{ icon: Star, value: `${avgRating}`, label: "Average Rating" }] : []),
+        ...(hasGoogleReviews && totalCount ? [{ icon: Users, value: `${totalCount}`, label: "Google Reviews" }] : []),
+        { icon: Truck, value: "Online", label: "Booking Available" },
+        ...(isSameDayEnabled() ? [{ icon: CheckCircle, value: "Same-Day", label: "May Be Available" }] : []),
+    ];
 
     return (
         <>
-            {/* AggregateRating JSON-LD — use real stats when available */}
-            {(hasGoogleReviews || testimonials.length > 0) && (
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{
-                        __html: JSON.stringify({
-                            "@context": "https://schema.org",
-                            "@type": "LocalBusiness",
-                            name: companyName,
-                            aggregateRating: {
-                                "@type": "AggregateRating",
-                                ratingValue: String(avgRating),
-                                bestRating: "5",
-                                worstRating: "1",
-                                reviewCount: String(totalCount),
-                            },
-                        }),
-                    }}
-                />
-            )}
-
             {/* Hero */}
             <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -79,7 +58,9 @@ export default async function ReviewsPage() {
                         <span style={{ color: "var(--brand)" }}>{siteConfig.city}</span>
                     </h1>
                     <p style={{ fontSize: "1.2rem", color: "var(--hero-muted)", maxWidth: 550, margin: "0 auto" }}>
-                        Don&apos;t take our word for it. Here&apos;s what real customers in {cityState} say about {companyName}.
+                        {displayReviews.length > 0
+                            ? `Read available customer feedback for ${companyName} in ${cityState}.`
+                            : `Customer reviews for ${companyName} will appear here when real review data is available.`}
                     </p>
                 </div>
             </section>
@@ -87,12 +68,7 @@ export default async function ReviewsPage() {
             {/* Stats Bar */}
             <section style={{ background: "var(--brand)", padding: "1.5rem" }}>
                 <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1.5rem" }}>
-                    {[
-                        { icon: Star, value: hasGoogleReviews ? `${avgRating}` : "5-Star", label: hasGoogleReviews ? "Average Rating" : "Rated Service" },
-                        { icon: Users, value: hasGoogleReviews ? `${totalCount}+` : "Trusted", label: hasGoogleReviews ? "Google Reviews" : "By Local Customers" },
-                        { icon: Truck, value: "Same-Day", label: "Service Available" },
-                        { icon: CheckCircle, value: "100%", label: "Satisfaction" },
-                    ].map(stat => (
+                    {statsItems.map(stat => (
                         <div key={stat.label} style={{ display: "flex", alignItems: "center", gap: "0.75rem", justifyContent: "center" }}>
                             <stat.icon size={22} color="#fff" style={{ flexShrink: 0 }} />
                             <div>
@@ -108,9 +84,8 @@ export default async function ReviewsPage() {
             <section style={{ padding: "3rem 1.5rem 0", background: "var(--background)" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
                     <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.8 }}>
-                        {companyName} has earned its reputation in {cityState} through reliable service, fair pricing,
-                        and crews that treat every home like their own. We&apos;re proud of the relationships we&apos;ve
-                        built with homeowners, property managers, and businesses across the area.
+                        Customer feedback helps future customers compare service quality, communication, and pricing expectations.
+                        This page only shows real Google reviews or testimonials provided through the client configuration.
                     </p>
                 </div>
             </section>
@@ -129,7 +104,7 @@ export default async function ReviewsPage() {
             {/* Reviews Grid */}
             <section style={{ padding: "2rem 1.5rem 5rem", background: "var(--background)" }}>
                 <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.5rem" }}>
-                    {displayReviews.map((review, i) => (
+                    {displayReviews.length > 0 ? displayReviews.map((review, i) => (
                         <div key={i} style={{ background: "var(--card)", borderRadius: 16, padding: "2rem", border: "1px solid var(--border)", display: "flex", flexDirection: "column" }}>
                             <div style={{ display: "flex", gap: "0.25rem", color: "var(--brand)", marginBottom: "1rem", fontSize: "1rem" }}>
                                 {Array.from({ length: 5 }, (_, s) => (
@@ -158,17 +133,24 @@ export default async function ReviewsPage() {
                                 )}
                             </div>
                         </div>
-                    ))}
+                    )) : (
+                        <div style={{ gridColumn: "1 / -1", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 16, padding: "2rem", textAlign: "center" }}>
+                            <h2 style={{ fontSize: "1.3rem", fontWeight: 850, marginBottom: "0.75rem" }}>No Reviews Published Yet</h2>
+                            <p style={{ color: "var(--muted)", lineHeight: 1.7, maxWidth: 560, margin: "0 auto" }}>
+                                Customer reviews will appear here after they are available from the connected review source or client-provided testimonials.
+                            </p>
+                        </div>
+                    )}
                 </div>
             </section>
 
             {/* CTA */}
             <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Join Our Happy Customers</h2>
-                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", marginBottom: "2rem" }}>Book your pickup today and see why customers in {siteConfig.city} keep coming back.</p>
+                    <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Ready To Book Junk Removal?</h2>
+                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", marginBottom: "2rem" }}>Book your pickup and approve the final quote before loading begins.</p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                        <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><ClipboardList size={18} /> Book Now</Link>
+                        <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><ClipboardList size={18} /> Book Junk Removal in {siteConfig.city}</Link>
                         <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid var(--hero-text)", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Phone size={18} /> {formatPhone(phoneNumber)}</a>
                     </div>
                 </div>

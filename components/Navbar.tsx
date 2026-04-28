@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { Phone, Menu, X, ChevronDown, Calendar } from "lucide-react";
 import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
-import { getLocations } from "@/lib/locationData";
+import { getIndexableLocations } from "@/lib/locationData";
 
 /* ── Split company name for logo ──────────────────────────────────────── */
 function splitCompanyName(name: string): [string, string] {
@@ -46,7 +47,7 @@ function buildServiceLinks() {
 }
 
 function buildLocationLinks() {
-    return getLocations().map(loc => ({ name: loc.name, href: `/locations/${loc.slug}` }));
+    return getIndexableLocations().map(loc => ({ name: loc.name, href: `/locations/${loc.slug}` }));
 }
 
 /* ── Component ─────────────────────────────────────────────────────────── */
@@ -66,9 +67,10 @@ export default function Navbar() {
         { name: "Locations", href: "/locations", hasDropdown: true },
         { name: "How It Works", href: "/how-it-works" },
         ...(siteConfig.offersDumpsterRental ? [{ name: "Dumpster Rental", href: "/dumpster-rental" }] : []),
+        { name: "Commercial", href: "/commercial" },
         { name: "Reviews", href: "/reviews" },
         { name: "About", href: "/about" },
-        { name: "Blog", href: "/blog" },
+        ...(siteConfig.enableBlog ? [{ name: "Blog", href: "/blog" }] : []),
         { name: "Contact", href: "/contact" },
     ];
 
@@ -100,7 +102,7 @@ export default function Navbar() {
                 {/* Logo */}
                 <Link href="/" style={{ fontFamily: "var(--heading-font)", fontWeight: 900, fontSize: "1.4rem", color: "var(--nav-hover)", textDecoration: "none", letterSpacing: "-0.04em", flexShrink: 0, whiteSpace: "nowrap", marginRight: "2rem" }}>
                     {siteConfig.logoUrl ? (
-                        <img src={siteConfig.logoUrl} alt={siteConfig.companyName} style={{ height: 40, objectFit: "contain" }} />
+                        <Image src={siteConfig.logoUrl} alt={siteConfig.companyName} width={180} height={40} unoptimized style={{ width: "auto", height: 40, objectFit: "contain" }} />
                     ) : (() => {
                         const [first, rest] = splitCompanyName(siteConfig.companyName);
                         return <span><span style={{ color: "var(--brand)" }}>{first}</span>{rest ? " " + rest : ""}</span>;
@@ -114,6 +116,7 @@ export default function Navbar() {
                             <div key={link.name} ref={link.name === "Services" ? servicesRef : locationsRef} style={{ position: "relative" }}>
                                 <button
                                     onClick={() => toggle(link.name)}
+                                    aria-expanded={activeDropdown === link.name}
                                     style={{
                                         background: "none", border: "none", cursor: "pointer",
                                         display: "flex", alignItems: "center", gap: "0.25rem",
@@ -238,7 +241,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Mobile hamburger */}
-                <button className="mobile-nav-toggle" onClick={() => setMobileOpen(!mobileOpen)} style={{ background: "none", border: "none", color: "var(--nav-hover)", cursor: "pointer", padding: 8 }}>
+                <button className="mobile-nav-toggle" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)} style={{ background: "none", border: "none", color: "var(--nav-hover)", cursor: "pointer", padding: 8 }}>
                     {mobileOpen ? <X size={28} /> : <Menu size={28} />}
                 </button>
             </div>

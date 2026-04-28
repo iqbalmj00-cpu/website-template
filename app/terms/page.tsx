@@ -1,11 +1,12 @@
-import { siteConfig } from "@/lib/siteConfig";
+import { hasInsurance, hasLicense, siteConfig } from "@/lib/siteConfig";
 import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-    title: `Terms of Service | ${siteConfig.companyName}`,
-    description: `Terms of service for ${siteConfig.companyName}. Review our service terms, pricing policies, and SMS messaging terms.`,
-    alternates: { canonical: "/terms" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: "Terms of Service",
+    description: `Terms of service for ${siteConfig.companyName}. Review service terms, pricing policies, and SMS messaging terms.`,
+    path: "/terms",
+});
 
 /* ── Shared styles ── */
 const h2Style = { fontSize: "1.75rem", fontWeight: 800 as const, marginBottom: "1.5rem", paddingBottom: "0.75rem", borderBottom: "2px solid var(--brand)" };
@@ -22,7 +23,9 @@ export default function TermsOfServicePage() {
                 <h1 style={{ fontSize: "2.5rem", fontWeight: 900, marginBottom: "3rem" }}>Terms of Service</h1>
 
                 <div style={bodyStyle}>
-                    <p style={pStyle}><strong>Effective Date:</strong> April 1, 2026</p>
+                    {siteConfig.legalEffectiveDate && (
+                        <p style={pStyle}><strong>Effective Date:</strong> {siteConfig.legalEffectiveDate}</p>
+                    )}
                     <p style={pStyle}>
                         By using the services offered by {companyName} (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;), you agree to these Terms of Service. Please read them carefully.
                     </p>
@@ -93,7 +96,9 @@ export default function TermsOfServicePage() {
                     {/* ── Liability ── */}
                     <h2 style={h2Style}>Liability</h2>
                     <p style={pStyle}>
-                        {companyName} is fully licensed and insured. However, we are not liable for pre-existing damage to items or property not disclosed before the job begins.
+                        {hasLicense() || hasInsurance()
+                            ? `${companyName} has ${[hasLicense() ? "license information" : "", hasInsurance() ? "insurance carrier information" : ""].filter(Boolean).join(" and ")} on file.`
+                            : `${companyName} is responsible for performing the booked service with reasonable care.`} We are not liable for pre-existing damage to items or property not disclosed before the job begins.
                     </p>
                     <p style={pStyle}>
                         Our total liability for any claim arising from our services shall not exceed the amount paid for the specific service giving rise to such claim.

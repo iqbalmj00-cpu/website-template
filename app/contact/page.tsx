@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Phone, MapPin, Clock, CalendarDays, MessageSquare, Truck } from "lucide-react";
-import { siteConfig, formatPhone, telHref, groupBusinessHours, fmt24to12 } from "@/lib/siteConfig";
+import { Phone, MapPin, Clock } from "lucide-react";
+import { siteConfig, formatPhone, telHref, groupBusinessHours, isSameDayEnabled } from "@/lib/siteConfig";
+import { createPageMetadata, localBusinessJsonLd } from "@/lib/seo";
+import ContactForm from "./ContactForm";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 const areas = (siteConfig.serviceArea || "").split(",").map(s => s.trim()).filter(Boolean);
 
 const hoursGroups = siteConfig.businessHours ? groupBusinessHours(siteConfig.businessHours) : null;
 
-export const metadata: Metadata = {
-    title: `Contact ${siteConfig.companyName} — Junk Removal in ${cityState}`,
-    description: `Get in touch with ${siteConfig.companyName} for junk removal in ${cityState}. Call for a free quote, book online, or send us a message. Same-day service available.`,
-    alternates: { canonical: "/contact" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: `Contact ${siteConfig.companyName}`,
+    description: `Get in touch with ${siteConfig.companyName} for junk removal near you in ${cityState}. Call, book online, or send a message.`,
+    path: "/contact",
+});
 
 export default function ContactPage() {
     const contactCards = [
@@ -22,6 +24,10 @@ export default function ContactPage() {
 
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd()) }}
+            />
             <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 4rem", textAlign: "center" }}>
                 <div style={{ maxWidth: 700, margin: "0 auto" }}>
                     <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
@@ -76,46 +82,26 @@ export default function ContactPage() {
                     {/* Quick message */}
                     <div>
                         <h2 style={{ fontSize: "1.5rem", color: "var(--foreground)", marginBottom: "1.5rem" }}>Send a Message</h2>
-                        <div className="card">
-                            <p style={{ color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.7, marginBottom: "1.5rem" }}>
-                                The fastest way to get a quote is to{" "}
-                                <a href="/book" style={{ color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>book online</a>
-                                {" "}— it takes about 2 minutes and you&apos;ll get an instant estimate.
-                            </p>
-                            <p style={{ color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.7 }}>
-                                For general inquiries, give us a call at{" "}
-                                <a href={telHref(siteConfig.phoneNumber)} style={{ color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>
-                                    {formatPhone(siteConfig.phoneNumber)}
-                                </a>
-                                . Our AI assistant is available 24/7 and our crew is ready to help during business hours.
-                            </p>
-                        </div>
+                        <ContactForm />
+                        <p style={{ color: "var(--muted)", fontSize: "0.92rem", lineHeight: 1.65, marginTop: "1rem" }}>
+                            For the fastest quote,{" "}
+                            <Link href="/book" style={{ color: "var(--brand)", fontWeight: 700, textDecoration: "none" }}>book online</Link>
+                            {" "}and include your item details.
+                        </p>
                     </div>
                 </div>
             </section>
 
-            {/* What to Expect */}
-            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-                    <h2 className="section-title" style={{ textAlign: "center", marginBottom: "1rem" }}>What to Expect</h2>
-                    <p style={{ textAlign: "center", color: "var(--muted)", maxWidth: 600, margin: "0 auto 3rem", lineHeight: 1.7 }}>
-                        Getting junk removed in {siteConfig.city} is quick and easy with {siteConfig.companyName}.
+            {/* What to Expect — short summary linking to dedicated page (avoids duplicating /how-it-works content) */}
+            <section style={{ padding: "3rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
+                    <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginBottom: "1rem" }}>What to Expect</h2>
+                    <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem", marginBottom: "1.25rem" }}>
+                        Getting junk removed in {siteConfig.city} is straightforward — book online or call, we confirm your appointment, and the crew reviews the final price before loading begins.
                     </p>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "2rem" }}>
-                        {[
-                            { icon: CalendarDays, step: "1", title: "Book & Get Your Estimate", desc: `Book online in 2 minutes — select your items and see your price range instantly. Or call us at ${formatPhone(siteConfig.phoneNumber)}. Our 24/7 AI phone agent can book your pickup anytime.` },
-                            { icon: MessageSquare, step: "2", title: "We Confirm Your Appointment", desc: `Our team reviews your booking and confirms your date, time, and estimated price. You'll get a confirmation with all the details — no guesswork.` },
-                            { icon: Truck, step: "3", title: "We Show Up & Haul It Away", desc: "Our crew arrives on time, confirms the final price on-site, and gets to work. We load, sweep up, and haul everything away. Most jobs take under an hour." },
-                        ].map((item) => (
-                            <div key={item.step} style={{ textAlign: "center" }}>
-                                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--brand)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.25rem", fontWeight: 800, margin: "0 auto 1rem" }}>
-                                    {item.step}
-                                </div>
-                                <h3 style={{ fontSize: "1.1rem", marginBottom: "0.5rem", color: "var(--foreground)" }}>{item.title}</h3>
-                                <p style={{ color: "var(--muted)", lineHeight: 1.65, fontSize: "0.925rem" }}>{item.desc}</p>
-                            </div>
-                        ))}
-                    </div>
+                    <Link href="/how-it-works" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.75rem 1.5rem", borderRadius: "var(--btn-radius)", background: "var(--background)", border: "2px solid var(--brand)", color: "var(--brand)", fontWeight: 700, fontSize: "0.95rem", textDecoration: "none" }}>
+                        See how junk removal works step-by-step →
+                    </Link>
                 </div>
             </section>
 
@@ -141,9 +127,66 @@ export default function ContactPage() {
                                     </span>
                                 ))}
                             </div>
+                            {/* ZIP codes covered — uses serviceAreaZips from siteConfig.
+                                Helps customers verify coverage and gives Google a richer
+                                local-area signal (was previously only used for booking validation). */}
+                            {siteConfig.serviceAreaZips.length > 0 && (
+                                <div style={{ marginTop: "1.5rem", paddingTop: "1.25rem", borderTop: "1px solid var(--border)" }}>
+                                    <p style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--muted)", marginBottom: "0.6rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                        ZIP Codes We Cover
+                                    </p>
+                                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.4rem" }}>
+                                        {siteConfig.serviceAreaZips.map((zip) => (
+                                            <span key={zip} style={{
+                                                padding: "0.3rem 0.65rem", borderRadius: "var(--btn-radius)",
+                                                background: "var(--card)", border: "1px solid var(--border)",
+                                                fontSize: "0.75rem", fontWeight: 600, color: "var(--foreground)",
+                                                fontFamily: "var(--mono, monospace)",
+                                            }}>
+                                                {zip}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                             <Link href="/locations" style={{ display: "inline-block", marginTop: "1.5rem", color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>
                                 View All Locations →
                             </Link>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {isSameDayEnabled() && (
+                <section style={{ padding: "3rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
+                    <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
+                        <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.75rem" }}>Need Pickup Today?</h2>
+                        <p style={{ color: "var(--muted)", lineHeight: 1.7, marginBottom: "1.25rem" }}>
+                            Same-day windows may be available when route capacity allows.
+                        </p>
+                        <Link href="/same-day-junk-removal" style={{ color: "var(--brand)", fontWeight: 800, textDecoration: "none" }}>
+                            View same-day details →
+                        </Link>
+                    </div>
+                </section>
+            )}
+
+            {/* Embedded Google Map — only renders when operator has provided their GBP Place ID + Maps key.
+                Helps SEO (LocalBusiness map presence) and gives customers a quick visual of the service area. */}
+            {siteConfig.gbpPlaceId && siteConfig.googleMapsKey && (
+                <section style={{ padding: "0 0 4rem", background: "var(--background)" }}>
+                    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 1.5rem" }}>
+                        <div style={{ borderRadius: 16, overflow: "hidden", border: "1px solid var(--border)", boxShadow: "0 10px 40px rgba(0,0,0,0.08)" }}>
+                            <iframe
+                                title={`${siteConfig.companyName} on Google Maps`}
+                                src={`https://www.google.com/maps/embed/v1/place?key=${siteConfig.googleMapsKey}&q=place_id:${siteConfig.gbpPlaceId}`}
+                                width="100%"
+                                height="400"
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                style={{ border: 0, display: "block" }}
+                                allowFullScreen
+                            />
                         </div>
                     </div>
                 </section>

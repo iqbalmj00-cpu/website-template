@@ -1,68 +1,124 @@
-import { siteConfig } from "@/lib/siteConfig";
+import { absoluteUrl, isSameDayEnabled, siteConfig } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
-import { getLocations } from "@/lib/locationData";
+import { getIndexableLocations } from "@/lib/locationData";
 import { fetchBlogs } from "@/lib/blogData";
+import { getCostGuides } from "@/lib/costData";
+import { SEO_CONTENT_LAST_MODIFIED } from "@/lib/seo";
 import type { MetadataRoute } from "next";
 
+/**
+ * lastModified date for static informational pages whose content rarely changes.
+ * Bump this string when you make a meaningful copy update to about/contact/faq/
+ * privacy/terms/items-we-take/items-we-dont-take/how-it-works/commercial.
+ *
+ * Why a constant instead of `new Date()`: telling Google every page changed on
+ * every build wastes crawl budget and dilutes the freshness signal — the dates
+ * should reflect actual content updates, not deploy timestamps.
+ */
+const CONTENT_VERSION = SEO_CONTENT_LAST_MODIFIED;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = siteConfig.subdomain
-        ? `https://${siteConfig.subdomain}.scaleyourjunk.com`
-        : "https://scaleyourjunk.com";
+    // Build time — use for pages whose content changes when the client's
+    // siteConfig (services, locations, pricing, dumpster offering) changes.
+    const buildTime = new Date();
 
-    const now = new Date();
+    type SitemapEntry = {
+        url: string;
+        changeFrequency: "weekly" | "monthly" | "yearly";
+        priority: number;
+        lastModified: Date;
+    };
 
-    // Static pages
-    const staticPages = [
-        { url: baseUrl, changeFrequency: "weekly" as const, priority: 1.0 },
-        { url: `${baseUrl}/about`, changeFrequency: "monthly" as const, priority: 0.6 },
-        { url: `${baseUrl}/services`, changeFrequency: "weekly" as const, priority: 0.9 },
-        { url: `${baseUrl}/locations`, changeFrequency: "weekly" as const, priority: 0.8 },
-        { url: `${baseUrl}/pricing`, changeFrequency: "monthly" as const, priority: 0.8 },
-        { url: `${baseUrl}/how-it-works`, changeFrequency: "monthly" as const, priority: 0.7 },
-        { url: `${baseUrl}/reviews`, changeFrequency: "monthly" as const, priority: 0.6 },
-        { url: `${baseUrl}/faq`, changeFrequency: "monthly" as const, priority: 0.6 },
-        { url: `${baseUrl}/contact`, changeFrequency: "monthly" as const, priority: 0.7 },
-        { url: `${baseUrl}/commercial`, changeFrequency: "monthly" as const, priority: 0.7 },
-        { url: `${baseUrl}/items-we-take`, changeFrequency: "monthly" as const, priority: 0.5 },
-        { url: `${baseUrl}/items-we-dont-take`, changeFrequency: "monthly" as const, priority: 0.4 },
-        { url: `${baseUrl}/book`, changeFrequency: "monthly" as const, priority: 0.9 },
-        { url: `${baseUrl}/get-started`, changeFrequency: "monthly" as const, priority: 0.8 },
-        { url: `${baseUrl}/blog`, changeFrequency: "weekly" as const, priority: 0.7 },
-        { url: `${baseUrl}/legal`, changeFrequency: "yearly" as const, priority: 0.2 },
-        { url: `${baseUrl}/privacy`, changeFrequency: "yearly" as const, priority: 0.3 },
-        { url: `${baseUrl}/terms`, changeFrequency: "yearly" as const, priority: 0.3 },
-        ...(siteConfig.offersDumpsterRental ? [{ url: `${baseUrl}/dumpster-rental`, changeFrequency: "monthly" as const, priority: 0.8 }] : []),
+    // Pages whose content meaningfully changes when client's config changes.
+    const configDrivenPages: SitemapEntry[] = [
+        { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1.0, lastModified: buildTime },
+        { url: absoluteUrl("/services"), changeFrequency: "weekly", priority: 0.9, lastModified: buildTime },
+        { url: absoluteUrl("/locations"), changeFrequency: "weekly", priority: 0.8, lastModified: buildTime },
+        { url: absoluteUrl("/pricing"), changeFrequency: "monthly", priority: 0.8, lastModified: buildTime },
+        { url: absoluteUrl("/reviews"), changeFrequency: "monthly", priority: 0.6, lastModified: buildTime },
+        { url: absoluteUrl("/book"), changeFrequency: "monthly", priority: 0.9, lastModified: buildTime },
+        { url: absoluteUrl("/cost"), changeFrequency: "monthly", priority: 0.75, lastModified: buildTime },
+        { url: absoluteUrl("/best-junk-removal"), changeFrequency: "monthly", priority: 0.75, lastModified: CONTENT_VERSION },
+        ...(isSameDayEnabled() ? [{ url: absoluteUrl("/same-day-junk-removal"), changeFrequency: "monthly" as const, priority: 0.8, lastModified: buildTime }] : []),
+        ...(siteConfig.offersDumpsterRental ? [
+            { url: absoluteUrl("/dumpster-rental"), changeFrequency: "monthly" as const, priority: 0.8, lastModified: buildTime },
+            { url: absoluteUrl("/junk-removal-vs-dumpster-rental"), changeFrequency: "monthly" as const, priority: 0.75, lastModified: CONTENT_VERSION },
+        ] : []),
     ];
 
-    // Service pages
-    const servicePages = getClientServices().map((svc) => ({
-        url: `${baseUrl}/services/${svc.slug}`,
-        changeFrequency: "monthly" as const,
+    // Pages whose content is largely static template copy — bump CONTENT_VERSION
+    // above when you actually edit one of them.
+    const staticContentPages: SitemapEntry[] = [
+        { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.6, lastModified: CONTENT_VERSION },
+        { url: absoluteUrl("/how-it-works"), changeFrequency: "monthly", priority: 0.7, lastModified: CONTENT_VERSION },
+        { url: absoluteUrl("/faq"), changeFrequency: "monthly", priority: 0.6, lastModified: CONTENT_VERSION },
+        { url: absoluteUrl("/contact"), changeFrequency: "monthly", priority: 0.7, lastModified: CONTENT_VERSION },
+        { url: absoluteUrl("/commercial"), changeFrequency: "monthly", priority: 0.7, lastModified: CONTENT_VERSION },
+        { url: absoluteUrl("/items-we-take"), changeFrequency: "monthly", priority: 0.5, lastModified: CONTENT_VERSION },
+        { url: absoluteUrl("/items-we-dont-take"), changeFrequency: "monthly", priority: 0.4, lastModified: CONTENT_VERSION },
+        { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.3, lastModified: CONTENT_VERSION },
+        { url: absoluteUrl("/terms"), changeFrequency: "yearly", priority: 0.3, lastModified: CONTENT_VERSION },
+    ];
+
+    // Service detail pages — depend on per-client config + per-service template
+    const servicePages: SitemapEntry[] = getClientServices().map((svc) => ({
+        url: absoluteUrl(`/services/${svc.slug}`),
+        changeFrequency: "monthly",
         priority: 0.8,
-        lastModified: now,
+        lastModified: buildTime,
     }));
 
-    // Location pages
-    const locationPages = getLocations().map((loc) => ({
-        url: `${baseUrl}/locations/${loc.slug}`,
-        changeFrequency: "monthly" as const,
+    const indexableLocations = getIndexableLocations();
+
+    // Location detail pages — only the main city and explicitly configured locations are indexable.
+    const locationPages: SitemapEntry[] = indexableLocations.map((loc) => ({
+        url: absoluteUrl(`/locations/${loc.slug}`),
+        changeFrequency: "monthly",
         priority: 0.8,
-        lastModified: now,
+        lastModified: buildTime,
     }));
 
-    // Blog pages
-    const blogs = await fetchBlogs();
-    const blogPages = blogs.map((b) => ({
-        url: `${baseUrl}/blog/${b.slug}`,
-        changeFrequency: "monthly" as const,
+    const serviceLocationPages: SitemapEntry[] = indexableLocations.flatMap((loc) =>
+        getClientServices().map((svc) => ({
+            url: absoluteUrl(`/locations/${loc.slug}/${svc.slug}`),
+            changeFrequency: "monthly" as const,
+            priority: loc.isMainCity ? 0.75 : 0.7,
+            lastModified: buildTime,
+        })),
+    );
+
+    const costPages: SitemapEntry[] = getCostGuides().map((item) => ({
+        url: absoluteUrl(`/cost/${item.slug}`),
+        changeFrequency: "monthly",
         priority: 0.7,
-        lastModified: now,
+        lastModified: CONTENT_VERSION,
+    }));
+
+    // Blog pages — TODO: use the actual published/updated date from each blog
+    // when fetchBlogs returns it. For now use CONTENT_VERSION as a conservative
+    // signal since these are operator-pushed and rarely re-edited per build.
+    const blogs = siteConfig.enableBlog ? await fetchBlogs() : [];
+    const blogIndex: SitemapEntry[] = blogs.length > 0 ? [{
+        url: absoluteUrl("/blog"),
+        changeFrequency: "weekly",
+        priority: 0.7,
+        lastModified: CONTENT_VERSION,
+    }] : [];
+    const blogPages: SitemapEntry[] = blogs.map((b) => ({
+        url: absoluteUrl(`/blog/${b.slug}`),
+        changeFrequency: "monthly",
+        priority: 0.7,
+        lastModified: CONTENT_VERSION,
     }));
 
     return [
-        ...staticPages.map((p) => ({ ...p, lastModified: now })),
+        ...configDrivenPages,
+        ...staticContentPages,
         ...servicePages,
         ...locationPages,
+        ...serviceLocationPages,
+        ...costPages,
+        ...blogIndex,
         ...blogPages,
     ];
 }

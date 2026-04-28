@@ -1,37 +1,37 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, Bebas_Neue, DM_Sans, Fraunces, Nunito, Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/siteConfig";
-import { getTheme } from "@/lib/themeConfig";
+import { createPageMetadata, localBusinessJsonLd } from "@/lib/seo";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-/* ── Load ALL theme fonts (Next.js requires static imports) ───────────── */
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
-const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas-neue", display: "swap" });
-const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", display: "swap" });
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap" });
-const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito", display: "swap" });
-const playfairDisplay = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap" });
-const sourceSans3 = Source_Sans_3({ subsets: ["latin"], variable: "--font-source-sans", display: "swap" });
+/* ── Theme-conditional font loading ───────────────────────────────────────
+ * Next.js requires next/font/google calls at module top level, so all 8 fonts
+ * are imported. Preload is disabled with explicit literals because the font
+ * loader cannot statically analyze dynamic preload flags. Only the active
+ * theme's CSS variables are applied to <html>. */
+const activeTheme = siteConfig.theme;
 
-const allFontVars = [
-    inter.variable,
-    spaceGrotesk.variable,
-    bebasNeue.variable,
-    dmSans.variable,
-    fraunces.variable,
-    nunito.variable,
-    playfairDisplay.variable,
-    sourceSans3.variable,
-].join(" ");
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", preload: false });
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap", preload: false });
+const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas-neue", display: "swap", preload: false });
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", display: "swap", preload: false });
+const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", preload: false });
+const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito", display: "swap", preload: false });
+const playfairDisplay = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap", preload: false });
+const sourceSans3 = Source_Sans_3({ subsets: ["latin"], variable: "--font-source-sans", display: "swap", preload: false });
 
-const baseUrl = siteConfig.subdomain
-    ? `https://${siteConfig.subdomain}.scaleyourjunk.com`
-    : "https://scaleyourjunk.com";
-
-const ogImage = siteConfig.heroImageUrl || siteConfig.logoUrl || null;
+// Only the active theme's font CSS variables go on <html> — non-active fonts
+// are bundled but their var() references never appear in any rendered CSS,
+// so the browser never actually fetches the woff2 files for them.
+const themeFontVarsMap: Record<string, string[]> = {
+    classic: [inter.variable, spaceGrotesk.variable],
+    industrial: [bebasNeue.variable, dmSans.variable],
+    eco: [fraunces.variable, nunito.variable],
+    editorial: [playfairDisplay.variable, sourceSans3.variable],
+};
+const allFontVars = (themeFontVarsMap[activeTheme] || themeFontVarsMap.classic).join(" ");
 
 /* ── Dynamic favicon from company initials + brand color ──────────────── */
 const faviconInitials = siteConfig.companyName
@@ -64,33 +64,21 @@ const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
 const faviconDataUrl = `data:image/svg+xml,${encodeURIComponent(faviconSvg)}`;
 
 export const metadata: Metadata = {
-    metadataBase: new URL(baseUrl),
-    title: `${siteConfig.companyName} | Junk Removal in ${siteConfig.city}`,
-    description: `${siteConfig.companyName} offers fast, affordable junk removal in ${siteConfig.serviceArea || siteConfig.city}. Furniture, appliances, yard waste & more. Book online in minutes.`,
-    alternates: {
-        canonical: "/",
-    },
-    openGraph: {
-        title: `${siteConfig.companyName} | Junk Removal in ${siteConfig.city}`,
-        description: `Fast, affordable junk removal in ${siteConfig.serviceArea || siteConfig.city}.`,
-        type: "website",
-        siteName: siteConfig.companyName,
-        locale: "en_US",
-        ...(ogImage ? { images: [{ url: ogImage, width: 1200, height: 630, alt: `${siteConfig.companyName} — Junk Removal in ${siteConfig.city}` }] } : {}),
-    },
-    twitter: {
-        card: ogImage ? "summary_large_image" : "summary",
-        title: `${siteConfig.companyName} | Junk Removal in ${siteConfig.city}`,
-        description: `Fast, affordable junk removal in ${siteConfig.serviceArea || siteConfig.city}.`,
-        ...(ogImage ? { images: [ogImage] } : {}),
-    },
-    robots: {
-        index: true,
-        follow: true,
-    },
+    ...createPageMetadata({
+        title: `Junk Removal in ${siteConfig.city}`,
+        description: `${siteConfig.companyName} provides junk removal in ${siteConfig.serviceArea || siteConfig.city}. Furniture, appliances, yard waste, cleanouts, and more.`,
+        path: "/",
+    }),
+    applicationName: siteConfig.companyName,
+    manifest: "/manifest.webmanifest",
     icons: {
         icon: faviconDataUrl,
+        apple: faviconDataUrl,
     },
+};
+
+export const viewport: Viewport = {
+    themeColor: siteConfig.brandColor,
 };
 
 export default function RootLayout({
@@ -123,45 +111,7 @@ export default function RootLayout({
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{
-                        __html: JSON.stringify({
-                            "@context": "https://schema.org",
-                            "@type": "LocalBusiness",
-                            "@id": siteConfig.subdomain ? `https://${siteConfig.subdomain}.scaleyourjunk.com/#business` : undefined,
-                            name: siteConfig.companyName,
-                            description: `${siteConfig.companyName} offers fast, affordable junk removal in ${siteConfig.serviceArea || siteConfig.city}.`,
-                            telephone: siteConfig.phoneNumber,
-                            ...(siteConfig.subdomain ? { url: `https://${siteConfig.subdomain}.scaleyourjunk.com` } : {}),
-                            ...(siteConfig.logoUrl ? { logo: siteConfig.logoUrl, image: siteConfig.logoUrl } : {}),
-                            address: {
-                                "@type": "PostalAddress",
-                                addressLocality: siteConfig.city,
-                                addressRegion: siteConfig.state,
-                                addressCountry: "US",
-                            },
-                            areaServed: (siteConfig.serviceArea || siteConfig.city).split(",").map(a => ({
-                                "@type": "City",
-                                name: a.trim(),
-                            })),
-                            priceRange: "$$",
-                            currenciesAccepted: "USD",
-                            paymentAccepted: "Cash, Credit Card",
-                            openingHoursSpecification: (() => {
-                                const bh = siteConfig.businessHours;
-                                if (!bh) return undefined;
-                                const dayMap: Record<string, string> = {
-                                    mon: "Monday", tue: "Tuesday", wed: "Wednesday",
-                                    thu: "Thursday", fri: "Friday", sat: "Saturday", sun: "Sunday",
-                                };
-                                return Object.entries(bh)
-                                    .filter(([, v]) => v && !(v as { closed?: boolean }).closed)
-                                    .map(([day, v]) => ({
-                                        "@type": "OpeningHoursSpecification",
-                                        dayOfWeek: dayMap[day] || day,
-                                        opens: (v as { start?: string }).start || "08:00",
-                                        closes: (v as { end?: string }).end || "18:00",
-                                    }));
-                            })(),
-                        }),
+                        __html: JSON.stringify(localBusinessJsonLd()),
                     }}
                 />
                 <Navbar />

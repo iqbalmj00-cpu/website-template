@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, Mail, MapPin, Facebook, Instagram, Clock } from "lucide-react";
-import { siteConfig, formatPhone, telHref, groupBusinessHours } from "@/lib/siteConfig";
-import type { BusinessDayHours } from "@/lib/siteConfig";
+import { Phone, MapPin, Clock } from "lucide-react";
+import { getCredentials, isSameDayEnabled, siteConfig, formatPhone, telHref, groupBusinessHours } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
 
 export default function Footer() {
@@ -15,7 +14,11 @@ export default function Footer() {
         { label: "Services", href: "/services" },
         { label: "Locations", href: "/locations" },
         { label: "How It Works", href: "/how-it-works" },
+        { label: "Cost Guide", href: "/cost" },
+        { label: "Best Junk Removal Guide", href: "/best-junk-removal" },
+        ...(isSameDayEnabled() ? [{ label: "Same-Day Junk Removal", href: "/same-day-junk-removal" }] : []),
         ...(siteConfig.offersDumpsterRental ? [{ label: "Dumpster Rental", href: "/dumpster-rental" }] : []),
+        ...(siteConfig.offersDumpsterRental ? [{ label: "Junk Removal vs Dumpster Rental", href: "/junk-removal-vs-dumpster-rental" }] : []),
         { label: "Pricing", href: "/pricing" },
         { label: "Reviews", href: "/reviews" },
         { label: "Items We Take", href: "/items-we-take" },
@@ -23,10 +26,12 @@ export default function Footer() {
         { label: "About Us", href: "/about" },
         { label: "FAQ", href: "/faq" },
         { label: "Contact", href: "/contact" },
+        ...(siteConfig.enableBlog ? [{ label: "Blog", href: "/blog" }] : []),
         { label: "Customer Portal", href: "/customer-portal" },
     ];
 
     const hoursGroups = siteConfig.businessHours ? groupBusinessHours(siteConfig.businessHours) : null;
+    const credentialLine = getCredentials().map(item => `${item.label}: ${item.value}`).join(" · ");
 
     return (
         <footer style={{ background: "var(--footer-bg)", color: "var(--footer-text)" }}>
@@ -65,10 +70,28 @@ export default function Footer() {
                             <Phone size={14} style={{ color: "var(--brand)" }} />
                             {formatPhone(siteConfig.phoneNumber)}
                         </a>
-                        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", color: "var(--footer-muted)" }}>
-                            <MapPin size={14} style={{ color: "var(--brand)" }} />
-                            {siteConfig.city}{siteConfig.state ? `, ${siteConfig.state}` : ""}
-                        </span>
+                        {siteConfig.streetAddress && (
+                            <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.9rem", color: "var(--footer-muted)" }}>
+                                <MapPin size={14} style={{ color: "var(--brand)" }} />
+                                {siteConfig.streetAddress}, {siteConfig.city}{siteConfig.state ? `, ${siteConfig.state}` : ""}
+                            </span>
+                        )}
+                        {credentialLine && (
+                            <span style={{ fontSize: "0.8rem", lineHeight: 1.5, color: "var(--footer-muted)" }}>
+                                {credentialLine}
+                            </span>
+                        )}
+                        {siteConfig.gbpUrl && (
+                            <a
+                                href={siteConfig.gbpUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--footer-text)", textDecoration: "none", fontSize: "0.85rem" }}
+                            >
+                                <span style={{ color: "var(--brand)", fontWeight: 800, fontSize: "0.85rem" }}>G</span>
+                                View us on Google
+                            </a>
+                        )}
                     </div>
 
                     {/* Business Hours */}
@@ -117,7 +140,13 @@ export default function Footer() {
                     <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                         {quickLinks.map((l) => (
                             <li key={l.href}>
-                                <Link href={l.href} style={{ color: "var(--footer-muted)", textDecoration: "none", fontSize: "0.9rem" }}
+                                <Link
+                                    href={l.href}
+                                    // Customer Portal redirects through to a URL containing the
+                                    // siteToken. Suppress Referer here so the dashboard doesn't
+                                    // see the previous page in its access logs.
+                                    {...(l.href === "/customer-portal" ? { referrerPolicy: "no-referrer" as const } : {})}
+                                    style={{ color: "var(--footer-muted)", textDecoration: "none", fontSize: "0.9rem" }}
                                     onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "var(--footer-text)")}
                                     onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "var(--footer-muted)")}
                                 >
@@ -134,10 +163,10 @@ export default function Footer() {
                         Ready to haul?
                     </p>
                     <p style={{ color: "var(--footer-muted)", fontSize: "0.9rem", lineHeight: 1.6, marginBottom: "1.25rem" }}>
-                        Book online in 2 minutes. Same-day pickup available in {siteConfig.city}.
+                        Book online in minutes. {isSameDayEnabled() ? `Same-day pickup may be available in ${siteConfig.city}.` : "Pickup windows depend on route availability."}
                     </p>
                     <Link href="/book" className="btn-primary" style={{ fontSize: "0.9rem", padding: "0.7rem 1.5rem" }}>
-                        Book Now →
+                        Book Junk Removal in {siteConfig.city} →
                     </Link>
                 </div>
             </div>

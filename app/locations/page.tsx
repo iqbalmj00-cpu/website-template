@@ -1,23 +1,25 @@
 import Link from "next/link";
-import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
-import { getLocations } from "@/lib/locationData";
+import { getVerifiableTrustSignals, siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import { getIndexableLocations } from "@/lib/locationData";
 import { getClientServices } from "@/lib/serviceData";
 import type { Metadata } from "next";
 import ServiceIcon from "@/components/ServiceIcon";
-import { MapPin, Truck, ShieldCheck, Recycle, Phone } from "lucide-react";
+import { CheckCircle, MapPin, Truck, Phone } from "lucide-react";
+import { createPageMetadata } from "@/lib/seo";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
-export const metadata: Metadata = {
-    title: `Junk Removal Service Areas in ${cityState} | ${siteConfig.companyName}`,
-    description: `${siteConfig.companyName} provides junk removal across ${siteConfig.serviceArea || siteConfig.city}. Find your neighborhood and book same-day service.`,
-    alternates: { canonical: "/locations" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: `Junk Removal Service Areas in ${cityState}`,
+    description: `Junk removal service areas for ${siteConfig.companyName} across ${siteConfig.serviceArea || siteConfig.city}. Find your location and book online.`,
+    path: "/locations",
+});
 
 export default function LocationsPage() {
-    const locations = getLocations();
+    const locations = getIndexableLocations();
     const services = getClientServices();
-    const { companyName, phoneNumber, city, state, serviceArea } = siteConfig;
+    const { phoneNumber, city, state, serviceArea } = siteConfig;
+    const trustMetrics = getVerifiableTrustSignals().slice(0, 4);
 
     return (
         <>
@@ -66,7 +68,7 @@ export default function LocationsPage() {
                         Service <span style={{ color: "var(--brand)" }}>Locations</span>
                     </h1>
                     <p style={{ fontSize: "1.2rem", color: "var(--hero-muted)", maxWidth: 600, margin: "0 auto" }}>
-                        We proudly serve {city}{state ? `, ${state}` : ""} and surrounding communities. Find your neighborhood and book today.
+                        We serve {city}{state ? `, ${state}` : ""} and configured surrounding communities. Find your area and book online.
                     </p>
                 </div>
             </section>
@@ -74,16 +76,10 @@ export default function LocationsPage() {
             {/* Trust Metrics */}
             <section style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", padding: "2rem 1.5rem" }}>
                 <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "2rem", textAlign: "center" }}>
-                    {[
-                        { Icon: Truck, label: "Same Day", sub: "Service Available" },
-                        { Icon: ShieldCheck, label: "Licensed", sub: "& Fully Insured" },
-                        { Icon: Recycle, label: "Eco-Friendly", sub: "Disposal" },
-                        { Icon: Phone, label: "Free", sub: "Estimates" },
-                    ].map((m) => (
-                        <div key={m.label} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                            <span style={{ marginBottom: "0.5rem" }}><m.Icon size={28} color="var(--brand)" /></span>
-                            <span style={{ fontWeight: 800, fontSize: "1.15rem" }}>{m.label}</span>
-                            <span style={{ color: "var(--muted)", fontSize: "0.85rem" }}>{m.sub}</span>
+                    {trustMetrics.map((label) => (
+                        <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                            <span style={{ marginBottom: "0.5rem" }}><CheckCircle size={28} color="var(--brand)" /></span>
+                            <span style={{ fontWeight: 800, fontSize: "1.05rem" }}>{label}</span>
                         </div>
                     ))}
                 </div>
@@ -96,7 +92,7 @@ export default function LocationsPage() {
                         <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Choose Your Area</h2>
                         <div style={{ width: 60, height: 4, borderRadius: "var(--btn-radius)", background: "var(--brand)", margin: "1rem auto 0" }} />
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.5rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))", gap: "1.5rem" }}>
                         {locations.map((loc) => (
                             <Link
                                 key={loc.slug}
@@ -147,7 +143,7 @@ export default function LocationsPage() {
                         <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Our Services</h2>
                         <div style={{ width: 60, height: 4, borderRadius: "var(--btn-radius)", background: "var(--brand)", margin: "1rem auto 0" }} />
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1.5rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 240px), 1fr))", gap: "1.5rem" }}>
                         {services.slice(0, 8).map((svc) => (
                             <Link
                                 key={svc.slug}
@@ -178,7 +174,7 @@ export default function LocationsPage() {
                         Don&apos;t See Your Exact Neighborhood?
                     </h2>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", marginBottom: "2rem" }}>
-                        We cover more areas than we can list. Give us a call and chances are we're already serving your community.
+                        Service availability can vary by address. Call or book online to confirm coverage for your pickup location.
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>

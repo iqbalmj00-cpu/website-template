@@ -5,6 +5,7 @@ import { fetchBlogs, fetchBlogBySlug } from "@/lib/blogData";
 import FAQAccordion from "@/components/FAQAccordion";
 import type { Metadata } from "next";
 import { ChevronRight, Phone } from "lucide-react";
+import { createPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -15,23 +16,28 @@ export async function generateStaticParams() {
 }
 
 /* ── SEO metadata ─────────────────────────────────────────────────────── */
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-    const { slug } = await params;
-    const post = await fetchBlogBySlug(slug);
-    if (!post) return { title: "Post Not Found" };
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+    const post = await fetchBlogBySlug(params.slug);
+    if (!post) {
+        return createPageMetadata({
+            title: "Post Not Found",
+            description: "This blog post is not available.",
+            path: `/blog/${params.slug}`,
+            noIndex: true,
+        });
+    }
 
     const meta = post.content?.meta;
-    return {
-        title: meta?.title || `${post.title} | ${siteConfig.companyName}`,
+    return createPageMetadata({
+        title: meta?.title || post.title,
         description: meta?.description || post.description,
-        ...(meta?.canonical ? { alternates: { canonical: meta.canonical } } : {}),
-    };
+        path: meta?.canonical || `/blog/${post.slug}`,
+    });
 }
 
 /* ── Page ──────────────────────────────────────────────────────────────── */
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = await params;
-    const post = await fetchBlogBySlug(slug);
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+    const post = await fetchBlogBySlug(params.slug);
     if (!post) notFound();
 
     const { content } = post;

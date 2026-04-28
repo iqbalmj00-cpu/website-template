@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import BookingWizard from "@/components/BookingWizard";
-import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
-import { Shield, Clock, CheckCircle, Leaf } from "lucide-react";
+import { getVerifiableTrustSignals, isSameDayEnabled, siteConfig, formatPhone } from "@/lib/siteConfig";
+import { CheckCircle } from "lucide-react";
+import { createPageMetadata } from "@/lib/seo";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
-export const metadata: Metadata = {
-    title: `Book Junk Removal in ${siteConfig.city} | ${siteConfig.companyName}`,
-    description: `Schedule junk removal or rent a dumpster with ${siteConfig.companyName} in ${cityState}. Fast, easy online booking. Same-day service available. Book in minutes.`,
-    alternates: { canonical: "/book" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: `Book Junk Removal in ${siteConfig.city}`,
+    description: `Book junk removal near you in ${cityState} with ${siteConfig.companyName}. Schedule a pickup online and confirm the final price before loading.`,
+    path: "/book",
+});
 
 export default function BookPage() {
     return (
@@ -22,7 +23,7 @@ export default function BookPage() {
                         Book Junk Removal in {siteConfig.city}
                     </h1>
                     <p style={{ color: "var(--hero-muted, #94A3B8)", fontSize: "1.05rem", lineHeight: 1.6 }}>
-                        Schedule your pickup online in minutes. {siteConfig.companyName} serves {cityState} and surrounding areas with same-day and next-day junk removal near you.
+                        Schedule your pickup online in minutes. {siteConfig.companyName} serves {cityState} and surrounding areas. {isSameDayEnabled() ? "Same-day and next-day windows may be available when route capacity allows." : "Pickup windows depend on route availability."}
                     </p>
                 </div>
             </section>
@@ -30,15 +31,10 @@ export default function BookPage() {
             {/* Trust signals */}
             <div style={{ background: "var(--brand)", padding: "1rem 1.5rem" }}>
                 <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "2rem" }}>
-                    {[
-                        { icon: Shield, label: "Fully Insured" },
-                        { icon: CheckCircle, label: "Upfront Pricing" },
-                        { icon: Clock, label: "Same-Day Available" },
-                        { icon: Leaf, label: "Eco-Friendly" },
-                    ].map((item) => (
-                        <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8, color: "#fff", fontSize: 14, fontWeight: 600 }}>
-                            <item.icon size={18} />
-                            <span>{item.label}</span>
+                    {getVerifiableTrustSignals().map((label) => (
+                        <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, color: "#fff", fontSize: 14, fontWeight: 600 }}>
+                            <CheckCircle size={18} />
+                            <span>{label}</span>
                         </div>
                     ))}
                 </div>
@@ -60,7 +56,7 @@ export default function BookPage() {
                         },
                         {
                             q: "How quickly can you pick up my junk?",
-                            a: `We frequently offer same-day and next-day junk removal in ${cityState}. Book before noon for the best chance of same-day service.`,
+                            a: isSameDayEnabled() ? `Same-day and next-day windows may be available in ${cityState} when route capacity allows.` : `Pickup windows in ${cityState} depend on route availability.`,
                         },
                         {
                             q: "What happens after I book?",

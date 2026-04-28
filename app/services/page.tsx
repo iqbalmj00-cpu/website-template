@@ -1,22 +1,24 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
+import { getVerifiableTrustSignals, isSameDayEnabled, siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
-import ServiceIcon from "@/components/ServiceIcon";
 import ServiceCard from "./ServiceCard";
-import { ShieldCheck, MapPin, Building2, Ban, ClipboardList, Phone, DollarSign, FileText } from "lucide-react";
+import { CheckCircle, MapPin, Building2, Ban, ClipboardList, Phone, DollarSign, FileText } from "lucide-react";
+import { createPageMetadata } from "@/lib/seo";
+import { PROHIBITED_ITEMS } from "@/lib/prohibitedItems";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
-export const metadata: Metadata = {
-    title: `Junk Removal Services in ${cityState} | ${siteConfig.companyName}`,
-    description: `${siteConfig.companyName} offers professional junk removal services in ${cityState}. Furniture, appliances, yard waste, construction debris & more. Licensed & insured. Book online today.`,
-    alternates: { canonical: "/services" },
-};
+export const metadata: Metadata = createPageMetadata({
+    title: `Junk Removal Services in ${cityState}`,
+    description: `Need junk removal near you in ${cityState}? ${siteConfig.companyName} offers furniture removal, appliance disposal, yard waste, construction debris, cleanouts, and more.`,
+    path: "/services",
+});
 
 export default function ServicesPage() {
     const services = getClientServices();
     const { companyName, phoneNumber } = siteConfig;
+    const primaryTrustSignal = getVerifiableTrustSignals()[0] || "Online booking available";
 
     return (
         <>
@@ -48,7 +50,7 @@ export default function ServicesPage() {
                             marginBottom: "2rem",
                         }}
                     >
-                        <ShieldCheck size={16} style={{ color: "var(--brand)" }} /> Licensed & Insured
+                        <CheckCircle size={16} style={{ color: "var(--brand)" }} /> {primaryTrustSignal}
                     </span>
                     <h1
                         style={{
@@ -93,9 +95,7 @@ export default function ServicesPage() {
                 <div style={{ maxWidth: 750, margin: "0 auto", textAlign: "center" }}>
                     <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.8 }}>
                         Whether you&apos;re clearing out a garage, renovating a kitchen, or managing a commercial cleanout,
-                        {companyName} has the crew and equipment to get it done fast. We serve all of {cityState} with same-day
-                        and next-day availability. Every job includes eco-friendly disposal — we donate usable items to local
-                        charities, recycle what we can, and only landfill what&apos;s left.
+                        {companyName} provides junk removal in {cityState}. {isSameDayEnabled() ? "Same-day and next-day windows may be available when route capacity allows." : "Pickup windows depend on route availability."} Usable or recyclable items are routed responsibly when local options are available.
                     </p>
                 </div>
             </section>
@@ -107,7 +107,7 @@ export default function ServicesPage() {
                         maxWidth: 1200,
                         margin: "0 auto",
                         display: "grid",
-                        gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 340px), 1fr))",
                         gap: "2rem",
                     }}
                 >
@@ -129,7 +129,7 @@ export default function ServicesPage() {
                 <div style={{ maxWidth: 900, margin: "0 auto" }}>
                     <h2 className="section-title" style={{ textAlign: "center", marginBottom: "1rem" }}>How Pricing Works</h2>
                     <p style={{ textAlign: "center", color: "var(--muted)", fontSize: "1rem", maxWidth: 600, margin: "0 auto 3rem", lineHeight: 1.7 }}>
-                        No hourly rates, no hidden fees. You pay based on how much space your items take in our truck.
+                        Pricing is based on how much space your items take in the truck. The final price is confirmed before loading begins.
                     </p>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
                         <div className="card" style={{ textAlign: "center" }}>
@@ -171,18 +171,9 @@ export default function ServicesPage() {
                             textAlign: "left",
                         }}
                     >
-                        {[
-                            "Hazardous Chemicals",
-                            "Paint & Solvents",
-                            "Asbestos",
-                            "Car Batteries",
-                            "Medical Waste",
-                            "Oil Drums / Tanks",
-                            "Propane Tanks",
-                            "Explosives / Ammunition",
-                        ].map((item) => (
+                        {PROHIBITED_ITEMS.map((entry) => (
                             <div
-                                key={item}
+                                key={entry.item}
                                 style={{
                                     display: "flex",
                                     alignItems: "center",
@@ -192,13 +183,16 @@ export default function ServicesPage() {
                                 }}
                             >
                                 <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#ef4444", flexShrink: 0 }} />
-                                <span style={{ fontWeight: 600, color: "var(--foreground)" }}>{item}</span>
+                                <span style={{ fontWeight: 600, color: "var(--foreground)" }}>{entry.item}</span>
                             </div>
                         ))}
                     </div>
                     <p style={{ marginTop: "2rem", color: "var(--muted)", fontSize: "0.9rem" }}>
                         * For safety and legal reasons, we cannot transport these materials. Contact your local municipal waste management for disposal.
                     </p>
+                    <Link href="/items-we-dont-take" style={{ display: "inline-block", marginTop: "1rem", color: "var(--brand)", fontWeight: 700, textDecoration: "none" }}>
+                        View prohibited item details →
+                    </Link>
                 </div>
             </section>
 
@@ -215,7 +209,7 @@ export default function ServicesPage() {
                         Ready to clear the clutter?
                     </h2>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.15rem", marginBottom: "2.5rem" }}>
-                        Book your free estimate today. Same-day service available in {cityState}.
+                        Book your estimate today. {isSameDayEnabled() ? `Same-day windows may be available in ${cityState}.` : "Pickup windows depend on route availability."}
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" className="btn-primary" style={{ padding: "1rem 2.5rem", fontSize: "1.1rem" }}>

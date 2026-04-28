@@ -6,6 +6,7 @@
 
 export type ServiceItem = string;
 export type Testimonial = { name: string; role: string; text: string };
+export type Credential = { label: string; value: string };
 
 export type PricingTier = { id: string; label: string; fraction: string; min: number; max: number };
 export type Surcharge = {
@@ -58,6 +59,24 @@ function parseJSON<T>(value: string | undefined, fallback: T): T {
     }
 }
 
+function parseList(value: string | undefined): string[] {
+    if (!value) return [];
+    return value
+        .split(",")
+        .map(item => item.trim())
+        .filter(Boolean);
+}
+
+function parseBoolean(value: string | undefined): boolean {
+    return ["1", "true", "yes", "y"].includes((value ?? "").trim().toLowerCase());
+}
+
+function parseOptionalNumber(value: string | undefined): number | null {
+    if (!value) return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+}
+
 /** Normalize business hours — dashboard may store {open,close}, template expects {start,end} */
 function normalizeBusinessHours(raw: Record<string, Record<string, unknown>> | null): BusinessHoursConfig | null {
     if (!raw || typeof raw !== "object") return null;
@@ -80,9 +99,11 @@ export const siteConfig = {
     // Core identity
     companyName: process.env.NEXT_PUBLIC_COMPANY_NAME ?? "Your Company Name",
     subdomain: process.env.NEXT_PUBLIC_SUBDOMAIN ?? "",
+    siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "",
     city: process.env.NEXT_PUBLIC_CITY ?? "Your City",
     state: process.env.NEXT_PUBLIC_STATE ?? "",
     serviceArea: process.env.NEXT_PUBLIC_SERVICE_AREA ?? "your area",
+    streetAddress: process.env.NEXT_PUBLIC_STREET_ADDRESS ?? "",
     phoneNumber: process.env.NEXT_PUBLIC_PHONE_NUMBER ?? "(555) 000-0000",
     tagline:
         process.env.NEXT_PUBLIC_TAGLINE ?? "We haul it all — fast, fair, and friendly.",
@@ -106,22 +127,20 @@ export const siteConfig = {
         "Estate Cleanouts",
     ]),
     testimonials: parseJSON<Testimonial[]>(process.env.NEXT_PUBLIC_TESTIMONIALS, [
-        {
-            name: "Sarah M.",
-            role: "Homeowner",
-            text: "They were on time, professional, and got everything out in under an hour. Highly recommend!",
-        },
-        {
-            name: "James T.",
-            role: "Property Manager",
-            text: "We use them for all our rental cleanouts. Fast, fair pricing, and they recycle what they can.",
-        },
-        {
-            name: "Linda R.",
-            role: "Estate Executor",
-            text: "Handled an entire estate cleanout in one day. Couldn't have done it without them.",
-        },
     ]),
+
+    // Verifiable operator-provided company proof.
+    // Claims that depend on these fields should hide when the values are empty.
+    aboutStory: process.env.NEXT_PUBLIC_ABOUT_STORY ?? "",
+    founderName: process.env.NEXT_PUBLIC_FOUNDER_NAME ?? "",
+    yearFounded: process.env.NEXT_PUBLIC_YEAR_FOUNDED ?? "",
+    licenseNumber: process.env.NEXT_PUBLIC_LICENSE_NUMBER ?? "",
+    insuranceCarrier: process.env.NEXT_PUBLIC_INSURANCE_CARRIER ?? "",
+    certifications: parseList(process.env.NEXT_PUBLIC_CERTIFICATIONS),
+    recyclingRate: parseOptionalNumber(process.env.NEXT_PUBLIC_RECYCLING_RATE),
+    sameDayEnabled: parseBoolean(process.env.NEXT_PUBLIC_SAME_DAY_ENABLED),
+    enableBlog: parseBoolean(process.env.NEXT_PUBLIC_ENABLE_BLOG),
+    legalEffectiveDate: process.env.NEXT_PUBLIC_LEGAL_EFFECTIVE_DATE ?? "",
 
     // Pricing
     pricing: parseJSON<PricingConfig>(process.env.NEXT_PUBLIC_PRICING, {
@@ -135,7 +154,6 @@ export const siteConfig = {
             { id: "multi", label: "Multiple Loads", fraction: "1+", min: 700, max: 1200 },
         ],
         surcharges: [
-            { id: "stairs", label: "Upstairs / Basement", amount: 50, enabled: true },
             { id: "appliance", label: "Appliance", amount: 50, enabled: true },
             { id: "heavy_material", label: "Heavy Material (concrete, dirt, shingles)", amount: 50, enabled: true, amountsByTier: [50, 100, 150, 200, 250, 300] },
             { id: "same_day", label: "Same-Day Service", amount: 50, enabled: false },
@@ -159,6 +177,12 @@ export const siteConfig = {
 
     // Google Maps (for address autocomplete)
     googleMapsKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "",
+
+    // Google Business Profile — operator's GBP profile URL and Place ID.
+    // Used for the footer "View us on Google" link and the embedded map on /contact.
+    // Both optional; UI gracefully hides if missing.
+    gbpUrl: process.env.NEXT_PUBLIC_GBP_URL ?? "",
+    gbpPlaceId: process.env.NEXT_PUBLIC_GBP_PLACE_ID ?? "",
 
     // Service area ZIP codes (for blocking out-of-area bookings)
     serviceAreaZips: parseJSON<string[]>(process.env.NEXT_PUBLIC_SERVICE_AREA_ZIPS, []),
@@ -195,6 +219,76 @@ export function formatPhone(raw: string): string {
 /** Build tel: href preserving the + prefix for E.164 */
 export function telHref(raw: string): string {
     return `tel:${raw.replace(/[^+\d]/g, "")}`;
+}
+
+export function getSiteBaseUrl(): string {
+    const explicit = siteConfig.siteUrl.trim().replace(/\/+$/, "");
+    if (explicit) return explicit;
+    if (siteConfig.subdomain) return `https://${siteConfig.subdomain}.scaleyourjunk.com`;
+    return "https://www.scaleyourjunk.com";
+}
+
+export function absoluteUrl(path = "/"): string {
+    if (/^https?:\/\//i.test(path)) return path;
+    const base = getSiteBaseUrl();
+    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+    return `${base}${normalizedPath}`;
+}
+
+export function getCanonicalPath(path = "/"): string {
+    if (path === "") return "/";
+    const clean = path.split("?")[0].split("#")[0];
+    if (clean === "/") return "/";
+    return clean.endsWith("/") ? clean.slice(0, -1) : clean;
+}
+
+export function getServiceAreas(): string[] {
+    return siteConfig.serviceArea
+        .split(/[,;]/)
+        .map(area => area.trim())
+        .filter(Boolean);
+}
+
+export function isSameDayEnabled(): boolean {
+    const sameDaySurcharge = siteConfig.pricing.surcharges.find(surcharge => surcharge.id === "same_day");
+    return siteConfig.sameDayEnabled || Boolean(sameDaySurcharge?.enabled);
+}
+
+export function hasLicense(): boolean {
+    return siteConfig.licenseNumber.trim().length > 0;
+}
+
+export function hasInsurance(): boolean {
+    return siteConfig.insuranceCarrier.trim().length > 0;
+}
+
+export function getCredentials(): Credential[] {
+    const credentials: Credential[] = [];
+
+    if (hasLicense()) {
+        credentials.push({ label: "License", value: siteConfig.licenseNumber.trim() });
+    }
+
+    if (hasInsurance()) {
+        credentials.push({ label: "Insurance", value: siteConfig.insuranceCarrier.trim() });
+    }
+
+    for (const certification of siteConfig.certifications) {
+        credentials.push({ label: "Certification", value: certification });
+    }
+
+    return credentials;
+}
+
+export function getVerifiableTrustSignals(): string[] {
+    const signals = ["Local service team", "Upfront pricing"];
+
+    if (isSameDayEnabled()) signals.push("Same-day service available");
+    if (hasLicense()) signals.push("Licensed");
+    if (hasInsurance()) signals.push("Insured");
+    if (siteConfig.recyclingRate !== null) signals.push(`${siteConfig.recyclingRate}% recycling target`);
+
+    return signals;
 }
 
 /* ── Shared business hours formatting ─────────────────────────────────── */

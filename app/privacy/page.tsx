@@ -1,11 +1,12 @@
 import { siteConfig } from "@/lib/siteConfig";
 import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-    title: `Privacy Policy | ${siteConfig.companyName}`,
+export const metadata: Metadata = createPageMetadata({
+    title: "Privacy Policy",
     description: `Privacy policy for ${siteConfig.companyName}. Learn how we collect, use, and protect your personal information.`,
-    alternates: { canonical: "/privacy" },
-};
+    path: "/privacy",
+});
 
 /* ── Shared styles ── */
 const h2Style = { fontSize: "1.75rem", fontWeight: 800 as const, marginBottom: "1.5rem", paddingBottom: "0.75rem", borderBottom: "2px solid var(--brand)" };
@@ -22,7 +23,9 @@ export default function PrivacyPolicyPage() {
                 <h1 style={{ fontSize: "2.5rem", fontWeight: 900, marginBottom: "3rem" }}>Privacy Policy</h1>
 
                 <div style={bodyStyle}>
-                    <p style={pStyle}><strong>Effective Date:</strong> April 1, 2026</p>
+                    {siteConfig.legalEffectiveDate && (
+                        <p style={pStyle}><strong>Effective Date:</strong> {siteConfig.legalEffectiveDate}</p>
+                    )}
                     <p style={pStyle}>
                         {companyName} (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) respects your privacy and is committed to protecting your personal information.
                         This Privacy Policy explains what information we collect, how we use it, and your choices regarding your data.

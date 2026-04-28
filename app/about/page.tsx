@@ -1,25 +1,46 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Leaf, Shield, Users, Truck, MapPin, Star, Recycle, CheckCircle } from "lucide-react";
-import { siteConfig } from "@/lib/siteConfig";
+import { ArrowRight, BadgeDollarSign, Leaf, Shield, Users, MapPin, Star } from "lucide-react";
+import { getCredentials, hasInsurance, hasLicense, siteConfig } from "@/lib/siteConfig";
+import { fetchReviews } from "@/lib/reviewData";
 import SafeImage from "@/components/SafeImage";
+import { createPageMetadata } from "@/lib/seo";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 const areas = (siteConfig.serviceArea || "").split(",").map(s => s.trim()).filter(Boolean);
 
-export const metadata: Metadata = {
-    title: `About ${siteConfig.companyName} — Junk Removal in ${cityState}`,
-    description: `Learn about ${siteConfig.companyName} — your trusted, licensed & insured junk removal team serving ${cityState}. Eco-friendly disposal, upfront pricing, and same-day service.`,
-    alternates: { canonical: "/about" },
-};
+export const revalidate = 3600;
 
-export default function AboutPage() {
-    const values = [
-        { icon: Shield, title: "Fully Insured", desc: "Every job is covered by our comprehensive liability insurance. You have zero risk when our crew is on your property." },
-        { icon: Leaf, title: "Eco-Friendly", desc: "We donate usable items to local charities and recycle everything we can. The landfill is always our last resort." },
-        { icon: Users, title: "Professional Crews", desc: "Our team members are background-checked, trained, and always respectful of your home and belongings." },
-        { icon: Truck, title: "On-Time Guaranteed", desc: "We show up within your scheduled window — every time, no excuses. Your time matters to us." },
+export const metadata: Metadata = createPageMetadata({
+    title: `About ${siteConfig.companyName}`,
+    description: `Learn about ${siteConfig.companyName}, a junk removal service serving ${cityState} with online booking and upfront pricing.`,
+    path: "/about",
+});
+
+export default async function AboutPage() {
+    // Real stats only — fabricated "500+ jobs", "5.0 ★", "70% recycled" were removed.
+    // Average Rating shows only when real Google reviews exist; Areas Served is real from siteConfig.
+    const { stats } = await fetchReviews(1);
+    const hasRealRating = stats !== null && stats.totalCount > 0;
+    const realStats = [
+        ...(hasRealRating ? [{ icon: Star, value: `${stats.averageRating} ★`, label: "Average Rating" }] : []),
+        ...(areas.length > 0 ? [{ icon: MapPin, value: `${areas.length}+`, label: "Areas Served" }] : []),
+        ...(siteConfig.yearFounded ? [{ icon: Users, value: siteConfig.yearFounded, label: "Year Founded" }] : []),
+        ...(siteConfig.recyclingRate !== null ? [{ icon: Leaf, value: `${siteConfig.recyclingRate}%`, label: "Recycling Target" }] : []),
     ];
+    const values = [
+        { icon: BadgeDollarSign, title: "Upfront Pricing", desc: "The crew confirms the final price before loading begins." },
+        { icon: Users, title: "Local Service", desc: `${siteConfig.companyName} serves ${cityState} and the configured service area.` },
+        ...(siteConfig.recyclingRate !== null ? [{ icon: Leaf, title: "Recycling Target", desc: `Eligible materials are routed with a ${siteConfig.recyclingRate}% recycling target in mind.` }] : []),
+        ...((hasLicense() || hasInsurance()) ? [{ icon: Shield, title: "Credentials", desc: getCredentials().map(item => `${item.label}: ${item.value}`).join(" · ") }] : []),
+    ];
+    const storyParagraphs = siteConfig.aboutStory
+        ? siteConfig.aboutStory.split(/\n+/).map((paragraph) => paragraph.trim()).filter(Boolean)
+        : [];
+    const founderLine = [
+        siteConfig.founderName ? `Founder: ${siteConfig.founderName}` : "",
+        siteConfig.yearFounded ? `Founded: ${siteConfig.yearFounded}` : "",
+    ].filter(Boolean).join(" · ");
 
     return (
         <>
@@ -34,53 +55,49 @@ export default function AboutPage() {
                 </div>
             </section>
 
-            {/* Our Story */}
-            <section className="section">
-                <div style={{ maxWidth: 700 }}>
-                    <h2 className="section-title">Our Story</h2>
-                    <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.8, marginBottom: "1.5rem" }}>
-                        We started {siteConfig.companyName} because getting rid of junk shouldn&apos;t be complicated.
-                        No confusing pricing, no hidden fees, no unreliable crews. Just honest service, fair prices,
-                        and the peace of mind that comes from a clean space.
-                    </p>
-                    <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.8, marginBottom: "1.5rem" }}>
-                        Based right here in {cityState}, we know the community we serve. Whether it&apos;s a garage
-                        cleanout in {areas[0] || siteConfig.city} or a full estate cleanout across town, our crew shows up
-                        on time, quotes you upfront, and gets the job done right. We&apos;ve built our reputation one
-                        satisfied customer at a time.
-                    </p>
-                    <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.8 }}>
-                        We proudly serve {siteConfig.serviceArea} and are committed to responsible disposal.
-                        Everything we pick up is sorted — usable items are donated, recyclables go to the proper facilities,
-                        and only what&apos;s left goes to the landfill.
-                    </p>
-                    <div style={{ marginTop: "2rem" }}>
-                        <SafeImage
-                            src={siteConfig.aboutImageUrl || "/images/generated/about.png"}
-                            alt={`${siteConfig.companyName} team`}
-                            style={{ width: "100%", borderRadius: 16, objectFit: "cover", maxHeight: 400 }}
-                        />
-                    </div>
-                </div>
-            </section>
-
-            {/* Stats Bar */}
-            <section style={{ background: "var(--brand)", padding: "2rem 1.5rem" }}>
-                <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "2rem", textAlign: "center" }}>
-                    {[
-                        { icon: CheckCircle, value: "500+", label: "Jobs Completed" },
-                        { icon: Star, value: "5.0 ★", label: "Average Rating" },
-                        { icon: Recycle, value: "70%", label: "Recycled & Donated" },
-                        { icon: MapPin, value: `${areas.length}+`, label: "Areas Served" },
-                    ].map((stat) => (
-                        <div key={stat.label} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                            <stat.icon size={24} color="#fff" style={{ marginBottom: "0.5rem" }} />
-                            <span style={{ fontSize: "1.75rem", fontWeight: 900, color: "#fff" }}>{stat.value}</span>
-                            <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 500 }}>{stat.label}</span>
+            {/* Our Story only renders when operator-provided story/founder/year facts exist */}
+            {(storyParagraphs.length > 0 || founderLine) && (
+                <section className="section">
+                    <div style={{ maxWidth: 700 }}>
+                        <h2 className="section-title">Our Story</h2>
+                        {founderLine && (
+                            <p style={{ color: "var(--foreground)", fontSize: "1rem", fontWeight: 800, lineHeight: 1.7, marginBottom: "1rem" }}>
+                                {founderLine}
+                            </p>
+                        )}
+                        {storyParagraphs.map((paragraph) => (
+                            <p key={paragraph} style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.8, marginBottom: "1.5rem" }}>
+                                {paragraph}
+                            </p>
+                        ))}
+                        <div style={{ marginTop: "2rem" }}>
+                            <SafeImage
+                                src={siteConfig.aboutImageUrl || "/images/generated/about.png"}
+                                alt={`${siteConfig.companyName} team`}
+                                // aspect-ratio reserves space before the image loads,
+                                // preventing Cumulative Layout Shift (CWV signal).
+                                style={{ width: "100%", borderRadius: 16, objectFit: "cover", maxHeight: 400, aspectRatio: "16 / 9" }}
+                                loading="lazy"
+                            />
                         </div>
-                    ))}
-                </div>
-            </section>
+                    </div>
+                </section>
+            )}
+
+            {/* Stats Bar — only renders when at least one real stat is available */}
+            {realStats.length > 0 && (
+                <section style={{ background: "var(--brand)", padding: "2rem 1.5rem" }}>
+                    <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "2rem", textAlign: "center" }}>
+                        {realStats.map((stat) => (
+                            <div key={stat.label} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                <stat.icon size={24} color="#fff" style={{ marginBottom: "0.5rem" }} />
+                                <span style={{ fontSize: "1.75rem", fontWeight: 900, color: "#fff" }}>{stat.value}</span>
+                                <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: 500 }}>{stat.label}</span>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {/* Our Values */}
             <section style={{ padding: "5rem 1.5rem", background: "var(--card)" }}>
