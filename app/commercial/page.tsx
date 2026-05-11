@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatPhone, hasInsurance, siteConfig, telHref } from "@/lib/siteConfig";
+import { getServerConfig } from "@/lib/serverConfig";
 import SafeImage from "@/components/SafeImage";
 import type { Metadata } from "next";
 import {
@@ -50,7 +51,8 @@ export const metadata: Metadata = {
 
 export default function CommercialPage() {
     const { companyName, phoneNumber, city, state } = siteConfig;
-    const portalConfigured = Boolean(siteConfig.dashboardUrl && siteConfig.siteToken);
+    const { dashboardUrl, siteToken } = getServerConfig();
+    const portalConfigured = Boolean(dashboardUrl && siteToken);
 
     const serviceSchema = serviceJsonLd({
         service: {

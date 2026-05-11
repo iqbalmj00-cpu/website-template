@@ -4,6 +4,7 @@
  */
 
 import { siteConfig } from "./siteConfig";
+import { getServerConfig } from "./serverConfig";
 
 /* ── Types ─────────────────────────────────────────────────────────────── */
 
@@ -35,14 +36,15 @@ export type ReviewsResponse = {
  * falls back gracefully to siteConfig testimonials.
  */
 export async function fetchReviews(limit = 10): Promise<ReviewsResponse> {
-    if (!siteConfig.dashboardUrl || !siteConfig.siteToken) {
+    const { dashboardUrl, siteToken } = getServerConfig();
+    if (!dashboardUrl || !siteToken) {
         return { reviews: [], stats: null };
     }
 
     try {
-        const url = `${siteConfig.dashboardUrl}/api/public/reviews?limit=${limit}&platform=google&minRating=4`;
+        const url = `${dashboardUrl}/api/public/reviews?limit=${limit}&platform=google&minRating=4`;
         const res = await fetch(url, {
-            headers: { "x-site-token": siteConfig.siteToken },
+            headers: { "x-site-token": siteToken },
             next: { revalidate: 3600 },
         });
 
@@ -56,4 +58,9 @@ export async function fetchReviews(limit = 10): Promise<ReviewsResponse> {
     } catch {
         return { reviews: [], stats: null };
     }
+}
+
+export async function hasVerifiedPublicReviews(): Promise<boolean> {
+    const { reviews, stats } = await fetchReviews(1);
+    return reviews.length > 0 && Boolean(stats?.totalCount);
 }

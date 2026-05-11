@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { siteConfig } from "@/lib/siteConfig";
+import { getServerConfig } from "@/lib/serverConfig";
 import type { Metadata } from "next";
 
 /**
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default function CustomerPortalRedirect() {
-    const { dashboardUrl, siteToken } = siteConfig;
+    const { dashboardUrl, siteToken } = getServerConfig();
 
     if (!dashboardUrl || !siteToken) {
         // Fallback: redirect to homepage if portal isn't configured

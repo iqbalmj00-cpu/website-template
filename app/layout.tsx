@@ -1,37 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk, Bebas_Neue, DM_Sans, Fraunces, Nunito, Playfair_Display, Source_Sans_3 } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import { siteConfig } from "@/lib/siteConfig";
 import { createPageMetadata, localBusinessJsonLd } from "@/lib/seo";
+import { canExposePublicSite, getPublicSiteStatus } from "@/lib/publicSiteGuard";
+import { hasVerifiedPublicReviews } from "@/lib/reviewData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SameDayBanner from "@/components/redesign/SameDayBanner";
 
-/* ── Theme-conditional font loading ───────────────────────────────────────
- * Next.js requires next/font/google calls at module top level, so all 8 fonts
- * are imported. Preload is disabled with explicit literals because the font
- * loader cannot statically analyze dynamic preload flags. Only the active
- * theme's CSS variables are applied to <html>. */
-const activeTheme = siteConfig.theme;
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", preload: false });
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap", preload: false });
-const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas-neue", display: "swap", preload: false });
-const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", display: "swap", preload: false });
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", display: "swap", preload: false });
-const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito", display: "swap", preload: false });
-const playfairDisplay = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap", preload: false });
-const sourceSans3 = Source_Sans_3({ subsets: ["latin"], variable: "--font-source-sans", display: "swap", preload: false });
-
-// Only the active theme's font CSS variables go on <html> — non-active fonts
-// are bundled but their var() references never appear in any rendered CSS,
-// so the browser never actually fetches the woff2 files for them.
-const themeFontVarsMap: Record<string, string[]> = {
-    classic: [inter.variable, spaceGrotesk.variable],
-    industrial: [bebasNeue.variable, dmSans.variable],
-    eco: [fraunces.variable, nunito.variable],
-    editorial: [playfairDisplay.variable, sourceSans3.variable],
-};
-const allFontVars = (themeFontVarsMap[activeTheme] || themeFontVarsMap.classic).join(" ");
+const fontStylesheetHref = "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800;9..144,900&family=Inter:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&family=Source+Sans+3:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap";
 
 /* ── Dynamic favicon from company initials + brand color ──────────────── */
 const faviconInitials = siteConfig.companyName
@@ -49,7 +27,13 @@ const THEME_FAVICON_FONTS: Record<string, string> = {
     eco: "Georgia, 'Times New Roman', serif",
     editorial: "Georgia, 'Palatino Linotype', serif",
 };
-const faviconFont = THEME_FAVICON_FONTS[siteConfig.theme] || THEME_FAVICON_FONTS.classic;
+const FONT_PAIR_FAVICON_FONTS: Record<string, string> = {
+    "space-grotesk-inter": "'Trebuchet MS', system-ui, sans-serif",
+    "bebas-dm-sans": "Impact, 'Arial Narrow', sans-serif",
+    "fraunces-nunito": "Georgia, 'Times New Roman', serif",
+    "playfair-source-sans": "Georgia, 'Palatino Linotype', serif",
+};
+const faviconFont = FONT_PAIR_FAVICON_FONTS[siteConfig.fontPair] || THEME_FAVICON_FONTS[siteConfig.theme] || THEME_FAVICON_FONTS.classic;
 
 // Scale font size based on number of initials
 const faviconFontSize = faviconInitials.length <= 2 ? 14 : 11;
@@ -81,18 +65,33 @@ export const viewport: Viewport = {
     themeColor: siteConfig.brandColor,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const isPreviewRoute = headers().get("x-template-preview-route") === "1";
+    const publicSiteStatus = getPublicSiteStatus();
+    const renderPublicSite = canExposePublicSite();
+    const showReviews = !isPreviewRoute && renderPublicSite ? await hasVerifiedPublicReviews() : false;
+
     return (
-        <html lang="en" data-theme={siteConfig.theme} className={allFontVars}>
+        <html
+            lang="en"
+            data-theme={siteConfig.theme}
+            data-font-pair={siteConfig.fontPair}
+            data-homepage-style={siteConfig.designConfig.homepageStyle}
+            data-corner-radius={siteConfig.designConfig.cornerRadius}
+            data-nav-style={siteConfig.designConfig.navStyle}
+        >
             <head>
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+                <link rel="stylesheet" href={fontStylesheetHref} />
                 {/* Inject brand color override from onboarding */}
                 <style>{`:root { --brand: ${siteConfig.brandColor}; --brand-dark: ${adjustColor(siteConfig.brandColor, -15)}; --brand-rgb: ${hexToRgb(siteConfig.brandColor)}; }`}</style>
                 {/* Google Analytics */}
-                {siteConfig.gaTrackingId && (
+                {!isPreviewRoute && siteConfig.gaTrackingId && (
                     <>
                         <script
                             async
@@ -108,15 +107,38 @@ export default function RootLayout({
             </head>
             <body>
                 {/* JSON-LD LocalBusiness schema for local SEO */}
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{
-                        __html: JSON.stringify(localBusinessJsonLd()),
-                    }}
-                />
-                <Navbar />
-                <main>{children}</main>
-                <Footer />
+                {!isPreviewRoute && renderPublicSite && (
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{
+                            __html: JSON.stringify(localBusinessJsonLd()),
+                        }}
+                    />
+                )}
+                {isPreviewRoute ? (
+                    children
+                ) : renderPublicSite ? (
+                    <>
+                        <SameDayBanner />
+                        <Navbar />
+                        <main>{children}</main>
+                        <Footer />
+                    </>
+                ) : (
+                    <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "2rem", background: "#111827", color: "#fff" }}>
+                        <section style={{ maxWidth: 560, textAlign: "center" }}>
+                            <h1 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "1rem" }}>Website Setup Required</h1>
+                            <p style={{ color: "#d1d5db", lineHeight: 1.7, marginBottom: "1rem" }}>
+                                This website is not ready for public indexing. Required public business details must be completed before launch.
+                            </p>
+                            {publicSiteStatus.issues.length > 0 && (
+                                <p style={{ color: "#9ca3af", fontSize: "0.9rem", lineHeight: 1.6 }}>
+                                    Missing setup fields: {publicSiteStatus.issues.map(issue => issue.field).join(", ")}
+                                </p>
+                            )}
+                        </section>
+                    </main>
+                )}
             </body>
         </html>
     );

@@ -1,4 +1,5 @@
 import { siteConfig } from "./siteConfig";
+import { getServerConfig } from "./serverConfig";
 
 /* ── Types ─────────────────────────────────────────────────────────────── */
 
@@ -34,12 +35,9 @@ export type BlogPostFull = BlogPost & {
 
 /* ── Helpers ───────────────────────────────────────────────────────────── */
 
-const headers: Record<string, string> = {
-    "x-site-token": siteConfig.siteToken,
-};
-
 function apiUrl(params: Record<string, string>): string {
-    const base = `${siteConfig.dashboardUrl}/api/agents/blogs/public`;
+    const { dashboardUrl } = getServerConfig();
+    const base = `${dashboardUrl}/api/agents/blogs/public`;
     const qs = new URLSearchParams({ subdomain: siteConfig.subdomain, ...params });
     return `${base}?${qs.toString()}`;
 }
@@ -49,10 +47,11 @@ function apiUrl(params: Record<string, string>): string {
  * Returns an empty array on any failure so pages degrade gracefully.
  */
 export async function fetchBlogs(): Promise<BlogPost[]> {
-    if (!siteConfig.enableBlog || !siteConfig.dashboardUrl || !siteConfig.subdomain) return [];
+    const { dashboardUrl, siteToken } = getServerConfig();
+    if (!siteConfig.enableBlog || !dashboardUrl || !siteToken || !siteConfig.subdomain) return [];
     try {
         const res = await fetch(apiUrl({ status: "published" }), {
-            headers,
+            headers: { "x-site-token": siteToken },
             next: { revalidate: 3600 },
         });
         if (!res.ok) return [];
@@ -68,10 +67,11 @@ export async function fetchBlogs(): Promise<BlogPost[]> {
  * Returns null if not found or on failure.
  */
 export async function fetchBlogBySlug(slug: string): Promise<BlogPostFull | null> {
-    if (!siteConfig.enableBlog || !siteConfig.dashboardUrl || !siteConfig.subdomain) return null;
+    const { dashboardUrl, siteToken } = getServerConfig();
+    if (!siteConfig.enableBlog || !dashboardUrl || !siteToken || !siteConfig.subdomain) return null;
     try {
         const res = await fetch(apiUrl({ slug }), {
-            headers,
+            headers: { "x-site-token": siteToken },
             next: { revalidate: 3600 },
         });
         if (!res.ok) return null;
