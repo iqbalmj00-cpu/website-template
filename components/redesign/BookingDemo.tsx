@@ -569,10 +569,10 @@ function Scene4({ demoAddress }: { demoAddress: string }) {
         style={{ animation: "bpFadeUp 0.5s cubic-bezier(0.34,1.4,0.64,1) 0.85s both" }}
       >
         {[
-          { label: "Date", val: "Wednesday · 11 AM – 1 PM window" },
+          { label: "Window", val: "Selected pickup window" },
           { label: "Address", val: demoAddress },
-          { label: "Load size", val: "Pickup Truck Load · ~30 bags" },
-          { label: "Crew lead", val: "Marcus H. · 2-person crew" },
+          { label: "Load", val: "Estimated from the booking details" },
+          { label: "Quote", val: "Final price confirmed before loading" },
         ].map((r, i, arr) => (
           <div
             key={r.label}
@@ -595,9 +595,9 @@ function Scene4({ demoAddress }: { demoAddress: string }) {
         style={{ animation: "bpFadeUp 0.5s cubic-bezier(0.34,1.4,0.64,1) 1.15s both" }}
       >
         {[
-          { Icon: Phone, b: "Confirmation by text", s: "In a moment" },
-          { Icon: Truck, b: "Crew arrives", s: "Wed, 11 – 1 PM" },
-          { Icon: CreditCard, b: "You only pay when done", s: "Card, cash, or Zelle" },
+          { Icon: Phone, b: "Confirmation details", s: "After request" },
+          { Icon: Truck, b: "Pickup window", s: "Selected above" },
+          { Icon: CreditCard, b: "Payment details", s: "Confirmed in flow" },
         ].map(({ Icon, b, s }) => (
           <div
             key={b}
