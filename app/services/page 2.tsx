@@ -1,0 +1,77 @@
+import type { Metadata } from "next";
+import PageHero from "@/components/redesign/PageHero";
+import PageIntro from "@/components/redesign/PageIntro";
+import RelatedSvc from "@/components/redesign/RelatedSvc";
+import GroupedFAQ from "@/components/redesign/GroupedFAQ";
+import CtaBand from "@/components/redesign/CtaBand";
+import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
+import { getClientServices } from "@/lib/serviceData";
+import { siteConfig } from "@/lib/siteConfig";
+
+const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+
+const SERVICE_OVERVIEW_FAQS = [
+    { q: `What junk removal services are available in ${siteConfig.city}?`, a: `${siteConfig.companyName} lists the junk removal services available for this location on this page. Availability depends on the enabled service set, pickup address, item type, and schedule.` },
+    { q: "Can approved items be removed from inside a home or business?", a: "Yes. Approved items can usually be removed from inside rooms, garages, storage units, offices, yards, and job sites when access is safe and clear." },
+    { q: "How do I know which service page to choose?", a: "Choose the closest matching service, or use the general junk removal option if your job includes mixed items. The crew can review the full scope before loading begins." },
+    { q: "Do you handle residential and commercial jobs?", a: "Residential and commercial service pages appear when those services are enabled for this business." },
+];
+
+export const metadata: Metadata = createPageMetadata({
+    title: `Junk Removal Services in ${cityState}`,
+    description: `Need junk removal near you in ${cityState}? ${siteConfig.companyName} lists available services for furniture, appliances, yard waste, construction debris, cleanouts, and more.`,
+    path: "/services",
+});
+
+export default function ServicesPage() {
+    const services = getClientServices();
+
+    return (
+        <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd(SERVICE_OVERVIEW_FAQS, "/services")) }} />
+            <PageHero
+                crumbs={[
+                    { label: "Home", href: "/" },
+                    { label: "Services" },
+                ]}
+                titleStart="Everything we haul, "
+                titleAccent="in one place."
+                lede={`${services.length > 0 ? `${services.length} enabled service categories.` : "Enabled service categories."} One booking flow for approved item removal, cleanouts, debris hauling, and junk removal projects in ${cityState}.`}
+            />
+            <RelatedSvc
+                eyebrow="Service catalog"
+                heading="Choose the closest match for the job."
+                tone="paper-2"
+                limit={Math.max(services.length, 6)}
+            />
+            <PageIntro
+                eyebrow="How to choose"
+                headline="Service pages explain the job type without changing the booking flow."
+                body={
+                    <>
+                        <p>
+                            Pick the service that best matches the items or cleanup project. If the job includes several categories,
+                            book the closest option and include the full item list, photos, and access notes.
+                        </p>
+                        <p>
+                            The crew confirms the final scope and price before loading begins, based on the actual item volume,
+                            weight, access, and enabled handling requirements.
+                        </p>
+                    </>
+                }
+                rightEyebrow="Before pickup"
+                rightHeading="Details that help the quote"
+                rightRows={[
+                    { n: "01", t: "Item list", d: "What needs to go" },
+                    { n: "02", t: "Access notes", d: "Stairs, gates, elevators, or parking" },
+                    { n: "03", t: "Photos", d: "Helpful when available" },
+                ]}
+            />
+            <GroupedFAQ
+                eyebrow="Service questions"
+                heading="Common questions before choosing a service."
+            />
+            <CtaBand />
+        </>
+    );
+}

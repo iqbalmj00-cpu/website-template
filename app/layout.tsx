@@ -120,9 +120,9 @@ export default async function RootLayout({
                 ) : renderPublicSite ? (
                     <>
                         <SameDayBanner />
-                        <Navbar />
+                        <Navbar showReviews={showReviews} />
                         <main>{children}</main>
-                        <Footer />
+                        <Footer showReviews={showReviews} />
                     </>
                 ) : (
                     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "2rem", background: "#111827", color: "#fff" }}>

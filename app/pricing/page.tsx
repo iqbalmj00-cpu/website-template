@@ -1,193 +1,180 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle, Truck, Phone, Package, Armchair, Home, HardHat, Container, BadgeDollarSign } from "lucide-react";
-import { siteConfig, formatPhone, telHref, isSameDayEnabled } from "@/lib/siteConfig";
-import { createPageMetadata } from "@/lib/seo";
+import { ArrowRight, Camera, CheckCircle, Clock, MapPin, Scale, Truck } from "lucide-react";
+import PageHero from "@/components/redesign/PageHero";
+import StaticFAQ from "@/components/redesign/StaticFAQ";
+import CtaBand from "@/components/redesign/CtaBand";
+import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
+import { fmt24to12, isSameDayEnabled, siteConfig } from "@/lib/siteConfig";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
 const PRICING_FAQS = [
-    { q: "Do you charge for stairs or basements?", a: `${siteConfig.pricing.surcharges.find(s => s.id === "access")?.enabled ? "An access surcharge may apply depending on where the items are located — curbside, garage, ground floor, upstairs, basement, or backyard. The exact amount for your location is shown in the booking form when you select it." : "No extra charge based on where the items are located — it's all included in your quote."}` },
-    { q: "Is there a minimum charge?", a: `Yes, our minimum is $${siteConfig.pricing.tiers[0]?.min ?? 75}. This covers a few small items like a chair, some boxes, or a microwave — plus our trip, crew time, and disposal fees.` },
-    { q: "Can I get an exact quote before you arrive?", a: "We provide estimated ranges based on your description. When our crew arrives, they'll give you a firm, exact price before doing any work. No surprises." },
-    { q: "Do you price match?", a: "We are confident our pricing is already competitive. If you've received a lower written quote from a licensed hauler for the same scope of work, let us know and we'll do our best to match it." },
+    {
+        q: "Where can I see a junk removal price estimate?",
+        a: "Use the booking flow to enter the pickup address, items, access details, and photos when available. The booking wizard is the place customers should use to see an estimate before the final quote is confirmed.",
+    },
+    {
+        q: "How is junk removal pricing calculated?",
+        a: "Pricing depends on truck volume, item weight, access, distance, material type, and any enabled handling or disposal fees. The final price is confirmed before loading begins.",
+    },
+    {
+        q: "Do stairs, basements, or long carries affect pricing?",
+        a: "Access can affect the estimate because stairs, basements, elevators, gates, parking limits, and long carries can change the labor required.",
+    },
+    {
+        q: "Can I get an exact quote before loading starts?",
+        a: "Yes. The crew confirms the final price before loading starts, after reviewing the item volume, access, material type, and any enabled fees.",
+    },
+];
+
+const ESTIMATE_STEPS = [
+    {
+        icon: Camera,
+        label: "Step 01",
+        title: "Show what needs to go",
+        body: "Add the item list and photos when available so the job can be scoped with fewer follow-up questions.",
+    },
+    {
+        icon: MapPin,
+        label: "Step 02",
+        title: "Add access details",
+        body: "Address, ZIP code, stairs, parking, gates, elevators, and carry distance can all affect the estimate.",
+    },
+    {
+        icon: Truck,
+        label: "Step 03",
+        title: "Review the estimate",
+        body: "The booking wizard provides the estimate path, and the final price is confirmed before loading begins.",
+    },
 ];
 
 export const metadata: Metadata = createPageMetadata({
     title: `Junk Removal Pricing in ${siteConfig.city}`,
-    description: `Volume-based junk removal pricing from ${siteConfig.companyName} in ${cityState}. Starting at $${siteConfig.pricing.tiers[0]?.min ?? 75}. Final price is confirmed before loading.`,
+    description: `Learn how ${siteConfig.companyName} estimates junk removal pricing in ${cityState}. Use the booking wizard for an estimate and final quote confirmation before loading.`,
     path: "/pricing",
 });
 
 export default function PricingPage() {
-    const { tiers, surcharges, truckSize } = siteConfig.pricing;
-    const enabledSurcharges = surcharges.filter(s => s.enabled);
-
-    const volumes = [
-        { id: "few", Icon: Package, desc: "A few small items — a chair, some boxes, a microwave" },
-        { id: "quarter", Icon: Armchair, desc: "A room's worth of clutter — small furniture, bags, and odds & ends" },
-        { id: "half", Icon: Home, desc: "Multiple rooms or a garage half-full of junk" },
-        { id: "three_quarter", Icon: HardHat, desc: "A full garage cleanout or small estate cleanout" },
-        { id: "full", Icon: Truck, desc: "The works — whole-house cleanout, major renovation debris" },
-        { id: "multi", Icon: Container, desc: "More than one full truck load" },
-    ];
-
-    const included = [
-        "Loading & hauling",
-        "Labor (our crew does all the lifting)",
-        "Disposal & dump fees",
-        "Sweeping up after we're done",
-        "Final quote before loading starts",
-        ...(siteConfig.recyclingRate !== null ? [`${siteConfig.recyclingRate}% recycling target for eligible materials`] : []),
-        ...(isSameDayEnabled() ? ["Same-day availability when route capacity allows"] : []),
-    ];
+    const enabledFactors = siteConfig.pricingConfigured
+        ? siteConfig.pricing.surcharges
+            .filter((surcharge) => surcharge.enabled)
+            .map((surcharge) => surcharge.label)
+        : [];
+    const cutoffLabel = siteConfig.sameDayCutoffTime ? fmt24to12(siteConfig.sameDayCutoffTime) : "";
 
     return (
         <>
-            {/* Hero */}
-            <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 4rem", textAlign: "center" }}>
-                <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <span style={{ display: "inline-block", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
-                        <BadgeDollarSign size={16} style={{ color: "var(--brand)" }} /> Simple Pricing
-                    </span>
-                    <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
-                        Junk Removal Pricing in {siteConfig.city}
-                    </h1>
-                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7 }}>
-                        Pricing is based on the space your junk takes up in our {truckSize} truck.
-                        Our crew will give you an exact quote on-site before we lift a finger. Serving all of {cityState}.
-                    </p>
-                </div>
-            </section>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd(PRICING_FAQS, "/pricing")) }}
+            />
+            <PageHero
+                crumbs={[
+                    { label: "Home", href: "/" },
+                    { label: "Pricing" },
+                ]}
+                titleStart="Get a junk removal estimate "
+                titleAccent={`through booking.`}
+                lede="This page explains the quote factors. Dollar estimates belong in the booking wizard, where item details, access notes, and the pickup address can be used together."
+                primaryCta={{ label: "Get Instant Quote", href: "/book" }}
+            />
 
-            {/* Pricing Tiers */}
-            <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
-                <div style={{ maxWidth: 900, margin: "0 auto" }}>
-                    <h2 className="section-title" style={{ textAlign: "center", marginBottom: "1rem" }}>How Our Pricing Works</h2>
-                    <p style={{ textAlign: "center", color: "var(--muted)", fontSize: "1.05rem", maxWidth: 600, margin: "0 auto 3rem", lineHeight: 1.7 }}>
-                        We price by <strong>how much space your items take up</strong> in our truck — not by the hour, not by weight. It&apos;s the fairest way to charge.
-                    </p>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                        {volumes.map((v, i) => {
-                            const tier = tiers.find(t => t.id === v.id);
-                            const isMulti = v.id === "multi";
-                            return (
-                                <div key={v.id} style={{
-                                    background: "var(--card)", borderRadius: 12, padding: "1.5rem",
-                                    border: "1px solid var(--border)",
-                                    display: "grid", gridTemplateColumns: "auto 1fr auto", gap: "1.25rem", alignItems: "center",
-                                }}>
-                                    <div style={{
-                                        width: 56, height: 56, borderRadius: 12,
-                                        background: `rgba(var(--brand-rgb, 249, 115, 22), ${0.06 + i * 0.04})`,
-                                        display: "flex", alignItems: "center", justifyContent: "center",
-                                    }}>
-                                        <v.Icon size={24} color="var(--brand)" />
-                                    </div>
-                                    <div>
-                                        <h3 style={{ fontWeight: 700, fontSize: "1.1rem", marginBottom: "0.25rem" }}>
-                                            {isMulti ? "1+ Truck Loads" : (tier?.label || v.id)} {tier && !isMulti && <span style={{ fontSize: "0.8rem", color: "var(--muted)", fontWeight: 500 }}>({tier.fraction} truck)</span>}
-                                        </h3>
-                                        <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.5 }}>{v.desc}</p>
-                                    </div>
-                                    <div style={{ textAlign: "right", minWidth: 120 }}>
-                                        {isMulti ? (
-                                            <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--muted)", fontStyle: "italic" }}>
-                                                On-site estimate required
-                                            </div>
-                                        ) : tier ? (
-                                            <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--brand)" }}>
-                                                ${tier.min} – ${tier.max}
-                                            </div>
-                                        ) : null}
-                                    </div>
+            <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
+                <div className="mx-auto" style={{ maxWidth: 1480 }}>
+                    <div className="mb-9 flex max-w-[46rem] flex-col gap-3">
+                        <div className="eyebrow">Estimate process</div>
+                        <h2 className="font-display text-[clamp(36px,4.5vw,56px)] font-extrabold leading-[1.02] tracking-normal text-ink">
+                            Pricing starts in the booking wizard.
+                        </h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        {ESTIMATE_STEPS.map(({ icon: Icon, label, title, body }) => (
+                            <article key={title} className="rounded-[14px] border border-line bg-paper p-6">
+                                <div className="flex items-center gap-3">
+                                    <span className="grid h-11 w-11 place-items-center rounded-[12px] bg-brand text-white">
+                                        <Icon className="h-5 w-5" aria-hidden="true" />
+                                    </span>
+                                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+                                        {label}
+                                    </span>
                                 </div>
-                            );
-                        })}
+                                <h3 className="mt-5 font-display text-[24px] font-bold leading-tight text-ink">{title}</h3>
+                                <p className="mt-3 text-[14.5px] leading-[1.6] text-muted">{body}</p>
+                            </article>
+                        ))}
                     </div>
                 </div>
             </section>
 
-            {/* Surcharges */}
-            {enabledSurcharges.length > 0 && (
-                <section style={{ padding: "3rem 1.5rem 5rem", background: "var(--background)" }}>
-                    <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                        <h2 className="section-title" style={{ textAlign: "center", marginBottom: "2rem" }}>Additional Fees</h2>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                            {enabledSurcharges.map(s => (
-                                <div key={s.id} style={{
-                                    display: "flex", justifyContent: "space-between", alignItems: "center",
-                                    padding: "1rem 1.25rem", background: "var(--card)", borderRadius: 10, border: "1px solid var(--border)",
-                                }}>
-                                    <span style={{ fontWeight: 600 }}>{s.label}</span>
-                                    {s.amountsByTier && s.amountsByTier.length === 6 ? (
-                                        <span style={{ fontWeight: 700, color: "var(--brand)" }}>
-                                            +${s.amountsByTier[0]}–${s.amountsByTier[5]} <span style={{ fontWeight: 500, color: "var(--muted)", fontSize: "0.85em" }}>(scales with load size)</span>
-                                        </span>
-                                    ) : (
-                                        <span style={{ fontWeight: 700, color: "var(--brand)" }}>+${s.amount}</span>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+            <section className="bg-paper py-[90px] px-[clamp(20px,4vw,64px)] border-y border-line">
+                <div className="mx-auto grid grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.1fr]" style={{ maxWidth: 1280 }}>
+                    <div>
+                        <div className="eyebrow">Quote factors</div>
+                        <h2 className="mt-3 font-display text-[clamp(34px,4vw,50px)] font-extrabold leading-[1.04] tracking-normal text-ink">
+                            What can change an estimate.
+                        </h2>
+                        <p className="mt-4 max-w-[54ch] text-[16px] leading-[1.65] text-muted">
+                            The booking process collects the details needed for an estimate. The crew still confirms
+                            the final price before loading begins.
+                        </p>
+                        <Link href="/book" className="btn-primary mt-7">
+                            Start Estimate <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                        </Link>
                     </div>
-                </section>
-            )}
-
-            {/* What's Included */}
-            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <h2 className="section-title" style={{ textAlign: "center", marginBottom: "3rem" }}>Everything&apos;s Included</h2>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
-                        {included.map((item) => (
-                            <div key={item} style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                                <CheckCircle size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
-                                <span style={{ fontSize: "1rem" }}>{item}</span>
+                    <div className="grid gap-3">
+                        {[
+                            { icon: Truck, text: "How much truck space the accepted items require." },
+                            { icon: Scale, text: "Heavy, dense, or specialty materials that change handling or disposal needs." },
+                            { icon: MapPin, text: "Pickup access, stairs, parking, gates, elevators, and carry distance." },
+                            { icon: Clock, text: isSameDayEnabled(siteConfig)
+                                ? `Same-day availability${cutoffLabel ? ` when booked by ${cutoffLabel}` : ""}.`
+                                : "Pickup timing and schedule availability." },
+                        ].map(({ icon: Icon, text }) => (
+                            <div key={text} className="flex gap-3 rounded-[14px] border border-line bg-paper-2 p-5">
+                                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
+                                <p className="text-[14.5px] leading-[1.6] text-muted">{text}</p>
                             </div>
                         ))}
+                        {enabledFactors.length > 0 && (
+                            <div className="rounded-[14px] border border-line bg-paper-2 p-5">
+                                <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+                                    Configured factors
+                                </div>
+                                <p className="mt-2 text-[14.5px] leading-[1.6] text-muted">
+                                    The current pricing model includes: {enabledFactors.join(", ")}. Amounts are handled
+                                    inside the booking estimate and final quote process.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>
 
-            {/* Free Estimate CTA */}
-            <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
-                <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
-                    <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.25rem)", fontWeight: 800, marginBottom: "1rem", display: "inline-flex", alignItems: "center", gap: "0.75rem" }}>
-                        <Truck size={36} style={{ color: "var(--brand)" }} /> Free On-Site Estimates
-                    </h2>
-                    <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.7, marginBottom: "2rem" }}>
-                        Not sure how much it&apos;ll cost? No problem. Book a pickup and our crew will give you an
-                        exact price before any work begins. If it doesn&apos;t work for you, you pay nothing.
-                    </p>
-                    <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                        <Link href="/book" className="btn-primary" style={{ fontSize: "1.05rem", padding: "1rem 2rem" }}>
-                            Book a Pickup <ArrowRight size={18} />
-                        </Link>
-                        <a href={telHref(siteConfig.phoneNumber)} style={{
-                            display: "flex", alignItems: "center", gap: "0.5rem",
-                            color: "var(--foreground)", textDecoration: "none", fontWeight: 700, fontSize: "1.1rem",
-                        }}>
-                            <Phone size={18} /> {formatPhone(siteConfig.phoneNumber)}
-                        </a>
-                    </div>
+            <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
+                <div className="mx-auto grid grid-cols-1 gap-4 md:grid-cols-3" style={{ maxWidth: 1180 }}>
+                    {[
+                        "The booking wizard is the estimate entry point.",
+                        "The final price is confirmed before loading begins.",
+                        "Photos and access notes help produce a cleaner estimate.",
+                    ].map((item) => (
+                        <div key={item} className="flex gap-3 rounded-[14px] border border-line bg-paper p-5">
+                            <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
+                            <p className="text-[14.5px] leading-[1.6] text-muted">{item}</p>
+                        </div>
+                    ))}
                 </div>
             </section>
 
-            {/* Pricing FAQ */}
-            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <h2 className="section-title" style={{ textAlign: "center", marginBottom: "2rem" }}>Pricing FAQ</h2>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                        {PRICING_FAQS.map((faq) => (
-                            <details key={faq.q} style={{ borderBottom: "1px solid var(--border)" }}>
-                                <summary style={{ padding: "1.25rem 0", fontWeight: 600, cursor: "pointer", fontSize: "1rem", color: "var(--foreground)" }}>{faq.q}</summary>
-                                <div style={{ paddingBottom: "1.25rem", color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.7 }}>{faq.a}</div>
-                            </details>
-                        ))}
-                    </div>
+            <StaticFAQ eyebrow="Pricing FAQ" heading="Questions before you approve a quote." items={PRICING_FAQS} />
+            <section className="bg-paper-2 px-[clamp(20px,4vw,64px)] pb-[100px]">
+                <div className="mx-auto text-center" style={{ maxWidth: 760 }}>
+                    <Link href="/book" className="btn-primary">
+                        Get Instant Quote <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
                 </div>
             </section>
+            <CtaBand />
         </>
     );
 }

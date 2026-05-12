@@ -10,39 +10,59 @@
   /* Brand (overridden by layout.tsx from NEXT_PUBLIC_BRAND_COLOR) */
   --brand: #f97316;
   --brand-dark: #ea6c10;
+  --brand-rgb: 249, 115, 22;
 
   /* Surfaces */
-  --navy: #0a192f;
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --card: #ffffff;
-  --border: #e2e8f0;
+  --paper: #fbf4e8;
+  --paper-2: #f2e7d5;
+  --paper-3: #eadbc2;
+  --ink: #102018;
+  --ink-2: #4f5e55;
+  --line: #ddcfb9;
+  --green: #143528;
+  --navy: var(--ink);
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --muted: var(--ink-2);
+  --card: #fffaf1;
+  --border: var(--line);
 
   /* Hero */
-  --hero-bg: #0a192f;
-  --hero-text: #f8fafc;
-  --hero-muted: rgba(255, 255, 255, 0.6);
-  --hero-border: rgba(255, 255, 255, 0.3);
-  --hero-badge-bg: rgba(255, 255, 255, 0.08);
-  --hero-badge-border: rgba(255, 255, 255, 0.15);
+  --hero-bg: var(--paper);
+  --hero-text: var(--ink);
+  --hero-muted: var(--ink-2);
+  --hero-border: var(--line);
+  --hero-badge-bg: rgba(255, 255, 255, 0.5);
+  --hero-badge-border: var(--line);
 
   /* Navigation */
-  --nav-bg: #0a192f;
-  --nav-text: #94a3b8;
-  --nav-hover: #f8fafc;
+  --nav-bg: rgba(251, 244, 232, 0.94);
+  --nav-text: var(--ink-2);
+  --nav-hover: var(--ink);
 
   /* Footer */
-  --footer-bg: #0a192f;
-  --footer-text: #e2e8f0;
-  --footer-muted: #94a3b8;
+  --footer-bg: #102018;
+  --footer-text: #fff7ea;
+  --footer-muted: #cfbea4;
 
   /* Shapes */
-  --radius: 1rem;
+  --radius-sm: 0.5rem;
+  --radius: 0.875rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
   --btn-radius: 9999px;
-  --card-radius: 1rem;
+  --card-radius: 1.25rem;
+  --radius-pill: 9999px;
 
   /* Typography */
+  --font-inter: "Inter";
+  --font-space-grotesk: "Space Grotesk";
+  --font-bebas-neue: "Bebas Neue";
+  --font-dm-sans: "DM Sans";
+  --font-fraunces: "Fraunces";
+  --font-nunito: "Nunito";
+  --font-playfair: "Playfair Display";
+  --font-source-sans: "Source Sans 3";
   --heading-font: var(--font-space-grotesk), system-ui, sans-serif;
   --body-font: var(--font-inter), system-ui, sans-serif;
   --heading-tracking: -0.02em;
@@ -53,17 +73,24 @@
 
 /* ── INDUSTRIAL — Dark, bold, neon yellow ──────────────────────────────── */
 [data-theme="industrial"] {
+  --paper: #111111;
+  --paper-2: #1b1b1b;
+  --paper-3: #252525;
+  --ink: #FFFFFF;
+  --ink-2: #B0B0B0;
+  --line: #333333;
+  --green: #facc15;
   --navy: #0D0D0D;
-  --background: #111111;
-  --foreground: #FFFFFF;
-  --muted: #B0B0B0;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --muted: var(--ink-2);
   --card: #222222;
-  --border: #333333;
+  --border: var(--line);
 
-  --hero-bg: #0D0D0D;
-  --hero-text: #FFFFFF;
-  --hero-muted: rgba(255, 255, 255, 0.5);
-  --hero-border: rgba(255, 255, 255, 0.3);
+  --hero-bg: var(--paper);
+  --hero-text: var(--ink);
+  --hero-muted: var(--ink-2);
+  --hero-border: var(--line);
   --hero-badge-bg: rgba(255, 255, 255, 0.08);
   --hero-badge-border: rgba(255, 255, 255, 0.15);
 
@@ -88,17 +115,24 @@
 
 /* ── ECO — Light green, organic ────────────────────────────────────────── */
 [data-theme="eco"] {
+  --paper: #F7FAF5;
+  --paper-2: #EDF5E8;
+  --paper-3: #D5ECCC;
+  --ink: #1A2E1A;
+  --ink-2: #4A6B4A;
+  --line: #D4E8D0;
+  --green: #1A2E1A;
   --navy: #1A2E1A;
-  --background: #F7FAF5;
-  --foreground: #1A2E1A;
-  --muted: #4A6B4A;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --muted: var(--ink-2);
   --card: #FFFFFF;
-  --border: #D4E8D0;
+  --border: var(--line);
 
-  --hero-bg: linear-gradient(160deg, #EDF5E8 0%, #D5ECCC 100%);
-  --hero-text: #1A2E1A;
-  --hero-muted: #4A6B4A;
-  --hero-border: rgba(26, 46, 26, 0.2);
+  --hero-bg: var(--paper);
+  --hero-text: var(--ink);
+  --hero-muted: var(--ink-2);
+  --hero-border: var(--line);
   --hero-badge-bg: rgba(26, 46, 26, 0.06);
   --hero-badge-border: rgba(26, 46, 26, 0.15);
 
@@ -123,17 +157,24 @@
 
 /* ── EDITORIAL — Warm, elegant, serif ──────────────────────────────────── */
 [data-theme="editorial"] {
+  --paper: #FAF6EF;
+  --paper-2: #EFE5D7;
+  --paper-3: #E5D5BE;
+  --ink: #1C1C1C;
+  --ink-2: #555555;
+  --line: #E1D4C0;
+  --green: #231f1d;
   --navy: #1C1C1C;
-  --background: #FAFAF8;
-  --foreground: #1C1C1C;
-  --muted: #555555;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --muted: var(--ink-2);
   --card: #FFFFFF;
-  --border: #E8E6E0;
+  --border: var(--line);
 
-  --hero-bg: #1C1C1C;
-  --hero-text: #FAFAF8;
-  --hero-muted: rgba(255, 255, 255, 0.6);
-  --hero-border: rgba(255, 255, 255, 0.3);
+  --hero-bg: var(--paper);
+  --hero-text: var(--ink);
+  --hero-muted: var(--ink-2);
+  --hero-border: var(--line);
   --hero-badge-bg: rgba(255, 255, 255, 0.08);
   --hero-badge-border: rgba(255, 255, 255, 0.15);
 
@@ -156,6 +197,85 @@
   --btn-tracking: 0.02em;
 }
 
+/* Dashboard typography controls. Theme owns palette; fontPair owns type. */
+[data-font-pair="space-grotesk-inter"] {
+  --heading-font: var(--font-space-grotesk), system-ui, sans-serif;
+  --body-font: var(--font-inter), system-ui, sans-serif;
+  --heading-tracking: 0;
+  --heading-transform: none;
+  --btn-transform: none;
+  --btn-tracking: 0;
+}
+
+[data-font-pair="bebas-dm-sans"] {
+  --heading-font: var(--font-bebas-neue), Impact, 'Arial Narrow', sans-serif;
+  --body-font: var(--font-dm-sans), system-ui, sans-serif;
+  --heading-tracking: 0.04em;
+  --heading-transform: uppercase;
+  --btn-transform: uppercase;
+  --btn-tracking: 0.08em;
+}
+
+[data-font-pair="fraunces-nunito"] {
+  --heading-font: var(--font-fraunces), Georgia, serif;
+  --body-font: var(--font-nunito), system-ui, sans-serif;
+  --heading-tracking: 0;
+  --heading-transform: none;
+  --btn-transform: none;
+  --btn-tracking: 0;
+}
+
+[data-font-pair="playfair-source-sans"] {
+  --heading-font: var(--font-playfair), Georgia, serif;
+  --body-font: var(--font-source-sans), system-ui, sans-serif;
+  --heading-tracking: 0;
+  --heading-transform: none;
+  --btn-transform: none;
+  --btn-tracking: 0;
+}
+
+/* Dashboard shape controls. */
+[data-corner-radius="square"] {
+  --radius-sm: 0px;
+  --radius: 2px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --btn-radius: 2px;
+  --card-radius: 4px;
+}
+
+[data-corner-radius="balanced"] {
+  --radius-sm: 0.5rem;
+  --radius: 0.75rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+  --btn-radius: 9999px;
+  --card-radius: 0.75rem;
+}
+
+[data-corner-radius="rounded"] {
+  --radius-sm: 0.875rem;
+  --radius: 1.25rem;
+  --radius-lg: 2rem;
+  --radius-xl: 2.75rem;
+  --btn-radius: 9999px;
+  --card-radius: 1.5rem;
+}
+
+/* Dashboard navigation style controls. */
+[data-nav-style="transparent"] {
+  --nav-bg: color-mix(in srgb, var(--paper) 86%, transparent);
+}
+
+[data-theme="eco"][data-nav-style="transparent"],
+[data-theme="editorial"][data-nav-style="transparent"] {
+  --nav-bg: rgba(255, 255, 255, 0.86);
+}
+
+[data-nav-style="transparent"] .redesign-site-header {
+  backdrop-filter: blur(18px);
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    BASE STYLES
    ══════════════════════════════════════════════════════════════════════════ */
@@ -176,6 +296,27 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+.eyebrow::before {
+  content: "";
+  width: 24px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
 /* ── Typography ──────────────────────────────────────────────────────────── */
 h1,
 h2,
@@ -190,6 +331,26 @@ h5 {
 }
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 22px;
+  border-radius: var(--btn-radius);
+  font-family: var(--body-font);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -208,6 +369,29 @@ h5 {
   text-transform: var(--btn-transform);
   letter-spacing: var(--btn-tracking);
   font-family: var(--body-font);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: currentColor;
+  color: var(--ink);
+}
+
+.btn-ghost:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  transform: translateY(-2px);
+}
+
+.btn-ink {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn-ink:hover {
+  background: var(--ink-2);
+  transform: translateY(-2px);
 }
 
 .btn-primary:hover {
@@ -262,6 +446,27 @@ h5 {
 .card:hover {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
+}
+
+/* Dashboard corner-radius presets must apply to the imported redesign layer,
+   even where the visual port used fixed Tailwind arbitrary radius classes. */
+[data-corner-radius] a.rounded-full,
+[data-corner-radius] button.rounded-full {
+  border-radius: var(--btn-radius);
+}
+
+[data-corner-radius] .rounded-\[10px\],
+[data-corner-radius] .rounded-\[12px\],
+[data-corner-radius] .rounded-lg {
+  border-radius: var(--radius);
+}
+
+[data-corner-radius] .rounded-\[14px\],
+[data-corner-radius] .rounded-\[16px\],
+[data-corner-radius] .rounded-\[18px\],
+[data-corner-radius] .rounded-\[24px\],
+[data-corner-radius] .rounded-xl {
+  border-radius: var(--card-radius);
 }
 
 /* ── Sections ─────────────────────────────────────────────────────────────── */
@@ -388,6 +593,113 @@ h5 {
   font-weight: 700;
   font-size: 1rem;
   transition: all 0.15s ease;
+}
+
+.hero-mark {
+  background-image: linear-gradient(
+    180deg,
+    transparent 62%,
+    rgba(var(--brand-rgb), 0.22) 62%,
+    rgba(var(--brand-rgb), 0.22) 92%,
+    transparent 92%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  padding: 0 0.05em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.redesign-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 3rem;
+  padding: 0.9rem 1.35rem;
+  border-radius: var(--btn-radius);
+  border: 1.5px solid transparent;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.redesign-btn-primary {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 16px 34px rgba(var(--brand-rgb, 249, 115, 22), 0.24);
+}
+
+.redesign-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 46px rgba(var(--brand-rgb, 249, 115, 22), 0.32);
+}
+
+.redesign-btn-ghost {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.5);
+  border-color: var(--line);
+}
+
+.redesign-btn-ghost:hover {
+  background: #fffaf1;
+  transform: translateY(-2px);
+}
+
+@keyframes pheroPulse {
+  0%, 100% {
+    transform: scaleX(0.98);
+    opacity: 0.84;
+  }
+  50% {
+    transform: scaleX(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes bpFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  16%, 100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bpTruckFill {
+  0%, 18% { width: 18%; }
+  42%, 72% { width: 68%; }
+  100% { width: 82%; }
+}
+
+@keyframes bpSlotTick {
+  0%, 40% { transform: scale(1); background: rgba(20, 53, 40, 0.06); }
+  54%, 78% { transform: scale(1.04); background: rgba(var(--brand-rgb, 249, 115, 22), 0.16); }
+  100% { transform: scale(1); background: rgba(20, 53, 40, 0.06); }
+}
+
+@keyframes bpCheckPop {
+  0% { transform: scale(0.2); opacity: 0; }
+  28%, 78% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.92); opacity: 0; }
+}
+
+@keyframes bpFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+body:has([data-template-preview]) > .same-day-status-banner,
+body:has([data-template-preview]) > .redesign-site-header,
+body:has([data-template-preview]) > .redesign-site-footer {
+  display: none !important;
+}
+
+[data-template-preview] a {
+  cursor: default;
 }
 
 /* ── Google Places Autocomplete Dropdown ─────────────────────────────── */

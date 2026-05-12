@@ -1,6 +1,5 @@
 import { siteConfig } from "@/lib/siteConfig";
-
-export const runtime = "edge";
+import { canExposePublicSite } from "@/lib/publicSiteGuard";
 
 function escapeXml(value: string): string {
     return value
@@ -11,10 +10,11 @@ function escapeXml(value: string): string {
 }
 
 export function GET() {
-    const title = escapeXml(siteConfig.companyName);
-    const subtitle = escapeXml(`Junk removal in ${siteConfig.city}`);
-    const serviceArea = escapeXml(siteConfig.serviceArea || siteConfig.tagline);
-    const brand = escapeXml(siteConfig.brandColor);
+    const publicSiteReady = canExposePublicSite();
+    const title = escapeXml(publicSiteReady ? siteConfig.companyName : "Website Setup Required");
+    const subtitle = escapeXml(publicSiteReady ? `Junk removal in ${siteConfig.city}` : "Public website not ready");
+    const serviceArea = escapeXml(publicSiteReady ? siteConfig.serviceArea || siteConfig.tagline : "Indexing disabled");
+    const brand = escapeXml(publicSiteReady ? siteConfig.brandColor : "#374151");
 
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="#111827"/>

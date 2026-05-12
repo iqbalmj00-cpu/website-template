@@ -3,10 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, BadgeDollarSign, MapPin, PackageCheck, Phone } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { breadcrumbJsonLd, createPageMetadata, serviceJsonLd } from "@/lib/seo";
-import { formatPhone, siteConfig, telHref } from "@/lib/siteConfig";
-import { getClientServices, getServiceBySlug, getServiceSynonyms } from "@/lib/serviceData";
-import { getIndexableLocations, getLocationBySlug } from "@/lib/locationData";
+import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
+import { formatPhone, hasConfiguredPricing, siteConfig, telHref } from "@/lib/siteConfig";
+import { getClientServices, getServiceSynonyms } from "@/lib/serviceData";
+import { getIndexableLocations, getLocationBySlug } from "@/lib/locationData.server";
 
 type PageProps = {
     params: {
@@ -41,9 +41,11 @@ export function generateMetadata({ params }: PageProps): Metadata {
 
     return createPageMetadata({
         title: `${service.title} in ${location.name}`,
-        description: `${service.title} in ${location.name}, ${location.state}. ${siteConfig.companyName} provides local junk hauling with upfront pricing and online booking.`,
+        description: `${service.title} in ${location.name}, ${location.state}. ${siteConfig.companyName} provides local junk hauling with online booking and final price confirmation before loading.`,
         path: `/locations/${location.slug}/${service.slug}`,
         image: siteConfig.serviceImages[service.slug] || siteConfig.locationImages[location.slug] || siteConfig.heroImageUrl,
+        noIndex: true,
+        follow: true,
     });
 }
 
@@ -56,8 +58,9 @@ export default function ServiceLocationPage({ params }: PageProps) {
     const activeLocation = getLocationBySlug(location.slug);
     const nearbyLocations = getIndexableLocations().filter((entry) => entry.slug !== location.slug).slice(0, 5);
     const synonyms = getServiceSynonyms(service).slice(0, 3);
-    const minPrice = siteConfig.pricing.tiers[0]?.min ?? 75;
-    const maxPrice = siteConfig.pricing.tiers[Math.min(2, siteConfig.pricing.tiers.length - 1)]?.max ?? 400;
+    const configuredPricing = hasConfiguredPricing();
+    const minPrice = siteConfig.pricing.tiers[0]?.min;
+    const maxPrice = siteConfig.pricing.tiers[Math.min(2, siteConfig.pricing.tiers.length - 1)]?.max;
     const path = `/locations/${location.slug}/${service.slug}`;
     const breadcrumbs = [
         { label: "Home", href: "/" },
@@ -77,8 +80,9 @@ export default function ServiceLocationPage({ params }: PageProps) {
                             service,
                             path,
                             areas: [location.name],
-                            description: `${service.title} in ${location.name}, ${location.state} with upfront pricing and online booking.`,
+                            description: `${service.title} in ${location.name}, ${location.state} with online booking and final price confirmation before loading.`,
                         }),
+                        faqPageJsonLd(service.faqs, path),
                     ]),
                 }}
             />
@@ -95,7 +99,7 @@ export default function ServiceLocationPage({ params }: PageProps) {
                             {service.title} in <span style={{ color: "var(--brand)" }}>{location.name}</span>
                         </h1>
                         <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.75, maxWidth: 680 }}>
-                            {siteConfig.companyName} provides {service.title.toLowerCase()} for customers in {location.name}. Book online, describe what needs to go, and get an estimated price range before the appointment.
+                            {siteConfig.companyName} provides {service.title.toLowerCase()} for customers in {location.name}. Book online, describe what needs to go, and get the job details reviewed before the appointment.
                         </p>
                         {synonyms.length > 0 && (
                             <p style={{ color: "var(--hero-muted)", fontSize: "0.98rem", lineHeight: 1.6, marginTop: "1rem" }}>
@@ -118,7 +122,9 @@ export default function ServiceLocationPage({ params }: PageProps) {
                             <h2 style={{ fontSize: "1.2rem", fontWeight: 800 }}>Pricing Snapshot</h2>
                         </div>
                         <p style={{ color: "var(--muted)", lineHeight: 1.65, marginBottom: "1rem" }}>
-                            Most smaller {service.title.toLowerCase()} jobs start near ${minPrice}. Larger pickups are quoted by volume and may fall around ${minPrice}-${maxPrice} before any enabled surcharges.
+                            {configuredPricing && minPrice && maxPrice
+                                ? `Smaller ${service.title.toLowerCase()} jobs may start near $${minPrice}. Larger pickups are quoted by volume and may fall around $${minPrice}-$${maxPrice} before any enabled surcharges.`
+                                : `${service.title} pricing depends on volume, access, item weight, and local handling requirements. The crew confirms the final price before loading begins.`}
                         </p>
                         <Link href="/pricing" style={{ color: "var(--brand)", fontWeight: 800, textDecoration: "none" }}>
                             View pricing details <ArrowRight size={16} style={{ display: "inline", verticalAlign: "middle" }} />
@@ -149,16 +155,19 @@ export default function ServiceLocationPage({ params }: PageProps) {
                         <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10, padding: "1.25rem" }}>
                             <h2 style={{ fontSize: "1rem", fontWeight: 800, marginBottom: "0.75rem" }}>Local Coverage</h2>
                             <p style={{ color: "var(--muted)", lineHeight: 1.6, fontSize: "0.93rem" }}>
-                                {activeLocation?.localInfo || `${siteConfig.companyName} serves ${location.name} and nearby areas in ${siteConfig.city}.`}
+                                {activeLocation?.localInfo || `${siteConfig.companyName} lists ${location.name} as a public service area. Appointment availability depends on the pickup address, item details, and schedule capacity.`}
                             </p>
                         </div>
                         {nearbyLocations.length > 0 && (
                             <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10, padding: "1.25rem" }}>
-                                <h2 style={{ fontSize: "1rem", fontWeight: 800, marginBottom: "0.75rem" }}>Nearby Service Pages</h2>
+                                <h2 style={{ fontSize: "1rem", fontWeight: 800, marginBottom: "0.75rem" }}>Related Public Pages</h2>
                                 <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+                                    <Link href={`/services/${service.slug}`} style={{ color: "var(--brand)", fontWeight: 700, textDecoration: "none" }}>
+                                        Main {service.title} page
+                                    </Link>
                                     {nearbyLocations.map((nearby) => (
-                                        <Link key={nearby.slug} href={`/locations/${nearby.slug}/${service.slug}`} style={{ color: "var(--brand)", fontWeight: 700, textDecoration: "none" }}>
-                                            {service.title} in {nearby.name}
+                                        <Link key={nearby.slug} href={`/locations/${nearby.slug}`} style={{ color: "var(--brand)", fontWeight: 700, textDecoration: "none" }}>
+                                            Junk removal in {nearby.name}
                                         </Link>
                                     ))}
                                 </div>

@@ -1,5 +1,5 @@
+import type { SiteConfig } from "@/lib/siteConfig";
 import { resolveServiceCatalogIds } from "@/lib/catalogs/services";
-import { siteConfig, type SiteConfig } from "@/lib/siteConfig";
 
 export type NavItem = {
     label: string;
@@ -13,9 +13,10 @@ function toSlug(value: string): string {
         .replace(/(^-|-$)/g, "");
 }
 
-function uniqueClean(values: readonly string[]): string[] {
+function uniqueByLabel(values: string[]): string[] {
     const seen = new Set<string>();
     const result: string[] = [];
+
     for (const value of values) {
         const clean = value.replace(/\s+/g, " ").trim();
         const key = clean.toLowerCase();
@@ -23,35 +24,63 @@ function uniqueClean(values: readonly string[]): string[] {
         seen.add(key);
         result.push(clean);
     }
+
     return result;
 }
 
-export function buildServiceNavItems(config: SiteConfig = siteConfig, limit = 10): NavItem[] {
-    return resolveServiceCatalogIds(config.services)
-        .slice(0, limit)
-        .map((service) => ({
-            label: service.name,
-            href: `/services/${service.id}`,
-        }));
+function isZipLike(value: string): boolean {
+    return /^\d{5}(?:-\d{4})?$/.test(value.trim());
 }
 
-export function buildLocationNavItems(config: SiteConfig = siteConfig, limit = 10): NavItem[] {
-    const rawAreas = uniqueClean([
-        config.city,
-        ...config.serviceArea.split(/[,;]/).map((area) => area.trim()),
-    ]);
+function isGenericAreaName(value: string, mainCity: string): boolean {
+    const normalized = value.trim().toLowerCase();
+    const city = mainCity.trim().toLowerCase();
 
-    return rawAreas
-        .filter((area) => {
-            const normalized = area.toLowerCase();
-            return Boolean(toSlug(area))
-                && normalized !== "your area"
-                && normalized !== "service area"
-                && normalized !== "surrounding areas";
-        })
-        .slice(0, limit)
-        .map((area) => ({
-            label: area,
-            href: `/locations/${toSlug(area)}`,
-        }));
+    if (!normalized || normalized === "your area") return true;
+    if (isZipLike(normalized)) return true;
+    if (normalized === city) return false;
+
+    return new Set([
+        "near me",
+        "nearby",
+        "surrounding areas",
+        "surrounding communities",
+        "greater area",
+        "metro area",
+        "service area",
+        "all areas",
+        "all neighborhoods",
+        "countywide",
+        "citywide",
+    ]).has(normalized);
+}
+
+function serviceAreaNames(config: SiteConfig): string[] {
+    const { city, serviceArea } = config;
+    const parts = serviceArea
+        ? serviceArea
+            .split(/[,;]+/)
+            .map((area) => area.trim())
+            .filter((area) => !isGenericAreaName(area, city))
+        : [];
+
+    return uniqueByLabel([city, ...parts]).filter(Boolean);
+}
+
+export function buildServiceNavItems(config: SiteConfig, limit = 10): NavItem[] {
+    const catalogServices = resolveServiceCatalogIds([...config.services]);
+    const services = catalogServices.length > 0
+        ? catalogServices.map((service) => ({ label: service.name, href: `/services/${service.id}` }))
+        : [...config.services]
+            .map((service) => service.trim())
+            .filter(Boolean)
+            .map((service) => ({ label: service, href: `/services/${toSlug(service)}` }));
+
+    return services.slice(0, limit);
+}
+
+export function buildLocationNavItems(config: SiteConfig, limit = 10): NavItem[] {
+    return serviceAreaNames(config)
+        .map((name) => ({ label: name, href: `/locations/${toSlug(name)}` }))
+        .slice(0, limit);
 }

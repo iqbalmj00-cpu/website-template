@@ -2,11 +2,23 @@
   "name": "website-template",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "node ./node_modules/next/dist/bin/next dev",
+    "build": "node ./scripts/run-with-heartbeat.mjs \"Next production build\" -- node ./node_modules/next/dist/bin/next build",
+    "start": "node ./node_modules/next/dist/bin/next start",
+    "lint": "node ./scripts/run-with-heartbeat.mjs \"ESLint\" -- node ./node_modules/eslint/bin/eslint.js app components lib --ext .ts,.tsx",
+    "typecheck": "node ./node_modules/typescript/bin/tsc --noEmit --pretty false --incremental false",
+    "seo:audit": "node ./scripts/seo-release-audit.mjs",
+    "location:content": "node ./scripts/generate-sourced-location-content.mjs",
+    "check:node": "node ./scripts/check-node-version.mjs",
+    "check:typecheck": "npm run check:node && npm run typecheck",
+    "check:lint": "npm run check:node && npm run lint",
+    "check:build": "npm run check:node && npm run build",
+    "check:seo-audit": "npm run check:node && npm run seo:audit",
+    "verify:seo": "npm run check:node && node ./scripts/verify-seo.mjs"
   },
   "dependencies": {
     "next": "14.2.29",

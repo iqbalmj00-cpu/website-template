@@ -1,9 +1,11 @@
 import { absoluteUrl, isSameDayEnabled, siteConfig } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
-import { getIndexableLocations } from "@/lib/locationData";
+import { getIndexableLocations } from "@/lib/locationData.server";
 import { fetchBlogs } from "@/lib/blogData";
 import { getCostGuides } from "@/lib/costData";
 import { SEO_CONTENT_LAST_MODIFIED } from "@/lib/seo";
+import { canExposePublicSite } from "@/lib/publicSiteGuard";
+import { hasVerifiedPublicReviews } from "@/lib/reviewData";
 import type { MetadataRoute } from "next";
 
 /**
@@ -18,9 +20,12 @@ import type { MetadataRoute } from "next";
 const CONTENT_VERSION = SEO_CONTENT_LAST_MODIFIED;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+    if (!canExposePublicSite()) return [];
+
     // Build time — use for pages whose content changes when the client's
     // siteConfig (services, locations, pricing, dumpster offering) changes.
     const buildTime = new Date();
+    const showReviews = await hasVerifiedPublicReviews();
 
     type SitemapEntry = {
         url: string;
@@ -35,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         { url: absoluteUrl("/services"), changeFrequency: "weekly", priority: 0.9, lastModified: buildTime },
         { url: absoluteUrl("/locations"), changeFrequency: "weekly", priority: 0.8, lastModified: buildTime },
         { url: absoluteUrl("/pricing"), changeFrequency: "monthly", priority: 0.8, lastModified: buildTime },
-        { url: absoluteUrl("/reviews"), changeFrequency: "monthly", priority: 0.6, lastModified: buildTime },
+        ...(showReviews ? [{ url: absoluteUrl("/reviews"), changeFrequency: "monthly" as const, priority: 0.6, lastModified: buildTime }] : []),
         { url: absoluteUrl("/book"), changeFrequency: "monthly", priority: 0.9, lastModified: buildTime },
         { url: absoluteUrl("/cost"), changeFrequency: "monthly", priority: 0.75, lastModified: buildTime },
         { url: absoluteUrl("/best-junk-removal"), changeFrequency: "monthly", priority: 0.75, lastModified: CONTENT_VERSION },
@@ -78,15 +83,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: buildTime,
     }));
 
-    const serviceLocationPages: SitemapEntry[] = indexableLocations.flatMap((loc) =>
-        getClientServices().map((svc) => ({
-            url: absoluteUrl(`/locations/${loc.slug}/${svc.slug}`),
-            changeFrequency: "monthly" as const,
-            priority: loc.isMainCity ? 0.75 : 0.7,
-            lastModified: buildTime,
-        })),
-    );
-
     const costPages: SitemapEntry[] = getCostGuides().map((item) => ({
         url: absoluteUrl(`/cost/${item.slug}`),
         changeFrequency: "monthly",
@@ -116,7 +112,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...staticContentPages,
         ...servicePages,
         ...locationPages,
-        ...serviceLocationPages,
         ...costPages,
         ...blogIndex,
         ...blogPages,

@@ -14,7 +14,7 @@
  *
  *   <section className="py-[100px] px-[clamp(20px,4vw,64px)] bg-paper">
  *     <div className="max-w-[1280px] mx-auto">
- *       <h2>Show us how much. Pick a time. We&apos;re there.</h2>
+ *       <h2>Show us how much. Pick a time. We're there.</h2>
  *       <BookingDemo />
  *     </div>
  *   </section>
@@ -569,10 +569,10 @@ function Scene4({ demoAddress }: { demoAddress: string }) {
         style={{ animation: "bpFadeUp 0.5s cubic-bezier(0.34,1.4,0.64,1) 0.85s both" }}
       >
         {[
-          { label: "Window", val: "Selected pickup window" },
+          { label: "Date", val: "Wednesday · 11 AM – 1 PM window" },
           { label: "Address", val: demoAddress },
-          { label: "Load", val: "Estimated from the booking details" },
-          { label: "Quote", val: "Final price confirmed before loading" },
+          { label: "Load size", val: "Pickup Truck Load · ~30 bags" },
+          { label: "Crew lead", val: "Marcus H. · 2-person crew" },
         ].map((r, i, arr) => (
           <div
             key={r.label}
@@ -595,9 +595,9 @@ function Scene4({ demoAddress }: { demoAddress: string }) {
         style={{ animation: "bpFadeUp 0.5s cubic-bezier(0.34,1.4,0.64,1) 1.15s both" }}
       >
         {[
-          { Icon: Phone, b: "Confirmation details", s: "After request" },
-          { Icon: Truck, b: "Pickup window", s: "Selected above" },
-          { Icon: CreditCard, b: "Payment details", s: "Confirmed in flow" },
+          { Icon: Phone, b: "Confirmation by text", s: "In a moment" },
+          { Icon: Truck, b: "Crew arrives", s: "Wed, 11 – 1 PM" },
+          { Icon: CreditCard, b: "You only pay when done", s: "Card, cash, or Zelle" },
         ].map(({ Icon, b, s }) => (
           <div
             key={b}
@@ -672,7 +672,7 @@ export default function BookingDemo({ config = siteConfig }: { config?: SiteConf
     >
       {/* Screen-reader narration. The visual demo is purely decorative. */}
       <span className="sr-only">
-        Animated four-step demonstration of the booking flow: 1) Tell us about you — contact form fills in. 2) Show us how much — the truck cargo bed fills up. 3) Pick a day and time — calendar date and time slot get picked. 4) You&apos;re booked - confirmation card appears. Loops continuously.
+        Animated four-step demonstration of the booking flow: 1) Tell us about you — contact form fills in. 2) Show us how much — the truck cargo bed fills up. 3) Pick a day and time — calendar date and time slot get picked. 4) You&apos;re booked — confirmation card appears. Loops continuously.
       </span>
       <div aria-hidden="true" className="w-full">
         <BrowserFrame host={demoHost}>

@@ -26,11 +26,20 @@ function FAQItem({ q, a }: { q: string; a: string }) {
                 <span style={{ fontWeight: 600, fontSize: "1rem", color: "var(--foreground)", paddingRight: "1rem" }}>{q}</span>
                 <ChevronDown size={20} style={{ color: "var(--muted)", transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0)", flexShrink: 0 }} />
             </button>
-            {open && (
-                <div style={{ paddingBottom: "1.25rem", color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.7 }}>
-                    {a}
-                </div>
-            )}
+            <div
+                style={{
+                    maxHeight: open ? 1000 : 0,
+                    overflow: "hidden",
+                    opacity: open ? 1 : 0,
+                    transition: "max-height 0.2s ease, opacity 0.2s ease",
+                    paddingBottom: open ? "1.25rem" : 0,
+                    color: "var(--muted)",
+                    fontSize: "0.95rem",
+                    lineHeight: 1.7,
+                }}
+            >
+                {a}
+            </div>
         </div>
     );
 }

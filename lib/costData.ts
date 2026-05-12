@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/siteConfig";
+import { hasConfiguredPricing, siteConfig } from "@/lib/siteConfig";
 
 export type CostGuideItem = {
     slug: string;
@@ -25,7 +25,7 @@ export const COST_GUIDES: CostGuideItem[] = [
         item: "mattress",
         title: "Mattress Removal Cost",
         metaDescription: `Compare mattress removal cost factors in ${siteConfig.city}, including quantity, access, and local disposal rules.`,
-        serviceSlug: "furniture-removal",
+        serviceSlug: "mattress-disposal",
         factors: ["Mattress size", "Box spring included", "Number of mattresses", "Pickup location inside the property"],
         included: ["Labor", "Loading", "Hauling", "Disposal routing"],
     },
@@ -110,15 +110,19 @@ export function getCostGuideBySlug(slug: string): CostGuideItem | undefined {
     return COST_GUIDES.find(item => item.slug === slug);
 }
 
-export function getEstimatedCostRange(item: CostGuideItem): { min: number; max: number } {
+export function getEstimatedCostRange(item: CostGuideItem): { min: number; max: number } | null {
+    if (!hasConfiguredPricing()) return null;
+
     const tiers = siteConfig.pricing.tiers;
     const lowestTier = tiers[0];
     const middleTier = tiers[Math.min(2, tiers.length - 1)];
     const applianceSurcharge = siteConfig.pricing.surcharges.find(surcharge => surcharge.id === "appliance" && surcharge.enabled);
     const heavySurcharge = siteConfig.pricing.surcharges.find(surcharge => surcharge.id === "heavy_material" && surcharge.enabled);
 
-    let min = lowestTier?.min ?? 75;
-    let max = middleTier?.max ?? lowestTier?.max ?? 250;
+    if (!lowestTier || !middleTier) return null;
+
+    let min = lowestTier.min;
+    let max = middleTier.max;
 
     if (["refrigerator-removal", "appliance-removal"].includes(item.slug) && applianceSurcharge) {
         min += applianceSurcharge.amount;
@@ -133,7 +137,9 @@ export function getEstimatedCostRange(item: CostGuideItem): { min: number; max: 
     return { min, max };
 }
 
-export function formatCostRange(item: CostGuideItem): string {
-    const { min, max } = getEstimatedCostRange(item);
+export function formatCostRange(item: CostGuideItem): string | null {
+    const range = getEstimatedCostRange(item);
+    if (!range) return null;
+    const { min, max } = range;
     return `$${min}-$${max}`;
 }

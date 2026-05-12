@@ -1,11 +1,34 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowRight } from "lucide-react";
-import { hasInsurance, hasLicense, isSameDayEnabled, siteConfig } from "@/lib/siteConfig";
-import FAQItemClient from "./FAQItemClient";
-import { createPageMetadata } from "@/lib/seo";
+import PageHero from "@/components/redesign/PageHero";
+import StaticFAQ from "@/components/redesign/StaticFAQ";
+import CtaBand from "@/components/redesign/CtaBand";
+import { filterFaqs, resolveTokens } from "@/lib/catalogs/faqs";
+import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
+import { formatPhone, isSameDayEnabled, siteConfig } from "@/lib/siteConfig";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+
+function faqSchemaItems() {
+    const items = filterFaqs({
+        sameDayEnabled: isSameDayEnabled(siteConfig),
+        offersDumpsterRental: siteConfig.offersDumpsterRental,
+        hasCommercial: siteConfig.tier === "growth",
+    });
+    const tokens: Record<string, string | number | null> = {
+        city: siteConfig.city || "your area",
+        state: siteConfig.state,
+        serviceArea: siteConfig.serviceArea || (siteConfig.city ? `Greater ${siteConfig.city}` : "your area"),
+        maxRadius: siteConfig.maxRadius ?? "",
+        phone: siteConfig.phoneNumber ? formatPhone(siteConfig.phoneNumber) : "",
+    };
+
+    return items.map((item) => ({
+        q: item.question,
+        a: resolveTokens(item.answer, tokens),
+    }));
+}
+
+const FAQS = faqSchemaItems();
 
 export const metadata: Metadata = createPageMetadata({
     title: `Junk Removal FAQ in ${cityState}`,
@@ -13,52 +36,24 @@ export const metadata: Metadata = createPageMetadata({
     path: "/faq",
 });
 
-const FAQS = [
-    { q: "How much does junk removal cost?", a: `Pricing starts at $${siteConfig.pricing.tiers[0]?.min ?? 75} and depends on how much space your items take in the truck. The crew confirms the final price before loading begins.` },
-    { q: "Do I need to be home?", a: "We prefer someone to be there so we can confirm exactly what goes, but curbside pickups don't always require it. Just let us know when booking." },
-    { q: "What items do you NOT take?", a: "We can't take hazardous waste (chemicals, paint, asbestos), medical waste, or anything that requires special permits. If you're unsure, just ask!" },
-    { q: `How quickly can you come to ${siteConfig.city}?`, a: isSameDayEnabled() ? `Same-day and next-day windows may be available in ${siteConfig.city} depending on route capacity. Book online and pick your preferred window.` : `Pickup windows in ${siteConfig.city} depend on route availability. Book online and pick your preferred window.` },
-    { q: "Do you recycle or donate items?", a: "Usable or recyclable items are routed responsibly when local options are available for the item and schedule." },
-    { q: "Is there a minimum charge?", a: `Yes, our minimum is $${siteConfig.pricing.tiers[0]?.min ?? 75} for a few small items that fit in a pickup bed. This covers our trip, crew time, and disposal costs.` },
-    { q: "Can I reschedule my pickup?", a: "Of course! You can reschedule at any time by contacting us. We'll find a new time that works for you." },
-    ...((hasLicense() || hasInsurance()) ? [{ q: "Are you licensed or insured?", a: [hasLicense() ? `License: ${siteConfig.licenseNumber}` : "", hasInsurance() ? `Insurance carrier: ${siteConfig.insuranceCarrier}` : ""].filter(Boolean).join(". ") }] : []),
-];
-
 export default function FAQPage() {
     return (
         <>
-            <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 4rem", textAlign: "center" }}>
-                <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <h1 style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
-                        Junk Removal FAQ — {cityState}
-                    </h1>
-                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.7 }}>
-                        Everything you need to know about our junk removal service in {siteConfig.city}. Can&apos;t find your answer? Give us a call.
-                    </p>
-                </div>
-            </section>
-
-            <section className="section" style={{ maxWidth: 700 }}>
-                {FAQS.map((faq) => (
-                    <FAQItemClient key={faq.q} q={faq.q} a={faq.a} />
-                ))}
-            </section>
-
-            <section style={{ padding: "5rem 1.5rem", background: "var(--hero-bg)", textAlign: "center" }}>
-                <div style={{ maxWidth: 600, margin: "0 auto" }}>
-                    <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", color: "var(--hero-text)", marginBottom: "1rem" }}>
-                        Still have questions?
-                    </h2>
-                    <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                        <Link href="/contact" className="btn-primary" style={{ fontSize: "1rem", padding: "0.875rem 2rem" }}>
-                            Contact Us
-                        </Link>
-                        <Link href="/book" className="btn-secondary" style={{ fontSize: "1rem", borderColor: "var(--hero-border)", color: "var(--hero-text)" }}>
-                            Book a Pickup <ArrowRight size={16} />
-                        </Link>
-                    </div>
-                </div>
-            </section>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd(FAQS, "/faq")) }}
+            />
+            <PageHero
+                crumbs={[
+                    { label: "Home", href: "/" },
+                    { label: "FAQ" },
+                ]}
+                titleStart="Junk removal questions, "
+                titleAccent="answered by category."
+                lede={`Review pricing, items, scheduling, service-area, and booking questions for ${siteConfig.companyName} in ${cityState}.`}
+            />
+            <StaticFAQ eyebrow="FAQ" heading="Questions, by category." items={FAQS} />
+            <CtaBand />
         </>
     );
 }

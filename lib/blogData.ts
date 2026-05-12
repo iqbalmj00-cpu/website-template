@@ -35,8 +35,7 @@ export type BlogPostFull = BlogPost & {
 
 /* ── Helpers ───────────────────────────────────────────────────────────── */
 
-function apiUrl(params: Record<string, string>): string {
-    const { dashboardUrl } = getServerConfig();
+function apiUrl(dashboardUrl: string, params: Record<string, string>): string {
     const base = `${dashboardUrl}/api/agents/blogs/public`;
     const qs = new URLSearchParams({ subdomain: siteConfig.subdomain, ...params });
     return `${base}?${qs.toString()}`;
@@ -50,7 +49,7 @@ export async function fetchBlogs(): Promise<BlogPost[]> {
     const { dashboardUrl, siteToken } = getServerConfig();
     if (!siteConfig.enableBlog || !dashboardUrl || !siteToken || !siteConfig.subdomain) return [];
     try {
-        const res = await fetch(apiUrl({ status: "published" }), {
+        const res = await fetch(apiUrl(dashboardUrl, { status: "published" }), {
             headers: { "x-site-token": siteToken },
             next: { revalidate: 3600 },
         });
@@ -70,7 +69,7 @@ export async function fetchBlogBySlug(slug: string): Promise<BlogPostFull | null
     const { dashboardUrl, siteToken } = getServerConfig();
     if (!siteConfig.enableBlog || !dashboardUrl || !siteToken || !siteConfig.subdomain) return null;
     try {
-        const res = await fetch(apiUrl({ slug }), {
+        const res = await fetch(apiUrl(dashboardUrl, { slug }), {
             headers: { "x-site-token": siteToken },
             next: { revalidate: 3600 },
         });

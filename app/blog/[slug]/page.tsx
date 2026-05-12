@@ -31,7 +31,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     return createPageMetadata({
         title: meta?.title || post.title,
         description: meta?.description || post.description,
-        path: meta?.canonical || `/blog/${post.slug}`,
+        path: `/blog/${post.slug}`,
+        canonicalPath: meta?.canonical || `/blog/${post.slug}`,
     });
 }
 

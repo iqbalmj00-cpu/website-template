@@ -8,7 +8,7 @@ import ServiceIcon from "@/components/ServiceIcon";
 import FAQAccordion from "@/components/FAQAccordion";
 import { Phone, ArrowRight, Truck, Clock, CheckCircle, ShieldCheck } from "lucide-react";
 import { formatPhone, telHref } from "@/lib/siteConfig";
-import { createPageMetadata, serviceJsonLd } from "@/lib/seo";
+import { createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
@@ -29,9 +29,12 @@ const STEPS = [
 const FAQ_ITEMS = [
     { question: "How long can I keep the dumpster?", answer: "The rental period is confirmed when booking and may vary by container size and local availability." },
     { question: "What can I put in the dumpster?", answer: "Most household junk, construction debris, yard waste, and roofing materials. Hazardous materials, tires, batteries, and paint are not allowed." },
+    { question: "How is dumpster rental pricing calculated?", answer: "Pricing can depend on container size, included rental days, included weight, local disposal costs, delivery distance, and any overage or extension fees shown during booking." },
+    { question: "What size dumpster do I need?", answer: "Small cleanouts often fit a 10-yard container, room renovations often fit a 20-yard container, and larger cleanouts or construction projects may need 30-yard or 40-yard containers." },
     { question: "Where will the dumpster be placed?", answer: "We typically place dumpsters on driveways, but we can work with you on placement. Just make sure the area is clear and accessible for our truck." },
     { question: "Do I need a permit?", answer: "If the dumpster will be placed on a public street or right-of-way, you may need a permit from your local city. Driveway placement typically doesn't require one." },
-    { question: "How do I know what size I need?", answer: "A 10-yard is great for small cleanouts, 20-yard for room renovations, 30-yard for large projects, and 40-yard for full house cleanouts or major construction." },
+    { question: "Should I rent a dumpster or book junk removal?", answer: "Rent a dumpster when you want to load over several days. Book junk removal when you want a crew to load everything and haul it away in one visit." },
+    { question: "What should not go in the dumpster?", answer: "Do not load hazardous chemicals, paint, batteries, tires, asbestos, medical waste, flammable liquids, or other regulated materials." },
 ];
 
 export default function DumpsterRentalPage() {
@@ -51,15 +54,18 @@ export default function DumpsterRentalPage() {
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
-                    __html: JSON.stringify(serviceJsonLd({
-                        service: {
-                            title: "Dumpster Rental",
-                            shortDesc: `Dumpster rental in ${cityState} for cleanouts, construction debris, and household junk.`,
-                        },
-                        path: "/dumpster-rental",
-                        description: `Dumpster rental in ${cityState} for cleanouts, construction debris, and household junk.`,
-                        offers: false,
-                    })),
+                    __html: JSON.stringify([
+                        serviceJsonLd({
+                            service: {
+                                title: "Dumpster Rental",
+                                shortDesc: `Dumpster rental in ${cityState} for cleanouts, construction debris, and household junk.`,
+                            },
+                            path: "/dumpster-rental",
+                            description: `Dumpster rental in ${cityState} for cleanouts, construction debris, and household junk.`,
+                            offers: false,
+                        }),
+                        faqPageJsonLd(FAQ_ITEMS.map(item => ({ q: item.question, a: item.answer })), "/dumpster-rental"),
+                    ]),
                 }}
             />
             {/* ── Hero ── */}
@@ -124,6 +130,33 @@ export default function DumpsterRentalPage() {
                                 </div>
                             );
                         })}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Rental Planning ── */}
+            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 1050, margin: "0 auto" }}>
+                    <div style={{ maxWidth: 760, marginBottom: "2.5rem" }}>
+                        <h2 style={{ fontSize: "clamp(1.5rem, 4vw, 2.25rem)", fontWeight: 800, marginBottom: "0.75rem" }}>How Dumpster Rental Works in {cityState}</h2>
+                        <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.7 }}>
+                            Dumpster rental is best when you need flexible loading time. The key decisions are container size, placement, material type, rental period, and weight allowance.
+                        </p>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: "1rem" }}>
+                        <div className="card">
+                            <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: "0.75rem" }}>Choose by project size</h3>
+                            <p style={{ color: "var(--muted)", lineHeight: 1.7 }}>Small decluttering jobs usually need less space than remodeling, roofing, or full-home cleanouts. When in doubt, choose enough room to avoid overfilling.</p>
+                        </div>
+                        <div className="card">
+                            <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: "0.75rem" }}>Confirm material rules</h3>
+                            <p style={{ color: "var(--muted)", lineHeight: 1.7 }}>Construction debris, household junk, and yard waste may have different weight and disposal rules. Hazardous or regulated materials are not accepted.</p>
+                        </div>
+                        <div className="card">
+                            <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: "0.75rem" }}>Compare your options</h3>
+                            <p style={{ color: "var(--muted)", lineHeight: 1.7, marginBottom: "0.75rem" }}>If you want the loading handled, full-service junk removal may be the better fit.</p>
+                            <Link href="/junk-removal-vs-dumpster-rental" style={{ color: "var(--brand)", fontWeight: 700, textDecoration: "none" }}>Compare junk removal and dumpster rental →</Link>
+                        </div>
                     </div>
                 </div>
             </section>

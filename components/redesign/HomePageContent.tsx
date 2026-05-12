@@ -128,13 +128,70 @@ function introBody(config: SiteConfig): ReactNode {
     );
 }
 
-type HomePageContentProps = {
-    config?: SiteConfig;
+function localAreaLabel(config: SiteConfig): string {
+    const serviceArea = config.serviceArea.trim();
+    if (serviceArea && serviceArea.toLowerCase() !== "your area") return serviceArea;
+    if (config.city && config.state) return `${config.city}, ${config.state}`;
+    return config.city || "your area";
+}
+
+function localBody(config: SiteConfig): ReactNode {
+    return (
+        <>
+            <p>
+                The site is configured around the real service area sent during launch, so location
+                copy stays tied to the client&apos;s market instead of prototype neighborhoods.
+            </p>
+            <p>
+                Visitors can choose one of the configured services, confirm whether their address is
+                covered, and continue into the booking wizard for a job-specific estimate.
+            </p>
+        </>
+    );
+}
+
+function editorialBody(config: SiteConfig): ReactNode {
+    if (config.aboutStory.trim()) return <p>{config.aboutStory}</p>;
+
+    return (
+        <>
+            <p>
+                A good junk removal page should answer the practical questions first: what can be
+                hauled, how the quote is confirmed, where the crew operates, and how to book.
+            </p>
+            <p>
+                This layout leads with that story, then supports it with configured services,
+                verified reviews when available, and the same booking flow used on the live site.
+            </p>
+        </>
+    );
+}
+
+function boldBody(config: SiteConfig): ReactNode {
+    return (
+        <>
+            <p>
+                This version pushes the conversion path forward: choose a service, show the job
+                details, pick a window, and review the estimate inside the booking wizard.
+            </p>
+            <p>
+                Proof-heavy sections still only appear when the dashboard sends supporting data, so
+                the page stays assertive without inventing claims.
+            </p>
+        </>
+    );
+}
+
+type HomeVariantProps = {
+    config: SiteConfig;
+    introRows: PageIntroRow[];
 };
 
-export default function HomePageContent({ config = siteConfig }: HomePageContentProps) {
-    const introRows = buildIntroRows(config);
+function commonIntroRows(introRows: PageIntroRow[]): PageIntroRow[] | undefined {
+    return introRows.length > 0 ? introRows : undefined;
+}
 
+function ConversionHome({ config, introRows }: HomeVariantProps) {
     return (
         <>
             <HomeHero config={config} />
@@ -151,7 +208,7 @@ export default function HomePageContent({ config = siteConfig }: HomePageContent
                 body={introBody(config)}
                 rightEyebrow="By the numbers"
                 rightHeading={`${config.companyName} at a glance`}
-                rightRows={introRows.length > 0 ? introRows : undefined}
+                rightRows={commonIntroRows(introRows)}
             />
             <ProcessSection config={config} />
             <PricingTeaser config={config} />
@@ -161,4 +218,127 @@ export default function HomePageContent({ config = siteConfig }: HomePageContent
             <CtaBand config={config} />
         </>
     );
+}
+
+function BoldHome({ config, introRows }: HomeVariantProps) {
+    return (
+        <>
+            <HomeHero config={config} />
+            <RelatedSvc
+                config={config}
+                eyebrow="Start here"
+                heading="Pick the service. Show the load. Book the job."
+                tone="paper-2"
+                limit={6}
+            />
+            <ProcessSection config={config} />
+            <Credentials config={config} showDiversion={false} />
+            <TestimonialsStrip config={config} />
+            <PageIntro
+                eyebrow="Fast quote path"
+                headline="A stronger booking-first homepage for visitors who are ready to schedule."
+                body={boldBody(config)}
+                rightEyebrow="Configured facts"
+                rightHeading="What changes per client"
+                rightRows={commonIntroRows(introRows)}
+            />
+            <PricingTeaser config={config} />
+            <NearbyAreas config={config} />
+            <FaqPreview config={config} />
+            <CtaBand
+                config={config}
+                heading={{ lead: "Ready for a quote?", accent: "Start the booking." }}
+            />
+        </>
+    );
+}
+
+function EditorialHome({ config, introRows }: HomeVariantProps) {
+    return (
+        <>
+            <HomeHero config={config} />
+            <PageIntro
+                eyebrow="Local junk removal, explained"
+                headline={`${config.companyName} gives customers the details they need before the crew arrives.`}
+                body={editorialBody(config)}
+                rightEyebrow="Page signals"
+                rightHeading="What the homepage proves"
+                rightRows={commonIntroRows(introRows)}
+            />
+            <TestimonialsStrip config={config} />
+            <RelatedSvc
+                config={config}
+                eyebrow="Service menu"
+                heading="Choose the job type that matches the pickup."
+                tone="paper-2"
+            />
+            <ProcessSection config={config} />
+            <PricingTeaser config={config} />
+            <NearbyAreas config={config} />
+            <Credentials config={config} showDiversion={false} />
+            <FaqPreview config={config} />
+            <CtaBand
+                config={config}
+                heading={{ lead: "Need it cleared?", accent: "Book with context." }}
+            />
+        </>
+    );
+}
+
+function LocalHome({ config, introRows }: HomeVariantProps) {
+    const areaLabel = localAreaLabel(config);
+
+    return (
+        <>
+            <HomeHero config={config} />
+            <NearbyAreas
+                config={config}
+                heading={`Local coverage around ${areaLabel}.`}
+            />
+            <PageIntro
+                eyebrow={config.city ? `${config.city} service coverage` : "Service coverage"}
+                headline={`A locally focused homepage for customers checking if ${config.companyName} serves their address.`}
+                body={localBody(config)}
+                rightEyebrow="Coverage facts"
+                rightHeading="Configured launch data"
+                rightRows={commonIntroRows(introRows)}
+            />
+            <RelatedSvc
+                config={config}
+                eyebrow="Bookable services"
+                heading="Services available for this local site."
+                tone="paper"
+            />
+            <Credentials config={config} showDiversion={false} />
+            <ProcessSection config={config} />
+            <TestimonialsStrip config={config} />
+            <PricingTeaser config={config} />
+            <FaqPreview config={config} />
+            <CtaBand
+                config={config}
+                heading={{ lead: `Book in ${config.city || "your area"}.`, accent: "Get the quote first." }}
+            />
+        </>
+    );
+}
+
+type HomePageContentProps = {
+    config?: SiteConfig;
+};
+
+export default function HomePageContent({ config = siteConfig }: HomePageContentProps) {
+    const introRows = buildIntroRows(config);
+    const variantProps = { config, introRows };
+
+    switch (config.designConfig.homepageStyle) {
+        case "bold":
+            return <BoldHome {...variantProps} />;
+        case "editorial":
+            return <EditorialHome {...variantProps} />;
+        case "local":
+            return <LocalHome {...variantProps} />;
+        case "conversion":
+        default:
+            return <ConversionHome {...variantProps} />;
+    }
 }

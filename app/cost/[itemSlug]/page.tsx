@@ -3,10 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, BadgeDollarSign, CheckCircle, Phone } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
+import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd } from "@/lib/seo";
 import { formatCostRange, getCostGuideBySlug, getCostGuides } from "@/lib/costData";
 import { formatPhone, siteConfig, telHref } from "@/lib/siteConfig";
-import { getServiceBySlug } from "@/lib/serviceData";
+import { getClientServices } from "@/lib/serviceData";
 
 type PageProps = {
     params: {
@@ -42,18 +42,28 @@ export default function CostGuidePage({ params }: PageProps) {
     const guide = getCostGuideBySlug(params.itemSlug);
     if (!guide) notFound();
 
-    const relatedService = guide.serviceSlug ? getServiceBySlug(guide.serviceSlug) : undefined;
+    const relatedService = guide.serviceSlug ? getClientServices().find(service => service.slug === guide.serviceSlug) : undefined;
+    const range = formatCostRange(guide);
     const breadcrumbs = [
         { label: "Home", href: "/" },
         { label: "Cost Guide", href: "/cost" },
         { label: guide.title, href: `/cost/${guide.slug}` },
+    ];
+    const faqItems = [
+        { q: `How much does ${guide.item} removal cost in ${siteConfig.city}?`, a: range ? `Smaller ${guide.item} removal jobs often use the lower pricing tiers. This guide uses ${range} as a planning range before the final on-site quote.` : `Pricing for ${guide.item} removal depends on volume, access, weight, and local handling requirements. The crew confirms the final price before loading begins.` },
+        { q: `What affects ${guide.item} removal pricing?`, a: `Common factors include ${guide.factors.slice(0, 4).join(", ").toLowerCase()}. The crew confirms the final price before loading begins.` },
+        { q: `What is included with ${guide.item} removal?`, a: `${guide.included.join(", ")} are included when the item is approved for hauling and the final quote is accepted.` },
+        { q: "Is the online range a final price?", a: "No. The online range is a planning guide. Final pricing depends on item volume, weight, access, and disposal requirements seen at the pickup." },
     ];
 
     return (
         <>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(breadcrumbs.map(item => ({ name: item.label, path: item.href })))) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify([
+                    breadcrumbJsonLd(breadcrumbs.map(item => ({ name: item.label, path: item.href }))),
+                    faqPageJsonLd(faqItems, `/cost/${guide.slug}`),
+                ]) }}
             />
             <Breadcrumbs items={breadcrumbs} />
 
@@ -72,12 +82,14 @@ export default function CostGuidePage({ params }: PageProps) {
                     </div>
 
                     <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: "1.5rem", boxShadow: "var(--shadow-soft)" }}>
-                        <h2 style={{ fontSize: "1rem", fontWeight: 800, marginBottom: "0.5rem" }}>Estimated Smaller-Job Range</h2>
+                        <h2 style={{ fontSize: "1rem", fontWeight: 800, marginBottom: "0.5rem" }}>{range ? "Estimated Smaller-Job Range" : "Pricing Factors"}</h2>
                         <div style={{ color: "var(--brand)", fontSize: "2.4rem", fontWeight: 900, lineHeight: 1.05, marginBottom: "0.75rem" }}>
-                            {formatCostRange(guide)}
+                            {range || "Quote review"}
                         </div>
                         <p style={{ color: "var(--muted)", lineHeight: 1.6, fontSize: "0.95rem" }}>
-                            Based on the current template pricing tiers. Large or unusually heavy jobs may require a higher on-site estimate.
+                            {range
+                                ? "Based on the current configured pricing tiers. Large or unusually heavy jobs may require a higher on-site estimate."
+                                : "The job details are reviewed for volume, access, material type, and local handling requirements before the final quote is confirmed."}
                         </p>
                     </div>
                 </div>
@@ -107,6 +119,44 @@ export default function CostGuidePage({ params }: PageProps) {
                                 </div>
                             ))}
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <section style={{ padding: "4.5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 980, margin: "0 auto" }}>
+                    <h2 className="section-title" style={{ marginBottom: "1rem" }}>How to Prepare for {guide.item} Removal</h2>
+                    <p style={{ color: "var(--muted)", lineHeight: 1.75, fontSize: "1.05rem", maxWidth: 760, marginBottom: "2rem" }}>
+                        Good preparation helps the crew quote the job accurately and remove the item safely. Separate anything you want to keep, clear a path when possible, and mention stairs, elevators, gates, or parking limits when booking.
+                    </p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: "1rem" }}>
+                        <div className="card">
+                            <h3 style={{ fontSize: "1rem", fontWeight: 850, marginBottom: "0.5rem" }}>Describe access</h3>
+                            <p style={{ color: "var(--muted)", lineHeight: 1.7 }}>Tell the company if the item is upstairs, in a basement, behind a gate, inside a storage unit, or far from truck parking.</p>
+                        </div>
+                        <div className="card">
+                            <h3 style={{ fontSize: "1rem", fontWeight: 850, marginBottom: "0.5rem" }}>Mention heavy materials</h3>
+                            <p style={{ color: "var(--muted)", lineHeight: 1.7 }}>Dense materials, oversized items, and specialty disposal needs can change the estimate.</p>
+                        </div>
+                        <div className="card">
+                            <h3 style={{ fontSize: "1rem", fontWeight: 850, marginBottom: "0.5rem" }}>Check restrictions</h3>
+                            <p style={{ color: "var(--muted)", lineHeight: 1.7, marginBottom: "0.75rem" }}>Hazardous or regulated materials are not accepted with standard junk removal.</p>
+                            <Link href="/items-we-dont-take" style={{ color: "var(--brand)", fontWeight: 800, textDecoration: "none" }}>Review restricted items →</Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section style={{ padding: "4.5rem 1.5rem", background: "var(--background)", borderTop: "1px solid var(--border)" }}>
+                <div style={{ maxWidth: 760, margin: "0 auto" }}>
+                    <h2 style={{ fontSize: "clamp(1.5rem, 4vw, 2.2rem)", fontWeight: 900, textAlign: "center", marginBottom: "2rem" }}>{guide.title} FAQ</h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                        {faqItems.map((faq) => (
+                            <details key={faq.q} style={{ border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", background: "var(--card)" }}>
+                                <summary style={{ padding: "1rem 1.5rem", fontWeight: 750, cursor: "pointer" }}>{faq.q}</summary>
+                                <div style={{ padding: "0 1.5rem 1rem", color: "var(--muted)", lineHeight: 1.7 }}>{faq.a}</div>
+                            </details>
+                        ))}
                     </div>
                 </div>
             </section>

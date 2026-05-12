@@ -1,16 +1,19 @@
 import type { Metadata } from "next";
-import { absoluteUrl, getCredentials, getServiceAreas, getSiteBaseUrl, siteConfig } from "@/lib/siteConfig";
+import { absoluteUrl, getServiceAreas, getSiteBaseUrl, hasConfiguredPricing, siteConfig } from "@/lib/siteConfig";
 import type { ServiceDetail } from "@/lib/serviceData";
+import { setupMetadataText, shouldForceNoIndex } from "@/lib/publicSiteGuard";
 
-export const SEO_CONTENT_LAST_MODIFIED = new Date("2026-04-28");
+export const SEO_CONTENT_LAST_MODIFIED = new Date("2026-05-10");
 export const BUSINESS_SCHEMA_ID = `${getSiteBaseUrl()}/#business`;
 
 type MetadataInput = {
     title: string;
     description: string;
     path: string;
+    canonicalPath?: string;
     image?: string | null;
     noIndex?: boolean;
+    follow?: boolean;
 };
 
 type BreadcrumbItem = {
@@ -46,51 +49,56 @@ export function formatSeoTitle(pageTitle: string): string {
 }
 
 export function createPageMetadata(input: MetadataInput): Metadata {
-    const canonical = absoluteUrl(input.path);
+    const canonical = absoluteUrl(input.canonicalPath || input.path);
     const image = getOgImage(input.image);
+    const forceNoIndex = shouldForceNoIndex();
+    const setupText = setupMetadataText();
+    const title = forceNoIndex ? setupText.title : formatSeoTitle(input.title);
+    const description = forceNoIndex ? setupText.description : input.description;
+    const shouldIndex = forceNoIndex ? false : !input.noIndex;
+    const shouldFollow = forceNoIndex ? false : input.follow ?? true;
+    const siteName = forceNoIndex ? "Website setup" : siteConfig.companyName;
+    const imageAlt = forceNoIndex ? setupText.title : `${siteConfig.companyName} in ${siteConfig.city}`;
 
     return {
         metadataBase: new URL(getSiteBaseUrl()),
-        title: formatSeoTitle(input.title),
-        description: input.description,
+        title,
+        description,
         alternates: {
             canonical,
         },
         openGraph: {
-            title: formatSeoTitle(input.title),
-            description: input.description,
+            title,
+            description,
             type: "website",
             url: canonical,
-            siteName: siteConfig.companyName,
+            siteName,
             locale: "en_US",
             images: [
                 {
                     url: image,
                     width: 1200,
                     height: 630,
-                    alt: `${siteConfig.companyName} in ${siteConfig.city}`,
+                    alt: imageAlt,
                 },
             ],
         },
         twitter: {
             card: "summary_large_image",
-            title: formatSeoTitle(input.title),
-            description: input.description,
+            title,
+            description,
             images: [image],
         },
         robots: {
-            index: !input.noIndex,
-            follow: !input.noIndex,
+            index: shouldIndex,
+            follow: shouldFollow,
         },
     };
 }
 
-export function serviceAreaSchema(areas = getServiceAreas()): Record<string, string>[] {
+export function serviceAreaSchema(areas = getServiceAreas()): string[] {
     const names = areas.length > 0 ? areas : [siteConfig.city].filter(Boolean);
-    return names.map(name => ({
-        "@type": "City",
-        name,
-    }));
+    return names;
 }
 
 export function openingHoursSchema(): Record<string, string>[] | undefined {
@@ -156,7 +164,6 @@ function postalAddressSchema(): Record<string, unknown> | undefined {
 export function localBusinessJsonLd(overrides: Record<string, unknown> = {}): Record<string, unknown> {
     const address = postalAddressSchema();
 
-    const credentials = getCredentials();
     const businessImage = siteConfig.heroImageUrl || siteConfig.logoUrl;
 
     return stripUndefined({
@@ -177,16 +184,6 @@ export function localBusinessJsonLd(overrides: Record<string, unknown> = {}): Re
         openingHoursSpecification: openingHoursSchema(),
         sameAs: siteConfig.gbpUrl ? [siteConfig.gbpUrl] : undefined,
         hasMap: siteConfig.gbpPlaceId ? `https://www.google.com/maps/place/?q=place_id:${siteConfig.gbpPlaceId}` : undefined,
-        founder: siteConfig.founderName ? { "@type": "Person", name: siteConfig.founderName } : undefined,
-        foundingDate: siteConfig.yearFounded || undefined,
-        award: siteConfig.certifications.length > 0 ? siteConfig.certifications : undefined,
-        additionalProperty: credentials.length > 0
-            ? credentials.map(credential => ({
-                "@type": "PropertyValue",
-                name: credential.label,
-                value: credential.value,
-            }))
-            : undefined,
         ...overrides,
     }) as Record<string, unknown>;
 }
@@ -200,7 +197,7 @@ export function serviceJsonLd(input: {
 }): Record<string, unknown> {
     const firstTier = siteConfig.pricing.tiers[0];
     const lastTier = siteConfig.pricing.tiers.find(tier => tier.id === "full") || siteConfig.pricing.tiers[siteConfig.pricing.tiers.length - 1];
-    const defaultOffer = firstTier && lastTier ? {
+    const defaultOffer = hasConfiguredPricing() && firstTier && lastTier ? {
         "@type": "AggregateOffer",
         lowPrice: firstTier.min,
         highPrice: lastTier.max,
@@ -221,11 +218,6 @@ export function serviceJsonLd(input: {
             "@id": BUSINESS_SCHEMA_ID,
         },
         areaServed: serviceAreaSchema(input.areas),
-        availableChannel: {
-            "@type": "ServiceChannel",
-            serviceUrl: absoluteUrl("/book"),
-            availableLanguage: "en-US",
-        },
         offers: input.offers === false ? undefined : input.offers || defaultOffer,
     }) as Record<string, unknown>;
 }
@@ -241,6 +233,22 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[]): Record<string, unknow
             item: absoluteUrl(item.path),
         })),
     };
+}
+
+export function faqPageJsonLd(items: { q: string; a: string }[], path: string): Record<string, unknown> {
+    return stripUndefined({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "@id": `${absoluteUrl(path)}#faq`,
+        mainEntity: items.map(item => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: {
+                "@type": "Answer",
+                text: item.a,
+            },
+        })),
+    }) as Record<string, unknown>;
 }
 
 export function howToJsonLd(input: {

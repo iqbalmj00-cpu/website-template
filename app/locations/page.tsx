@@ -1,191 +1,114 @@
 import Link from "next/link";
-import { getVerifiableTrustSignals, siteConfig, formatPhone, telHref } from "@/lib/siteConfig";
-import { getIndexableLocations } from "@/lib/locationData";
-import { getClientServices } from "@/lib/serviceData";
 import type { Metadata } from "next";
-import ServiceIcon from "@/components/ServiceIcon";
-import { CheckCircle, MapPin, Truck, Phone } from "lucide-react";
-import { createPageMetadata } from "@/lib/seo";
+import { ArrowRight, MapPin } from "lucide-react";
+import PageHero from "@/components/redesign/PageHero";
+import PageIntro from "@/components/redesign/PageIntro";
+import RelatedSvc from "@/components/redesign/RelatedSvc";
+import StaticFAQ from "@/components/redesign/StaticFAQ";
+import CtaBand from "@/components/redesign/CtaBand";
+import { getIndexableLocations } from "@/lib/locationData.server";
+import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
+import { siteConfig } from "@/lib/siteConfig";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
+const LOCATION_FAQS = [
+    { q: `Do you serve all of ${siteConfig.city}?`, a: `${siteConfig.companyName} serves ${siteConfig.city}${siteConfig.state ? `, ${siteConfig.state}` : ""} and nearby communities listed on this page. Service availability can still depend on the exact pickup address and route schedule.` },
+    { q: "Can I book if my neighborhood is not listed?", a: "Yes. Use the booking form or call with your address. The team can confirm whether your pickup location is inside the current service area." },
+    { q: "Do nearby service areas have separate pages?", a: "Location pages are created for the main city and configured service-area locations that are safe to publish." },
+    { q: "Are same-day pickups available in every service area?", a: "Same-day availability depends on route capacity, pickup address, and appointment timing. Same-day copy appears only when same-day service is enabled." },
+];
+
 export const metadata: Metadata = createPageMetadata({
     title: `Junk Removal Service Areas in ${cityState}`,
-    description: `Junk removal service areas for ${siteConfig.companyName} across ${siteConfig.serviceArea || siteConfig.city}. Find your location and book online.`,
+    description: `Junk removal service areas for ${siteConfig.companyName} in ${cityState}. Find local coverage and book online.`,
     path: "/locations",
 });
 
 export default function LocationsPage() {
     const locations = getIndexableLocations();
-    const services = getClientServices();
-    const { phoneNumber, city, state, serviceArea } = siteConfig;
-    const trustMetrics = getVerifiableTrustSignals().slice(0, 4);
 
     return (
         <>
-            {/* Hero */}
-            <section
-                style={{
-                    background: "var(--hero-bg)",
-                    padding: "7rem 1.5rem 5rem",
-                    textAlign: "center",
-                }}
-            >
-                <div style={{ maxWidth: 900, margin: "0 auto" }}>
-                    {(() => {
-                        const areaNames = (serviceArea || city).split(",").map(s => s.trim()).filter(Boolean);
-                        const maxShow = 12;
-                        const visible = areaNames.slice(0, maxShow);
-                        const remaining = areaNames.length - maxShow;
-                        return (
-                            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.5rem", marginBottom: "2rem" }}>
-                                {visible.map((name) => (
-                                    <span key={name} style={{
-                                        display: "inline-flex", alignItems: "center", gap: "0.35rem",
-                                        padding: "0.35rem 0.75rem", borderRadius: "var(--btn-radius)",
-                                        background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)",
-                                        color: "var(--brand)", fontSize: "0.75rem", fontWeight: 600,
-                                        textTransform: "uppercase", letterSpacing: "0.04em", whiteSpace: "nowrap",
-                                    }}>
-                                        <MapPin size={12} /> {name}
-                                    </span>
-                                ))}
-                                {remaining > 0 && (
-                                    <span style={{
-                                        display: "inline-flex", alignItems: "center",
-                                        padding: "0.35rem 0.75rem", borderRadius: "var(--btn-radius)",
-                                        background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.3)",
-                                        color: "var(--brand)", fontSize: "0.75rem", fontWeight: 700,
-                                        textTransform: "uppercase", letterSpacing: "0.04em",
-                                    }}>
-                                        +{remaining} more
-                                    </span>
-                                )}
-                            </div>
-                        );
-                    })()}
-                    <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1.5rem" }}>
-                        Service <span style={{ color: "var(--brand)" }}>Locations</span>
-                    </h1>
-                    <p style={{ fontSize: "1.2rem", color: "var(--hero-muted)", maxWidth: 600, margin: "0 auto" }}>
-                        We serve {city}{state ? `, ${state}` : ""} and configured surrounding communities. Find your area and book online.
-                    </p>
-                </div>
-            </section>
-
-            {/* Trust Metrics */}
-            <section style={{ background: "var(--card)", borderBottom: "1px solid var(--border)", padding: "2rem 1.5rem" }}>
-                <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "2rem", textAlign: "center" }}>
-                    {trustMetrics.map((label) => (
-                        <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                            <span style={{ marginBottom: "0.5rem" }}><CheckCircle size={28} color="var(--brand)" /></span>
-                            <span style={{ fontWeight: 800, fontSize: "1.05rem" }}>{label}</span>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Location Cards */}
-            <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
-                <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-                    <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Choose Your Area</h2>
-                        <div style={{ width: 60, height: 4, borderRadius: "var(--btn-radius)", background: "var(--brand)", margin: "1rem auto 0" }} />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd(LOCATION_FAQS, "/locations")) }}
+            />
+            <PageHero
+                crumbs={[
+                    { label: "Home", href: "/" },
+                    { label: "Locations" },
+                ]}
+                titleStart="Junk removal "
+                titleAccent={`near ${siteConfig.city}.`}
+                lede={`${siteConfig.companyName} serves configured local areas around ${cityState}. Enter your pickup address when booking to confirm coverage and available windows.`}
+            />
+            <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
+                <div className="mx-auto" style={{ maxWidth: 1480 }}>
+                    <div className="mb-9 flex max-w-[42rem] flex-col gap-3">
+                        <div className="eyebrow">Service areas</div>
+                        <h2 className="font-display text-[clamp(36px,4.5vw,56px)] font-extrabold leading-[1.02] tracking-normal text-ink">
+                            Choose the closest configured area.
+                        </h2>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))", gap: "1.5rem" }}>
-                        {locations.map((loc) => (
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        {locations.map((location, index) => (
                             <Link
-                                key={loc.slug}
-                                href={`/locations/${loc.slug}`}
-                                style={{
-                                    background: "var(--card)",
-                                    borderRadius: 16,
-                                    padding: "2rem",
-                                    border: "1px solid var(--border)",
-                                    textDecoration: "none",
-                                    color: "inherit",
-                                    transition: "box-shadow 0.3s, transform 0.3s",
-                                    display: "block",
-                                }}
+                                key={location.slug}
+                                href={`/locations/${location.slug}`}
+                                className="group relative overflow-hidden rounded-[14px] border border-line bg-paper p-7 text-ink transition-all duration-300 hover:-translate-y-1 hover:border-brand hover:bg-ink hover:text-paper"
                             >
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                                    <span style={{ fontSize: "2rem" }}><MapPin size={28} color="var(--brand)" /></span>
-                                    <span style={{ color: "var(--muted)" }}>→</span>
+                                <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+                                    {String(index + 1).padStart(2, "0")} · Location
                                 </div>
-                                <h3 style={{ fontSize: "1.25rem", fontWeight: 800, textTransform: "uppercase", marginBottom: "0.5rem" }}>
-                                    {loc.name}, {loc.state}
-                                </h3>
-                                <p style={{ color: "var(--muted)", fontSize: "0.9rem", marginBottom: "1rem", lineHeight: 1.5 }}>
-                                    {loc.heroDescription.slice(0, 100)}…
+                                <div className="mt-8 flex items-start justify-between gap-4">
+                                    <div>
+                                        <h3 className="font-display text-[26px] font-bold leading-tight">{location.name}</h3>
+                                        {location.state && (
+                                            <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.14em] text-muted group-hover:text-paper/70">
+                                                {location.state}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <MapPin className="h-7 w-7 shrink-0 text-brand" aria-hidden="true" />
+                                </div>
+                                <p className="mt-5 text-[14.5px] leading-[1.6] text-muted group-hover:text-paper/70">
+                                    {location.heroDescription}
                                 </p>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                                    {loc.neighborhoods.slice(0, 4).map((hood) => (
-                                        <span key={hood} style={{ fontSize: "0.75rem", background: "var(--background)", padding: "0.3rem 0.6rem", borderRadius: "var(--btn-radius)", fontWeight: 500 }}>
-                                            {hood}
-                                        </span>
-                                    ))}
-                                    {loc.neighborhoods.length > 4 && (
-                                        <span style={{ fontSize: "0.75rem", background: "rgba(var(--brand-rgb, 249, 115, 22), 0.1)", color: "var(--brand)", padding: "0.3rem 0.6rem", borderRadius: "var(--btn-radius)", fontWeight: 600 }}>
-                                            +{loc.neighborhoods.length - 4} more
-                                        </span>
-                                    )}
-                                </div>
+                                <span className="mt-6 inline-flex items-center gap-2 font-display text-[14px] font-semibold text-brand">
+                                    View area <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                                </span>
                             </Link>
                         ))}
                     </div>
                 </div>
             </section>
-
-            {/* Services Overview */}
-            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-                    <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 800 }}>Our Services</h2>
-                        <div style={{ width: 60, height: 4, borderRadius: "var(--btn-radius)", background: "var(--brand)", margin: "1rem auto 0" }} />
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 240px), 1fr))", gap: "1.5rem" }}>
-                        {services.slice(0, 8).map((svc) => (
-                            <Link
-                                key={svc.slug}
-                                href={`/services/${svc.slug}`}
-                                style={{
-                                    padding: "2rem",
-                                    background: "var(--background)",
-                                    border: "1px solid var(--border)",
-                                    borderRadius: 16,
-                                    textDecoration: "none",
-                                    color: "inherit",
-                                    textAlign: "center",
-                                    transition: "transform 0.2s",
-                                }}
-                            >
-                                <div style={{ marginBottom: "0.75rem" }}><ServiceIcon name={svc.icon} size={28} color="var(--brand)" /></div>
-                                <h3 style={{ fontSize: "1rem", fontWeight: 700, textTransform: "uppercase" }}>{svc.title}</h3>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA */}
-            <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem", textAlign: "center" }}>
-                <div style={{ maxWidth: 700, margin: "0 auto" }}>
-                    <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
-                        Don&apos;t See Your Exact Neighborhood?
-                    </h2>
-                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", marginBottom: "2rem" }}>
-                        Service availability can vary by address. Call or book online to confirm coverage for your pickup location.
-                    </p>
-                    <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                        <Link href="/book" className="btn-primary" style={{ padding: "1rem 2rem", fontSize: "1rem" }}>
-                            <Truck size={18} /> Book Your Pickup
-                        </Link>
-                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-                            <Phone size={18} /> {formatPhone(phoneNumber)}
-                        </a>
-                    </div>
-                </div>
-            </section>
+            <PageIntro
+                eyebrow="Coverage check"
+                headline="Configured service areas help customers confirm the right pickup route."
+                body={
+                    <>
+                        <p>
+                            Location pages start with the main city and configured service-area communities. Additional
+                            neighborhood or landmark details appear only when they have been provided for that location.
+                        </p>
+                        <p>
+                            If an exact neighborhood is not listed, customers can still book or call with the pickup address
+                            so coverage can be confirmed before the appointment.
+                        </p>
+                    </>
+                }
+                rightEyebrow="Configured facts"
+                rightHeading="What drives location pages"
+                rightRows={[
+                    { n: "01", t: "Main city", d: siteConfig.city },
+                    { n: "02", t: "Service area", d: siteConfig.serviceArea || "Configured at launch" },
+                    { n: "03", t: "ZIP coverage", d: siteConfig.serviceAreaZips.length ? `${siteConfig.serviceAreaZips.length} ZIP codes` : "Address check during booking" },
+                ]}
+            />
+            <RelatedSvc eyebrow="Available services" heading="Services available across configured areas." />
+            <StaticFAQ eyebrow="Location FAQ" heading="Questions about coverage." items={LOCATION_FAQS} />
+            <CtaBand />
         </>
     );
 }

@@ -304,7 +304,7 @@ function CompareGrid({ currentStep, onChange, pricing }: { currentStep: number; 
                                 fontSize:8, fontWeight:700, color:"#fff", background:"var(--brand)",
                                 padding:"1px 6px", borderRadius:999, letterSpacing:0.3,
                                 textTransform:"uppercase", whiteSpace:"nowrap",
-                            }}>Most common</div>
+                            }}>Standard option</div>
                         )}
                         <div style={{ fontSize:11, fontWeight:700, color:active?"var(--brand)":"var(--foreground)", fontFamily:"var(--heading-font)" }}>
                             {t.label}
@@ -1122,7 +1122,7 @@ export default function BookingWizard() {
                         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                             <div>
                                 <label className="label">Full Name *</label>
-                                <input className="input" placeholder="John Smith" value={contact.name} onChange={e => setContact(c => ({ ...c, name: e.target.value }))} />
+                                <input className="input" placeholder="Full name" value={contact.name} onChange={e => setContact(c => ({ ...c, name: e.target.value }))} />
                             </div>
                             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                                 <div>
@@ -1347,7 +1347,7 @@ export default function BookingWizard() {
                                     {LOAD_TIERS[tierIndex].title}
                                     {LOAD_TIERS[tierIndex].popular && (
                                         <span style={{ fontSize: 10, fontWeight: 700, color: "var(--brand)", background: "rgba(var(--brand-rgb, 249,115,22),0.06)", padding: "2px 8px", borderRadius: 999, marginLeft: 8, verticalAlign: "middle", letterSpacing: 0.3, textTransform: "uppercase" }}>
-                                            Most common
+                                            Standard option
                                         </span>
                                     )}
                                 </div>
@@ -1861,7 +1861,7 @@ export default function BookingWizard() {
                             <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)}
                                 style={{ width: 20, height: 20, accentColor: "var(--brand)", flexShrink: 0, marginTop: 1 }} />
                             <span style={{ fontSize: 14, color: "var(--foreground)", lineHeight: 1.5 }}>
-                                I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>. I understand that pricing is finalized on-site, 24-hour cancellation notice is required, and hazardous materials cannot be hauled.
+                                I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>. I understand that pricing is finalized on-site, schedule changes should be requested as soon as possible, and hazardous materials cannot be hauled.
                             </span>
                         </label>
 

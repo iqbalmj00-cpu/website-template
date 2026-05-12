@@ -55,7 +55,7 @@ export default function TestimonialsStrip({ config = siteConfig }: { config?: Si
                 ))}
               </div>
               <p className="mt-4 font-display text-[20px] font-semibold leading-[1.35] text-ink text-pretty">
-                &quot;{review.body}&quot;
+                &ldquo;{review.body}&rdquo;
               </p>
               <div className="mt-5 flex items-center justify-between gap-4 border-t border-line pt-4">
                 <div>

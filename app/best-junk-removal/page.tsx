@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle, ClipboardCheck, Phone } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
 import { formatPhone, getVerifiableTrustSignals, siteConfig, telHref } from "@/lib/siteConfig";
+import { hasVerifiedPublicReviews } from "@/lib/reviewData";
 
 const path = "/best-junk-removal";
 const breadcrumbs = [
@@ -17,13 +18,14 @@ export const metadata: Metadata = createPageMetadata({
     path,
 });
 
-export default function BestJunkRemovalPage() {
+export default async function BestJunkRemovalPage() {
     const trustSignals = getVerifiableTrustSignals();
+    const showReviews = await hasVerifiedPublicReviews();
     const comparisonCriteria = [
         "Clear, volume-based pricing before loading starts.",
         "A published list of accepted and prohibited items.",
         "Easy online booking or a phone path for urgent questions.",
-        "Real review data or a clear empty state instead of fake testimonials.",
+        "Real Google review data when it is available.",
         "Insurance, licensing, or credentials shown only when the company provides them.",
         "A straightforward explanation of disposal, donation, and recycling limitations.",
     ];
@@ -45,7 +47,7 @@ export default function BestJunkRemovalPage() {
                         How To Choose The Best Junk Removal Company in {siteConfig.city}
                     </h1>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.75, maxWidth: 720, margin: "0 auto" }}>
-                        This guide explains what to compare before booking junk removal. It is not a fake award page; it is a checklist for choosing a service that fits your job, budget, and schedule.
+                        This guide explains what to compare before booking junk removal, including pricing, accepted items, scheduling, and service expectations.
                     </p>
                 </div>
             </section>
@@ -78,9 +80,11 @@ export default function BestJunkRemovalPage() {
                             <Link href="/pricing" style={{ color: "var(--brand)", fontWeight: 800, textDecoration: "none" }}>
                                 View pricing <ArrowRight size={15} style={{ display: "inline", verticalAlign: "middle" }} />
                             </Link>
-                            <Link href="/reviews" style={{ color: "var(--brand)", fontWeight: 800, textDecoration: "none" }}>
-                                View reviews <ArrowRight size={15} style={{ display: "inline", verticalAlign: "middle" }} />
-                            </Link>
+                            {showReviews && (
+                                <Link href="/reviews" style={{ color: "var(--brand)", fontWeight: 800, textDecoration: "none" }}>
+                                    View reviews <ArrowRight size={15} style={{ display: "inline", verticalAlign: "middle" }} />
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>
