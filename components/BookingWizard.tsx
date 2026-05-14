@@ -45,7 +45,6 @@ const BOOKING_TRAILER_DIMENSIONS: TrailerDimensions = {
     length: "16 ft",
     width: "7 ft",
     height: "4 ft",
-    capacity: "16.6 yd3",
 };
 
 function mapVolumeIdToTrailerLoad(volumeId: string): DumpTrailerLoadKey {
@@ -1231,7 +1230,7 @@ export default function BookingWizard() {
                         {/* Truck + Slider OR Compare Grid */}
                         {viewMode === "slider" ? (
                             <>
-                                <div style={{ margin: "0 12px", borderRadius: "var(--card-radius, 20px)", overflow: "hidden", border: "1px solid var(--border, #e2e8f0)", background: "transparent" }}>
+                                <div style={{ margin: "0 -8px", overflow: "visible", background: "transparent" }}>
                                     <DumpTrailerLoadVisualizer
                                         selectedLoad={mapVolumeIdToTrailerLoad(LOAD_TIERS[tierIndex].volumeId)}
                                         companyName={siteConfig.companyName}

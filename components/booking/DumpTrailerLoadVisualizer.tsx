@@ -68,7 +68,7 @@ const VIEW_OPTIONS: ViewOption[] = [
 const VIEW_BY_KEY = Object.fromEntries(VIEW_OPTIONS.map((view) => [view.key, view])) as Record<ViewOption["key"], ViewOption>;
 
 const DESKTOP_CAMERA_DISTANCE_SCALE: Record<ViewOption["key"], number> = {
-  orbit: 1.35,
+  orbit: 1.16,
   side: 1.42,
   fullRig: 1.24,
   rear: 1.22,
@@ -77,7 +77,7 @@ const DESKTOP_CAMERA_DISTANCE_SCALE: Record<ViewOption["key"], number> = {
 };
 
 const COMPACT_CAMERA_DISTANCE_SCALE: Record<ViewOption["key"], number> = {
-  orbit: 1.45,
+  orbit: 1.26,
   side: 1.24,
   fullRig: 1.06,
   rear: 1.12,
