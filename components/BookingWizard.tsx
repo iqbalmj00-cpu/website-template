@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, ChevronLeft, CreditCard, Lock, Truck, CalendarDays, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, Home, Building2 } from "lucide-react";
 import ServiceIcon from "@/components/ServiceIcon";
@@ -17,10 +18,54 @@ import {
     type ServiceType, type WizardPhase, type DynamicSlot,
 } from "@/lib/wizardData";
 import { loadStripe, type Stripe, type StripeCardElement } from "@stripe/stripe-js";
+import type { DumpTrailerLoadKey, DumpTrailerLoadVisualizerProps, TrailerDimensions } from "@/components/booking/DumpTrailerLoadVisualizer";
 
 /* ── Types ─────────────────────────────────────────────────────────────── */
 
 type ContactInfo = { name: string; phone: string; email: string; address: string; notes: string; customerType: "residential" | "commercial" };
+
+const DumpTrailerLoadVisualizer = dynamic<DumpTrailerLoadVisualizerProps>(
+    () => import("@/components/booking/DumpTrailerLoadVisualizer").then((mod) => mod.DumpTrailerLoadVisualizer),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="dtv-root dtv-root--booking" aria-hidden="true">
+                <div className="dtv-loading">
+                    <span>Loading trailer</span>
+                </div>
+            </div>
+        ),
+    },
+);
+
+const DUMP_TRAILER_MODEL_URL = "/booking/dump-trailer/dump-trailer-load-visualizer.glb";
+const DUMP_TRAILER_DRACO_PATH = "/booking/dump-trailer/draco/";
+
+const BOOKING_TRAILER_DIMENSIONS: TrailerDimensions = {
+    length: "16 ft",
+    width: "7 ft",
+    height: "4 ft",
+    capacity: "16.6 yd3",
+};
+
+function mapVolumeIdToTrailerLoad(volumeId: string): DumpTrailerLoadKey {
+    switch (volumeId) {
+        case "few":
+            return "eighth";
+        case "quarter":
+            return "quarter";
+        case "half":
+            return "half";
+        case "three_quarter":
+            return "threeQuarter";
+        case "full":
+            return "full";
+        case "multi":
+            return "multi";
+        default:
+            return "quarter";
+    }
+}
 
 /* ── Analytics: typed gtag wrapper ─────────────────────────────────────────
  * Safe no-op when GA isn't loaded (gaTrackingId not configured in siteConfig).
@@ -68,142 +113,6 @@ function AnimatedPrice({ value, fontSize = 28 }: { value: number; fontSize?: num
         }}>
             ${display}
         </span>
-    );
-}
-
-
-/* ── V4: Truck Image Assets (base64 PNG) ────────────────────────────── */
-const PICKUP_EMPTY = "/booking/pickup-empty.png";
-const PICKUP_EIGHTH = "/booking/pickup-eighth.png";
-const PICKUP_QUARTER = "/booking/pickup-quarter.png";
-const BOXTRUCK_EMPTY = "/booking/boxtruck-empty.png";
-const BOX_HALF = "/booking/box-half.png";
-const BOX_THREE_QUARTER = "/booking/box-three-quarter.png";
-const BOX_FULL = "/booking/box-full.png";
-
-/* ── V4: Clip-path masks for cargo area ─────────────────────────────── */
-const PICKUP_CLIP = "inset(14% 52% 24% 10%)";
-const BOXTRUCK_CLIP = "inset(0% 35% 30% 3%)";
-
-/* ── V4: Junk Overlay Layer ─────────────────────────────────────────── */
-function JunkLayer({ src, clipPath, visible, transition = "opacity 0.4s ease" }: { src: string; clipPath: string; visible: boolean; transition?: string }) {
-    return (
-        <img
-            src={src}
-            alt=""
-            draggable={false}
-            style={{
-                position: "absolute",
-                top: 0, left: 0,
-                width: "100%", height: "100%",
-                objectFit: "contain",
-                clipPath,
-                opacity: visible ? 1 : 0,
-                transition,
-                pointerEvents: "none",
-                userSelect: "none",
-            }}
-        />
-    );
-}
-
-/* ── V4: Photo-realistic Vehicle Visual (pickup + box truck) ──────── */
-function VehicleVisual({ tierIndex, mounted }: { tierIndex: number; mounted: boolean }) {
-    const tier = LOAD_TIERS[tierIndex];
-    const isPickup = tier.vehicle === "pickup";
-    const isBoxtruck = tier.vehicle === "boxtruck";
-    const isMultiLoad = tierIndex === 5;
-
-    const dur = "0.65s";
-    const ease = "cubic-bezier(0.4, 0, 0.2, 1)";
-    const imgStyle: React.CSSProperties = { width: "100%", display: "block", userSelect: "none" };
-
-    return (
-        <div style={{ position: "relative", overflow: "hidden", minHeight: 180 }}>
-
-            {/* ====== PICKUP TRUCK ====== */}
-            <div style={{
-                position: isPickup ? "relative" : "absolute",
-                top: 0, left: 0, right: 0,
-                transform: isPickup
-                    ? (mounted ? "translateX(0)" : "translateX(60px)")
-                    : "translateX(110%)",
-                opacity: isPickup ? (mounted ? 1 : 0) : 0,
-                transition: `transform ${dur} ${ease}, opacity ${dur} ${ease}`,
-                zIndex: isPickup ? 2 : 1,
-                pointerEvents: isPickup ? "auto" : "none",
-            }}>
-                <img src={PICKUP_EMPTY} alt="Pickup truck" draggable={false} style={imgStyle} />
-                <JunkLayer src={PICKUP_EIGHTH} clipPath={PICKUP_CLIP} visible={tierIndex >= 0 && isPickup} transition="opacity 0.4s ease 0.05s" />
-                <JunkLayer src={PICKUP_QUARTER} clipPath={PICKUP_CLIP} visible={tierIndex >= 1 && isPickup} transition="opacity 0.4s ease 0.15s" />
-
-                {isPickup && (
-                    <div style={{ position: "absolute", left: 12, top: 8, zIndex: 10 }}>
-                        <div style={{
-                            background: "var(--brand)", color: "#fff",
-                            fontFamily: "var(--heading-font)",
-                            fontSize: 20, fontWeight: 800,
-                            padding: "6px 16px", borderRadius: 999,
-                            whiteSpace: "nowrap",
-                            boxShadow: "0 4px 16px rgba(var(--brand-rgb, 249,115,22),0.3)",
-                        }}>
-                            {tier.label}
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* ====== BOX TRUCK ====== */}
-            <div style={{
-                position: isBoxtruck ? "relative" : "absolute",
-                top: 0, left: 0, right: 0,
-                transform: isBoxtruck
-                    ? (mounted ? "translateX(0)" : "translateX(-60px)")
-                    : "translateX(-110%)",
-                opacity: isBoxtruck ? (mounted ? 1 : 0) : 0,
-                transition: `transform ${dur} ${ease}, opacity ${dur} ${ease}`,
-                zIndex: isBoxtruck ? 2 : 1,
-                pointerEvents: isBoxtruck ? "auto" : "none",
-            }}>
-                <img src={BOXTRUCK_EMPTY} alt="Box truck" draggable={false} style={imgStyle} />
-                <JunkLayer src={BOX_HALF} clipPath={BOXTRUCK_CLIP} visible={tierIndex >= 2 && isBoxtruck} transition="opacity 0.4s ease 0.05s" />
-                <JunkLayer src={BOX_THREE_QUARTER} clipPath={BOXTRUCK_CLIP} visible={tierIndex >= 3 && isBoxtruck} transition="opacity 0.4s ease 0.15s" />
-                <JunkLayer src={BOX_FULL} clipPath={BOXTRUCK_CLIP} visible={tierIndex >= 4 && isBoxtruck} transition="opacity 0.4s ease 0.25s" />
-
-                {isBoxtruck && (
-                    <div style={{ position: "absolute", left: 12, top: 8, zIndex: 10 }}>
-                        <div style={{
-                            background: "var(--brand)", color: "#fff",
-                            fontFamily: "var(--heading-font)",
-                            fontSize: 20, fontWeight: 800,
-                            padding: "6px 16px", borderRadius: 999,
-                            whiteSpace: "nowrap",
-                            boxShadow: "0 4px 16px rgba(var(--brand-rgb, 249,115,22),0.3)",
-                        }}>
-                            {tier.label}
-                        </div>
-                    </div>
-                )}
-
-                {isMultiLoad && (
-                    <div style={{
-                        position: "absolute", top: 8, right: 12,
-                        background: "var(--brand)", color: "#fff",
-                        fontFamily: "var(--heading-font)",
-                        fontSize: 20, fontWeight: 800,
-                        padding: "6px 16px", borderRadius: 999,
-                        boxShadow: "0 4px 16px rgba(var(--brand-rgb, 249,115,22),0.3)",
-                        zIndex: 10, letterSpacing: 1,
-                        animation: "badgePop 0.4s cubic-bezier(0.16,1,0.3,1)",
-                    }}>
-                        2x+
-                    </div>
-                )}
-            </div>
-
-            {/* badgePop keyframe */}
-            <style>{`@keyframes badgePop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }`}</style>
-        </div>
     );
 }
 
@@ -270,13 +179,13 @@ function StepSlider({ value, onChange }: { value: number; onChange: (v: number) 
                     );
                 })}
             </div>
-            <div style={{ display:"flex", justifyContent:"space-between" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", gap: 6 }}>
                 {LOAD_TIERS.map((t,i)=>(
                     <span key={i} style={{
-                        fontSize:15, fontWeight:i===value?700:500,
+                        fontSize:13, fontWeight:i===value?700:500,
                         color:i===value?"var(--brand)":"var(--muted, #b0b8c4)",
                         fontFamily:"var(--heading-font)",
-                        textAlign:"center", flex:1, transition:"all 0.2s",
+                        textAlign:"center", flex:1, minWidth: 0, lineHeight: 1.25, transition:"all 0.2s",
                     }}>{t.label}</span>
                 ))}
             </div>
@@ -435,7 +344,6 @@ export default function BookingWizard() {
     const [tierIndex, setTierIndex] = useState<number>(saved?.tierIndex ?? 1);
     const [edgeCases, setEdgeCases] = useState<Record<string, boolean>>(saved?.edgeCases ?? {});
     const [viewMode, setViewMode] = useState<"slider" | "compare">("slider");
-    const [mounted, setMounted] = useState(false);
     const [volume, setVolume] = useState<string | null>(saved?.volume ?? null);
     const [location, setLocation] = useState<string | null>(saved?.location ?? null);
     const [selectedDate, setSelectedDate] = useState<Date | null>(saved?.selectedDate ? new Date(saved.selectedDate) : null);
@@ -688,15 +596,10 @@ export default function BookingWizard() {
         // If step === 0, browser back navigates away from /book naturally
     };
 
-    /* ── V2: Sync tierIndex → volume, entrance animation ─────────── */
+    /* ── Sync tierIndex → booking volume ─────────────────────────── */
     useEffect(() => {
         setVolume(LOAD_TIERS[tierIndex].volumeId);
     }, [tierIndex]);
-
-    useEffect(() => {
-        const t = setTimeout(() => setMounted(true), 100);
-        return () => clearTimeout(t);
-    }, []);
 
     const isOnSiteEstimate = !!edgeCases["unknown"] || volume === "multi";
     const hasSpecialConditions = Object.values(edgeCases).some(Boolean);
@@ -1328,8 +1231,18 @@ export default function BookingWizard() {
                         {/* Truck + Slider OR Compare Grid */}
                         {viewMode === "slider" ? (
                             <>
-                                <div style={{ margin: "0 12px", borderRadius: 20, overflow: "hidden", border: "1px solid var(--border, #e2e8f0)", background: "#f8fafc" }}>
-                                    <VehicleVisual tierIndex={tierIndex} mounted={mounted} />
+                                <div style={{ margin: "0 12px", borderRadius: "var(--card-radius, 20px)", overflow: "hidden", border: "1px solid var(--border, #e2e8f0)", background: "transparent" }}>
+                                    <DumpTrailerLoadVisualizer
+                                        selectedLoad={mapVolumeIdToTrailerLoad(LOAD_TIERS[tierIndex].volumeId)}
+                                        companyName={siteConfig.companyName}
+                                        brandColor={siteConfig.brandColor}
+                                        textColor="#fff7ea"
+                                        trailerDimensions={BOOKING_TRAILER_DIMENSIONS}
+                                        modelUrl={DUMP_TRAILER_MODEL_URL}
+                                        dracoDecoderPath={DUMP_TRAILER_DRACO_PATH}
+                                        multiLoadBadgeText="1+ Load"
+                                        className="dtv-root--booking"
+                                    />
                                 </div>
                                 <div style={{ marginTop: 20 }}><StepSlider value={tierIndex} onChange={setTierIndex} /></div>
                             </>

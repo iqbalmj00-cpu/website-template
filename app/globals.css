@@ -741,6 +741,105 @@ body:has([data-template-preview]) > .redesign-site-footer {
 
 .pac-icon { display: none; }
 
+/* ── Booking dump-trailer visualizer ─────────────────────────────────── */
+.dtv-root {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 20rem;
+  overflow: hidden;
+  border-radius: var(--card-radius, 16px);
+  background: transparent;
+  color: var(--dtv-text, #fff7ea);
+  font-family: var(--body-font), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  isolation: isolate;
+}
+
+.dtv-root--booking {
+  min-height: clamp(240px, 34vw, 380px);
+}
+
+.dtv-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.dtv-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.dtv-loading,
+.dtv-fallback {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 10.75rem;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  color: var(--foreground);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 12px 30px rgba(16, 32, 24, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.dtv-loading span,
+.dtv-fallback span {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.dtv-fallback {
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.dtv-fallback small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.dtv-multi-badge {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--dtv-brand, var(--brand)) 72%, white 18%);
+  border-radius: var(--btn-radius);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  box-shadow: 0 14px 40px rgba(16, 32, 24, 0.16);
+  color: var(--foreground);
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  backdrop-filter: blur(14px);
+}
+
+.dtv-multi-badge::before {
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-right: 0.5rem;
+  border-radius: 999px;
+  background: var(--dtv-brand, var(--brand));
+  content: "";
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    RESPONSIVE — Mobile-first adjustments
    ══════════════════════════════════════════════════════════════════════════ */
@@ -806,5 +905,9 @@ body:has([data-template-preview]) > .redesign-site-footer {
 
   .card {
     padding: 1rem;
+  }
+
+  .dtv-root--booking {
+    min-height: 240px;
   }
 }

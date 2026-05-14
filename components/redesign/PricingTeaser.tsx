@@ -2,12 +2,18 @@
  * PricingTeaser — three-step pricing explainer paired with an inverted CTA
  * card that sends customers to the booking wizard for an estimate.
  *
- * Server component. It never prints public dollar ranges.
+ * Server component. It prints load-tier ranges only when client pricing is
+ * configured through launch/preview config.
  */
 
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
-import type { SiteConfig } from "@/lib/siteConfig"
+import {
+  getPricingTiersForDisplay,
+  siteConfig,
+  type SiteConfig,
+} from "@/lib/siteConfig"
+import PricingTierCards from "./PricingTierCards"
 
 const STEPS = [
   {
@@ -52,7 +58,9 @@ function DashedArrow({ vertical = false }: { vertical?: boolean }) {
   )
 }
 
-export default function PricingTeaser(_props: { config?: SiteConfig } = {}) {
+export default function PricingTeaser({ config = siteConfig }: { config?: SiteConfig } = {}) {
+  const hasPricingTiers = getPricingTiersForDisplay(6, config).length > 0
+
   return (
     <section className="relative overflow-hidden bg-paper py-20 px-[clamp(20px,4vw,64px)] border-y border-line">
       <div
@@ -120,6 +128,21 @@ export default function PricingTeaser(_props: { config?: SiteConfig } = {}) {
               </li>
             ))}
           </ol>
+
+          {hasPricingTiers && (
+            <div className="mt-10">
+              <div className="mb-4 flex flex-col gap-2">
+                <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+                  Configured load tiers
+                </div>
+                <p className="max-w-[62ch] text-[14.5px] leading-[1.6] text-muted">
+                  These ranges come from the pricing the client configured during launch. The final
+                  quote is still confirmed before loading begins.
+                </p>
+              </div>
+              <PricingTierCards config={config} limit={6} compact />
+            </div>
+          )}
         </div>
 
         {/* Inverted CTA card */}

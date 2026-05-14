@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Camera, CheckCircle, Clock, MapPin, Scale, Truck } from "lucide-react";
 import PageHero from "@/components/redesign/PageHero";
+import PricingPreview from "@/components/redesign/PricingPreview";
 import StaticFAQ from "@/components/redesign/StaticFAQ";
 import CtaBand from "@/components/redesign/CtaBand";
 import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
@@ -12,7 +13,7 @@ const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` :
 const PRICING_FAQS = [
     {
         q: "Where can I see a junk removal price estimate?",
-        a: "Use the booking flow to enter the pickup address, items, access details, and photos when available. The booking wizard is the place customers should use to see an estimate before the final quote is confirmed.",
+        a: "When pricing is configured for the site, this page can show load-tier planning ranges. Use the booking flow to enter the pickup address, items, access details, and photos when available so the estimate reflects the actual job details.",
     },
     {
         q: "How is junk removal pricing calculated?",
@@ -51,7 +52,7 @@ const ESTIMATE_STEPS = [
 
 export const metadata: Metadata = createPageMetadata({
     title: `Junk Removal Pricing in ${siteConfig.city}`,
-    description: `Learn how ${siteConfig.companyName} estimates junk removal pricing in ${cityState}. Use the booking wizard for an estimate and final quote confirmation before loading.`,
+    description: `Review configured junk removal load-tier pricing in ${cityState} and learn how ${siteConfig.companyName} estimates jobs before final quote confirmation.`,
     path: "/pricing",
 });
 
@@ -76,8 +77,15 @@ export default function PricingPage() {
                 ]}
                 titleStart="Get a junk removal estimate "
                 titleAccent={`through booking.`}
-                lede="This page explains the quote factors. Dollar estimates belong in the booking wizard, where item details, access notes, and the pickup address can be used together."
+                lede="Configured load-tier ranges give customers a planning guide. The booking wizard adds item details, access notes, and the pickup address so the estimate can match the actual job."
                 primaryCta={{ label: "Get Instant Quote", href: "/book" }}
+            />
+            <PricingPreview
+                config={siteConfig}
+                limit={6}
+                showDetailsLink={false}
+                title="Configured load-tier pricing"
+                subtitle="These ranges are pulled from the client's configured pricing at launch. They are planning ranges, and the final quote is confirmed before loading begins."
             />
 
             <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
@@ -85,7 +93,7 @@ export default function PricingPage() {
                     <div className="mb-9 flex max-w-[46rem] flex-col gap-3">
                         <div className="eyebrow">Estimate process</div>
                         <h2 className="font-display text-[clamp(36px,4.5vw,56px)] font-extrabold leading-[1.02] tracking-normal text-ink">
-                            Pricing starts in the booking wizard.
+                            Pricing starts with load size and job details.
                         </h2>
                     </div>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
