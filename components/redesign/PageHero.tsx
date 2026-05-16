@@ -226,7 +226,7 @@ export default function PageHero({
                   }}
                 />
                 <figcaption className="absolute left-4 top-4 rounded-full border border-white/25 bg-black/45 px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white backdrop-blur">
-                  {media.caption || themeProfile.mediaBadge}
+                  {media?.caption || themeProfile.mediaBadge}
                 </figcaption>
               </figure>
             )}
