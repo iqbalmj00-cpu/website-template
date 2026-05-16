@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import {
     adjustHexColor,
     createSiteConfigFromPublicConfig,
+    hasVerifiedGoogleReviews,
     hexToRgb,
     siteConfig,
     type SiteConfig,
@@ -11,9 +12,8 @@ import {
 import { getServerConfig } from "@/lib/serverConfig";
 import HomePageContent from "@/components/redesign/HomePageContent";
 import PreviewClickGuard from "@/components/redesign/PreviewClickGuard";
-import SameDayBanner from "@/components/redesign/SameDayBanner";
-import SiteFooter from "@/components/redesign/SiteFooter";
-import SiteHeader from "@/components/redesign/SiteHeader";
+import { DispatchSiteFooter, DispatchUtilityBar } from "@/components/redesign/DispatchBlocks";
+import DispatchSiteHeader from "@/components/redesign/DispatchSiteHeader";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -154,6 +154,7 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
             </PreviewClickGuard>
         );
     }
+    const showReviews = hasVerifiedGoogleReviews(config);
 
     return (
         <PreviewClickGuard>
@@ -165,12 +166,12 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
                 data-corner-radius={config.designConfig.cornerRadius}
                 data-nav-style={config.designConfig.navStyle}
             >
-                <SameDayBanner config={config} />
-                <SiteHeader config={config} />
+                <DispatchUtilityBar config={config} showReviews={showReviews} />
+                <DispatchSiteHeader config={config} showReviews={showReviews} />
                 <main>
                     <HomePageContent config={config} />
                 </main>
-                <SiteFooter config={config} />
+                <DispatchSiteFooter config={config} />
             </div>
         </PreviewClickGuard>
     );

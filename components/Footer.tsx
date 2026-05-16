@@ -1,6 +1,5 @@
-import SiteFooter from "@/components/redesign/SiteFooter";
+import { DispatchSiteFooter } from "@/components/redesign/DispatchBlocks";
 
 export default function Footer(_props: { showReviews?: boolean } = {}) {
-    return <SiteFooter />;
+    return <DispatchSiteFooter />;
 }
-

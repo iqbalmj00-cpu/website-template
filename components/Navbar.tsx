@@ -1,6 +1,5 @@
-import SiteHeader from "@/components/redesign/SiteHeader";
+import DispatchSiteHeader from "@/components/redesign/DispatchSiteHeader";
 
-export default function Navbar(_props: { showReviews?: boolean } = {}) {
-    return <SiteHeader />;
+export default function Navbar(props: { showReviews?: boolean } = {}) {
+    return <DispatchSiteHeader showReviews={props.showReviews} />;
 }
-

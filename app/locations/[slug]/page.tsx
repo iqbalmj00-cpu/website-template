@@ -1,16 +1,19 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { MapPin } from "lucide-react";
-import PageHero from "@/components/redesign/PageHero";
-import PageIntro from "@/components/redesign/PageIntro";
-import RelatedSvc from "@/components/redesign/RelatedSvc";
-import PricingTeaser from "@/components/redesign/PricingTeaser";
-import PricingTierCards from "@/components/redesign/PricingTierCards";
-import NearbyAreas from "@/components/redesign/NearbyAreas";
-import CtaBand from "@/components/redesign/CtaBand";
+import {
+    DispatchAreaSection,
+    DispatchCardSection,
+    DispatchFaqBoard,
+    DispatchFinalCta,
+    DispatchIntroGrid,
+    DispatchLoadPricingCards,
+    DispatchMetricStrip,
+    DispatchPageHero,
+    DispatchServiceMosaic,
+} from "@/components/redesign/DispatchBlocks";
 import { getLocationBySlug, getLocations } from "@/lib/locationData.server";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, localBusinessJsonLd } from "@/lib/seo";
-import { hasConfiguredPricing, siteConfig } from "@/lib/siteConfig";
+import { siteConfig } from "@/lib/siteConfig";
 import { resolveJunkRemovalImage } from "@/lib/templateAssets/junkRemoval";
 
 export async function generateStaticParams() {
@@ -56,8 +59,8 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
         { label: `${location.name}, ${location.state}`, href: `/locations/${location.slug}` },
     ];
     const localAreaItems = [
-        ...location.neighborhoods.map((name) => ({ type: "Neighborhood", name })),
-        ...location.landmarks.map((name) => ({ type: "Landmark", name })),
+        ...location.neighborhoods.map((name) => ({ eyebrow: "Neighborhood", title: name, desc: "Source-backed local reference for this page." })),
+        ...location.landmarks.map((name) => ({ eyebrow: "Landmark", title: name, desc: "Source-backed local reference for this page." })),
     ];
 
     return (
@@ -77,124 +80,81 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
                     ]),
                 }}
             />
-            <PageHero
+            <DispatchPageHero
+                config={siteConfig}
                 crumbs={[
                     { label: "Home", href: "/" },
                     { label: "Locations", href: "/locations" },
                     { label: location.name },
                 ]}
-                titleStart="Junk removal in "
-                titleAccent={`${location.name}, ${location.state}.`}
+                eyebrow="Location overview"
+                title={<>Junk removal in {location.name}, {location.state}.</>}
                 lede={location.heroDescription}
-                media={{
-                    role: "locationNeighborhood",
-                    src: siteConfig.locationImages?.[location.slug],
-                    routeKey: `location-${location.slug}`,
-                    locationName: location.name,
-                    caption: "Local coverage",
-                }}
+                coverageMap
+                primaryCta={{ label: "Check my address", href: "/book" }}
+                secondaryCta={{ label: "View service page", href: "/services/junk-removal" }}
             />
-            {hasConfiguredPricing(siteConfig) && (
-                <section className="bg-paper px-[clamp(20px,4vw,64px)] py-10 border-b border-line">
-                    <div className="mx-auto" style={{ maxWidth: 1180 }}>
-                        <div className="mb-5 flex flex-col gap-2">
-                            <div className="eyebrow">Configured load pricing</div>
-                            <h2 className="font-display text-[clamp(28px,3.4vw,40px)] font-extrabold leading-tight text-ink">
-                                Review the common load ranges before booking in {location.name}.
-                            </h2>
-                        </div>
-                        <PricingTierCards config={siteConfig} limit={4} compact />
-                    </div>
-                </section>
-            )}
-            <PageIntro
-                eyebrow="Local overview"
-                headline={`${siteConfig.companyName} serves approved junk removal jobs in ${location.name}.`}
-                body={
-                    <>
-                        <p>{location.localInfo}</p>
-                        <p>
-                            Book online with the pickup address, item list, photos when available, and access notes.
-                            The final price is confirmed before loading begins.
-                        </p>
-                    </>
-                }
-                rightEyebrow="Location details"
-                rightHeading={`Coverage around ${location.name}`}
-                rightRows={[
-                    { n: "01", t: location.isMainCity ? "Main city" : "Configured area", d: `${location.name}, ${location.state}` },
-                    { n: "02", t: "Pickup address", d: "Confirmed during booking" },
-                    { n: "03", t: "Nearby details", d: location.hasSourcedLocalContent ? "Listed when available" : "Ask about exact coverage" },
+            <DispatchLoadPricingCards config={siteConfig} localLabel={location.name} />
+            <DispatchMetricStrip
+                items={[
+                    { label: "Page type", value: location.isMainCity ? "Main city" : "Area" },
+                    { label: "SEO status", value: location.isMainCity || location.isExplicit ? "Indexable" : "Noindex" },
+                    { label: "Address", value: "Checked" },
+                    { label: "Local facts", value: "Proof only" },
                 ]}
             />
+            <DispatchIntroGrid
+                eyebrow="Local overview"
+                heading={`${siteConfig.companyName} serves approved junk removal jobs in ${location.name}.`}
+                boardEyebrow="Location details"
+                boardHeading={`Coverage around ${location.name}.`}
+                rows={[
+                    { n: "01", title: location.isMainCity ? "Main city" : "Configured area", desc: `${location.name}, ${location.state}` },
+                    { n: "02", title: "Pickup address", desc: "Confirmed during booking" },
+                    { n: "03", title: "Nearby details", desc: location.hasSourcedLocalContent ? "Listed when available" : "Ask about exact coverage" },
+                    { n: "04", title: "Service match", desc: "Routes depend on job details" },
+                ]}
+            >
+                <p>{location.localInfo}</p>
+                <p>
+                    Book online with the pickup address, item list, photos when available, and access notes.
+                    The final price is confirmed before loading begins.
+                </p>
+            </DispatchIntroGrid>
+            <DispatchAreaSection config={siteConfig} />
+            <DispatchServiceMosaic
+                config={siteConfig}
+                eyebrow="Available services"
+                heading={`Services available in ${location.name}.`}
+            />
             {localAreaItems.length > 0 && (
-                <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
-                    <div className="mx-auto" style={{ maxWidth: 1180 }}>
-                        <div className="mb-9 text-center">
-                            <div className="eyebrow inline-flex">Local signals</div>
-                            <h2 className="mt-3 font-display text-[clamp(34px,4.5vw,52px)] font-extrabold leading-[1.03] tracking-normal text-ink">
-                                Areas referenced for {location.name}.
-                            </h2>
-                        </div>
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                            {localAreaItems.map((item) => (
-                                <div key={`${item.type}-${item.name}`} className="flex items-center gap-3 rounded-[14px] border border-line bg-paper p-5">
-                                    <MapPin className="h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
-                                    <div>
-                                        <div className="font-display text-[17px] font-bold text-ink">{item.name}</div>
-                                        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">{item.type}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
+                <DispatchCardSection
+                    eyebrow="Local signals"
+                    heading={`Areas referenced for ${location.name}.`}
+                    body="Neighborhoods and landmarks appear only when source-backed local content exists."
+                    cards={localAreaItems}
+                    variant="coverage-cards"
+                    alt
+                />
             )}
             {location.localFacts.length > 0 && (
-                <section className="bg-paper py-[100px] px-[clamp(20px,4vw,64px)] border-y border-line">
-                    <div className="mx-auto" style={{ maxWidth: 980 }}>
-                        <div className="mb-7 text-center">
-                            <div className="eyebrow inline-flex">Source-backed notes</div>
-                            <h2 className="mt-3 font-display text-[clamp(34px,4.5vw,52px)] font-extrabold leading-[1.03] tracking-normal text-ink">
-                                Local details used for this page.
-                            </h2>
-                        </div>
-                        <div className="grid gap-3">
-                            {location.localFacts.map((fact) => (
-                                <p key={fact} className="rounded-[14px] border border-line bg-paper-2 p-5 text-[15.5px] leading-[1.6] text-muted">
-                                    {fact}
-                                </p>
-                            ))}
-                        </div>
-                    </div>
-                </section>
+                <DispatchCardSection
+                    eyebrow="Source-backed notes"
+                    heading="Local details should be earned."
+                    body="These facts come from validated location content, not invented route claims."
+                    cards={location.localFacts.map((fact) => ({ eyebrow: "Validated fact", title: location.name, desc: fact }))}
+                    variant="fact-grid"
+                />
             )}
-            <RelatedSvc eyebrow="Available services" heading={`Services available in ${location.name}.`} />
-            <PricingTeaser />
             {location.faqs.length > 0 && (
-                <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
-                    <div className="mx-auto" style={{ maxWidth: 980 }}>
-                        <div className="mb-7 text-center">
-                            <div className="eyebrow inline-flex">Location FAQ</div>
-                            <h2 className="mt-3 font-display text-[clamp(34px,4.5vw,52px)] font-extrabold leading-[1.03] tracking-normal text-ink">
-                                Questions about {location.name}.
-                            </h2>
-                        </div>
-                        <div className="overflow-hidden rounded-[14px] border border-line bg-paper">
-                            {location.faqs.map((faq) => (
-                                <details key={faq.q} className="border-b border-line last:border-b-0">
-                                    <summary className="cursor-pointer px-6 py-5 font-display text-[19px] font-semibold text-ink">
-                                        {faq.q}
-                                    </summary>
-                                    <div className="px-6 pb-6 text-[15.5px] leading-[1.6] text-muted">{faq.a}</div>
-                                </details>
-                            ))}
-                        </div>
-                    </div>
-                </section>
+                <DispatchFaqBoard
+                    eyebrow="Location FAQ"
+                    heading={`Questions about ${location.name}.`}
+                    body="Location FAQs render only from safe default or source-backed local content."
+                    items={location.faqs}
+                />
             )}
-            <NearbyAreas currentSlug={location.slug} heading={`Other configured areas near ${siteConfig.city}.`} />
-            <CtaBand />
+            <DispatchFinalCta config={siteConfig} />
         </>
     );
 }
