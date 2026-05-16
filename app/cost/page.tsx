@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BadgeDollarSign } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import CtaBand from "@/components/redesign/CtaBand";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd } from "@/lib/seo";
 import { formatCostRange, getCostGuides } from "@/lib/costData";
 import { siteConfig } from "@/lib/siteConfig";
@@ -13,7 +14,7 @@ export const metadata: Metadata = createPageMetadata({
 });
 const FAQS = [
     { q: "What is the main factor in junk removal cost?", a: "Truck volume is usually the main factor. Weight, stairs, long carry distance, item handling, and disposal requirements can also change the final price." },
-    { q: "Are these cost guides final quotes?", a: "No. They are planning guides based on template pricing factors. The final price is confirmed before loading begins." },
+    { q: "Are these cost guides final quotes?", a: "No. They are planning guides based on common junk removal pricing factors. The final price is confirmed before loading begins." },
     { q: "Can one item cost less than a full truckload?", a: "Yes. Smaller single-item pickups usually fall near the lower pricing tiers, but the minimum charge still applies." },
     { q: "Why do heavy materials cost more?", a: "Heavy materials can fill the truck by weight before they fill it by volume and may carry additional local disposal or handling costs." },
 ];
@@ -123,6 +124,10 @@ export default function CostGuideIndexPage() {
                     </div>
                 </div>
             </section>
+            <CtaBand
+                heading={{ lead: "Ready for a real quote?", accent: "Start with the job details." }}
+                lede={`Book junk removal in ${siteConfig.city} with the pickup address, item list, photos when available, and access notes.`}
+            />
         </>
     );
 }

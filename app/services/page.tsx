@@ -11,10 +11,10 @@ import { siteConfig } from "@/lib/siteConfig";
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
 const SERVICE_OVERVIEW_FAQS = [
-    { q: `What junk removal services are available in ${siteConfig.city}?`, a: `${siteConfig.companyName} lists the junk removal services available for this location on this page. Availability depends on the enabled service set, pickup address, item type, and schedule.` },
+    { q: `What junk removal services are available in ${siteConfig.city}?`, a: `${siteConfig.companyName} lists the junk removal services available for this location on this page. Availability depends on the pickup address, item type, and schedule.` },
     { q: "Can approved items be removed from inside a home or business?", a: "Yes. Approved items can usually be removed from inside rooms, garages, storage units, offices, yards, and job sites when access is safe and clear." },
     { q: "How do I know which service page to choose?", a: "Choose the closest matching service, or use the general junk removal option if your job includes mixed items. The crew can review the full scope before loading begins." },
-    { q: "Do you handle residential and commercial jobs?", a: "Residential and commercial service pages appear when those services are enabled for this business." },
+    { q: "Do you handle residential and commercial jobs?", a: "Residential junk removal is available for homes, apartments, garages, and cleanouts. Commercial service is available when the job type and service area are supported." },
 ];
 
 export const metadata: Metadata = createPageMetadata({
@@ -36,17 +36,17 @@ export default function ServicesPage() {
                 ]}
                 titleStart="Everything we haul, "
                 titleAccent="in one place."
-                lede={`${services.length > 0 ? `${services.length} enabled service categories.` : "Enabled service categories."} One booking flow for approved item removal, cleanouts, debris hauling, and junk removal projects in ${cityState}.`}
+                lede={`${services.length > 0 ? `${services.length} junk removal service categories.` : "Junk removal service categories."} One booking flow for approved item removal, cleanouts, debris hauling, and junk removal projects in ${cityState}.`}
             />
             <RelatedSvc
-                eyebrow="Service catalog"
+                eyebrow="Junk removal services"
                 heading="Choose the closest match for the job."
                 tone="paper-2"
                 limit={Math.max(services.length, 6)}
             />
             <PageIntro
                 eyebrow="How to choose"
-                headline="Service pages explain the job type without changing the booking flow."
+                headline="Choose the closest junk removal service for your job."
                 body={
                     <>
                         <p>
@@ -55,7 +55,7 @@ export default function ServicesPage() {
                         </p>
                         <p>
                             The crew confirms the final scope and price before loading begins, based on the actual item volume,
-                            weight, access, and enabled handling requirements.
+                            weight, access, and any handling requirements.
                         </p>
                     </>
                 }

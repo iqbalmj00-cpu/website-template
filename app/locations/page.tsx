@@ -15,8 +15,8 @@ const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` :
 const LOCATION_FAQS = [
     { q: `Do you serve all of ${siteConfig.city}?`, a: `${siteConfig.companyName} serves ${siteConfig.city}${siteConfig.state ? `, ${siteConfig.state}` : ""} and nearby communities listed on this page. Service availability can still depend on the exact pickup address and route schedule.` },
     { q: "Can I book if my neighborhood is not listed?", a: "Yes. Use the booking form or call with your address. The team can confirm whether your pickup location is inside the current service area." },
-    { q: "Do nearby service areas have separate pages?", a: "Location pages are created for the main city and configured service-area locations that are safe to publish." },
-    { q: "Are same-day pickups available in every service area?", a: "Same-day availability depends on route capacity, pickup address, and appointment timing. Same-day copy appears only when same-day service is enabled." },
+    { q: "Do nearby service areas have separate pages?", a: "Location pages are created for the main city and service-area communities that are safe to publish." },
+    { q: "Are same-day pickups available in every service area?", a: "Same-day availability depends on route capacity, pickup address, and appointment timing. Same-day information appears only when same-day service is offered." },
 ];
 
 export const metadata: Metadata = createPageMetadata({
@@ -41,14 +41,14 @@ export default function LocationsPage() {
                 ]}
                 titleStart="Junk removal "
                 titleAccent={`near ${siteConfig.city}.`}
-                lede={`${siteConfig.companyName} serves configured local areas around ${cityState}. Enter your pickup address when booking to confirm coverage and available windows.`}
+                lede={`${siteConfig.companyName} serves local areas around ${cityState}. Enter your pickup address when booking to confirm coverage and available windows.`}
             />
             <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
                 <div className="mx-auto" style={{ maxWidth: 1480 }}>
                     <div className="mb-9 flex max-w-[42rem] flex-col gap-3">
                         <div className="eyebrow">Service areas</div>
                         <h2 className="font-display text-[clamp(36px,4.5vw,56px)] font-extrabold leading-[1.02] tracking-normal text-ink">
-                            Choose the closest configured area.
+                            Choose the closest service area.
                         </h2>
                     </div>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -85,11 +85,11 @@ export default function LocationsPage() {
             </section>
             <PageIntro
                 eyebrow="Coverage check"
-                headline="Configured service areas help customers confirm the right pickup route."
+                headline="Service areas help customers confirm the right pickup route."
                 body={
                     <>
                         <p>
-                            Location pages start with the main city and configured service-area communities. Additional
+                            Location pages start with the main city and service-area communities. Additional
                             neighborhood or landmark details appear only when they have been provided for that location.
                         </p>
                         <p>
@@ -98,15 +98,15 @@ export default function LocationsPage() {
                         </p>
                     </>
                 }
-                rightEyebrow="Configured facts"
+                rightEyebrow="Coverage details"
                 rightHeading="What drives location pages"
                 rightRows={[
                     { n: "01", t: "Main city", d: siteConfig.city },
-                    { n: "02", t: "Service area", d: siteConfig.serviceArea || "Configured at launch" },
+                    { n: "02", t: "Service area", d: siteConfig.serviceArea || "Address check during booking" },
                     { n: "03", t: "ZIP coverage", d: siteConfig.serviceAreaZips.length ? `${siteConfig.serviceAreaZips.length} ZIP codes` : "Address check during booking" },
                 ]}
             />
-            <RelatedSvc eyebrow="Available services" heading="Services available across configured areas." />
+            <RelatedSvc eyebrow="Available services" heading="Services available across local service areas." />
             <StaticFAQ eyebrow="Location FAQ" heading="Questions about coverage." items={LOCATION_FAQS} />
             <CtaBand />
         </>

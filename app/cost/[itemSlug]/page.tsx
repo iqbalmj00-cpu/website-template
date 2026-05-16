@@ -88,7 +88,7 @@ export default function CostGuidePage({ params }: PageProps) {
                         </div>
                         <p style={{ color: "var(--muted)", lineHeight: 1.6, fontSize: "0.95rem" }}>
                             {range
-                                ? "Based on the current configured pricing tiers. Large or unusually heavy jobs may require a higher on-site estimate."
+                                ? "Based on the current load pricing ranges. Large or unusually heavy jobs may require a higher on-site estimate."
                                 : "The job details are reviewed for volume, access, material type, and local handling requirements before the final quote is confirmed."}
                         </p>
                     </div>

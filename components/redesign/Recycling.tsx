@@ -67,9 +67,8 @@ export default function Recycling({ config = siteConfig }: { config?: SiteConfig
             {pct}% landfill-diversion target.
           </h2>
           <p className="text-[16px] leading-[1.6] text-paper/70 mt-5 max-w-[52ch]">
-            When this setting is configured, the public site only displays the diversion target sent
-            by the dashboard. The crew confirms disposal, donation, or recycling options for each
-            job based on the material and local availability{city ? ` near ${city}` : ""}.
+            The crew confirms disposal, donation, or recycling options for each job based on the
+            material, schedule, and local availability{city ? ` near ${city}` : ""}.
           </p>
         </div>
 
@@ -101,7 +100,7 @@ export default function Recycling({ config = siteConfig }: { config?: SiteConfig
                 {pct}%
               </div>
               <div className="font-mono text-[11px] tracking-[0.16em] uppercase text-paper/70 mt-2">
-                Configured target
+                Diversion target
               </div>
             </div>
           </div>

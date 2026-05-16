@@ -16,7 +16,7 @@ const PROCESS_STEPS = [
     },
     {
         name: "Choose an available window",
-        text: "Select an available pickup date and time. Same-day windows only appear when same-day service is enabled and schedule capacity allows.",
+        text: "Select an available pickup date and time. Same-day windows only appear when same-day service is offered and schedule capacity allows.",
     },
     {
         name: "Approve the final quote before loading",
@@ -26,7 +26,7 @@ const PROCESS_STEPS = [
 
 const PROCESS_FAQS = [
     { q: "Do I need to move items to the curb?", a: "No. Full-service junk removal can include removal from inside, outside, garages, storage units, offices, or job sites when access is safe." },
-    { q: "When is the final price confirmed?", a: "The final price is confirmed before loading begins, after the crew reviews item volume, access, weight, and any enabled handling requirements." },
+    { q: "When is the final price confirmed?", a: "The final price is confirmed before loading begins, after the crew reviews item volume, access, weight, and any applicable handling requirements." },
     { q: "What should I do before the crew arrives?", a: "Separate anything you want to keep, clear a safe path to the items when possible, and mention stairs, elevators, gates, or parking limits when booking." },
     { q: "What happens after loading?", a: "Approved items are hauled away and basic cleanup around the loaded area can be completed when appropriate for the job." },
 ];

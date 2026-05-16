@@ -29,7 +29,7 @@ interface PageHeroProps {
 
 export default function PageHero({
   crumbs,
-  eyebrow = "Page details",
+  eyebrow = "Page overview",
   titleStart,
   titleAccent,
   lede,

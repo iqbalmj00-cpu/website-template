@@ -103,22 +103,22 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                     src: siteConfig.serviceImages?.[svc.slug],
                     routeKey: `service-${svc.slug}`,
                     serviceTitle: svc.title,
-                    label: "Enabled service page",
-                    caption: "Generated from configured services and the service catalog.",
+                    label: svc.title,
+                    caption: `${svc.title} details, accepted items, and quote factors.`,
                 }}
                 secondaryCta={{ label: "Review pricing factors", href: "#pricing" }}
             />
             <DispatchLoadPricingCards config={siteConfig} />
             <DispatchMetricStrip
                 items={[
-                    { label: "Route", value: siteConfig.city || "Local" },
-                    { label: "Quote basis", value: "Volume" },
-                    { label: "Job type", value: svc.title },
-                    { label: "Proof rule", value: "Configured" },
+                    { label: "Service area", value: siteConfig.city || "Local" },
+                    { label: "Pricing basis", value: "Load size" },
+                    { label: "Service type", value: svc.title },
+                    { label: "Quote timing", value: "Before loading" },
                 ]}
             />
             <DispatchIntroGrid
-                eyebrow="What this page explains"
+                eyebrow="Service overview"
                 heading={`What to know before booking ${svc.title.toLowerCase()}.`}
                 boardEyebrow="Booking prep"
                 boardHeading="Details that affect the quote."
@@ -134,16 +134,24 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <DispatchCardSection
                 eyebrow="Accepted categories"
                 heading={`Common ${svc.title.toLowerCase()} items and jobs.`}
-                body="These cards come from the enabled service catalog, not static prototype copy."
+                body={`Review common ${svc.title.toLowerCase()} item types before booking. Hazardous or restricted materials are not accepted.`}
                 cards={svc.items.map((item) => ({ title: item.title, desc: item.desc }))}
                 alt
             />
             <DispatchCardSection
                 eyebrow="Common projects"
                 heading="When customers book this service."
-                body="Use cases and preparation notes stay tied to the active service data."
+                body={`${svc.title} can help with one-item pickups, cleanouts, move-outs, and other approved hauling needs when the job scope is safe.`}
                 cards={svc.useCases.map((item) => ({ title: item.title, desc: item.desc }))}
                 variant="detail-grid"
+            />
+            <DispatchCardSection
+                eyebrow="Who this helps"
+                heading={`Who books ${svc.title.toLowerCase()}.`}
+                body={`This service is useful for customers who need the lifting, loading, hauling, and quote review handled in one scheduled pickup.`}
+                cards={svc.audience.map((item) => ({ title: item.title, desc: item.desc }))}
+                variant="coverage-cards"
+                alt
             />
             <section className="section tight">
                 <div className="copy-block">
@@ -152,17 +160,24 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                     <DispatchInlinePills items={svc.preparationTips} />
                 </div>
             </section>
+            <DispatchCardSection
+                eyebrow="Service process"
+                heading={`How ${svc.title.toLowerCase()} works.`}
+                body="The crew reviews the scope, confirms the quote before loading, and hauls approved items after you accept the final price."
+                cards={svc.procesSteps.map((item) => ({ title: item.title, desc: item.desc }))}
+                variant="detail-grid"
+            />
             <DispatchFaqBoard
                 eyebrow="Service FAQ"
                 heading={`Questions about ${svc.title.toLowerCase()}.`}
-                body="Service-specific FAQs and JSON-LD render only for enabled service pages."
+                body={`Answers to common ${svc.title.toLowerCase()} pricing, item, preparation, and pickup questions.`}
                 items={svc.faqs}
             />
             <DispatchServiceMosaic
                 config={siteConfig}
                 currentServiceId={svc.slug}
                 eyebrow="Related services"
-                heading="Other jobs this crew can quote."
+                heading="Other junk removal services to compare."
             />
             <DispatchFinalCta config={siteConfig} />
         </>

@@ -106,7 +106,7 @@ export default function ItemsWeTakePage() {
                     <p style={{ color: "var(--muted)", lineHeight: 1.7 }}>
                         <strong>Not sure if we can take it?</strong> Give us a call at{" "}
                         <a href={telHref(phoneNumber)} style={{ color: "var(--brand)", fontWeight: 600 }}>{formatPhone(phoneNumber)}</a>{" "}
-                        and we&apos;ll let you know right away. Common edge cases like pianos, hot tubs, and large safes are usually fine — they just require a heavy item surcharge. If we can&apos;t haul it, we&apos;ll point you to someone who can.
+                        and we&apos;ll review the item before you book. Heavy, oversized, or specialty items may need scope review, extra handling, or a different disposal path.
                     </p>
                     <Link href="/items-we-dont-take" style={{ display: "inline-block", marginTop: "1rem", color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>
                         See items we don&apos;t take →

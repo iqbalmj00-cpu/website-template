@@ -45,7 +45,7 @@ export default function DumpsterRentalPage() {
     const whyRent = [
         { icon: <Truck size={28} color="var(--brand)" />, title: "Scheduled Delivery", desc: "Delivery timing is confirmed based on route capacity and container availability." },
         { icon: <Clock size={28} color="var(--brand)" />, title: "Confirmed Rental Period", desc: "The rental period and extension options are confirmed before booking." },
-        { icon: <CheckCircle size={28} color="var(--brand)" />, title: "Clear Pricing", desc: "Container pricing, included days, and overage terms are shown before checkout when configured." },
+        { icon: <CheckCircle size={28} color="var(--brand)" />, title: "Clear Pricing", desc: "Container pricing, included days, and overage terms are reviewed before checkout when available." },
         ...((hasLicense() || hasInsurance()) ? [{ icon: <ShieldCheck size={28} color="var(--brand)" />, title: "Verified Credentials", desc: [hasLicense() ? "license on file" : "", hasInsurance() ? "insurance carrier on file" : ""].filter(Boolean).join(" and ") }] : []),
     ];
 

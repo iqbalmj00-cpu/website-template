@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { siteConfig } from "@/lib/siteConfig";
 import type { Metadata } from "next";
+import CtaBand from "@/components/redesign/CtaBand";
 import { PROHIBITED_ITEMS } from "@/lib/prohibitedItems";
 import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
 
@@ -101,6 +102,10 @@ export default function ItemsWeDontTakePage() {
                     </div>
                 </div>
             </section>
+            <CtaBand
+                heading={{ lead: "Not sure what can be hauled?", accent: "Ask before booking." }}
+                lede={`Call or book online with item details so ${siteConfig.companyName} can review accepted items for ${cityState}.`}
+            />
         </>
     );
 }

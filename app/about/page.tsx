@@ -13,7 +13,7 @@ import { resolveJunkRemovalImage } from "@/lib/templateAssets/junkRemoval";
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 const credentialText = hasLicense(siteConfig) || hasInsurance(siteConfig)
     ? getCredentials(siteConfig).map(item => `${item.label}: ${item.value}`).join(". ")
-    : "When license, insurance, or certification details are configured, they are shown on this website.";
+    : "License, insurance, or certification details are shown on this page when the company provides them.";
 
 const ABOUT_FAQS = [
     { q: `Is ${siteConfig.companyName} a local junk removal company?`, a: `${siteConfig.companyName} serves ${cityState} and nearby communities listed on this website.` },
@@ -41,13 +41,13 @@ function aboutRows(): PageIntroRow[] {
     const reviewSummary = hasVerifiedGoogleReviews(siteConfig) ? getReviewSummary(siteConfig) : null;
 
     if (siteConfig.yearFounded) {
-        rows.push({ n: "01", t: `Established ${siteConfig.yearFounded}`, d: siteConfig.city ? `Serving ${siteConfig.city}` : "Configured company history" });
+        rows.push({ n: "01", t: `Established ${siteConfig.yearFounded}`, d: siteConfig.city ? `Serving ${siteConfig.city}` : "Company history" });
     }
     if (reviewSummary) {
         rows.push({ n: String(rows.length + 1).padStart(2, "0"), t: `${reviewSummary.totalCount.toLocaleString()} Google reviews`, d: `${reviewSummary.averageRating.toFixed(1)} average rating` });
     }
     if (siteConfig.serviceAreaZips.length > 0) {
-        rows.push({ n: String(rows.length + 1).padStart(2, "0"), t: `${siteConfig.serviceAreaZips.length} ZIP codes`, d: "Configured service coverage" });
+        rows.push({ n: String(rows.length + 1).padStart(2, "0"), t: `${siteConfig.serviceAreaZips.length} ZIP codes`, d: "Service coverage" });
     }
 
     return rows;
@@ -88,8 +88,8 @@ export default function AboutPage() {
                             price is before loading begins.
                         </p>
                         <p>
-                            This website only displays company facts, credentials, reviews, and sustainability targets when
-                            they are configured through the launch data for this client.
+                            Company facts, credentials, reviews, and sustainability targets appear only when they are
+                            available for this business.
                         </p>
                     </>
                 }

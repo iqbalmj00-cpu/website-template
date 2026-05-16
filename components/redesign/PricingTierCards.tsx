@@ -40,9 +40,9 @@ export default function PricingTierCards({
         <article key={tier.id} className="load-card">
           <small>{tier.fraction} load</small>
           <h3>{tier.label}</h3>
-          <p>Planning range from configured pricing. Final quote is confirmed before loading begins.</p>
+          <p>Planning range for this load size. Final quote is confirmed before loading begins.</p>
           <div className="load-price">
-            <span>Configured range</span>
+            <span>Planning range</span>
             <strong>{formatPricingRange(tier)}</strong>
           </div>
         </article>

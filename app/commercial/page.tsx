@@ -100,7 +100,7 @@ const faqs = [
     },
     {
         q: "What can commercial customers do in the customer portal?",
-        a: "Commercial customers can request jobs, use saved locations, track active work, view job history, review invoices, manage payment visibility, update account details, and request recurring service for approval when portal access is configured.",
+        a: "Commercial customers can request jobs, use saved locations, track active work, view job history, review invoices, manage payment visibility, update account details, and request recurring service for approval when portal access is available.",
     },
     {
         q: "Can property managers save multiple locations?",
@@ -167,12 +167,12 @@ export default function CommercialPage() {
                         <div>
                             <div className="eyebrow">Business cleanouts</div>
                             <h2 className="mt-3 font-display text-[clamp(36px,4.6vw,58px)] font-extrabold leading-[1.02] text-ink">
-                                Commercial service without a separate visual system.
+                                Commercial junk removal for offices, retail spaces, and managed properties.
                             </h2>
                         </div>
                         <p className="text-[16px] leading-[1.65] text-muted">
-                            These categories stay tied to enabled client capabilities. Dumpster rental links only appear
-                            when the dashboard says the client offers dumpster rental.
+                            Request one-time cleanouts, contractor debris pickup, property turnover hauling, or account
+                            support when the job fits the available commercial services.
                         </p>
                     </div>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -223,8 +223,7 @@ export default function CommercialPage() {
                             </h2>
                             <p className="mt-4 max-w-[58ch] text-[16px] leading-[1.65] text-muted">
                                 Commercial account contacts can use portal access for saved locations, job records,
-                                invoices, account details, and recurring service requests when the deployed website is
-                                connected to the dashboard.
+                                invoices, account details, and recurring service requests when portal access is available.
                             </p>
                             <div className="mt-7 flex flex-wrap gap-3">
                                 <Link href="/customer-portal" referrerPolicy="no-referrer" className="btn-primary">

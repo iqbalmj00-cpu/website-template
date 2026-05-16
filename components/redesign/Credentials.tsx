@@ -51,7 +51,7 @@ export default function Credentials({
     badges.push({
       Icon: Recycle,
       title: `${recyclingRate}% Target`,
-      detail: "Configured diversion goal",
+      detail: "Diversion goal",
     })
   }
 

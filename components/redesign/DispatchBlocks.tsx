@@ -101,14 +101,20 @@ function pricingRows(config: SiteConfig): Array<{ label: string; desc: string; f
     ];
 }
 
-export function DispatchSiteFooter({ config = siteConfig }: { config?: SiteConfig } = {}) {
+export function DispatchSiteFooter({ config = siteConfig, showReviews }: { config?: SiteConfig; showReviews?: boolean } = {}) {
     const services = resolveServiceCatalogIds([...config.services]).slice(0, 6);
     const areas = areaNames(config, 6);
+    const shouldShowReviews = showReviews ?? hasVerifiedGoogleReviews(config);
     const companyLinks = [
+        { label: "Home", href: "/" },
         { label: "About", href: "/about" },
         { label: "Pricing", href: "/pricing" },
-        ...(hasVerifiedGoogleReviews(config) ? [{ label: "Reviews", href: "/reviews" }] : []),
+        ...(shouldShowReviews ? [{ label: "Reviews", href: "/reviews" }] : []),
+        ...(config.enableBlog ? [{ label: "Blog", href: "/blog" }] : []),
         { label: "Contact", href: "/contact" },
+        { label: "Customer Portal", href: "/customer-portal" },
+        { label: "Privacy", href: "/privacy" },
+        { label: "Terms", href: "/terms" },
     ];
 
     return (
@@ -203,11 +209,12 @@ export function DispatchHomeHero({ config = siteConfig }: { config?: SiteConfig 
     );
 }
 
-export function DispatchActionStrip() {
+export function DispatchActionStrip({ config = siteConfig }: { config?: SiteConfig } = {}) {
+    const area = displayArea(config);
     const items = [
-        ["01", "Find a pickup window", "Location and timing stay visible before the customer commits."],
-        ["02", "Estimate the load", "Volume bands explain the job size before the final quote."],
-        ["03", "Confirm what goes", "Items, access, photos, and crew notes stay part of the booking path."],
+        ["01", "Share what needs to go", "Add the item list, pickup address, photos when available, and access notes."],
+        ["02", "Choose a pickup window", `Availability is checked for ${area} before the job is scheduled.`],
+        ["03", "Approve the final quote", "The crew confirms the price before loading approved items."],
     ] as const;
 
     return (
@@ -227,8 +234,8 @@ export function DispatchActionStrip() {
 
 export function DispatchServiceMosaic({
     config = siteConfig,
-    eyebrow = "What customers scan first",
-    heading = "Services that look concrete, not generic.",
+    eyebrow = "Junk removal services",
+    heading,
     body,
     limit = 5,
     currentServiceId,
@@ -244,15 +251,16 @@ export function DispatchServiceMosaic({
         .filter((service) => service.id !== currentServiceId)
         .slice(0, limit);
     if (services.length === 0) return null;
+    const area = displayArea(config);
 
     return (
         <section className="section" id="services">
             <div className="section-head">
                 <div>
                     <span className="eyebrow">{eyebrow}</span>
-                    <h2>{heading}</h2>
+                    <h2>{heading || `Junk removal services in ${area}.`}</h2>
                 </div>
-                <p>{body || "Each enabled service is rendered from the configured service set and safe service catalog copy."}</p>
+                <p>{body || "Choose the service that best matches the items, cleanout, or debris you need hauled away."}</p>
             </div>
             <div className="service-mosaic">
                 {services.map((service, index) => {
@@ -291,11 +299,12 @@ export function DispatchServiceMosaic({
     );
 }
 
-export function DispatchWorkGrid() {
+export function DispatchWorkGrid({ config = siteConfig }: { config?: SiteConfig } = {}) {
+    const area = displayArea(config);
     const steps = [
-        ["1", "Tell us what goes", "Items, photos, stairs, gate codes, and curbside notes make the estimate useful."],
-        ["2", "Pick a window", "Availability and service area are checked before the customer commits."],
-        ["3", "Approve the quote", "The crew confirms final volume and removes the approved items."],
+        ["1", "Tell us what goes", "List the items, upload photos when available, and mention stairs, gates, elevators, or long carries."],
+        ["2", "Pick a window", `Pickup availability is checked for ${area} before the appointment is confirmed.`],
+        ["3", "Approve the quote", "The crew reviews the items on-site and confirms the final price before loading begins."],
     ] as const;
 
     return (
@@ -303,8 +312,8 @@ export function DispatchWorkGrid() {
             <div className="work-grid">
                 <div className="work-panel">
                     <span className="eyebrow">How it works</span>
-                    <h2>One screen should answer the job.</h2>
-                    <p>The booking path reduces the decision to a short sequence: check availability, explain the job, approve the quote, then let the crew load.</p>
+                    <h2>Book junk removal without guessing the final price.</h2>
+                    <p>Start online with the pickup details, choose an available window, and approve the final quote before the crew hauls anything away.</p>
                     <Link className="btn brand" href="/book">Start quote</Link>
                 </div>
                 <div className="route-board">
@@ -324,7 +333,7 @@ export function DispatchWorkGrid() {
 export function DispatchPricingBoard({
     config = siteConfig,
     eyebrow = "Pricing clarity",
-    heading = "Load bands need to feel physical.",
+    heading = "Junk removal pricing starts with load size.",
     body,
 }: {
     config?: SiteConfig;
@@ -334,10 +343,10 @@ export function DispatchPricingBoard({
 } = {}) {
     const rows = pricingRows(config);
     const factors = [
-        ["A", "Volume", "The amount of truck space used remains the clearest anchor."],
+        ["A", "Volume", "The amount of truck space used is usually the main pricing anchor."],
         ["B", "Access", "Stairs, elevators, long carries, and tight paths can affect labor."],
-        ["C", "Materials", "Heavy, restricted, or special-disposal items need clear handling."],
-        ["D", "Location", "Service area and route distance stay visible."],
+        ["C", "Materials", "Heavy, dense, or special-handling items can affect the quote."],
+        ["D", "Location", "Pickup address, route distance, and local fees may apply."],
     ] as const;
 
     return (
@@ -347,7 +356,7 @@ export function DispatchPricingBoard({
                     <span className="eyebrow">{eyebrow}</span>
                     <h2>{heading}</h2>
                 </div>
-                <p>{body || "Pricing stays tied to configured load tiers. The final quote is confirmed before loading begins."}</p>
+                <p>{body || "Use the load ranges as a planning guide. The final quote is confirmed before loading begins."}</p>
             </div>
             <div className="pricing-grid">
                 <div className="price-board">
@@ -388,7 +397,7 @@ export function DispatchAreaSection({ config = siteConfig }: { config?: SiteConf
                 </div>
                 <div className="area-copy">
                     <span className="eyebrow">Local coverage</span>
-                    <h2>Route-first service area.</h2>
+                    <h2>Junk removal service areas near {config.city || "you"}.</h2>
                     <p>{config.companyName} serves {displayArea(config)}. Address coverage is confirmed during booking.</p>
                     <div className="area-chips">
                         {areas.map((area) => <Link className="area-chip" href={`/locations/${cleanSlug(area)}`} key={area}>{area}</Link>)}
@@ -409,10 +418,10 @@ export function DispatchReviewRail({ config = siteConfig }: { config?: SiteConfi
         <section className="section reviews" id="reviews">
             <div className="section-head">
                 <div>
-                    <span className="eyebrow">Proof, when connected</span>
-                    <h2>Show several reviews at once.</h2>
+                    <span className="eyebrow">Customer reviews</span>
+                    <h2>Recent Google reviews from junk removal customers.</h2>
                 </div>
-                <p>Verified Google reviews appear only when the client has review data connected.</p>
+                <p>Reviews appear here only when verified Google review data is available for this business.</p>
             </div>
             <div className="review-layout">
                 <aside className="review-score">
@@ -436,12 +445,12 @@ export function DispatchReviewRail({ config = siteConfig }: { config?: SiteConfi
     );
 }
 
-export function DispatchBookingShell() {
+export function DispatchBookingShell({ config = siteConfig }: { config?: SiteConfig } = {}) {
     const steps = [
-        ["1", "Service type", "Junk removal, cleanout, dumpster where enabled", "Configured"],
+        ["1", "Service type", "Junk removal, cleanouts, debris hauling, or dumpster service when available", "Select"],
         ["2", "Pickup details", "Address, items, access notes, and photos", "Reviewed"],
-        ["3", "Quote path", "Final price confirmed before loading", "Transparent"],
-        ["4", "Confirmation", "Submitted request details stay visible", "Ready"],
+        ["3", "Quote review", "Final price confirmed before loading", "Approve"],
+        ["4", "Confirmation", "Request details stay available after submission", "Ready"],
     ] as const;
 
     return (
@@ -449,8 +458,8 @@ export function DispatchBookingShell() {
             <div className="booking-shell">
                 <div className="booking-board">
                     <span className="eyebrow">Booking path</span>
-                    <h2>Keep the template configurable.</h2>
-                    <p>The live booking wizard keeps company identity, brand color, services, pricing, service area, and booking rules connected to the dashboard configuration.</p>
+                    <h2>Book junk removal online in {config.city || "your area"}.</h2>
+                    <p>Use the booking form to share the pickup address, items, photos when available, and access notes so the job can be scoped clearly.</p>
                     <Link className="btn brand" href="/book">Open booking</Link>
                 </div>
                 <div className="booking-board wizard-board">
@@ -470,7 +479,7 @@ export function DispatchBookingShell() {
 export function DispatchFaqBoard({
     items,
     eyebrow = "FAQ",
-    heading = "Questions before booking.",
+    heading = "Junk removal questions before booking.",
     body,
 }: {
     items: DispatchFaq[];
@@ -487,7 +496,7 @@ export function DispatchFaqBoard({
                     <span className="eyebrow">{eyebrow}</span>
                     <h2>{heading}</h2>
                 </div>
-                <p>{body || "Answers stay aligned with the visible page content and configured service rules."}</p>
+                <p>{body || "Review pricing, scheduling, accepted items, service-area coverage, and what to expect before pickup."}</p>
             </div>
             <div className="faq-board">
                 {items.slice(0, 6).map((faq) => (
@@ -610,8 +619,8 @@ export function DispatchPageHero({
                             }}
                         />
                         <div className="media-label">
-                            <span>{media?.label || "Configured page"}</span>
-                            <strong>{media?.caption || "Generated from the client's configured website data."}</strong>
+                            <span>{media?.label || "Local service"}</span>
+                            <strong>{media?.caption || "Pickup details and service area are reviewed before booking."}</strong>
                         </div>
                     </div>
                 ) : null}
@@ -629,9 +638,9 @@ export function DispatchLoadPricingCards({ config = siteConfig, localLabel }: { 
             <div className="section-head">
                 <div>
                     <span className="eyebrow">{localLabel ? "Local load pricing" : "Load pricing"}</span>
-                    <h2>{localLabel ? `Starting prices for ${localLabel} loads.` : "Pricing cards for every load size."}</h2>
+                    <h2>{localLabel ? `Junk removal pricing for ${localLabel}.` : "Junk removal pricing by load size."}</h2>
                 </div>
-                <p>{hasPricing ? "These cards come from the client's configured pricing tiers." : "Load pricing is configured during launch. The booking path still collects the job details needed for review."}</p>
+                <p>{hasPricing ? "These planning ranges help customers compare common load sizes before booking." : "The booking path collects the job details needed for quote review."}</p>
             </div>
             <div className="pricing-grid">
                 <div>
@@ -641,15 +650,15 @@ export function DispatchLoadPricingCards({ config = siteConfig, localLabel }: { 
                                 <small>{row.fraction} load</small>
                                 <h3>{row.label}</h3>
                                 <p>{row.desc}</p>
-                                <div className="load-price"><span>{hasPricing ? "Configured range" : "Estimate path"}</span><strong>{row.price}</strong></div>
+                                <div className="load-price"><span>{hasPricing ? "Planning range" : "Quote review"}</span><strong>{row.price}</strong></div>
                             </article>
                         ))}
                     </div>
-                    <p className="price-note">Final price is confirmed before loading and can change with access, heavy materials, distance, or enabled local fees.</p>
+                    <p className="price-note">Final price is confirmed before loading and can change with access, heavy materials, distance, or applicable local fees.</p>
                 </div>
                 <aside className="info-board">
                     <span className="eyebrow">Final quote factors</span>
-                    <h2>No mystery pricing copy.</h2>
+                    <h2>What affects your final quote.</h2>
                     <DispatchInfoRows rows={[
                         { n: "A", title: "Volume", desc: "How much truck space is used" },
                         { n: "B", title: "Access", desc: "Stairs, gates, elevators, carry distance" },

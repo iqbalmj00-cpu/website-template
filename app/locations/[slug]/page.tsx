@@ -59,8 +59,8 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
         { label: `${location.name}, ${location.state}`, href: `/locations/${location.slug}` },
     ];
     const localAreaItems = [
-        ...location.neighborhoods.map((name) => ({ eyebrow: "Neighborhood", title: name, desc: "Source-backed local reference for this page." })),
-        ...location.landmarks.map((name) => ({ eyebrow: "Landmark", title: name, desc: "Source-backed local reference for this page." })),
+        ...location.neighborhoods.map((name) => ({ eyebrow: "Neighborhood", title: name, desc: `Nearby area referenced for ${location.name} service coverage.` })),
+        ...location.landmarks.map((name) => ({ eyebrow: "Landmark", title: name, desc: `Local landmark near the ${location.name} service area.` })),
     ];
 
     return (
@@ -97,10 +97,10 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
             <DispatchLoadPricingCards config={siteConfig} localLabel={location.name} />
             <DispatchMetricStrip
                 items={[
-                    { label: "Page type", value: location.isMainCity ? "Main city" : "Area" },
-                    { label: "SEO status", value: location.isMainCity || location.isExplicit ? "Indexable" : "Noindex" },
-                    { label: "Address", value: "Checked" },
-                    { label: "Local facts", value: "Proof only" },
+                    { label: "Location", value: location.isMainCity ? "Main city" : "Service area" },
+                    { label: "Coverage", value: "Address checked" },
+                    { label: "Pricing", value: "Quote confirmed" },
+                    { label: "Local details", value: location.hasSourcedLocalContent ? "Available" : "By request" },
                 ]}
             />
             <DispatchIntroGrid
@@ -109,7 +109,7 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
                 boardEyebrow="Location details"
                 boardHeading={`Coverage around ${location.name}.`}
                 rows={[
-                    { n: "01", title: location.isMainCity ? "Main city" : "Configured area", desc: `${location.name}, ${location.state}` },
+                    { n: "01", title: location.isMainCity ? "Main city" : "Service area", desc: `${location.name}, ${location.state}` },
                     { n: "02", title: "Pickup address", desc: "Confirmed during booking" },
                     { n: "03", title: "Nearby details", desc: location.hasSourcedLocalContent ? "Listed when available" : "Ask about exact coverage" },
                     { n: "04", title: "Service match", desc: "Routes depend on job details" },
@@ -129,9 +129,9 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
             />
             {localAreaItems.length > 0 && (
                 <DispatchCardSection
-                    eyebrow="Local signals"
-                    heading={`Areas referenced for ${location.name}.`}
-                    body="Neighborhoods and landmarks appear only when source-backed local content exists."
+                    eyebrow="Nearby references"
+                    heading={`Neighborhoods and landmarks around ${location.name}.`}
+                    body="Nearby references are shown when location details are available for this service area."
                     cards={localAreaItems}
                     variant="coverage-cards"
                     alt
@@ -139,10 +139,10 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
             )}
             {location.localFacts.length > 0 && (
                 <DispatchCardSection
-                    eyebrow="Source-backed notes"
-                    heading="Local details should be earned."
-                    body="These facts come from validated location content, not invented route claims."
-                    cards={location.localFacts.map((fact) => ({ eyebrow: "Validated fact", title: location.name, desc: fact }))}
+                    eyebrow="Local notes"
+                    heading={`Junk removal notes for ${location.name}.`}
+                    body="Coverage and availability are still confirmed by pickup address when you book."
+                    cards={location.localFacts.map((fact) => ({ eyebrow: "Local detail", title: `${location.name} service note`, desc: fact }))}
                     variant="fact-grid"
                 />
             )}
@@ -150,7 +150,7 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
                 <DispatchFaqBoard
                     eyebrow="Location FAQ"
                     heading={`Questions about ${location.name}.`}
-                    body="Location FAQs render only from safe default or source-backed local content."
+                    body={`Answers about junk removal availability, pricing, and booking in ${location.name}.`}
                     items={location.faqs}
                 />
             )}

@@ -76,16 +76,20 @@ export default function HomePageContent({ config = siteConfig }: HomePageContent
     return (
         <>
             <DispatchHomeHero config={config} />
-            <DispatchActionStrip />
-            <DispatchServiceMosaic config={config} />
-            <DispatchWorkGrid />
+            <DispatchActionStrip config={config} />
+            <DispatchServiceMosaic
+                config={config}
+                heading={`Junk removal services people book in ${config.city || "your area"}.`}
+                body="Start with the service that matches the job: furniture, appliances, cleanouts, debris, or general junk removal."
+            />
+            <DispatchWorkGrid config={config} />
             <DispatchPricingBoard config={config} />
             <DispatchAreaSection config={config} />
             <DispatchReviewRail config={config} />
-            <DispatchBookingShell />
+            <DispatchBookingShell config={config} />
             <DispatchFaqBoard
                 items={buildHomeFaqs(config)}
-                heading="Common questions, plain answers."
+                heading="Junk removal questions before booking."
             />
             <DispatchFinalCta config={config} />
         </>

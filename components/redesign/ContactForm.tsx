@@ -106,7 +106,7 @@ export default function ContactForm({ config = siteConfig }: { config?: SiteConf
           </h2>
           <p className="text-[16px] leading-[1.6] text-muted mt-5 max-w-[44ch]">
             For urgent pickups, call the number listed here. For everything else, send the job
-            details and the team will follow up through the configured customer workflow.
+            details and the team will follow up through the normal customer service process.
           </p>
           <div className="mt-9 flex flex-col gap-5">
             {openDaysSummary && (

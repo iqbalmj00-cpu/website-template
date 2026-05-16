@@ -123,7 +123,7 @@ export default function ServiceLocationPage({ params }: PageProps) {
                         </div>
                         <p style={{ color: "var(--muted)", lineHeight: 1.65, marginBottom: "1rem" }}>
                             {configuredPricing && minPrice && maxPrice
-                                ? `Smaller ${service.title.toLowerCase()} jobs may start near $${minPrice}. Larger pickups are quoted by volume and may fall around $${minPrice}-$${maxPrice} before any enabled surcharges.`
+                                ? `Smaller ${service.title.toLowerCase()} jobs may start near $${minPrice}. Larger pickups are quoted by volume and may fall around $${minPrice}-$${maxPrice} before any applicable surcharges.`
                                 : `${service.title} pricing depends on volume, access, item weight, and local handling requirements. The crew confirms the final price before loading begins.`}
                         </p>
                         <Link href="/pricing" style={{ color: "var(--brand)", fontWeight: 800, textDecoration: "none" }}>

@@ -5,10 +5,13 @@ import Link from "next/link";
 import { formatPhone, hasVerifiedGoogleReviews, siteConfig, telHref, type SiteConfig } from "@/lib/siteConfig";
 
 const NAV = [
+    { href: "/", label: "Home" },
     { href: "/services", label: "Services" },
-    { href: "/how-it-works", label: "How it works" },
+    { href: "/locations", label: "Locations" },
     { href: "/pricing", label: "Pricing" },
-    { href: "/locations", label: "Areas" },
+    { href: "/how-it-works", label: "How it works" },
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
     { href: "/reviews", label: "Reviews" },
 ] as const;
 
@@ -47,6 +50,7 @@ export default function DispatchSiteHeader({ config = siteConfig, showReviews }:
             </nav>
             <div className="nav-ctas">
                 {phone && <a className="phone-link" href={telHref(config.phoneNumber)}>{phone}</a>}
+                <Link className="btn light" href="/customer-portal" prefetch={false}>Portal</Link>
                 <Link className="btn brand" href="/book">Book now</Link>
             </div>
         </header>

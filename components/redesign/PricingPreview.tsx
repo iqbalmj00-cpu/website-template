@@ -11,7 +11,7 @@ type PricingPreviewProps = {
 
 export default function PricingPreview({
     config = siteConfig,
-    title = "Configured load-tier pricing",
+    title = "Junk removal pricing by load size",
     subtitle,
 }: PricingPreviewProps = {}) {
     return (

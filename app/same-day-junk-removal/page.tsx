@@ -3,13 +3,21 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, CalendarClock, CheckCircle, Phone } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { breadcrumbJsonLd, createPageMetadata, serviceJsonLd } from "@/lib/seo";
+import StaticFAQ from "@/components/redesign/StaticFAQ";
+import CtaBand from "@/components/redesign/CtaBand";
+import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
 import { formatPhone, isSameDayEnabled, siteConfig, telHref } from "@/lib/siteConfig";
 
 const pagePath = "/same-day-junk-removal";
 const breadcrumbs = [
     { label: "Home", href: "/" },
     { label: "Same-Day Junk Removal", href: pagePath },
+];
+const SAME_DAY_FAQS = [
+    { q: "Is same-day junk removal guaranteed?", a: "No. Same-day pickup depends on route capacity, booking time, pickup address, item type, and crew availability." },
+    { q: "What jobs are best for same-day pickup?", a: "Smaller item lists, curbside piles, furniture pickup, appliance pickup, and cleanouts with clear access are usually easier to review for same-day availability." },
+    { q: "Can pricing change for same-day service?", a: "Pricing is still confirmed before loading begins. Any scheduling, access, material, or disposal fees should be reviewed before work starts." },
+    { q: "What should I include when booking today?", a: "Include the pickup address, item list, photos when available, and access notes such as stairs, gates, elevators, or parking limits." },
 ];
 
 export const metadata: Metadata = createPageMetadata({
@@ -44,6 +52,7 @@ export default function SameDayJunkRemovalPage() {
                             path: pagePath,
                             description: `Same-day junk removal in ${siteConfig.city} when schedule capacity is available.`,
                         }),
+                        faqPageJsonLd(SAME_DAY_FAQS, pagePath),
                     ]),
                 }}
             />
@@ -81,6 +90,11 @@ export default function SameDayJunkRemovalPage() {
                     ))}
                 </div>
             </section>
+            <StaticFAQ eyebrow="Same-day FAQ" heading="Questions about same-day junk removal." items={SAME_DAY_FAQS} />
+            <CtaBand
+                heading={{ lead: "Need junk removed today?", accent: "Check availability." }}
+                lede={`Book online or call ${formatPhone(siteConfig.phoneNumber)} to see whether a pickup window is available in ${siteConfig.city}.`}
+            />
         </>
     );
 }

@@ -49,5 +49,5 @@ export default function FaqPreview({ limit = 5, config = siteConfig }: { limit?:
     a: resolveTokens(item.answer, tokens),
   }));
 
-  return <DispatchFaqBoard items={items} heading="Common questions, plain answers." />;
+  return <DispatchFaqBoard items={items} heading="Junk removal questions before booking." />;
 }

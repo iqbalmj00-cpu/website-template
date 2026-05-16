@@ -13,11 +13,11 @@ const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` :
 const PRICING_FAQS = [
     {
         q: "Where can I see a junk removal price estimate?",
-        a: "When pricing is configured for the site, this page can show load-tier planning ranges. Use the booking flow to enter the pickup address, items, access details, and photos when available so the estimate reflects the actual job details.",
+        a: "When load-tier pricing is available, this page shows planning ranges. Use the booking flow to enter the pickup address, items, access details, and photos when available so the estimate reflects the actual job details.",
     },
     {
         q: "How is junk removal pricing calculated?",
-        a: "Pricing depends on truck volume, item weight, access, distance, material type, and any enabled handling or disposal fees. The final price is confirmed before loading begins.",
+        a: "Pricing depends on truck volume, item weight, access, distance, material type, and any applicable handling or disposal fees. The final price is confirmed before loading begins.",
     },
     {
         q: "Do stairs, basements, or long carries affect pricing?",
@@ -25,7 +25,7 @@ const PRICING_FAQS = [
     },
     {
         q: "Can I get an exact quote before loading starts?",
-        a: "Yes. The crew confirms the final price before loading starts, after reviewing the item volume, access, material type, and any enabled fees.",
+        a: "Yes. The crew confirms the final price before loading starts, after reviewing the item volume, access, material type, and any applicable fees.",
     },
 ];
 
@@ -52,7 +52,7 @@ const ESTIMATE_STEPS = [
 
 export const metadata: Metadata = createPageMetadata({
     title: `Junk Removal Pricing in ${siteConfig.city}`,
-    description: `Review configured junk removal load-tier pricing in ${cityState} and learn how ${siteConfig.companyName} estimates jobs before final quote confirmation.`,
+    description: `Review junk removal load-tier pricing in ${cityState} and learn how ${siteConfig.companyName} estimates jobs before final quote confirmation.`,
     path: "/pricing",
 });
 
@@ -77,15 +77,15 @@ export default function PricingPage() {
                 ]}
                 titleStart="Get a junk removal estimate "
                 titleAccent={`through booking.`}
-                lede="Configured load-tier ranges give customers a planning guide. The booking wizard adds item details, access notes, and the pickup address so the estimate can match the actual job."
+                lede="Load-tier ranges give customers a planning guide. The booking wizard adds item details, access notes, and the pickup address so the estimate can match the actual job."
                 primaryCta={{ label: "Get Instant Quote", href: "/book" }}
             />
             <PricingPreview
                 config={siteConfig}
                 limit={6}
                 showDetailsLink={false}
-                title="Configured load-tier pricing"
-                subtitle="These ranges are pulled from the client's configured pricing at launch. They are planning ranges, and the final quote is confirmed before loading begins."
+                title="Junk removal pricing by load size"
+                subtitle="These ranges are planning guides. The final quote is confirmed before loading begins."
             />
 
             <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
@@ -147,10 +147,10 @@ export default function PricingPage() {
                         {enabledFactors.length > 0 && (
                             <div className="rounded-[14px] border border-line bg-paper-2 p-5">
                                 <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
-                                    Configured factors
+                                    Additional pricing factors
                                 </div>
                                 <p className="mt-2 text-[14.5px] leading-[1.6] text-muted">
-                                    The current pricing model includes: {enabledFactors.join(", ")}. Amounts are handled
+                                    Additional factors may include: {enabledFactors.join(", ")}. Amounts are handled
                                     inside the booking estimate and final quote process.
                                 </p>
                             </div>
