@@ -7,7 +7,6 @@ import { canExposePublicSite, getPublicSiteStatus } from "@/lib/publicSiteGuard"
 import { hasVerifiedPublicReviews } from "@/lib/reviewData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { DispatchUtilityBar } from "@/components/redesign/DispatchBlocks";
 
 const fontStylesheetHref = "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700;800;900&family=Bebas+Neue&family=Besley:wght@600;700;800&family=Chivo:wght@400;600;700;900&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800;9..144,900&family=Inter:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800;900&family=Public+Sans:wght@400;600;700;800;900&family=Source+Sans+3:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap";
 
@@ -119,7 +118,6 @@ export default async function RootLayout({
                     children
                 ) : renderPublicSite ? (
                     <>
-                        <DispatchUtilityBar showReviews={showReviews} />
                         <Navbar showReviews={showReviews} />
                         <main>{children}</main>
                         <Footer showReviews={showReviews} />

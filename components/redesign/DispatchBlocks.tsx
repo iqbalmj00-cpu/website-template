@@ -8,7 +8,6 @@ import {
     getReviewSummary,
     hasConfiguredPricing,
     hasVerifiedGoogleReviews,
-    isSameDayEnabled,
     siteConfig,
     telHref,
     type PricingTier,
@@ -100,27 +99,6 @@ function pricingRows(config: SiteConfig): Array<{ label: string; desc: string; f
         { label: "Half load", fraction: "1/2", desc: "Garage wall or several bulky items", price: "Quote review" },
         { label: "Full load", fraction: "Full", desc: "Large cleanout or packed truck", price: "Quote review" },
     ];
-}
-
-export function DispatchUtilityBar({ config = siteConfig, showReviews }: { config?: SiteConfig; showReviews?: boolean } = {}) {
-    const sameDay = isSameDayEnabled(config);
-    const reviewSummary = hasVerifiedGoogleReviews(config) ? getReviewSummary(config) : null;
-    const canShowReviews = showReviews ?? Boolean(reviewSummary);
-
-    return (
-        <div className="utility-bar">
-            <span>
-                {sameDay
-                    ? `Same-day route openings in ${config.city || "your area"} when capacity is available`
-                    : `Pickup windows available across ${displayArea(config)}`}
-            </span>
-            <div className="utility-actions">
-                {canShowReviews && reviewSummary && <Link href="/reviews">{reviewSummary.averageRating.toFixed(1)} rating</Link>}
-                {hasConfiguredPricing(config) && <Link href="/pricing">Volume pricing</Link>}
-                <Link href="/book">Book online</Link>
-            </div>
-        </div>
-    );
 }
 
 export function DispatchSiteFooter({ config = siteConfig }: { config?: SiteConfig } = {}) {

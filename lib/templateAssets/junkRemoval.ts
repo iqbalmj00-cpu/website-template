@@ -8,6 +8,18 @@ export type JunkRemovalImageRole =
     | "hero"
     | "crewAbout"
     | "serviceLoading"
+    | "furnitureRemoval"
+    | "applianceRemoval"
+    | "mattressDisposal"
+    | "eWasteRecycling"
+    | "hotTubRemoval"
+    | "yardWasteRemoval"
+    | "lightDemolition"
+    | "constructionDebris"
+    | "foreclosureCleanout"
+    | "estateCleanout"
+    | "storageUnitCleanout"
+    | "hoarderCleanout"
     | "garageCleanout"
     | "commercialCleanout"
     | "locationNeighborhood";
@@ -64,6 +76,42 @@ export const JUNK_REMOVAL_TEMPLATE_ASSETS: Record<JunkRemovalImageRole, JunkRemo
         asset("service-loading-03", "serviceLoading", `${ASSET_ROOT}/service-loading/service-loading-03.jpg`, "20260515-042106-industrial-service-loading.jpg", "heavy-duty junk removal loading scene", ["industrial", "commercial"], "center"),
         asset("service-loading-04", "serviceLoading", `${ASSET_ROOT}/service-loading/service-loading-04.jpg`, "20260515-054845-classic-service-loading.jpg", "crew moving items toward a junk removal truck", ["service pages", "homepage"], "center"),
         asset("service-loading-05", "serviceLoading", `${ASSET_ROOT}/service-loading/service-loading-05.jpg`, "20260515-055547-editorial-service-loading.jpg", "organized junk removal loading at a real pickup", ["editorial", "process"], "center"),
+    ],
+    furnitureRemoval: [
+        asset("furniture-removal-01", "furnitureRemoval", `${ASSET_ROOT}/furniture-removal/furniture-removal-01.jpg`, "20260516-014515-template-service-furniture-removal.jpg", "crew carrying old furniture from a home toward a service truck", ["furniture removal", "sofa removal", "service detail"], "center"),
+    ],
+    applianceRemoval: [
+        asset("appliance-removal-01", "applianceRemoval", `${ASSET_ROOT}/appliance-removal/appliance-removal-01.jpg`, "20260516-014245-template-service-appliance-removal.jpg", "crew moving disconnected appliances with a dolly near a truck", ["appliance removal", "refrigerator removal", "washer dryer removal"], "center"),
+    ],
+    mattressDisposal: [
+        asset("mattress-disposal-01", "mattressDisposal", `${ASSET_ROOT}/mattress-disposal/mattress-disposal-01.jpg`, "20260516-014627-template-service-mattress-disposal.jpg", "crew moving a mattress and box spring for disposal", ["mattress disposal", "bedroom cleanout", "service detail"], "center"),
+    ],
+    eWasteRecycling: [
+        asset("e-waste-recycling-01", "eWasteRecycling", `${ASSET_ROOT}/e-waste-recycling/e-waste-recycling-01.jpg`, "20260516-014359-template-service-e-waste-recycling.jpg", "electronics pickup with TVs computers printers and accepted e-waste", ["e-waste recycling", "electronics pickup", "TV removal"], "center"),
+    ],
+    hotTubRemoval: [
+        asset("hot-tub-removal-01", "hotTubRemoval", `${ASSET_ROOT}/hot-tub-removal/hot-tub-removal-01.jpg`, "20260516-014603-template-service-hot-tub-removal.jpg", "crew hauling dismantled hot tub panels from a residential property", ["hot tub removal", "spa removal", "heavy item pickup"], "center"),
+    ],
+    yardWasteRemoval: [
+        asset("yard-waste-removal-01", "yardWasteRemoval", `${ASSET_ROOT}/yard-waste-removal/yard-waste-removal-01.jpg`, "20260516-014717-template-service-yard-waste-removal.jpg", "crew loading branches brush and outdoor debris into a truck", ["yard waste removal", "brush pickup", "outdoor debris"], "center"),
+    ],
+    lightDemolition: [
+        asset("light-demolition-01", "lightDemolition", `${ASSET_ROOT}/light-demolition/light-demolition-01.jpg`, "20260516-014336-template-service-light-demolition.jpg", "crew hauling non-structural demolition debris and small tear-out pieces", ["light demolition", "shed removal", "deck removal"], "center"),
+    ],
+    constructionDebris: [
+        asset("construction-debris-01", "constructionDebris", `${ASSET_ROOT}/construction-debris/construction-debris-01.jpg`, "20260516-014311-template-service-construction-debris.jpg", "crew loading renovation debris and contractor bags into a trailer", ["construction debris", "renovation debris", "contractor cleanup"], "center"),
+    ],
+    foreclosureCleanout: [
+        asset("foreclosure-cleanout-01", "foreclosureCleanout", `${ASSET_ROOT}/foreclosure-cleanout/foreclosure-cleanout-01.jpg`, "20260516-014447-template-service-foreclosure-cleanout.jpg", "crew clearing leftover household items from an empty property", ["foreclosure cleanout", "property turnover", "rental cleanout"], "center"),
+    ],
+    estateCleanout: [
+        asset("estate-cleanout-01", "estateCleanout", `${ASSET_ROOT}/estate-cleanout/estate-cleanout-01.jpg`, "20260516-014423-template-service-estate-cleanout.jpg", "crew sorting and loading household items during an estate cleanout", ["estate cleanout", "whole home cleanout", "service detail"], "center"),
+    ],
+    storageUnitCleanout: [
+        asset("storage-unit-cleanout-01", "storageUnitCleanout", `${ASSET_ROOT}/storage-unit-cleanout/storage-unit-cleanout-01.jpg`, "20260516-014652-template-service-storage-unit-cleanout.jpg", "crew clearing boxes bins and bulky items from a storage unit", ["storage unit cleanout", "storage cleanout", "service detail"], "center"),
+    ],
+    hoarderCleanout: [
+        asset("hoarder-cleanout-01", "hoarderCleanout", `${ASSET_ROOT}/hoarder-cleanout/hoarder-cleanout-01.jpg`, "20260516-014539-template-service-hoarder-cleanout.jpg", "crew clearing a heavily cluttered room with boxes and household items", ["hoarder cleanout", "large cleanout", "service detail"], "center"),
     ],
     garageCleanout: [
         asset("garage-cleanout-01", "garageCleanout", `${ASSET_ROOT}/garage-cleanout/garage-cleanout-01.jpg`, "20260515-040914-classic-garage-cleanout.jpg", "garage cleanout with boxes and household items", ["garage cleanout", "residential services"], "center"),
@@ -134,19 +182,19 @@ export const JUNK_REMOVAL_THEME_PROFILES: Record<WebsiteTheme, JunkRemovalThemeP
 
 const SERVICE_IMAGE_ROLES: Record<string, JunkRemovalImageRole> = {
     "commercial-cleanout": "commercialCleanout",
-    "construction-debris": "commercialCleanout",
-    "foreclosure-cleanout": "commercialCleanout",
-    "storage-unit-cleanout": "commercialCleanout",
-    demolition: "commercialCleanout",
+    "construction-debris": "constructionDebris",
+    "foreclosure-cleanout": "foreclosureCleanout",
+    "storage-unit-cleanout": "storageUnitCleanout",
+    demolition: "lightDemolition",
     "garage-cleanout": "garageCleanout",
-    "estate-cleanout": "garageCleanout",
-    "hoarder-cleanout": "garageCleanout",
-    "yard-waste-removal": "serviceLoading",
-    "hot-tub-removal": "serviceLoading",
-    "appliance-removal": "serviceLoading",
-    "e-waste-recycling": "serviceLoading",
-    "furniture-removal": "serviceLoading",
-    "mattress-disposal": "serviceLoading",
+    "estate-cleanout": "estateCleanout",
+    "hoarder-cleanout": "hoarderCleanout",
+    "yard-waste-removal": "yardWasteRemoval",
+    "hot-tub-removal": "hotTubRemoval",
+    "appliance-removal": "applianceRemoval",
+    "e-waste-recycling": "eWasteRecycling",
+    "furniture-removal": "furnitureRemoval",
+    "mattress-disposal": "mattressDisposal",
     "junk-removal": "serviceLoading",
 };
 
@@ -226,6 +274,30 @@ function buildAlt(input: {
             return `${company} commercial cleanout crew at a work site`;
         case "locationNeighborhood":
             return `${company} junk removal service in a residential neighborhood near ${area}`;
+        case "furnitureRemoval":
+            return `${company} furniture removal crew carrying bulky items in ${area}`;
+        case "applianceRemoval":
+            return `${company} appliance removal crew moving disconnected appliances in ${area}`;
+        case "mattressDisposal":
+            return `${company} mattress disposal crew removing a mattress in ${area}`;
+        case "eWasteRecycling":
+            return `${company} e-waste pickup with accepted electronics in ${area}`;
+        case "hotTubRemoval":
+            return `${company} hot tub removal crew hauling dismantled spa pieces in ${area}`;
+        case "yardWasteRemoval":
+            return `${company} yard waste removal crew loading brush and outdoor debris in ${area}`;
+        case "lightDemolition":
+            return `${company} light demolition debris removal crew in ${area}`;
+        case "constructionDebris":
+            return `${company} construction debris removal crew loading renovation material in ${area}`;
+        case "foreclosureCleanout":
+            return `${company} foreclosure cleanout crew clearing leftover property items in ${area}`;
+        case "estateCleanout":
+            return `${company} estate cleanout crew sorting and loading household items in ${area}`;
+        case "storageUnitCleanout":
+            return `${company} storage unit cleanout crew moving boxes and bulky items in ${area}`;
+        case "hoarderCleanout":
+            return `${company} large cleanout crew clearing heavy household clutter in ${area}`;
         case "serviceLoading":
         default:
             return asset?.altBase ? `${company} ${asset.altBase}` : `${company} junk removal crew loading approved items`;

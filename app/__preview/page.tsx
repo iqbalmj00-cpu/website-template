@@ -12,7 +12,7 @@ import {
 import { getServerConfig } from "@/lib/serverConfig";
 import HomePageContent from "@/components/redesign/HomePageContent";
 import PreviewClickGuard from "@/components/redesign/PreviewClickGuard";
-import { DispatchSiteFooter, DispatchUtilityBar } from "@/components/redesign/DispatchBlocks";
+import { DispatchSiteFooter } from "@/components/redesign/DispatchBlocks";
 import DispatchSiteHeader from "@/components/redesign/DispatchSiteHeader";
 
 export const dynamic = "force-dynamic";
@@ -166,7 +166,6 @@ export default async function PreviewPage({ searchParams }: PreviewPageProps) {
                 data-corner-radius={config.designConfig.cornerRadius}
                 data-nav-style={config.designConfig.navStyle}
             >
-                <DispatchUtilityBar config={config} showReviews={showReviews} />
                 <DispatchSiteHeader config={config} showReviews={showReviews} />
                 <main>
                     <HomePageContent config={config} />
