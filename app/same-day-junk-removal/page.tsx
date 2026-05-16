@@ -17,12 +17,12 @@ const SAME_DAY_FAQS = [
     { q: "Is same-day junk removal guaranteed?", a: "No. Same-day pickup depends on route capacity, booking time, pickup address, item type, and crew availability." },
     { q: "What jobs are best for same-day pickup?", a: "Smaller item lists, curbside piles, furniture pickup, appliance pickup, and cleanouts with clear access are usually easier to review for same-day availability." },
     { q: "Can pricing change for same-day service?", a: "Pricing is still confirmed before loading begins. Any scheduling, access, material, or disposal fees should be reviewed before work starts." },
-    { q: "What should I include when booking today?", a: "Include the pickup address, item list, photos when available, and access notes such as stairs, gates, elevators, or parking limits." },
+    { q: "What should I include when booking today?", a: "Include the service type, load size, pickup address, and access notes such as stairs, gates, elevators, or parking limits." },
 ];
 
 export const metadata: Metadata = createPageMetadata({
     title: `Same-Day Junk Removal in ${siteConfig.city}`,
-    description: `Same-day junk removal in ${siteConfig.city} from ${siteConfig.companyName}, available only when schedule capacity allows. Book online or call for today's pickup windows.`,
+    description: `Same-day junk removal in ${siteConfig.city} from ${siteConfig.companyName}, available only when schedule capacity allows. Book Now or call for today's pickup windows.`,
     path: pagePath,
     noIndex: !isSameDayEnabled(),
 });
@@ -32,7 +32,7 @@ export default function SameDayJunkRemovalPage() {
 
     const availabilityRules = [
         "Availability depends on route capacity and booking time.",
-        "Photos or item details help confirm the right truck space.",
+        "Load details and access notes help confirm the right truck space.",
         "Final pricing is confirmed before the crew loads anything.",
         "Hazardous or prohibited materials are not accepted.",
     ];
@@ -67,14 +67,14 @@ export default function SameDayJunkRemovalPage() {
                         Same-Day Junk Removal in {siteConfig.city}
                     </h1>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.13rem", lineHeight: 1.75, maxWidth: 680, margin: "0 auto" }}>
-                        {siteConfig.companyName} offers same-day pickup when schedule capacity is available. Book online or call to check today&apos;s open windows before crews are routed.
+                        {siteConfig.companyName} offers same-day pickup when schedule capacity is available. Use the booking flow or call to check today&apos;s open windows before crews are routed.
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap", marginTop: "2rem" }}>
                         <Link href="/book" className="btn-primary">
-                            Check Availability <ArrowRight size={18} />
+                            Book Now <ArrowRight size={18} />
                         </Link>
                         <a href={telHref(siteConfig.phoneNumber)} className="btn-secondary" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-                            <Phone size={18} /> {formatPhone(siteConfig.phoneNumber)}
+                            <Phone size={18} /> Call Us
                         </a>
                     </div>
                 </div>
@@ -92,8 +92,8 @@ export default function SameDayJunkRemovalPage() {
             </section>
             <StaticFAQ eyebrow="Same-day FAQ" heading="Questions about same-day junk removal." items={SAME_DAY_FAQS} />
             <CtaBand
-                heading={{ lead: "Need junk removed today?", accent: "Check availability." }}
-                lede={`Book online or call ${formatPhone(siteConfig.phoneNumber)} to see whether a pickup window is available in ${siteConfig.city}.`}
+                heading={{ lead: "Need junk removed today?", accent: "Book Now." }}
+                lede={`Use the booking flow or call ${formatPhone(siteConfig.phoneNumber)} to see whether a pickup window is available in ${siteConfig.city}.`}
             />
         </>
     );

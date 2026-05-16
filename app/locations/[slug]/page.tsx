@@ -91,8 +91,8 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
                 title={<>Junk removal in {location.name}, {location.state}.</>}
                 lede={location.heroDescription}
                 coverageMap
-                primaryCta={{ label: "Check my address", href: "/book" }}
-                secondaryCta={{ label: "View service page", href: "/services/junk-removal" }}
+                primaryCta={{ label: "Book Now", href: "/book" }}
+                secondaryCta={{ label: "View Pricing", href: "#pricing" }}
             />
             <DispatchLoadPricingCards config={siteConfig} localLabel={location.name} />
             <DispatchMetricStrip
@@ -117,8 +117,8 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
             >
                 <p>{location.localInfo}</p>
                 <p>
-                    Book online with the pickup address, item list, photos when available, and access notes.
-                    The final price is confirmed before loading begins.
+                    Use the booking flow with service type, load details, pickup address, access notes, schedule window,
+                    and quote review. The final price is confirmed before loading begins.
                 </p>
             </DispatchIntroGrid>
             <DispatchAreaSection config={siteConfig} />

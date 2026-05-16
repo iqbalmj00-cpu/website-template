@@ -15,6 +15,7 @@ interface PageHeroProps {
   eyebrow?: string;
   primaryCta?: { label: string; href: string };
   hideTrustPanel?: boolean;
+  coverageMap?: boolean;
   media?: {
     role?: JunkRemovalImageRole;
     src?: string | null;
@@ -33,8 +34,8 @@ export default function PageHero({
   titleStart,
   titleAccent,
   lede,
-  primaryCta = { label: "Check availability", href: "/book" },
-  hideTrustPanel = false,
+  primaryCta = { label: "Book Now", href: "/book" },
+  coverageMap = false,
   media,
   config = siteConfig,
 }: PageHeroProps) {
@@ -46,9 +47,9 @@ export default function PageHero({
       title={<>{titleStart}{titleAccent}</>}
       lede={lede}
       media={media ? { ...media, label: media.caption || eyebrow, caption: media.caption } : undefined}
-      coverageMap={hideTrustPanel && !media}
+      coverageMap={coverageMap}
       primaryCta={primaryCta}
-      secondaryCta={{ label: "View pricing", href: "/pricing" }}
+      secondaryCta={{ label: "View Pricing", href: "/pricing" }}
     />
   );
 }

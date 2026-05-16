@@ -5,7 +5,7 @@ import { ArrowRight, BadgeDollarSign, CheckCircle, Phone } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd } from "@/lib/seo";
 import { formatCostRange, getCostGuideBySlug, getCostGuides } from "@/lib/costData";
-import { formatPhone, siteConfig, telHref } from "@/lib/siteConfig";
+import { siteConfig, telHref } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
 
 type PageProps = {
@@ -167,14 +167,14 @@ export default function CostGuidePage({ params }: PageProps) {
                         Get A Firm Quote For {guide.item} Removal
                     </h2>
                     <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem", marginBottom: "2rem" }}>
-                        Book online with photos or item details. The crew confirms the final price before loading anything.
+                        Use the booking flow with load details, pickup address, access notes, schedule window, and quote review. The crew confirms final details before loading anything.
                     </p>
                     <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
                         <Link href="/book" className="btn-primary">
-                            Book Online <ArrowRight size={18} />
+                            Book Now <ArrowRight size={18} />
                         </Link>
                         <a href={telHref(siteConfig.phoneNumber)} className="btn-secondary" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-                            <Phone size={18} /> {formatPhone(siteConfig.phoneNumber)}
+                            <Phone size={18} /> Call Us
                         </a>
                     </div>
                     {relatedService && (

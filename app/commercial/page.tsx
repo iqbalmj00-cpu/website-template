@@ -99,8 +99,8 @@ const faqs = [
         a: `Yes. ${siteConfig.companyName} handles commercial junk removal for offices, retail spaces, property managers, contractors, warehouses, and other business customers across ${cityState}.`,
     },
     {
-        q: "What can commercial customers do in the customer portal?",
-        a: "Commercial customers can request jobs, use saved locations, track active work, view job history, review invoices, manage payment visibility, update account details, and request recurring service for approval when portal access is available.",
+        q: "What can commercial customers manage online?",
+        a: "Commercial customers can manage booking details, saved locations, job records, invoices, account details, and recurring service requests when account access is available.",
     },
     {
         q: "Can property managers save multiple locations?",
@@ -151,7 +151,7 @@ export default function CommercialPage() {
                 titleStart="Commercial junk removal "
                 titleAccent={`in ${cityState}.`}
                 lede={`${companyName} helps businesses, property managers, contractors, retailers, and office teams remove bulky items, clear spaces, and plan approved commercial cleanouts${siteConfig.offersDumpsterRental ? " or dumpster rental needs" : ""}.`}
-                primaryCta={{ label: "Request Commercial Service", href: "/contact" }}
+                primaryCta={{ label: "Get an Instant Quote", href: "/book" }}
                 media={{
                     role: "commercialCleanout",
                     src: siteConfig.commercialImageUrl,
@@ -219,19 +219,21 @@ export default function CommercialPage() {
                         <div>
                             <div className="eyebrow">Account support</div>
                             <h2 className="mt-3 font-display text-[clamp(34px,4vw,50px)] font-extrabold leading-[1.04] text-ink">
-                                Portal support for commercial accounts.
+                                Booking management for commercial accounts.
                             </h2>
                             <p className="mt-4 max-w-[58ch] text-[16px] leading-[1.65] text-muted">
-                                Commercial account contacts can use portal access for saved locations, job records,
-                                invoices, account details, and recurring service requests when portal access is available.
+                                Commercial account contacts can manage saved locations, job records,
+                                invoices, account details, and recurring service requests when account access is available.
                             </p>
                             <div className="mt-7 flex flex-wrap gap-3">
                                 <Link href="/customer-portal" referrerPolicy="no-referrer" className="btn-primary">
-                                    Customer Portal <KeyRound className="h-4 w-4" aria-hidden="true" />
+                                    Manage Booking <KeyRound className="h-4 w-4" aria-hidden="true" />
                                 </Link>
-                                <Link href="/contact" className="btn-secondary">
-                                    Request Account Service <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                                </Link>
+                                {phoneNumber && (
+                                    <a href={telHref(phoneNumber)} className="btn-secondary">
+                                        Call Us <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                                    </a>
+                                )}
                             </div>
                         </div>
                         <div className="rounded-[14px] border border-line bg-paper p-6">
@@ -263,13 +265,11 @@ export default function CommercialPage() {
 
             <section className="bg-paper-2 px-[clamp(20px,4vw,64px)] py-10">
                 <div className="mx-auto flex flex-wrap justify-center gap-3" style={{ maxWidth: 980 }}>
-                    <Link href="/services" className="btn-secondary">View Services</Link>
+                    <Link href="/book" className="btn-secondary">Book Now</Link>
                     <Link href="/pricing" className="btn-secondary">View Pricing</Link>
-                    <Link href="/locations" className="btn-secondary">Service Areas</Link>
-                    {siteConfig.offersDumpsterRental && <Link href="/dumpster-rental" className="btn-secondary">Dumpster Rental</Link>}
                     {phoneNumber && (
                         <a href={telHref(phoneNumber)} className="btn-secondary">
-                            <Phone className="h-4 w-4" aria-hidden="true" /> {formatPhone(phoneNumber)}
+                            <Phone className="h-4 w-4" aria-hidden="true" /> Call Us
                         </a>
                     )}
                 </div>

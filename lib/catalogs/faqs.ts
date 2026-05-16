@@ -97,7 +97,7 @@ export const FAQ_POOL: FaqItem[] = [
     category: 'items',
     question: 'Hot tubs & pianos?',
     answer:
-      'Large, heavy, or specialty items require job-specific review. Share photos and access details so the crew can confirm whether the item can be removed.',
+      'Large, heavy, or specialty items require job-specific review. Enter size, access details, and placement notes so the crew can confirm whether the item can be removed.',
   },
   {
     id: 'items-construction',
@@ -120,7 +120,7 @@ export const FAQ_POOL: FaqItem[] = [
     category: 'scheduling',
     question: 'Do I need to be home?',
     answer:
-      'Some jobs can be reviewed from photos, while others require someone on site to confirm access and the final quote.',
+      'Some jobs can be reviewed from the booking details, while others require someone on site to confirm access and the final quote.',
   },
   {
     id: 'sched-cancellation',

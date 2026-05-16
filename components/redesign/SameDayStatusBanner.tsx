@@ -12,7 +12,7 @@ export default function SameDayStatusBanner() {
                     <p className="leading-6">
                         {enabled
                             ? `Same-day pickup may be available in ${siteConfig.city} when route capacity allows.`
-                            : "Book online or call to find the next available pickup window."}
+                            : "Use the booking flow or call to find the next available pickup window."}
                     </p>
                 </div>
                 <a

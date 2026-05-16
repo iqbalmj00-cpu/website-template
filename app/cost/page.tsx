@@ -126,7 +126,7 @@ export default function CostGuideIndexPage() {
             </section>
             <CtaBand
                 heading={{ lead: "Ready for a real quote?", accent: "Start with the job details." }}
-                lede={`Book junk removal in ${siteConfig.city} with the pickup address, item list, photos when available, and access notes.`}
+                lede={`Book junk removal in ${siteConfig.city} with service type, load details, pickup address, access notes, schedule window, and quote review.`}
             />
         </>
     );

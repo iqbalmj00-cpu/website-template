@@ -7,7 +7,7 @@ import { CONTAINER_SIZES, DEBRIS_TYPES } from "@/lib/wizardData";
 import ServiceIcon from "@/components/ServiceIcon";
 import FAQAccordion from "@/components/FAQAccordion";
 import { Phone, ArrowRight, Truck, Clock, CheckCircle, ShieldCheck } from "lucide-react";
-import { formatPhone, telHref } from "@/lib/siteConfig";
+import { telHref } from "@/lib/siteConfig";
 import { createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
@@ -20,10 +20,10 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 const STEPS = [
-    { icon: "ClipboardList", title: "Request", desc: "Tell us your project details and pick a container size." },
-    { icon: "Truck", title: "Delivery", desc: "We deliver the dumpster right to your driveway or job site." },
-    { icon: "Package", title: "Fill It Up", desc: "Load approved materials during your confirmed rental period." },
-    { icon: "Recycle", title: "Pickup", desc: "Call us when you're done. We haul it away and handle disposal." },
+    { icon: "ClipboardList", title: "Contact and project details", desc: "Enter contact information, debris type, placement notes, and project details." },
+    { icon: "Truck", title: "Choose container details", desc: "Select the dumpster size and rental details that best match the job." },
+    { icon: "Package", title: "Schedule delivery", desc: "Pick an available delivery window and review placement requirements." },
+    { icon: "Recycle", title: "Review and submit", desc: "Review the quote and submit the booking request." },
 ];
 
 const FAQ_ITEMS = [
@@ -50,7 +50,7 @@ export default function DumpsterRentalPage() {
     ];
 
     return (
-        <main>
+        <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
@@ -82,10 +82,10 @@ export default function DumpsterRentalPage() {
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" className="btn-primary" style={{ padding: "0.875rem 2rem", fontSize: "1rem" }}>
-                            Book a Dumpster <ArrowRight size={18} style={{ marginLeft: 6 }} />
+                            Book Now <ArrowRight size={18} style={{ marginLeft: 6 }} />
                         </Link>
                         <a href={telHref(siteConfig.phoneNumber)} className="btn-secondary" style={{ padding: "0.875rem 2rem", fontSize: "1rem" }}>
-                            <Phone size={18} /> Call {formatPhone(siteConfig.phoneNumber)}
+                            <Phone size={18} /> Call Us
                         </a>
                     </div>
                 </div>
@@ -244,18 +244,18 @@ export default function DumpsterRentalPage() {
                         Ready to Rent a <span style={{ color: "var(--brand)" }}>Dumpster</span>?
                     </h2>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", marginBottom: "2rem" }}>
-                        Book online or call to confirm container availability. {isSameDayEnabled() ? "Same-day windows may be available when route capacity allows." : ""}
+                        Use the booking flow or call to confirm container availability. {isSameDayEnabled() ? "Same-day windows may be available when route capacity allows." : ""}
                     </p>
                     <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
                         <Link href="/book" className="btn-primary" style={{ padding: "1rem 2.5rem", fontSize: "1.05rem" }}>
                             Book Now <ArrowRight size={18} style={{ marginLeft: 6 }} />
                         </Link>
                         <a href={telHref(siteConfig.phoneNumber)} className="btn-secondary" style={{ padding: "1rem 2.5rem", fontSize: "1.05rem" }}>
-                            <Phone size={18} /> {formatPhone(siteConfig.phoneNumber)}
+                            <Phone size={18} /> Call Us
                         </a>
                     </div>
                 </div>
             </section>
-        </main>
+        </>
     );
 }

@@ -11,16 +11,16 @@ const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` :
 
 const PROCESS_STEPS = [
     {
-        name: "Share the pickup details",
-        text: "Book online with your name, contact information, pickup address, item list, photos when available, and access notes.",
+        name: "Enter contact and service details",
+        text: "Start with your name, contact information, service type, load size, pickup address, and access notes.",
     },
     {
         name: "Choose an available window",
         text: "Select an available pickup date and time. Same-day windows only appear when same-day service is offered and schedule capacity allows.",
     },
     {
-        name: "Approve the final quote before loading",
-        text: "The crew reviews the actual items, confirms the final price before loading begins, and hauls approved items after the quote is approved.",
+        name: "Review the quote and submit",
+        text: "Review the quote in the booking flow and submit the booking request. The crew confirms final details before loading begins.",
     },
 ];
 
@@ -62,9 +62,9 @@ export default function HowItWorksPage() {
                     { label: "Home", href: "/" },
                     { label: "How It Works" },
                 ]}
-                titleStart="Book online, "
-                titleAccent="then approve before loading."
-                lede={`Junk removal in ${cityState} should be clear: share the job details, choose an available pickup window, and review the final quote before the crew loads approved items.`}
+                titleStart="Start online, "
+                titleAccent="then review the quote."
+                lede={`Junk removal in ${cityState} should be clear: enter the job details, choose an available pickup window, and review the quote before submitting the booking request.`}
             />
             <ProcessSection />
             <PageIntro
@@ -73,7 +73,7 @@ export default function HowItWorksPage() {
                 body={
                     <>
                         <p>
-                            Add the item list, photos when available, stairs or elevator notes, parking instructions,
+                            Add the service type, load size, stairs or elevator notes, parking instructions,
                             and anything that may affect access.
                         </p>
                         <p>

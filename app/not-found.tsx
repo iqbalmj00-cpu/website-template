@@ -20,7 +20,7 @@ export default function NotFound() {
                         <Home size={18} /> Home
                     </Link>
                     <Link href="/book" className="btn-primary">
-                        Book Online <ArrowRight size={18} />
+                        Book Now <ArrowRight size={18} />
                     </Link>
                 </div>
             </div>

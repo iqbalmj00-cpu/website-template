@@ -31,7 +31,7 @@ export async function GET() {
 
     const primaryPages = [
         ["Home", "/"],
-        ["Book online", "/book"],
+        ["Book Now", "/book"],
         ["Services", "/services"],
         ["Service areas", "/locations"],
         ["Pricing", "/pricing"],

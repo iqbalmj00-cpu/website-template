@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { MapPin, AlertTriangle } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
+import { loadGoogleMapsLibrary } from "@/lib/googleMapsLoader";
 
 /* ── Types ─────────────────────────────────────────────────────────────── */
 type PlaceResult = {
@@ -34,43 +35,6 @@ const LOAD_TIMEOUT_MS = 5000;
 const MAX_SUGGESTIONS = 5;
 const MIN_INPUT_LENGTH = 3;
 
-/* ── Google Maps Places library loader (Places API New) ────────────────── */
-let placesLibPromise: Promise<any> | null = null;
-
-function loadPlacesLibrary(apiKey: string): Promise<any> {
-    if (placesLibPromise) return placesLibPromise;
-
-    placesLibPromise = new Promise((resolve, reject) => {
-        if (typeof window === "undefined") return reject(new Error("SSR"));
-
-        const w = window as any;
-
-        const importPlaces = async () => {
-            try {
-                const lib = await w.google.maps.importLibrary("places");
-                resolve(lib);
-            } catch (e) {
-                reject(e);
-            }
-        };
-
-        if (w.google?.maps?.importLibrary) {
-            importPlaces();
-            return;
-        }
-
-        const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly`;
-        script.async = true;
-        script.defer = true;
-        script.onload = importPlaces;
-        script.onerror = () => reject(new Error("Failed to load Google Maps"));
-        document.head.appendChild(script);
-    });
-
-    return placesLibPromise;
-}
-
 /* ── Component ─────────────────────────────────────────────────────────── */
 export default function AddressAutocomplete({ value, onChange, onPlaceSelect, placeholder }: Props) {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -91,7 +55,7 @@ export default function AddressAutocomplete({ value, onChange, onPlaceSelect, pl
     useEffect(() => {
         if (!hasApiKey) return;
         const timeoutId = setTimeout(() => setLoadFailed(true), LOAD_TIMEOUT_MS);
-        loadPlacesLibrary(siteConfig.googleMapsKey)
+        loadGoogleMapsLibrary<any>(siteConfig.googleMapsKey, "places")
             .then((lib) => {
                 clearTimeout(timeoutId);
                 placesLibRef.current = lib;

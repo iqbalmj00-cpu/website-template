@@ -28,7 +28,7 @@ export interface ServiceDetail {
 
 const sameDayAnswer = isSameDayEnabled()
     ? "Same-day and next-day pickup windows may be available when schedule capacity allows."
-    : "Pickup windows depend on the schedule. Book online or call to see the next available appointment.";
+    : "Pickup windows depend on the schedule. Use the booking flow or call to see the next available appointment.";
 
 export const ALL_SERVICES: ServiceDetail[] = [
     {
@@ -67,12 +67,12 @@ export const ALL_SERVICES: ServiceDetail[] = [
         ],
         preparationTips: [
             "Separate anything you want to keep before the appointment.",
-            "Share photos or a clear item list when booking.",
+            "Enter the load details, pickup address, and access notes when booking.",
             "Mention stairs, elevators, parking limits, gates, or long carry distance.",
         ],
         procesSteps: [
-            { title: "Share the job details", desc: "Book online or call with the item list, location, access notes, and preferred pickup window." },
-            { title: "Approve the final price", desc: "The crew reviews the items on-site and confirms the final price before loading begins." },
+            { title: "Enter job details", desc: "Use the booking flow or call with service type, load size, pickup address, access notes, and preferred schedule." },
+            { title: "Review the quote", desc: "Review the quote in the booking flow before submitting the booking request." },
             { title: "Items are hauled away", desc: "Approved items are loaded, hauled away, and routed through available local options." },
         ],
         faqs: [
@@ -119,10 +119,10 @@ export const ALL_SERVICES: ServiceDetail[] = [
         preparationTips: [
             "Empty sheds, cabinets, or structures before the appointment when possible.",
             "Confirm utilities are disconnected by the proper professional before removal.",
-            "Share photos so the scope can be reviewed before arrival.",
+            "Enter measurements, material details, and access notes before scheduling.",
         ],
         procesSteps: [
-            { title: "Review the structure", desc: "Share photos, measurements, material details, and access notes before scheduling." },
+            { title: "Review the structure", desc: "Enter measurements, material details, and access notes before scheduling." },
             { title: "Confirm the scope", desc: "The crew reviews what can be dismantled, loaded, and hauled before work begins." },
             { title: "Remove and haul debris", desc: "Approved material is broken down as quoted, loaded, and hauled away." },
         ],
@@ -230,7 +230,7 @@ export const ALL_SERVICES: ServiceDetail[] = [
         faqs: [
             { q: "Do you remove refrigerators?", a: "Yes. Refrigerator removal is available after size, access, contents, and any local appliance handling requirements are reviewed." },
             { q: "Do appliances need to be disconnected first?", a: "Appliances should be safely disconnected before pickup. For fuel service, plumbing, or hardwired electrical work, use the appropriate licensed professional first." },
-            { q: "Can you remove built-in appliances?", a: "Some built-in appliances can be removed when they are disconnected and accessible. Share photos and details before booking." },
+            { q: "Can you remove built-in appliances?", a: "Some built-in appliances can be removed when they are disconnected and accessible. Enter appliance details and access notes before booking." },
         ],
     },
     {
@@ -570,10 +570,10 @@ export const ALL_SERVICES: ServiceDetail[] = [
         preparationTips: [
             "Drain the hot tub before removal.",
             "Have electrical connections disconnected by a qualified professional before pickup.",
-            "Share photos of the hot tub, access path, gates, and deck placement.",
+            "Enter the hot tub size, access path, gates, and deck placement notes.",
         ],
         procesSteps: [
-            { title: "Review photos and access", desc: "Share hot tub size, location, disconnection status, and access details." },
+            { title: "Review size and access", desc: "Enter hot tub size, location, disconnection status, and access details." },
             { title: "Confirm dismantling scope", desc: "The crew confirms the final price and removal plan before work begins." },
             { title: "Break down and haul", desc: "Approved components are dismantled as quoted, loaded, and hauled away." },
         ],
@@ -620,10 +620,10 @@ export const ALL_SERVICES: ServiceDetail[] = [
         preparationTips: [
             "Confirm building access, loading dock rules, and parking instructions.",
             "Separate confidential documents or equipment that should not be hauled.",
-            "Share photos, item lists, and access windows before booking.",
+            "Enter load details, access notes, and scheduling needs before booking.",
         ],
         procesSteps: [
-            { title: "Scope the business cleanout", desc: "Share item lists, photos, building access, and scheduling needs." },
+            { title: "Scope the business cleanout", desc: "Enter load details, building access, and scheduling needs." },
             { title: "Confirm quote and timing", desc: "The crew confirms the final price, access plan, and approved scope before loading." },
             { title: "Remove commercial junk", desc: "Approved business junk is loaded, hauled, and routed appropriately." },
         ],
@@ -770,7 +770,7 @@ export const ALL_SERVICES: ServiceDetail[] = [
         preparationTips: [
             "Confirm legal access and authorization before scheduling.",
             "Identify restricted materials, utilities, or unsafe areas before the appointment.",
-            "Share photos, lockbox details, and scope notes where appropriate.",
+            "Enter lockbox details, load details, and scope notes where appropriate.",
         ],
         procesSteps: [
             { title: "Review property access", desc: "Share authorization, access details, item volume, and property conditions." },

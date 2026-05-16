@@ -105,7 +105,7 @@ export const JUNK_REMOVAL_TEMPLATE_ASSETS: Record<JunkRemovalImageRole, JunkRemo
         asset("foreclosure-cleanout-01", "foreclosureCleanout", `${ASSET_ROOT}/foreclosure-cleanout/foreclosure-cleanout-01.jpg`, "20260516-014447-template-service-foreclosure-cleanout.jpg", "crew clearing leftover household items from an empty property", ["foreclosure cleanout", "property turnover", "rental cleanout"], "center"),
     ],
     estateCleanout: [
-        asset("estate-cleanout-01", "estateCleanout", `${ASSET_ROOT}/estate-cleanout/estate-cleanout-01.jpg`, "20260516-014423-template-service-estate-cleanout.jpg", "crew sorting and loading household items during an estate cleanout", ["estate cleanout", "whole home cleanout", "service detail"], "center"),
+        asset("estate-cleanout-01", "estateCleanout", `${ASSET_ROOT}/estate-cleanout/estate-cleanout-01.jpg`, "20260516-152404-template-service-estate-cleanout-replacement.jpg", "crew sorting and loading household items during an estate cleanout", ["estate cleanout", "whole home cleanout", "service detail"], "center"),
     ],
     storageUnitCleanout: [
         asset("storage-unit-cleanout-01", "storageUnitCleanout", `${ASSET_ROOT}/storage-unit-cleanout/storage-unit-cleanout-01.jpg`, "20260516-014652-template-service-storage-unit-cleanout.jpg", "crew clearing boxes bins and bulky items from a storage unit", ["storage unit cleanout", "storage cleanout", "service detail"], "center"),

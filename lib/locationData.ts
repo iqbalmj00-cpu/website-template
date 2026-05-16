@@ -135,7 +135,7 @@ function buildSafeFaqs(locationName: string, state: string): { q: string; a: str
     return [
         {
             q: `Do you offer junk removal in ${locationName}?`,
-            a: `${locationLabel} is listed as a service area for ${siteConfig.companyName}. Book online or call to confirm the pickup address, available windows, and item details.`,
+            a: `${locationLabel} is listed as a service area for ${siteConfig.companyName}. Use the booking flow or call to confirm the pickup address, available windows, and item details.`,
         },
         {
             q: `How is pricing calculated for ${locationName}?`,
@@ -149,7 +149,7 @@ function buildSafeFaqs(locationName: string, state: string): { q: string; a: str
             q: `Can I book same-day junk removal in ${locationName}?`,
             a: isSameDayEnabled()
                 ? `Same-day pickup may be available in ${locationName} when schedule capacity allows. Book early or call to check open windows.`
-                : `Pickup windows in ${locationName} depend on schedule availability. Book online or call to see the next open appointment.`,
+                : `Pickup windows in ${locationName} depend on schedule availability. Use the booking flow or call to see the next open appointment.`,
         },
     ];
 }
@@ -170,7 +170,7 @@ function buildLocationEntry(
         ...(sourced?.neighborhoods ?? []),
         ...(sourced?.districts ?? []),
     ]);
-    const safeIntro = `${companyName} provides junk removal service in ${locationLabel}. Book online or call to confirm pickup timing, item details, and the final price before loading begins.`;
+    const safeIntro = `${companyName} provides junk removal service in ${locationLabel}. Use the booking flow or call to confirm pickup timing, item details, and the final price before loading begins.`;
     const localInfo = sourced?.intro || safeIntro;
     const hasSourcedLocalContent = Boolean(
         sourced?.intro
@@ -187,7 +187,7 @@ function buildLocationEntry(
         isMainCity,
         isExplicit: isMainCity || configuredServiceAreas.some((area) => toSlug(area) === slug),
         metaTitle: `Junk Removal in ${locationLabel} | ${companyName}`,
-        metaDescription: `Professional junk removal in ${locationLabel} from ${companyName}. Book online for furniture, appliance, cleanout, and debris hauling.`,
+        metaDescription: `Professional junk removal in ${locationLabel} from ${companyName}. Book Now for furniture, appliance, cleanout, and debris hauling.`,
         heroBadge: isMainCity
             ? unique([city, ...configuredServiceAreas]).join(", ")
             : name,

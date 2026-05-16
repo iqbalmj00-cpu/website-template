@@ -99,7 +99,7 @@ export default function ServiceLocationPage({ params }: PageProps) {
                             {service.title} in <span style={{ color: "var(--brand)" }}>{location.name}</span>
                         </h1>
                         <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.75, maxWidth: 680 }}>
-                            {siteConfig.companyName} provides {service.title.toLowerCase()} for customers in {location.name}. Book online, describe what needs to go, and get the job details reviewed before the appointment.
+                            {siteConfig.companyName} provides {service.title.toLowerCase()} for customers in {location.name}. Use the booking flow with service type, load details, pickup address, access notes, schedule window, and quote review.
                         </p>
                         {synonyms.length > 0 && (
                             <p style={{ color: "var(--hero-muted)", fontSize: "0.98rem", lineHeight: 1.6, marginTop: "1rem" }}>
@@ -108,10 +108,10 @@ export default function ServiceLocationPage({ params }: PageProps) {
                         )}
                         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "2rem" }}>
                             <Link href="/book" className="btn-primary">
-                                Book Online <ArrowRight size={18} />
+                                Book Now <ArrowRight size={18} />
                             </Link>
                             <a href={telHref(siteConfig.phoneNumber)} className="btn-secondary" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-                                <Phone size={18} /> {formatPhone(siteConfig.phoneNumber)}
+                                <Phone size={18} /> Call Us
                             </a>
                         </div>
                     </div>

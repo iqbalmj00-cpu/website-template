@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Camera, CheckCircle, Clock, MapPin, Scale, Truck } from "lucide-react";
+import { ArrowRight, CheckCircle, ClipboardList, Clock, MapPin, Scale, Truck } from "lucide-react";
 import PageHero from "@/components/redesign/PageHero";
 import PricingPreview from "@/components/redesign/PricingPreview";
 import StaticFAQ from "@/components/redesign/StaticFAQ";
@@ -13,7 +13,7 @@ const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` :
 const PRICING_FAQS = [
     {
         q: "Where can I see a junk removal price estimate?",
-        a: "When load-tier pricing is available, this page shows planning ranges. Use the booking flow to enter the pickup address, items, access details, and photos when available so the estimate reflects the actual job details.",
+        a: "When load-tier pricing is available, this page shows planning ranges. Use the booking flow to enter contact information, service type, load size, pickup address, access details, schedule window, and quote review.",
     },
     {
         q: "How is junk removal pricing calculated?",
@@ -31,10 +31,10 @@ const PRICING_FAQS = [
 
 const ESTIMATE_STEPS = [
     {
-        icon: Camera,
+        icon: ClipboardList,
         label: "Step 01",
-        title: "Show what needs to go",
-        body: "Add the item list and photos when available so the job can be scoped with fewer follow-up questions.",
+        title: "Choose service and load details",
+        body: "Select the service type, load size, and job notes that best match the pickup.",
     },
     {
         icon: MapPin,
@@ -78,7 +78,7 @@ export default function PricingPage() {
                 titleStart="Get a junk removal estimate "
                 titleAccent={`through booking.`}
                 lede="Load-tier ranges give customers a planning guide. The booking wizard adds item details, access notes, and the pickup address so the estimate can match the actual job."
-                primaryCta={{ label: "Get Instant Quote", href: "/book" }}
+                primaryCta={{ label: "Get an Instant Quote", href: "/book" }}
             />
             <PricingPreview
                 config={siteConfig}
@@ -127,7 +127,7 @@ export default function PricingPage() {
                             the final price before loading begins.
                         </p>
                         <Link href="/book" className="btn-primary mt-7">
-                            Start Estimate <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                            Get an Instant Quote <ArrowRight className="h-4 w-4" aria-hidden="true" />
                         </Link>
                     </div>
                     <div className="grid gap-3">
@@ -164,7 +164,7 @@ export default function PricingPage() {
                     {[
                         "The booking wizard is the estimate entry point.",
                         "The final price is confirmed before loading begins.",
-                        "Photos and access notes help produce a cleaner estimate.",
+                        "Access notes and load details help produce a cleaner estimate.",
                     ].map((item) => (
                         <div key={item} className="flex gap-3 rounded-[14px] border border-line bg-paper p-5">
                             <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
@@ -178,7 +178,7 @@ export default function PricingPage() {
             <section className="bg-paper-2 px-[clamp(20px,4vw,64px)] pb-[100px]">
                 <div className="mx-auto text-center" style={{ maxWidth: 760 }}>
                     <Link href="/book" className="btn-primary">
-                        Get Instant Quote <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                        Get an Instant Quote <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </Link>
                 </div>
             </section>

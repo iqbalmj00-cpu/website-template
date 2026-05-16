@@ -41,7 +41,7 @@ export default function PrivacyPolicyPage() {
                         <li style={{ marginBottom: "0.5rem" }}>Name, phone number, and email address</li>
                         <li style={{ marginBottom: "0.5rem" }}>Service address</li>
                         <li style={{ marginBottom: "0.5rem" }}>Details about the services you request (item descriptions, load sizes, project details)</li>
-                        <li style={{ marginBottom: "0.5rem" }}>Photos you upload for quote estimates</li>
+                        <li style={{ marginBottom: "0.5rem" }}>Access notes, schedule preferences, and quote-review details</li>
                         <li style={{ marginBottom: "0.5rem" }}>Payment information (processed securely by our payment provider)</li>
                         <li style={{ marginBottom: "0.5rem" }}>Electronic signatures for service agreements</li>
                     </ul>
@@ -60,7 +60,7 @@ export default function PrivacyPolicyPage() {
                         <li style={{ marginBottom: "0.5rem" }}>Send appointment confirmations, reminders, and service updates via SMS (only with your explicit consent)</li>
                         <li style={{ marginBottom: "0.5rem" }}>Process payments and send invoices</li>
                         <li style={{ marginBottom: "0.5rem" }}>Respond to your inquiries and provide customer support</li>
-                        <li style={{ marginBottom: "0.5rem" }}>Generate quotes and cost estimates based on photos and descriptions you provide</li>
+                        <li style={{ marginBottom: "0.5rem" }}>Generate quotes and cost estimates based on service details and descriptions you provide</li>
                     </ul>
 
                     {/* ── SMS / Text Messaging ── */}

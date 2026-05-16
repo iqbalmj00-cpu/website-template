@@ -1,11 +1,13 @@
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import SafeImage from "@/components/SafeImage";
+import ServiceAreaMap from "@/components/redesign/ServiceAreaMap";
 import {
     formatPhone,
     getGoogleTestimonials,
     getPricingTiersForDisplay,
     getReviewSummary,
+    groupBusinessHours,
     hasConfiguredPricing,
     hasVerifiedGoogleReviews,
     siteConfig,
@@ -29,11 +31,6 @@ export type DispatchInfoRow = { n: string; title: string; desc: string };
 function displayArea(config: SiteConfig): string {
     if (config.serviceArea && config.serviceArea !== "your area") return config.serviceArea;
     return [config.city, config.state].filter(Boolean).join(", ") || "your service area";
-}
-
-function companyInitial(name: string): string {
-    const clean = name.trim();
-    return clean ? clean.charAt(0).toUpperCase() : "J";
 }
 
 function cleanSlug(value: string): string {
@@ -105,6 +102,11 @@ export function DispatchSiteFooter({ config = siteConfig, showReviews }: { confi
     const services = resolveServiceCatalogIds([...config.services]).slice(0, 6);
     const areas = areaNames(config, 6);
     const shouldShowReviews = showReviews ?? hasVerifiedGoogleReviews(config);
+    const hoursRows = config.businessHours ? groupBusinessHours(config.businessHours).slice(0, 3) : [];
+    const addressLines = [
+        config.streetAddress,
+        [config.city, config.state].filter(Boolean).join(", "),
+    ].filter(Boolean);
     const companyLinks = [
         { label: "Home", href: "/" },
         { label: "About", href: "/about" },
@@ -112,7 +114,7 @@ export function DispatchSiteFooter({ config = siteConfig, showReviews }: { confi
         ...(shouldShowReviews ? [{ label: "Reviews", href: "/reviews" }] : []),
         ...(config.enableBlog ? [{ label: "Blog", href: "/blog" }] : []),
         { label: "Contact", href: "/contact" },
-        { label: "Customer Portal", href: "/customer-portal" },
+        { label: "Manage Booking", href: "/customer-portal" },
         { label: "Privacy", href: "/privacy" },
         { label: "Terms", href: "/terms" },
     ];
@@ -121,8 +123,20 @@ export function DispatchSiteFooter({ config = siteConfig, showReviews }: { confi
         <footer className="site-footer">
             <div className="footer-col">
                 <h4>{config.companyName}</h4>
-                <p>Professional junk removal, cleanouts, and hauling for {displayArea(config)}.</p>
+                <p>Professional junk removal, cleanouts, and hauling services.</p>
+                {addressLines.length > 0 && (
+                    <address>
+                        {addressLines.map((line) => <span key={line}>{line}</span>)}
+                    </address>
+                )}
                 {config.phoneNumber && <a href={telHref(config.phoneNumber)}>{formatPhone(config.phoneNumber)}</a>}
+                {hoursRows.length > 0 && (
+                    <div className="footer-hours" aria-label="Business hours">
+                        {hoursRows.map((row) => (
+                            <span key={row.days}>{row.days}: {row.label}</span>
+                        ))}
+                    </div>
+                )}
             </div>
             <div className="footer-col">
                 <h4>Pages</h4>
@@ -139,7 +153,7 @@ export function DispatchSiteFooter({ config = siteConfig, showReviews }: { confi
                 {areas.length > 0
                     ? areas.map((area) => <Link key={area} href={`/locations/${cleanSlug(area)}`}>{area}</Link>)
                     : <Link href="/locations">Service areas</Link>}
-                <Link href="/book">Book online</Link>
+                <Link href="/book">Book Now</Link>
             </div>
         </footer>
     );
@@ -163,8 +177,8 @@ export function DispatchHomeHero({ config = siteConfig }: { config?: SiteConfig 
                 <h1>{headline}</h1>
                 <p>{config.tagline || `Book professional junk removal in ${area}. Pricing is based on load size, access, and job details.`}</p>
                 <div className="hero-actions">
-                    <Link className="btn brand" href="/book">Check availability</Link>
-                    <Link className="btn light" href="/pricing">See load pricing</Link>
+                    <Link className="btn brand" href="/book">Book Now</Link>
+                    <Link className="btn light" href="/customer-portal" prefetch={false}>Manage Booking</Link>
                 </div>
                 {reviewSummary && (
                     <div className="trust-line">
@@ -195,12 +209,12 @@ export function DispatchHomeHero({ config = siteConfig }: { config?: SiteConfig 
                     <div className="dispatch-overlay">
                         <div className="route-card">
                             <span>Route board</span>
-                            <strong>Pickup details reviewed for {config.city || "your area"}</strong>
+                            <strong>Pickup details reviewed before booking</strong>
                         </div>
                         <div className="route-mini">
-                            <div>Load size scoped</div>
-                            <div>Access reviewed</div>
-                            <div>{area}</div>
+                            <div>Load size selected</div>
+                            <div>Access notes checked</div>
+                            <div>Quote reviewed</div>
                         </div>
                     </div>
                 </div>
@@ -210,11 +224,10 @@ export function DispatchHomeHero({ config = siteConfig }: { config?: SiteConfig 
 }
 
 export function DispatchActionStrip({ config = siteConfig }: { config?: SiteConfig } = {}) {
-    const area = displayArea(config);
     const items = [
-        ["01", "Share what needs to go", "Add the item list, pickup address, photos when available, and access notes."],
-        ["02", "Choose a pickup window", `Availability is checked for ${area} before the job is scheduled.`],
-        ["03", "Approve the final quote", "The crew confirms the price before loading approved items."],
+        ["01", "Tell us what needs hauling", "Enter contact details, service type, pickup address, and access notes."],
+        ["02", "Select the job details", "Choose the load size or dumpster details that best match the job."],
+        ["03", "Review and schedule", "Pick an available window, review the quote, and submit the booking request."],
     ] as const;
 
     return (
@@ -300,11 +313,10 @@ export function DispatchServiceMosaic({
 }
 
 export function DispatchWorkGrid({ config = siteConfig }: { config?: SiteConfig } = {}) {
-    const area = displayArea(config);
     const steps = [
-        ["1", "Tell us what goes", "List the items, upload photos when available, and mention stairs, gates, elevators, or long carries."],
-        ["2", "Pick a window", `Pickup availability is checked for ${area} before the appointment is confirmed.`],
-        ["3", "Approve the quote", "The crew reviews the items on-site and confirms the final price before loading begins."],
+        ["1", "Enter contact details", "Start with your name, phone, email, and the service type you need."],
+        ["2", "Add job and access notes", "Choose the load size, pickup address, access location, and any special handling details."],
+        ["3", "Schedule and review", "Pick an available window, review the quote, and submit the booking request."],
     ] as const;
 
     return (
@@ -313,8 +325,8 @@ export function DispatchWorkGrid({ config = siteConfig }: { config?: SiteConfig 
                 <div className="work-panel">
                     <span className="eyebrow">How it works</span>
                     <h2>Book junk removal without guessing the final price.</h2>
-                    <p>Start online with the pickup details, choose an available window, and approve the final quote before the crew hauls anything away.</p>
-                    <Link className="btn brand" href="/book">Start quote</Link>
+                    <p>Start online with contact and job details, choose an available window, and review the quote before submitting the booking request.</p>
+                    <Link className="btn brand" href="/book">Get an Instant Quote</Link>
                 </div>
                 <div className="route-board">
                     {steps.map(([n, title, desc]) => (
@@ -342,6 +354,7 @@ export function DispatchPricingBoard({
     body?: string;
 } = {}) {
     const rows = pricingRows(config);
+    const hasPricing = hasConfiguredPricing(config);
     const factors = [
         ["A", "Volume", "The amount of truck space used is usually the main pricing anchor."],
         ["B", "Access", "Stairs, elevators, long carries, and tight paths can affect labor."],
@@ -359,16 +372,20 @@ export function DispatchPricingBoard({
                 <p>{body || "Use the load ranges as a planning guide. The final quote is confirmed before loading begins."}</p>
             </div>
             <div className="pricing-grid">
-                <div className="price-board">
-                    {rows.map((row, index) => (
-                        <div className="load-row" key={`${row.label}-${index}`}>
-                            <div><strong>{row.label}</strong><small>{row.desc}</small></div>
-                            <div className="bar" aria-hidden="true"><span style={{ "--fill": `${Math.min(92, 18 + index * 14)}%` } as CSSProperties} /></div>
-                            <div className="price">{row.price}</div>
-                        </div>
-                    ))}
+                <div>
+                    <div className="load-card-grid" aria-label="Starting load prices">
+                        {rows.map((row) => (
+                            <article className="load-card" key={`${row.label}-${row.price}`}>
+                                <small>{row.fraction} load</small>
+                                <h3>{row.label}</h3>
+                                <p>{row.desc}</p>
+                                <div className="load-price"><span>{hasPricing ? "Planning range" : "Quote review"}</span><strong>{row.price}</strong></div>
+                            </article>
+                        ))}
+                    </div>
+                    <p className="price-note">Final price is confirmed before loading and can change with access, heavy materials, distance, or applicable local fees.</p>
                 </div>
-                <div className="price-board price-factors">
+                <div className="info-board price-factors">
                     {factors.map(([n, title, desc]) => (
                         <div className="factor" key={n}>
                             <span>{n}</span>
@@ -388,13 +405,7 @@ export function DispatchAreaSection({ config = siteConfig }: { config?: SiteConf
     return (
         <section className="section tight" id="areas">
             <div className="area-section">
-                <div className="map-board">
-                    <div className="map-route" aria-hidden="true">
-                        <span className="pin one">1</span>
-                        <span className="pin two">2</span>
-                        <span className="pin three">3</span>
-                    </div>
-                </div>
+                <ServiceAreaMap config={config} />
                 <div className="area-copy">
                     <span className="eyebrow">Local coverage</span>
                     <h2>Junk removal service areas near {config.city || "you"}.</h2>
@@ -447,10 +458,10 @@ export function DispatchReviewRail({ config = siteConfig }: { config?: SiteConfi
 
 export function DispatchBookingShell({ config = siteConfig }: { config?: SiteConfig } = {}) {
     const steps = [
-        ["1", "Service type", "Junk removal, cleanouts, debris hauling, or dumpster service when available", "Select"],
-        ["2", "Pickup details", "Address, items, access notes, and photos", "Reviewed"],
-        ["3", "Quote review", "Final price confirmed before loading", "Approve"],
-        ["4", "Confirmation", "Request details stay available after submission", "Ready"],
+        ["1", "Contact and service", "Name, phone, email, and the service type you need", "Start"],
+        ["2", "Job details", "Load size, pickup address, access location, and special handling notes", "Details"],
+        ["3", "Schedule", "Available date and time window based on the booking calendar", "Window"],
+        ["4", "Quote review", "Review the quote and submit the booking request", "Submit"],
     ] as const;
 
     return (
@@ -459,8 +470,8 @@ export function DispatchBookingShell({ config = siteConfig }: { config?: SiteCon
                 <div className="booking-board">
                     <span className="eyebrow">Booking path</span>
                     <h2>Book junk removal online in {config.city || "your area"}.</h2>
-                    <p>Use the booking form to share the pickup address, items, photos when available, and access notes so the job can be scoped clearly.</p>
-                    <Link className="btn brand" href="/book">Open booking</Link>
+                    <p>Use the booking form to enter contact information, job details, pickup address, access notes, schedule window, and quote review.</p>
+                    <Link className="btn brand" href="/book">Book Now</Link>
                 </div>
                 <div className="booking-board wizard-board">
                     {steps.map(([n, title, desc, status]) => (
@@ -519,14 +530,18 @@ export function DispatchFinalCta({
     heading?: string;
     body?: string;
 } = {}) {
+    const phoneHref = telHref(config.phoneNumber);
     return (
         <section className="section tight">
             <div className="final-cta">
                 <div>
                     <h2>{heading}</h2>
-                    <p>{body || `Book online with the pickup address, item list, photos when available, and access notes for ${displayArea(config)}.`}</p>
+                    <p>{body || `Start with the service type, load details, pickup address, access notes, and preferred schedule for ${displayArea(config)}.`}</p>
                 </div>
-                <Link className="btn brand" href="/book">Start quote</Link>
+                <div className="final-cta-actions">
+                    <Link className="btn brand" href="/book">Get an Instant Quote</Link>
+                    {config.phoneNumber && <a className="btn light" href={phoneHref}>Call Us</a>}
+                </div>
             </div>
         </section>
     );
@@ -540,7 +555,7 @@ export function DispatchPageHero({
     lede,
     media,
     coverageMap = false,
-    primaryCta = { label: "Check availability", href: "/book" },
+    primaryCta = { label: "Book Now", href: "/book" },
     secondaryCta,
 }: {
     config?: SiteConfig;
@@ -575,7 +590,7 @@ export function DispatchPageHero({
         : null;
 
     return (
-        <section className="page-hero">
+        <section className={`page-hero${!image && !coverageMap ? " no-media" : ""}`}>
             <div className="hero-copy">
                 <nav className="crumbs" aria-label="Breadcrumb">
                     {crumbs.map((crumb, index) => (
@@ -594,15 +609,11 @@ export function DispatchPageHero({
                 </div>
             </div>
 
-            <div className="hero-media">
-                {coverageMap ? (
-                    <div className="coverage-map" aria-label="Local service area map">
-                        <div className="route-line" aria-hidden="true" />
-                        <span className="pin one">1</span>
-                        <span className="pin two">2</span>
-                        <span className="pin three">3</span>
-                    </div>
-                ) : image ? (
+            {(coverageMap || image) && (
+                <div className="hero-media">
+                    {coverageMap ? (
+                        <ServiceAreaMap config={config} />
+                    ) : image ? (
                     <div className="media-shell">
                         <SafeImage
                             src={image.src}
@@ -618,13 +629,10 @@ export function DispatchPageHero({
                                 objectPosition: focalPointToObjectPosition(image.focalPoint),
                             }}
                         />
-                        <div className="media-label">
-                            <span>{media?.label || "Local service"}</span>
-                            <strong>{media?.caption || "Pickup details and service area are reviewed before booking."}</strong>
-                        </div>
                     </div>
-                ) : null}
-            </div>
+                    ) : null}
+                </div>
+            )}
         </section>
     );
 }

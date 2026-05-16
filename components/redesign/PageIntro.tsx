@@ -17,9 +17,9 @@ interface PageIntroProps {
 }
 
 const DEFAULT_ROWS: PageIntroRow[] = [
-  { n: "01", t: "Tell us what needs to go", d: "Photos, item list, and access notes" },
-  { n: "02", t: "Review the quote first", d: "Final price before loading" },
-  { n: "03", t: "Crew handles the removal", d: "Lift, load, and haul away" },
+  { n: "01", t: "Choose the service", d: "Contact details and service type" },
+  { n: "02", t: "Add job details", d: "Load size, pickup address, and access notes" },
+  { n: "03", t: "Schedule and review", d: "Window selection and quote review" },
 ];
 
 export default function PageIntro({
@@ -41,7 +41,7 @@ export default function PageIntro({
       {body || (
         <>
           <p>The page explains what can be booked, how quotes are confirmed, and what details can affect the final price before loading begins.</p>
-          <p>Share the pickup address, item list, photos when available, and access notes so the job can be scoped clearly.</p>
+          <p>Use the booking flow to enter contact information, job details, pickup address, access notes, schedule window, and quote review.</p>
         </>
       )}
     </DispatchIntroGrid>

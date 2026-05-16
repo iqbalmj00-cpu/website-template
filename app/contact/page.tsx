@@ -10,9 +10,9 @@ import { formatPhone, siteConfig } from "@/lib/siteConfig";
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
 const CONTACT_FAQS = [
-    { q: "What is the fastest way to get a junk removal quote?", a: "Booking online with item details, photos, address, and access notes usually gives the team the clearest information before the appointment." },
+    { q: "What is the fastest way to get a junk removal quote?", a: "Booking online with service type, load size, pickup address, and access notes usually gives the team the clearest information before the appointment." },
     { q: "Can I call instead of using the form?", a: `Yes. You can call ${siteConfig.companyName} at ${formatPhone(siteConfig.phoneNumber)} to ask questions or book over the phone.` },
-    { q: "What should I include in my message?", a: "Include the pickup address, item list, photos if available, access details, preferred timing, and any stairs, elevators, gates, or parking limits." },
+    { q: "What should I include in my message?", a: "Include the pickup address, load details, access details, preferred timing, and any stairs, elevators, gates, or parking limits." },
     { q: "How do I confirm service-area coverage?", a: "Use the booking form or call with your address. The team can confirm whether your pickup location is inside the current service area." },
 ];
 
@@ -36,7 +36,7 @@ export default function ContactPage() {
                 ]}
                 titleStart={`Contact ${siteConfig.companyName} `}
                 titleAccent={`in ${siteConfig.city}.`}
-                lede={`Start a junk removal quote for ${cityState}. Book online for the cleanest pickup details, or call with questions before scheduling.`}
+                lede={`Start a junk removal quote for ${cityState}. Use the booking flow for the cleanest pickup details, or call with questions before scheduling.`}
             />
             <NapHours />
             <ContactForm />

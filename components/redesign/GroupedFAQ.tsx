@@ -259,12 +259,12 @@ export default function GroupedFAQ({
               aria-label={`Call us at ${formatPhone(phoneNumber)}`}
               className="btn-primary"
             >
-              Call Us · {formatPhone(phoneNumber)}{" "}
+              Call Us{" "}
               <ArrowRight className="w-4 h-4" strokeWidth={2.4} aria-hidden="true" />
             </a>
           ) : (
-            <Link href="/contact" className="btn-primary">
-              Ask us directly <ArrowRight className="w-4 h-4" strokeWidth={2.4} aria-hidden="true" />
+            <Link href="/book" className="btn-primary">
+              Book Now <ArrowRight className="w-4 h-4" strokeWidth={2.4} aria-hidden="true" />
             </Link>
           )}
         </div>

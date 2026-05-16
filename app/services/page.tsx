@@ -51,7 +51,7 @@ export default function ServicesPage() {
                     <>
                         <p>
                             Pick the service that best matches the items or cleanup project. If the job includes several categories,
-                            book the closest option and include the full item list, photos, and access notes.
+                            choose the closest option and include the load details, pickup address, and access notes.
                         </p>
                         <p>
                             The crew confirms the final scope and price before loading begins, based on the actual item volume,
@@ -62,9 +62,9 @@ export default function ServicesPage() {
                 rightEyebrow="Before pickup"
                 rightHeading="Details that help the quote"
                 rightRows={[
-                    { n: "01", t: "Item list", d: "What needs to go" },
-                    { n: "02", t: "Access notes", d: "Stairs, gates, elevators, or parking" },
-                    { n: "03", t: "Photos", d: "Helpful when available" },
+                    { n: "01", t: "Service type", d: "Closest match for the job" },
+                    { n: "02", t: "Load details", d: "Volume and accepted items" },
+                    { n: "03", t: "Access notes", d: "Stairs, gates, elevators, or parking" },
                 ]}
             />
             <StaticFAQ
