@@ -6,6 +6,7 @@
 
 import Link from "next/link"
 import { ArrowRight, Calendar, ChevronRight, Clock, MapPin, Phone, ShieldCheck, Star } from "lucide-react"
+import SafeImage from "@/components/SafeImage"
 import {
   siteConfig,
   type SiteConfig,
@@ -16,6 +17,12 @@ import {
   getCredentials,
   fmt24to12,
 } from "@/lib/siteConfig"
+import {
+  focalPointToObjectPosition,
+  getJunkRemovalThemeProfile,
+  resolveJunkRemovalImage,
+  type JunkRemovalImageRole,
+} from "@/lib/templateAssets/junkRemoval"
 import { shouldShowHeroRating } from "@/lib/visibility"
 
 export interface BreadcrumbItem {
@@ -31,6 +38,15 @@ interface PageHeroProps {
   eyebrow?: string
   primaryCta?: { label: string; href: string }
   hideTrustPanel?: boolean
+  media?: {
+    role?: JunkRemovalImageRole
+    src?: string | null
+    alt?: string
+    routeKey?: string
+    serviceTitle?: string
+    locationName?: string
+    caption?: string
+  }
   config?: SiteConfig
 }
 
@@ -42,10 +58,23 @@ export default function PageHero({
   lede,
   primaryCta = { label: "Get Instant Quote", href: "/book" },
   hideTrustPanel = false,
+  media,
   config = siteConfig,
 }: PageHeroProps) {
   const { city, state, phoneNumber, serviceArea, maxRadius, sameDayCutoffTime, companyName } = config
   const currentPage = crumbs[crumbs.length - 1]?.label ?? "This page"
+  const themeProfile = getJunkRemovalThemeProfile(config)
+  const mediaImage = media
+    ? resolveJunkRemovalImage({
+        config,
+        role: media.role ?? "hero",
+        routeKey: media.routeKey ?? currentPage,
+        overrideSrc: media.src,
+        alt: media.alt,
+        serviceTitle: media.serviceTitle,
+        locationName: media.locationName,
+      })
+    : null
   const sameDay = isSameDayEnabled(config)
   const cutoffLabel = sameDayCutoffTime ? fmt24to12(sameDayCutoffTime) : ""
   const showRating = shouldShowHeroRating(config)
@@ -176,7 +205,31 @@ export default function PageHero({
         </div>
 
         {!hideTrustPanel && (
-          <aside className="rounded-[18px] border border-line bg-white/88 shadow-[0_26px_70px_rgba(20,20,20,0.08)] backdrop-blur">
+          <aside className={`overflow-hidden ${mediaImage ? themeProfile.mediaFrameClass : "rounded-[18px] border border-line bg-white/88 shadow-[0_26px_70px_rgba(20,20,20,0.08)] backdrop-blur"}`}>
+            {mediaImage && (
+              <figure className="relative border-b border-line">
+                <SafeImage
+                  src={mediaImage.src}
+                  fallbackSrc="/images/default-hero.png"
+                  alt={mediaImage.alt}
+                  width={1800}
+                  height={1125}
+                  loading="eager"
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    aspectRatio: "16 / 11",
+                    height: "auto",
+                    minHeight: 260,
+                    objectFit: "cover",
+                    objectPosition: focalPointToObjectPosition(mediaImage.focalPoint),
+                  }}
+                />
+                <figcaption className="absolute left-4 top-4 rounded-full border border-white/25 bg-black/45 px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-white backdrop-blur">
+                  {media.caption || themeProfile.mediaBadge}
+                </figcaption>
+              </figure>
+            )}
             <div className="p-6">
               <div
                 className="inline-flex items-center gap-2.5 rounded-full px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-green"

@@ -5,11 +5,13 @@ import PageHero from "@/components/redesign/PageHero";
 import PageIntro from "@/components/redesign/PageIntro";
 import RelatedSvc from "@/components/redesign/RelatedSvc";
 import PricingTeaser from "@/components/redesign/PricingTeaser";
+import PricingTierCards from "@/components/redesign/PricingTierCards";
 import NearbyAreas from "@/components/redesign/NearbyAreas";
 import CtaBand from "@/components/redesign/CtaBand";
 import { getLocationBySlug, getLocations } from "@/lib/locationData.server";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, localBusinessJsonLd } from "@/lib/seo";
-import { siteConfig } from "@/lib/siteConfig";
+import { hasConfiguredPricing, siteConfig } from "@/lib/siteConfig";
+import { resolveJunkRemovalImage } from "@/lib/templateAssets/junkRemoval";
 
 export async function generateStaticParams() {
     return getLocations().map((loc) => ({ slug: loc.slug }));
@@ -32,7 +34,13 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
             : `Junk Removal in ${loc.name}, ${loc.state}`,
         description: loc.metaDescription,
         path: `/locations/${loc.slug}`,
-        image: siteConfig.locationImages?.[loc.slug] || null,
+        image: resolveJunkRemovalImage({
+            config: siteConfig,
+            role: "locationNeighborhood",
+            routeKey: `location-meta-${loc.slug}`,
+            overrideSrc: siteConfig.locationImages?.[loc.slug],
+            locationName: loc.name,
+        }).src,
         noIndex: !loc.isMainCity && !loc.isExplicit,
         follow: true,
     });
@@ -78,7 +86,27 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
                 titleStart="Junk removal in "
                 titleAccent={`${location.name}, ${location.state}.`}
                 lede={location.heroDescription}
+                media={{
+                    role: "locationNeighborhood",
+                    src: siteConfig.locationImages?.[location.slug],
+                    routeKey: `location-${location.slug}`,
+                    locationName: location.name,
+                    caption: "Local coverage",
+                }}
             />
+            {hasConfiguredPricing(siteConfig) && (
+                <section className="bg-paper px-[clamp(20px,4vw,64px)] py-10 border-b border-line">
+                    <div className="mx-auto" style={{ maxWidth: 1180 }}>
+                        <div className="mb-5 flex flex-col gap-2">
+                            <div className="eyebrow">Configured load pricing</div>
+                            <h2 className="font-display text-[clamp(28px,3.4vw,40px)] font-extrabold leading-tight text-ink">
+                                Review the common load ranges before booking in {location.name}.
+                            </h2>
+                        </div>
+                        <PricingTierCards config={siteConfig} limit={4} compact />
+                    </div>
+                </section>
+            )}
             <PageIntro
                 eyebrow="Local overview"
                 headline={`${siteConfig.companyName} serves approved junk removal jobs in ${location.name}.`}

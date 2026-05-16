@@ -11,8 +11,14 @@
 import { useRef } from "react"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react"
+import SafeImage from "@/components/SafeImage"
 import { siteConfig, type SiteConfig } from "@/lib/siteConfig"
 import { resolveServiceCatalogIds } from "@/lib/catalogs/services"
+import {
+  focalPointToObjectPosition,
+  getServiceImageRole,
+  resolveJunkRemovalImage,
+} from "@/lib/templateAssets/junkRemoval"
 
 interface RelatedSvcProps {
   eyebrow?: string
@@ -99,11 +105,19 @@ export default function RelatedSvc({
             const tag = `${String(i + 1).padStart(2, "0")} · ${
               HEADLINE_TAGS[i % HEADLINE_TAGS.length].toUpperCase()
             }`
+            const imageRole = getServiceImageRole(c.id)
+            const image = resolveJunkRemovalImage({
+              config,
+              role: imageRole,
+              routeKey: `service-card-${c.id}`,
+              overrideSrc: config.serviceImages?.[c.id],
+              serviceTitle: c.name,
+            })
             return (
               <Link
                 key={c.id}
                 href={`/services/${c.id}`}
-                className="group relative bg-paper-2 border border-line rounded-[14px] p-7 min-w-[300px] max-w-[320px] snap-start flex flex-col gap-5 overflow-hidden transition-all duration-300 ease-out hover:bg-ink hover:text-paper hover:border-brand hover:-translate-y-1"
+                className="group relative bg-paper-2 border border-line rounded-[14px] min-w-[300px] max-w-[320px] snap-start flex flex-col overflow-hidden transition-all duration-300 ease-out hover:bg-ink hover:text-paper hover:border-brand hover:-translate-y-1"
               >
                 <span
                   aria-hidden="true"
@@ -113,23 +127,41 @@ export default function RelatedSvc({
                       "radial-gradient(circle at 100% 0%, rgba(var(--brand-rgb), 0.18), transparent 60%)",
                   }}
                 />
-                <div className="relative font-mono text-[11px] tracking-[0.16em] uppercase text-brand">
-                  {tag}
+                <div className="relative h-[154px] overflow-hidden border-b border-line">
+                  <SafeImage
+                    src={image.src}
+                    fallbackSrc="/images/default-hero.png"
+                    alt={image.alt}
+                    width={900}
+                    height={580}
+                    loading="lazy"
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: focalPointToObjectPosition(image.focalPoint),
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" aria-hidden="true" />
+                  <div className="absolute bottom-3 left-4 right-4 font-mono text-[10px] font-bold tracking-[0.16em] uppercase text-white">
+                    {tag}
+                  </div>
                 </div>
-                <div className="relative mt-auto">
+                <div className="relative mt-auto flex flex-col gap-5 p-7">
                   <h3 className="font-display font-bold text-[22px] leading-tight tracking-[-0.012em]">
                     {c.name}
                   </h3>
                   <p className="text-[14px] text-muted group-hover:text-paper/70 mt-1.5 transition-colors">
                     {c.blurb}
                   </p>
-                </div>
-                <div className="relative grid place-items-center w-9 h-9 rounded-full border border-line group-hover:border-brand group-hover:bg-brand group-hover:text-white transition-all duration-300">
-                  <ArrowRight
-                    className="w-3.5 h-3.5 transition-transform duration-300 group-hover:-rotate-45"
-                    strokeWidth={2}
-                    aria-hidden="true"
-                  />
+                  <div className="relative grid place-items-center w-9 h-9 rounded-full border border-line group-hover:border-brand group-hover:bg-brand group-hover:text-white transition-all duration-300">
+                    <ArrowRight
+                      className="w-3.5 h-3.5 transition-transform duration-300 group-hover:-rotate-45"
+                      strokeWidth={2}
+                      aria-hidden="true"
+                    />
+                  </div>
                 </div>
               </Link>
             )

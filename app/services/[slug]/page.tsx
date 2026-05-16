@@ -6,10 +6,12 @@ import PageHero from "@/components/redesign/PageHero";
 import PageIntro from "@/components/redesign/PageIntro";
 import RelatedSvc from "@/components/redesign/RelatedSvc";
 import PricingTeaser from "@/components/redesign/PricingTeaser";
+import PricingTierCards from "@/components/redesign/PricingTierCards";
 import CtaBand from "@/components/redesign/CtaBand";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
 import { getClientServices, getServiceBySlug } from "@/lib/serviceData";
-import { siteConfig } from "@/lib/siteConfig";
+import { hasConfiguredPricing, siteConfig } from "@/lib/siteConfig";
+import { getServiceImageRole, resolveJunkRemovalImage } from "@/lib/templateAssets/junkRemoval";
 
 export async function generateStaticParams() {
     return getClientServices().map((svc) => ({ slug: svc.slug }));
@@ -40,7 +42,17 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
         title: pageTitle,
         description: pageDesc,
         path: `/services/${svc.slug}`,
-        image: siteConfig.serviceImages?.[svc.slug] || null,
+        image: resolveServiceTemplateImage(svc.slug, svc.title).src,
+    });
+}
+
+function resolveServiceTemplateImage(slug: string, title: string) {
+    return resolveJunkRemovalImage({
+        config: siteConfig,
+        role: getServiceImageRole(slug),
+        routeKey: `service-meta-${slug}`,
+        overrideSrc: siteConfig.serviceImages?.[slug],
+        serviceTitle: title,
     });
 }
 
@@ -50,6 +62,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
     if (!svc || !enabledServices.some((service) => service.slug === svc.slug)) notFound();
 
     const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
+    const mediaRole = getServiceImageRole(svc.slug);
     const breadcrumbs = [
         { label: "Home", href: "/" },
         { label: "Services", href: "/services" },
@@ -81,7 +94,27 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                 titleStart={`${svc.title} `}
                 titleAccent={`in ${cityState}.`}
                 lede={svc.heroSubtitle}
+                media={{
+                    role: mediaRole,
+                    src: siteConfig.serviceImages?.[svc.slug],
+                    routeKey: `service-${svc.slug}`,
+                    serviceTitle: svc.title,
+                    caption: "Service scope",
+                }}
             />
+            {hasConfiguredPricing(siteConfig) && (
+                <section className="bg-paper px-[clamp(20px,4vw,64px)] py-10 border-b border-line">
+                    <div className="mx-auto" style={{ maxWidth: 1180 }}>
+                        <div className="mb-5 flex flex-col gap-2">
+                            <div className="eyebrow">Configured load pricing</div>
+                            <h2 className="font-display text-[clamp(28px,3.4vw,40px)] font-extrabold leading-tight text-ink">
+                                Start with the load size, then confirm the final quote.
+                            </h2>
+                        </div>
+                        <PricingTierCards config={siteConfig} limit={4} compact />
+                    </div>
+                </section>
+            )}
             <PageIntro
                 eyebrow="Service overview"
                 headline={`What to know before booking ${svc.title.toLowerCase()}.`}

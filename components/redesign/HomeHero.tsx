@@ -1,10 +1,5 @@
-/**
- * HomeHero — screenshot-matched editorial hero with no right-side animation.
- * The open right side is intentionally left available for the approved custom
- * hero animation once it is provided.
- */
-
 import { ArrowRight, Phone, ShieldCheck, Star } from "lucide-react"
+import SafeImage from "@/components/SafeImage"
 import {
   siteConfig,
   type SiteConfig,
@@ -14,6 +9,11 @@ import {
   getReviewSummary,
   getCredentials,
 } from "@/lib/siteConfig"
+import {
+  focalPointToObjectPosition,
+  getJunkRemovalThemeProfile,
+  resolveJunkRemovalImage,
+} from "@/lib/templateAssets/junkRemoval"
 import { shouldShowHeroRating } from "@/lib/visibility"
 
 export default function HomeHero({ config = siteConfig }: { config?: SiteConfig } = {}) {
@@ -28,6 +28,13 @@ export default function HomeHero({ config = siteConfig }: { config?: SiteConfig 
   } = config
 
   const sameDay = isSameDayEnabled(config)
+  const themeProfile = getJunkRemovalThemeProfile(config)
+  const heroImage = resolveJunkRemovalImage({
+    config,
+    role: "hero",
+    routeKey: "home",
+    overrideSrc: config.heroImageUrl,
+  })
   const eyebrowParts = [city, state].filter(Boolean)
   if (sameDay) eyebrowParts.push("Same-day junk removal")
   const eyebrow = eyebrowParts.join(" · ")
@@ -57,8 +64,8 @@ export default function HomeHero({ config = siteConfig }: { config?: SiteConfig 
       />
 
       <div
-        className="relative mx-auto"
-        style={{ maxWidth: 1240 }}
+        className={`relative mx-auto grid grid-cols-1 gap-12 lg:items-center ${themeProfile.heroLayoutClass}`}
+        style={{ maxWidth: 1320 }}
       >
         <div className="min-w-0">
           {eyebrow && (
@@ -68,7 +75,7 @@ export default function HomeHero({ config = siteConfig }: { config?: SiteConfig 
             </div>
           )}
 
-          <h1 className="font-display text-[clamp(68px,8.4vw,118px)] font-extrabold leading-[0.94] tracking-normal text-ink">
+          <h1 className="font-display text-[clamp(52px,7vw,98px)] font-extrabold leading-[0.94] tracking-normal text-ink">
             <span className="block text-balance">{heroHeadline}</span>
             <span className="hero-marker mt-2 inline-block pr-2">
               <span className="text-ink"> </span>
@@ -130,6 +137,42 @@ export default function HomeHero({ config = siteConfig }: { config?: SiteConfig 
             )}
           </div>
         </div>
+
+        <figure className={`relative isolate overflow-hidden ${themeProfile.mediaFrameClass}`}>
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-black/35 to-transparent"
+          />
+          <SafeImage
+            src={heroImage.src}
+            fallbackSrc="/images/default-hero.png"
+            alt={heroImage.alt}
+            width={1800}
+            height={1125}
+            loading="eager"
+            style={{
+              display: "block",
+              width: "100%",
+              aspectRatio: themeProfile.density === "compact" ? "4 / 5" : "5 / 4",
+              height: "auto",
+              minHeight: themeProfile.density === "compact" ? 500 : 440,
+              objectFit: "cover",
+              objectPosition: focalPointToObjectPosition(heroImage.focalPoint),
+            }}
+          />
+          <figcaption className="absolute left-5 top-5 z-20 inline-flex items-center gap-2 rounded-full border border-white/30 bg-black/40 px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
+            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-brand" />
+            {themeProfile.mediaBadge}
+          </figcaption>
+          <div className="absolute inset-x-5 bottom-5 z-20 rounded-[12px] border border-white/20 bg-black/45 p-4 text-white backdrop-blur">
+            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
+              Before loading
+            </div>
+            <p className="mt-1 font-display text-[20px] font-bold leading-tight">
+              The final quote is confirmed at the job.
+            </p>
+          </div>
+        </figure>
       </div>
 
       <style>{`

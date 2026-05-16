@@ -7,7 +7,12 @@
 
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
+import SafeImage from "@/components/SafeImage"
 import { siteConfig, type SiteConfig } from "@/lib/siteConfig"
+import {
+  focalPointToObjectPosition,
+  resolveJunkRemovalImage,
+} from "@/lib/templateAssets/junkRemoval"
 import { shouldRenderServiceAreas } from "@/lib/visibility"
 
 interface NearbyAreasProps {
@@ -71,13 +76,39 @@ export default function NearbyAreas({ heading, currentSlug, limit = 12, config =
   const headline =
     heading ??
     (headlineParts.length > 0 ? `Areas we serve near ${headlineParts.join(", ")}.` : "Areas we serve.")
+  const areaImage = resolveJunkRemovalImage({
+    config,
+    role: "locationNeighborhood",
+    routeKey: `nearby-${city}-${state}`,
+    locationName: city,
+  })
 
   return (
     <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
       <div className="mx-auto" style={{ maxWidth: 1480 }}>
-        <h2 className="font-display font-extrabold text-[clamp(36px,4.4vw,52px)] leading-[1.02] tracking-[-0.02em] mb-9 max-w-[36rem]">
-          {headline}
-        </h2>
+        <div className="mb-9 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.54fr)] lg:items-end">
+          <h2 className="font-display font-extrabold text-[clamp(36px,4.4vw,52px)] leading-[1.02] tracking-[-0.02em] max-w-[36rem]">
+            {headline}
+          </h2>
+          <figure className="relative overflow-hidden rounded-[14px] border border-line bg-paper shadow-paper">
+            <SafeImage
+              src={areaImage.src}
+              fallbackSrc="/images/default-hero.png"
+              alt={areaImage.alt}
+              width={900}
+              height={560}
+              loading="lazy"
+              style={{
+                display: "block",
+                width: "100%",
+                aspectRatio: "16 / 8",
+                height: "auto",
+                objectFit: "cover",
+                objectPosition: focalPointToObjectPosition(areaImage.focalPoint),
+              }}
+            />
+          </figure>
+        </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           {areas.map((area) => (

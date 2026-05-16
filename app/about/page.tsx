@@ -8,6 +8,7 @@ import Recycling from "@/components/redesign/Recycling";
 import CtaBand from "@/components/redesign/CtaBand";
 import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
 import { getCredentials, getReviewSummary, hasInsurance, hasLicense, hasVerifiedGoogleReviews, siteConfig } from "@/lib/siteConfig";
+import { resolveJunkRemovalImage } from "@/lib/templateAssets/junkRemoval";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 const credentialText = hasLicense(siteConfig) || hasInsurance(siteConfig)
@@ -27,6 +28,12 @@ export const metadata: Metadata = createPageMetadata({
     title: `About ${siteConfig.companyName}`,
     description: `Learn about ${siteConfig.companyName}, a junk removal service serving ${cityState} with online booking and final price confirmation before loading.`,
     path: "/about",
+    image: resolveJunkRemovalImage({
+        config: siteConfig,
+        role: "crewAbout",
+        routeKey: "about-meta",
+        overrideSrc: siteConfig.aboutImageUrl,
+    }).src,
 });
 
 function aboutRows(): PageIntroRow[] {
@@ -63,6 +70,12 @@ export default function AboutPage() {
                 titleStart={`About ${siteConfig.companyName}, `}
                 titleAccent={`serving ${siteConfig.city}.`}
                 lede={siteConfig.tagline || `Junk removal service for ${cityState} and nearby communities listed on this website.`}
+                media={{
+                    role: "crewAbout",
+                    src: siteConfig.aboutImageUrl,
+                    routeKey: "about",
+                    caption: "Crew profile",
+                }}
             />
             <Credentials />
             <PageIntro

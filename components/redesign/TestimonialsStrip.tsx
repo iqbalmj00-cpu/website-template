@@ -14,13 +14,15 @@ import {
 } from "@/lib/siteConfig"
 
 export default function TestimonialsStrip({ config = siteConfig }: { config?: SiteConfig } = {}) {
-  const testimonials = getGoogleTestimonials(3, config)
+  const testimonials = getGoogleTestimonials(6, config)
   if (testimonials.length === 0) return null
 
   const summary = hasVerifiedGoogleReviews(config) ? getReviewSummary(config) : null
+  const railItems = testimonials.length > 1 ? [...testimonials, ...testimonials] : testimonials
+  const shouldAnimate = testimonials.length > 1
 
   return (
-    <section className="bg-paper py-[100px] px-[clamp(20px,4vw,64px)] border-y border-line">
+    <section className="bg-paper py-[100px] px-[clamp(20px,4vw,64px)] border-y border-line overflow-hidden">
       <div className="mx-auto" style={{ maxWidth: 1480 }}>
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-[46rem]">
@@ -42,9 +44,10 @@ export default function TestimonialsStrip({ config = siteConfig }: { config?: Si
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {testimonials.map((review) => (
-            <article key={`${review.reviewerName}-${review.reviewedAt}`} className="rounded-[14px] border border-line bg-paper-2 p-6">
+        <div className="-mx-[clamp(20px,4vw,64px)] overflow-hidden border-y border-line bg-paper-2 py-5">
+          <div className={`${shouldAnimate ? "testimonial-rail" : ""} flex w-max gap-4 px-[clamp(20px,4vw,64px)]`}>
+            {railItems.map((review, index) => (
+            <article key={`${review.reviewerName}-${review.reviewedAt}-${index}`} className="w-[min(82vw,360px)] shrink-0 rounded-[14px] border border-line bg-paper p-6 shadow-paper">
               <div
                 role="img"
                 aria-label={`${review.rating} out of 5 stars`}
@@ -69,7 +72,8 @@ export default function TestimonialsStrip({ config = siteConfig }: { config?: Si
                 </span>
               </div>
             </article>
-          ))}
+            ))}
+          </div>
         </div>
 
         <div className="mt-8">
@@ -78,6 +82,25 @@ export default function TestimonialsStrip({ config = siteConfig }: { config?: Si
           </Link>
         </div>
       </div>
+      <style>{`
+        .testimonial-rail {
+          animation: testimonialRail 44s linear infinite;
+        }
+        .testimonial-rail:hover {
+          animation-play-state: paused;
+        }
+        @keyframes testimonialRail {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .testimonial-rail {
+            animation: none;
+            width: auto;
+            overflow-x: auto;
+          }
+        }
+      `}</style>
     </section>
   )
 }

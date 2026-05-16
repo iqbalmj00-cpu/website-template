@@ -17,6 +17,10 @@ import {
     Truck,
 } from "lucide-react";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
+import {
+    focalPointToObjectPosition,
+    resolveJunkRemovalImage,
+} from "@/lib/templateAssets/junkRemoval";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 const commercialDumpsterCopy = siteConfig.offersDumpsterRental
@@ -29,7 +33,12 @@ export const metadata: Metadata = {
         title: `Commercial Junk Removal in ${cityState}`,
         description: commercialMetaDescription,
         path: "/commercial",
-        image: siteConfig.commercialImageUrl,
+        image: resolveJunkRemovalImage({
+            config: siteConfig,
+            role: "commercialCleanout",
+            routeKey: "commercial-meta",
+            overrideSrc: siteConfig.commercialImageUrl,
+        }).src,
     }),
     keywords: [
         `commercial junk removal ${siteConfig.city}`,
@@ -48,6 +57,13 @@ export default function CommercialPage() {
     const { companyName, phoneNumber, city } = siteConfig;
     const { dashboardUrl, siteToken } = getServerConfig();
     const portalConfigured = Boolean(dashboardUrl && siteToken);
+    const commercialImage = resolveJunkRemovalImage({
+        config: siteConfig,
+        role: "commercialCleanout",
+        routeKey: "commercial",
+        overrideSrc: siteConfig.commercialImageUrl,
+        alt: `${companyName} commercial junk removal and business cleanout team in ${cityState}`,
+    });
 
     const serviceSchema = serviceJsonLd({
         service: {
@@ -178,11 +194,12 @@ export default function CommercialPage() {
                     <div style={{ borderRadius: 20, padding: "0.75rem", background: "linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.035))", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 22px 70px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
                         <div style={{ position: "relative", overflow: "hidden", borderRadius: 14, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)" }}>
                             <SafeImage
-                                src={siteConfig.commercialImageUrl || "/images/generated/commercial.png"}
-                                alt={`${companyName} commercial junk removal and business cleanout team in ${cityState}`}
+                                src={commercialImage.src}
+                                fallbackSrc="/images/generated/commercial.png"
+                                alt={commercialImage.alt}
                                 collapseParentGrid
                                 loading="eager"
-                                style={{ width: "100%", display: "block", objectFit: "cover", aspectRatio: "16/10" }}
+                                style={{ width: "100%", display: "block", objectFit: "cover", objectPosition: focalPointToObjectPosition(commercialImage.focalPoint), aspectRatio: "16/10" }}
                             />
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(5,15,31,0) 52%, rgba(5,15,31,0.28))", pointerEvents: "none" }} />
                         </div>
