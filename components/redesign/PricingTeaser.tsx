@@ -10,10 +10,11 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import {
   getPricingTiersForDisplay,
+  hasConfiguredPricing,
   siteConfig,
   type SiteConfig,
 } from "@/lib/siteConfig"
-import PricingTierCards from "./PricingTierCards"
+import { formatPricingRange } from "./PricingTierCards"
 
 const STEPS = [
   {
@@ -34,6 +35,20 @@ const STEPS = [
     h: "Approve the haul-away",
     p: "After approval, accepted items are loaded, hauled away, and routed through available local options.",
   },
+]
+
+const FALLBACK_LOAD_ROWS = [
+  { label: "Minimum pickup", fraction: "Small", desc: "Single item or small pile" },
+  { label: "Quarter load", fraction: "1/4", desc: "Small room or curb pile" },
+  { label: "Half load", fraction: "1/2", desc: "Garage wall or several bulky items" },
+  { label: "Full load", fraction: "Full", desc: "Large cleanout or packed truck" },
+]
+
+const FACTORS = [
+  { label: "Volume", desc: "Truck space used sets the clearest starting point." },
+  { label: "Access", desc: "Stairs, elevators, gates, parking, and carry distance can affect labor." },
+  { label: "Materials", desc: "Heavy, restricted, or special-handling items need review." },
+  { label: "Location", desc: "Service area, route distance, and local rules stay visible." },
 ]
 
 function DashedArrow({ vertical = false }: { vertical?: boolean }) {
@@ -59,32 +74,123 @@ function DashedArrow({ vertical = false }: { vertical?: boolean }) {
 }
 
 export default function PricingTeaser({ config = siteConfig }: { config?: SiteConfig } = {}) {
-  const hasPricingTiers = getPricingTiersForDisplay(6, config).length > 0
+  const tiers = getPricingTiersForDisplay(6, config)
+  const hasPricingTiers = hasConfiguredPricing(config) && tiers.length > 0
+  const loadRows = hasPricingTiers
+    ? tiers.map((tier) => ({
+        label: tier.label,
+        fraction: tier.fraction,
+        desc: `${tier.fraction} truck load tier`,
+        price: formatPricingRange(tier),
+      }))
+    : FALLBACK_LOAD_ROWS.map((row) => ({ ...row, price: "Estimate in booking" }))
 
   return (
-    <section className="relative overflow-hidden bg-paper py-20 px-[clamp(20px,4vw,64px)] border-y border-line">
+    <section className="dispatch-pricing relative overflow-hidden bg-paper py-[100px] px-[clamp(20px,4vw,64px)] border-y border-line">
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 50% 60% at 95% 50%, rgba(var(--brand-rgb), 0.07), transparent 60%)",
+            "linear-gradient(90deg, rgba(var(--brand-rgb), 0.055) 1px, transparent 1px), linear-gradient(180deg, rgba(var(--brand-rgb), 0.055) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
         }}
       />
 
       <div
-        className="relative mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)] gap-14 items-center"
+        className="relative mx-auto"
         style={{ maxWidth: 1480 }}
       >
-        <div>
-          <div className="flex flex-col gap-3 mb-8">
+        <div className="mb-9 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(420px,0.54fr)] lg:items-end">
+          <div className="flex flex-col gap-3">
             <div className="inline-flex items-center gap-2.5 font-mono text-[12px] font-medium uppercase tracking-[0.18em] text-brand">
               <span aria-hidden="true" className="w-6 h-[2px] bg-current rounded-sm" />
-              Pricing details · here&apos;s how
+              Pricing clarity
             </div>
-            <h2 className="font-display font-extrabold text-[clamp(28px,3.5vw,42px)] leading-[1.05] tracking-[-0.018em] max-w-[22ch]">
-              Pricing in three small steps.
+            <h2 className="font-display font-extrabold text-[clamp(36px,4.5vw,58px)] leading-[1.02] tracking-[-0.018em] max-w-[17ch]">
+              Load bands need to feel physical.
             </h2>
+            <p className="max-w-[60ch] text-[16px] leading-[1.65] text-muted">
+              Pricing stays tied to the client&apos;s configured load tiers. The final quote is still
+              confirmed before loading begins, based on volume, access, weight, and enabled fees.
+            </p>
+          </div>
+          <Link href="/pricing" className="justify-self-start lg:justify-self-end inline-flex items-center gap-2 font-display text-[15px] font-bold text-brand hover:text-ink transition-colors">
+            Review pricing factors <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
+          <div className="price-board rounded-[14px] border border-line bg-paper-2 p-4 sm:p-5">
+            <div className="grid gap-3">
+              {loadRows.slice(0, 6).map((row, index) => {
+                const fill = `${Math.min(92, 18 + index * 14)}%`
+                return (
+                  <div
+                    key={`${row.label}-${index}`}
+                    className="load-row grid grid-cols-1 gap-3 rounded-[12px] border border-line bg-paper p-4 sm:grid-cols-[minmax(0,1fr)_minmax(130px,0.52fr)_auto] sm:items-center"
+                  >
+                    <div>
+                      <strong className="block font-display text-[18px] leading-tight text-ink">{row.label}</strong>
+                      <small className="mt-1 block text-[13px] leading-[1.4] text-muted">{row.desc}</small>
+                    </div>
+                    <div className="h-3 overflow-hidden rounded-full bg-paper-3" aria-hidden="true">
+                      <span
+                        className="block h-full rounded-full bg-brand"
+                        style={{ width: fill }}
+                      />
+                    </div>
+                    <div className="font-display text-[22px] font-extrabold leading-none text-brand">
+                      {row.price}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <p className="mt-4 text-[13.5px] leading-[1.6] text-muted">
+              {hasPricingTiers
+                ? "Displayed ranges come from the pricing configured for this client website."
+                : "Load tiers are configured during launch; the booking flow remains the estimate entry point."}
+            </p>
+          </div>
+
+          <aside className="price-board price-factors rounded-[14px] border border-line bg-ink p-6 text-paper">
+            <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-brand">
+              Final quote factors
+            </div>
+            <h3 className="mt-3 font-display text-[28px] font-extrabold leading-[1.05]">
+              No mystery pricing copy.
+            </h3>
+            <div className="mt-6 grid gap-3">
+              {FACTORS.map((factor, index) => (
+                <div
+                  key={factor.label}
+                  className="factor grid grid-cols-[42px_1fr] gap-3 border-t border-paper/10 pt-4 first:border-t-0 first:pt-0"
+                >
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-brand font-display text-[13px] font-bold text-white">
+                    {String.fromCharCode(65 + index)}
+                  </span>
+                  <div>
+                    <strong className="block font-display text-[17px] leading-tight">{factor.label}</strong>
+                    <small className="mt-1 block text-[13px] leading-[1.45] text-paper/65">{factor.desc}</small>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Link href="/book" className="btn-primary mt-7 w-full justify-center">
+              Get Instant Quote <ArrowRight className="w-4 h-4" strokeWidth={2.4} aria-hidden="true" />
+            </Link>
+          </aside>
+        </div>
+
+        <div className="mt-10">
+          <div className="mb-4 flex flex-col gap-2">
+            <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
+              Estimate path
+            </div>
+            <h3 className="font-display text-[clamp(28px,3.2vw,38px)] font-extrabold leading-tight">
+              The site explains pricing, then sends the customer into booking.
+            </h3>
           </div>
 
           {/* Desktop: inline 3-step row with animated connectors */}
@@ -129,64 +235,7 @@ export default function PricingTeaser({ config = siteConfig }: { config?: SiteCo
             ))}
           </ol>
 
-          {hasPricingTiers && (
-            <div className="mt-10">
-              <div className="mb-4 flex flex-col gap-2">
-                <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
-                  Configured load tiers
-                </div>
-                <p className="max-w-[62ch] text-[14.5px] leading-[1.6] text-muted">
-                  These ranges come from the pricing the client configured during launch. The final
-                  quote is still confirmed before loading begins.
-                </p>
-              </div>
-              <PricingTierCards config={config} limit={6} compact />
-            </div>
-          )}
         </div>
-
-        {/* Inverted CTA card */}
-        <aside className="relative bg-ink text-paper rounded-[14px] p-8 flex flex-col gap-3.5 overflow-hidden">
-          <div
-            aria-hidden="true"
-            className="absolute pointer-events-none"
-            style={{
-              inset: "-50% -10% auto auto",
-              width: "80%",
-              aspectRatio: "1",
-              borderRadius: "50%",
-              background:
-                "radial-gradient(circle at 50% 50%, rgba(var(--brand-rgb), 0.30), transparent 70%)",
-            }}
-          />
-          <span
-            className="relative inline-flex w-fit items-baseline gap-1.5 px-3 py-1.5 rounded-full font-mono text-[11px] font-semibold tracking-[0.14em] uppercase text-brand"
-            style={{
-              backgroundColor: "rgba(var(--brand-rgb), 0.15)",
-              border: "1px solid rgba(var(--brand-rgb), 0.35)",
-            }}
-          >
-            Estimate in the booking wizard
-          </span>
-          <h3 className="relative font-display font-bold text-[26px] leading-[1.1] tracking-[-0.012em]">
-            Start with job details, then see an estimate.
-          </h3>
-          <p className="relative text-[14.5px] leading-[1.5] text-paper/60">
-            Add the item list, access details, and photos when available. The booking flow can
-            calculate an estimate before the final quote is confirmed.
-          </p>
-          <Link href="/book" className="relative btn-primary mt-auto self-start">
-            Get Instant Quote <ArrowRight className="w-4 h-4" strokeWidth={2.4} aria-hidden="true" />
-          </Link>
-          <div
-            className="relative flex gap-3.5 font-mono text-[10px] tracking-[0.14em] uppercase text-paper/60 pt-3.5"
-            style={{ borderTop: "1px solid rgba(250, 246, 239, 0.10)" }}
-          >
-            <span>Estimate first</span>
-            <span>·</span>
-            <span>Final quote before loading</span>
-          </div>
-        </aside>
       </div>
 
       <style>{`

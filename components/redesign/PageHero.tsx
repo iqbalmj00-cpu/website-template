@@ -107,13 +107,14 @@ export default function PageHero({
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 44% 76% at 100% 15%, rgba(var(--brand-rgb), 0.16), transparent 66%)",
+            "linear-gradient(90deg, rgba(var(--brand-rgb), 0.07) 1px, transparent 1px), linear-gradient(180deg, rgba(var(--brand-rgb), 0.07) 1px, transparent 1px)",
+          backgroundSize: "34px 34px",
         }}
       />
 
       <div
         className={`relative mx-auto grid grid-cols-1 items-start gap-12 ${
-          hideTrustPanel ? "" : "lg:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.82fr)] lg:gap-16"
+          hideTrustPanel ? "" : `${themeProfile.pageHeroLayoutClass} lg:gap-16`
         }`}
         style={{ maxWidth: 1140 }}
       >
@@ -148,7 +149,7 @@ export default function PageHero({
           <h1 className="font-display text-[clamp(50px,6.2vw,78px)] font-extrabold leading-[0.99] tracking-normal text-ink">
             <span className="block text-balance">{titleStart.trim()}</span>
             <span className="hero-marker mt-2 inline-block pr-2">
-              <span className="text-brand italic" style={{ fontFamily: "var(--font-display)" }}>
+              <span className="text-brand italic" style={{ fontFamily: "var(--heading-font)" }}>
                 {titleAccent}
               </span>
             </span>

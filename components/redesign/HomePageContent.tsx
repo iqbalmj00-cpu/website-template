@@ -7,6 +7,7 @@ import { fmt24to12, isSameDayEnabled } from "@/lib/siteConfig";
 import { filterFaqs, resolveTokens, type FaqItem } from "@/lib/catalogs/faqs";
 import Credentials from "@/components/redesign/Credentials";
 import CtaBand from "@/components/redesign/CtaBand";
+import DispatchActionStrip from "@/components/redesign/DispatchActionStrip";
 import FaqPreview from "@/components/redesign/FaqPreview";
 import HomeHero from "@/components/redesign/HomeHero";
 import NearbyAreas from "@/components/redesign/NearbyAreas";
@@ -15,6 +16,7 @@ import PricingTeaser from "@/components/redesign/PricingTeaser";
 import ProcessSection from "@/components/redesign/ProcessSection";
 import RelatedSvc from "@/components/redesign/RelatedSvc";
 import TestimonialsStrip from "@/components/redesign/TestimonialsStrip";
+import { getJunkRemovalThemeProfile } from "@/lib/templateAssets/junkRemoval";
 
 const HOME_FAQ_IDS = [
     "sched-how-fast",
@@ -195,12 +197,14 @@ function ConversionHome({ config, introRows }: HomeVariantProps) {
     return (
         <>
             <HomeHero config={config} />
+            <DispatchActionStrip config={config} />
             <Credentials config={config} showDiversion={false} />
             <RelatedSvc
                 config={config}
                 eyebrow="What we haul"
                 heading="Services people most often book."
                 tone="paper-2"
+                layout="mosaic"
             />
             <PageIntro
                 eyebrow={config.city ? `${config.city}, locally configured` : "Local service"}
@@ -224,12 +228,14 @@ function BoldHome({ config, introRows }: HomeVariantProps) {
     return (
         <>
             <HomeHero config={config} />
+            <DispatchActionStrip config={config} />
             <RelatedSvc
                 config={config}
                 eyebrow="Start here"
                 heading="Pick the service. Show the load. Book the job."
                 tone="paper-2"
                 limit={6}
+                layout="mosaic"
             />
             <ProcessSection config={config} />
             <Credentials config={config} showDiversion={false} />
@@ -257,6 +263,7 @@ function EditorialHome({ config, introRows }: HomeVariantProps) {
     return (
         <>
             <HomeHero config={config} />
+            <DispatchActionStrip config={config} />
             <PageIntro
                 eyebrow="Local junk removal, explained"
                 headline={`${config.companyName} gives customers the details they need before the crew arrives.`}
@@ -271,6 +278,7 @@ function EditorialHome({ config, introRows }: HomeVariantProps) {
                 eyebrow="Service menu"
                 heading="Choose the job type that matches the pickup."
                 tone="paper-2"
+                layout="mosaic"
             />
             <ProcessSection config={config} />
             <PricingTeaser config={config} />
@@ -291,6 +299,7 @@ function LocalHome({ config, introRows }: HomeVariantProps) {
     return (
         <>
             <HomeHero config={config} />
+            <DispatchActionStrip config={config} />
             <NearbyAreas
                 config={config}
                 heading={`Local coverage around ${areaLabel}.`}
@@ -308,6 +317,7 @@ function LocalHome({ config, introRows }: HomeVariantProps) {
                 eyebrow="Bookable services"
                 heading="Services available for this local site."
                 tone="paper"
+                layout="mosaic"
             />
             <Credentials config={config} showDiversion={false} />
             <ProcessSection config={config} />
@@ -329,8 +339,13 @@ type HomePageContentProps = {
 export default function HomePageContent({ config = siteConfig }: HomePageContentProps) {
     const introRows = buildIntroRows(config);
     const variantProps = { config, introRows };
+    const themeProfile = getJunkRemovalThemeProfile(config);
+    const variant =
+        config.designConfig.homepageStyle === "conversion"
+            ? themeProfile.homeVariant
+            : config.designConfig.homepageStyle;
 
-    switch (config.designConfig.homepageStyle) {
+    switch (variant) {
         case "bold":
             return <BoldHome {...variantProps} />;
         case "editorial":

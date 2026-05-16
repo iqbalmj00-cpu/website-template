@@ -448,6 +448,105 @@ h5 {
   transform: translateY(-2px);
 }
 
+/* ── Local Dispatch Board redesign layer ─────────────────────────────── */
+.dispatch-action-strip,
+.dispatch-services,
+.dispatch-pricing,
+.dispatch-areas {
+  position: relative;
+}
+
+.dispatch-action-item,
+.dispatch-service-card,
+.price-board,
+.route-map-board {
+  box-shadow: 0 12px 32px rgba(16, 32, 24, 0.08);
+}
+
+.dispatch-action-strip {
+  background-image:
+    linear-gradient(90deg, rgba(var(--brand-rgb), 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(var(--brand-rgb), 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.dispatch-service-mosaic .dispatch-service-card {
+  min-width: 0;
+  max-width: none;
+}
+
+.load-row .bg-brand {
+  transition: width 260ms ease;
+}
+
+[data-theme="industrial"] .dispatch-action-strip,
+[data-theme="industrial"] .dispatch-services,
+[data-theme="industrial"] .dispatch-pricing,
+[data-theme="industrial"] .dispatch-areas {
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+[data-theme="industrial"] .dispatch-action-item,
+[data-theme="industrial"] .dispatch-service-card,
+[data-theme="industrial"] .price-board,
+[data-theme="industrial"] .route-map-board {
+  box-shadow: none;
+}
+
+[data-theme="industrial"] .dispatch-action-item,
+[data-theme="industrial"] .dispatch-service-card,
+[data-theme="industrial"] .load-row {
+  border-style: solid;
+}
+
+[data-theme="industrial"] .dispatch-service-mosaic {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+[data-theme="eco"] .dispatch-action-item,
+[data-theme="eco"] .dispatch-service-card,
+[data-theme="eco"] .price-board,
+[data-theme="eco"] .route-map-board {
+  border-radius: min(var(--card-radius), 28px);
+}
+
+[data-theme="eco"] .dispatch-service-mosaic {
+  gap: 1.25rem;
+}
+
+[data-theme="editorial"] .dispatch-action-strip {
+  background-image: none;
+}
+
+[data-theme="editorial"] .dispatch-action-item,
+[data-theme="editorial"] .dispatch-service-card,
+[data-theme="editorial"] .price-board,
+[data-theme="editorial"] .route-map-board {
+  box-shadow: none;
+}
+
+[data-theme="editorial"] .dispatch-service-mosaic {
+  display: block;
+  border-top: 1px solid var(--line);
+}
+
+[data-theme="editorial"] .dispatch-service-mosaic .dispatch-service-card {
+  border-width: 0 0 1px 0;
+  border-radius: 0;
+  min-height: 0;
+}
+
+[data-theme="editorial"] .dispatch-service-mosaic .dispatch-service-card > div:first-of-type {
+  display: none;
+}
+
+[data-theme="editorial"] .dispatch-service-mosaic .dispatch-service-card:hover {
+  transform: none;
+}
+
 /* Dashboard corner-radius presets must apply to the imported redesign layer,
    even where the visual port used fixed Tailwind arbitrary radius classes. */
 [data-corner-radius] a.rounded-full,

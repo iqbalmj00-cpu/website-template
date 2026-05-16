@@ -59,7 +59,8 @@ export default function HomeHero({ config = siteConfig }: { config?: SiteConfig 
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 44% 76% at 100% 15%, rgba(var(--brand-rgb), 0.18), transparent 66%)",
+            "linear-gradient(90deg, rgba(var(--brand-rgb), 0.08) 1px, transparent 1px), linear-gradient(180deg, rgba(var(--brand-rgb), 0.08) 1px, transparent 1px)",
+          backgroundSize: "34px 34px",
         }}
       />
 
@@ -81,7 +82,7 @@ export default function HomeHero({ config = siteConfig }: { config?: SiteConfig 
               <span className="text-ink"> </span>
               <span
                 className="text-brand italic"
-                style={{ fontFamily: "var(--font-display)" }}
+                style={{ fontFamily: "var(--heading-font)" }}
               >
                 {heroAccentText}
               </span>

@@ -28,6 +28,7 @@ interface RelatedSvcProps {
   currentServiceId?: string
   tone?: "paper" | "paper-2"
   limit?: number
+  layout?: "rail" | "mosaic"
   config?: SiteConfig
 }
 
@@ -46,6 +47,7 @@ export default function RelatedSvc({
   currentServiceId,
   tone = "paper",
   limit = 5,
+  layout = "rail",
   config = siteConfig,
 }: RelatedSvcProps = {}) {
   const { services } = config
@@ -59,8 +61,9 @@ export default function RelatedSvc({
   if (cards.length === 0) return null
 
   const bg = tone === "paper-2" ? "bg-paper-2" : "bg-paper"
+  const isMosaic = layout === "mosaic"
   return (
-    <section className={`${bg} py-[100px] px-[clamp(20px,4vw,64px)]`}>
+    <section className={`dispatch-services ${bg} py-[100px] px-[clamp(20px,4vw,64px)]`}>
       <div className="mx-auto" style={{ maxWidth: 1480 }}>
         <div className="flex items-end justify-between gap-8 mb-9 flex-wrap">
           <div className="flex flex-col gap-3 max-w-[36rem]">
@@ -74,7 +77,7 @@ export default function RelatedSvc({
               {heading}
             </h2>
           </div>
-          {cards.length > 3 && (
+          {!isMosaic && cards.length > 3 && (
             <div className="flex gap-2.5">
               <button
                 type="button"
@@ -98,8 +101,12 @@ export default function RelatedSvc({
 
         <div
           ref={railRef}
-          className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide"
-          style={{ scrollbarWidth: "none" }}
+          className={
+            isMosaic
+              ? "dispatch-service-mosaic grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"
+              : "flex gap-4 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide"
+          }
+          style={isMosaic ? undefined : { scrollbarWidth: "none" }}
         >
           {cards.map((c, i) => {
             const tag = `${String(i + 1).padStart(2, "0")} · ${
@@ -117,7 +124,11 @@ export default function RelatedSvc({
               <Link
                 key={c.id}
                 href={`/services/${c.id}`}
-                className="group relative bg-paper-2 border border-line rounded-[14px] min-w-[300px] max-w-[320px] snap-start flex flex-col overflow-hidden transition-all duration-300 ease-out hover:bg-ink hover:text-paper hover:border-brand hover:-translate-y-1"
+                className={`dispatch-service-card group relative border border-line rounded-[14px] snap-start flex flex-col overflow-hidden transition-all duration-300 ease-out hover:bg-ink hover:text-paper hover:border-brand hover:-translate-y-1 ${
+                  isMosaic
+                    ? `${i === 0 ? "md:col-span-2 xl:col-span-2" : ""} ${i === 3 ? "md:col-span-2" : ""} min-h-[360px] bg-paper`
+                    : "min-w-[300px] max-w-[320px] bg-paper-2"
+                }`}
               >
                 <span
                   aria-hidden="true"
@@ -127,7 +138,9 @@ export default function RelatedSvc({
                       "radial-gradient(circle at 100% 0%, rgba(var(--brand-rgb), 0.18), transparent 60%)",
                   }}
                 />
-                <div className="relative h-[154px] overflow-hidden border-b border-line">
+                <div className={`relative overflow-hidden border-b border-line ${
+                  isMosaic ? (i === 0 ? "h-[255px]" : "h-[190px]") : "h-[154px]"
+                }`}>
                   <SafeImage
                     src={image.src}
                     fallbackSrc="/images/default-hero.png"

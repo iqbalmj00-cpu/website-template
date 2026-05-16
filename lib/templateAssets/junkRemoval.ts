@@ -33,6 +33,8 @@ export type ResolvedTemplateImage = {
 export type JunkRemovalThemeProfile = {
     id: WebsiteTheme;
     label: string;
+    homeVariant: "conversion" | "bold" | "local" | "editorial";
+    shellClass: string;
     heroLayoutClass: string;
     pageHeroLayoutClass: string;
     mediaFrameClass: string;
@@ -87,6 +89,8 @@ export const JUNK_REMOVAL_THEME_PROFILES: Record<WebsiteTheme, JunkRemovalThemeP
     classic: {
         id: "classic",
         label: "Classic local service",
+        homeVariant: "conversion",
+        shellClass: "dispatch-classic",
         heroLayoutClass: "lg:grid-cols-[minmax(0,1.04fr)_minmax(390px,0.74fr)]",
         pageHeroLayoutClass: "lg:grid-cols-[minmax(0,1.18fr)_minmax(360px,0.82fr)]",
         mediaFrameClass: "rounded-[18px] border border-line bg-paper-2 shadow-[0_28px_70px_rgba(20,20,20,0.12)]",
@@ -96,6 +100,8 @@ export const JUNK_REMOVAL_THEME_PROFILES: Record<WebsiteTheme, JunkRemovalThemeP
     eco: {
         id: "eco",
         label: "Clean and responsible",
+        homeVariant: "local",
+        shellClass: "dispatch-eco",
         heroLayoutClass: "lg:grid-cols-[minmax(0,1fr)_minmax(390px,0.8fr)]",
         pageHeroLayoutClass: "lg:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)]",
         mediaFrameClass: "rounded-[28px] border border-line bg-paper-2 shadow-[0_24px_60px_rgba(26,46,26,0.12)]",
@@ -105,6 +111,8 @@ export const JUNK_REMOVAL_THEME_PROFILES: Record<WebsiteTheme, JunkRemovalThemeP
     editorial: {
         id: "editorial",
         label: "Editorial service guide",
+        homeVariant: "editorial",
+        shellClass: "dispatch-editorial",
         heroLayoutClass: "lg:grid-cols-[minmax(0,0.95fr)_minmax(410px,0.86fr)]",
         pageHeroLayoutClass: "lg:grid-cols-[minmax(0,1.08fr)_minmax(380px,0.9fr)]",
         mediaFrameClass: "rounded-[10px] border border-line bg-paper shadow-[0_34px_90px_rgba(20,20,20,0.10)]",
@@ -114,6 +122,8 @@ export const JUNK_REMOVAL_THEME_PROFILES: Record<WebsiteTheme, JunkRemovalThemeP
     industrial: {
         id: "industrial",
         label: "Heavy-duty worksite",
+        homeVariant: "bold",
+        shellClass: "dispatch-industrial",
         heroLayoutClass: "lg:grid-cols-[minmax(0,1.08fr)_minmax(390px,0.72fr)]",
         pageHeroLayoutClass: "lg:grid-cols-[minmax(0,1.16fr)_minmax(350px,0.78fr)]",
         mediaFrameClass: "rounded-[8px] border border-line bg-paper-2 shadow-[0_30px_80px_rgba(0,0,0,0.32)]",

@@ -6,7 +6,7 @@
  */
 
 import Link from "next/link"
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight, MapPin } from "lucide-react"
 import SafeImage from "@/components/SafeImage"
 import { siteConfig, type SiteConfig } from "@/lib/siteConfig"
 import {
@@ -84,39 +84,58 @@ export default function NearbyAreas({ heading, currentSlug, limit = 12, config =
   })
 
   return (
-    <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
+    <section className="dispatch-areas bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
       <div className="mx-auto" style={{ maxWidth: 1480 }}>
-        <div className="mb-9 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,0.92fr)_minmax(360px,0.54fr)] lg:items-end">
-          <h2 className="font-display font-extrabold text-[clamp(36px,4.4vw,52px)] leading-[1.02] tracking-[-0.02em] max-w-[36rem]">
-            {headline}
-          </h2>
-          <figure className="relative overflow-hidden rounded-[14px] border border-line bg-paper shadow-paper">
+        <div className="mb-9 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(360px,0.72fr)_minmax(0,0.94fr)] lg:items-center">
+          <figure className="route-map-board relative overflow-hidden rounded-[14px] border border-line bg-paper shadow-paper">
             <SafeImage
               src={areaImage.src}
               fallbackSrc="/images/default-hero.png"
               alt={areaImage.alt}
-              width={900}
-              height={560}
+              width={1100}
+              height={680}
               loading="lazy"
               style={{
                 display: "block",
                 width: "100%",
-                aspectRatio: "16 / 8",
+                aspectRatio: "16 / 10",
                 height: "auto",
                 objectFit: "cover",
                 objectPosition: focalPointToObjectPosition(areaImage.focalPoint),
               }}
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" aria-hidden="true" />
+            <div className="absolute bottom-4 left-4 right-4 rounded-[12px] border border-white/20 bg-black/45 p-4 text-white backdrop-blur">
+              <div className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">
+                Route-first coverage
+              </div>
+              <p className="mt-1 font-display text-[21px] font-bold leading-tight">
+                Address coverage is confirmed before pickup.
+              </p>
+            </div>
           </figure>
+          <div>
+            <div className="eyebrow">Local coverage</div>
+            <h2 className="mt-3 font-display font-extrabold text-[clamp(36px,4.4vw,54px)] leading-[1.02] tracking-[-0.02em] max-w-[36rem]">
+              {headline}
+            </h2>
+            <p className="mt-5 max-w-[62ch] text-[16px] leading-[1.65] text-muted">
+              This page uses configured city, service-area, ZIP, and source-backed location content.
+              It does not invent neighborhood, landmark, or route claims.
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+        <div className="area-chip-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
           {areas.map((area) => (
             <Link
               key={area.slug}
               href={area.href}
               className="group relative bg-paper border border-line rounded-[14px] p-6 flex flex-col gap-1 overflow-hidden transition-all duration-300 ease-out hover:bg-brand hover:text-white hover:border-brand hover:-translate-y-1 hover:translate-x-1"
             >
+              <span className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand/10 text-brand group-hover:bg-white/15 group-hover:text-white">
+                <MapPin className="h-4 w-4" aria-hidden="true" />
+              </span>
               <span className="font-display font-semibold text-[18px] leading-tight">{area.name}</span>
               {area.meta && (
                 <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-muted group-hover:text-white/85 transition-colors">

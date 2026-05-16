@@ -1,26 +1,30 @@
 import Link from "next/link";
-import { formatPhone, hasInsurance, siteConfig, telHref } from "@/lib/siteConfig";
-import { getServerConfig } from "@/lib/serverConfig";
-import SafeImage from "@/components/SafeImage";
 import type { Metadata } from "next";
 import {
     ArrowRight,
     Building,
     Building2,
-    CheckCircle,
     ClipboardList,
     CreditCard,
     KeyRound,
-    Mail,
     Phone,
     Store,
     Truck,
 } from "lucide-react";
-import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
+import PageHero from "@/components/redesign/PageHero";
+import PageIntro from "@/components/redesign/PageIntro";
+import PricingTeaser from "@/components/redesign/PricingTeaser";
+import StaticFAQ from "@/components/redesign/StaticFAQ";
+import CtaBand from "@/components/redesign/CtaBand";
+import { getServerConfig } from "@/lib/serverConfig";
 import {
-    focalPointToObjectPosition,
-    resolveJunkRemovalImage,
-} from "@/lib/templateAssets/junkRemoval";
+    formatPhone,
+    hasInsurance,
+    siteConfig,
+    telHref,
+} from "@/lib/siteConfig";
+import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
+import { resolveJunkRemovalImage } from "@/lib/templateAssets/junkRemoval";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 const commercialDumpsterCopy = siteConfig.offersDumpsterRental
@@ -53,17 +57,69 @@ export const metadata: Metadata = {
     ],
 };
 
+const commercialServices = [
+    {
+        Icon: Building2,
+        title: "Office Cleanouts",
+        desc: `Office junk removal in ${cityState} for desks, chairs, cubicles, filing cabinets, electronics, and workspace cleanouts.`,
+    },
+    {
+        Icon: Store,
+        title: "Retail & Restaurant Cleanouts",
+        desc: "Fixtures, shelving, signage, seating, backroom junk, remodel debris, and bulky items from commercial spaces.",
+    },
+    {
+        Icon: Building,
+        title: "Property Management Junk Removal",
+        desc: "Tenant moveout junk, apartment bulk item pickup, storage area cleanouts, and multi-property service after access is approved.",
+    },
+    {
+        Icon: ClipboardList,
+        title: "Construction Debris Pickup",
+        desc: `Commercial debris removal in ${cityState} for renovation debris, contractor cleanup, and jobsite hauling within accepted material limits.`,
+    },
+    ...(siteConfig.offersDumpsterRental ? [{
+        Icon: Truck,
+        title: "Commercial Dumpster Rental",
+        desc: `Roll-off dumpster rental in ${cityState} for construction, property cleanup, retail remodels, and ongoing commercial disposal needs.`,
+    }] : []),
+];
+
+const commercialPlanning = [
+    "Item volume, material type, and number of loads",
+    "Elevator, loading dock, parking, and floor-access requirements",
+    "Business hours, building rules, and approved appointment windows",
+    "Sorting, staging, PO, invoice, or recurring service needs",
+    "Accepted material limits for construction debris, fixtures, and bulky items",
+];
+
+const faqs = [
+    {
+        q: `Do you offer commercial junk removal in ${cityState}?`,
+        a: `Yes. ${siteConfig.companyName} handles commercial junk removal for offices, retail spaces, property managers, contractors, warehouses, and other business customers across ${cityState}.`,
+    },
+    {
+        q: "What can commercial customers do in the customer portal?",
+        a: "Commercial customers can request jobs, use saved locations, track active work, view job history, review invoices, manage payment visibility, update account details, and request recurring service for approval when portal access is configured.",
+    },
+    {
+        q: "Can property managers save multiple locations?",
+        a: "Commercial accounts can keep saved locations with building or unit details, access notes, and service instructions so repeat jobs are easier to request accurately.",
+    },
+    {
+        q: "How is commercial junk removal pricing calculated?",
+        a: "Commercial pricing depends on item volume, material type, building access, loading requirements, scheduling needs, and any approved recurring or account workflow details. The final price is confirmed before loading begins.",
+    },
+    ...(siteConfig.offersDumpsterRental ? [{
+        q: `Do you offer commercial dumpster rental in ${siteConfig.city}?`,
+        a: `${siteConfig.companyName} offers dumpster rental for eligible commercial cleanup, construction debris, remodel, and property cleanup needs in ${siteConfig.city}. Availability, container sizes, and accepted materials depend on the job details.`,
+    }] : []),
+];
+
 export default function CommercialPage() {
     const { companyName, phoneNumber, city } = siteConfig;
     const { dashboardUrl, siteToken } = getServerConfig();
     const portalConfigured = Boolean(dashboardUrl && siteToken);
-    const commercialImage = resolveJunkRemovalImage({
-        config: siteConfig,
-        role: "commercialCleanout",
-        routeKey: "commercial",
-        overrideSrc: siteConfig.commercialImageUrl,
-        alt: `${companyName} commercial junk removal and business cleanout team in ${cityState}`,
-    });
 
     const serviceSchema = serviceJsonLd({
         service: {
@@ -79,275 +135,154 @@ export default function CommercialPage() {
         { name: "Commercial Junk Removal", path: "/commercial" },
     ]);
 
-    const commercialServices = [
-        {
-            Icon: Building2,
-            title: "Office Cleanouts",
-            desc: `Office junk removal in ${cityState} for desks, chairs, cubicles, filing cabinets, electronics, and workspace cleanouts.`,
-        },
-        {
-            Icon: Store,
-            title: "Retail & Restaurant Cleanouts",
-            desc: "Fixtures, shelving, signage, seating, backroom junk, remodel debris, and bulky items from commercial spaces.",
-        },
-        {
-            Icon: Building,
-            title: "Property Management Junk Removal",
-            desc: "Tenant moveout junk, apartment bulk item pickup, storage area cleanouts, and multi-property service after access is approved.",
-        },
-        {
-            Icon: ClipboardList,
-            title: "Construction Debris Pickup",
-            desc: `Commercial debris removal in ${cityState} for renovation debris, contractor cleanup, and jobsite hauling within accepted material limits.`,
-        },
-        ...(siteConfig.offersDumpsterRental ? [{
-            Icon: Truck,
-            title: "Commercial Dumpster Rental",
-            desc: `Roll-off dumpster rental in ${cityState} for construction, property cleanup, retail remodels, and ongoing commercial disposal needs.`,
-        }] : []),
-    ];
-
-    const commercialPlanning = [
-        "Item volume, material type, and number of loads",
-        "Elevator, loading dock, parking, and floor-access requirements",
-        "Business hours, building rules, and approved appointment windows",
-        "Sorting, staging, PO, invoice, or recurring service needs",
-        "Accepted material limits for construction debris, fixtures, and bulky items",
-    ];
-
-    const commercialKeywords = [
-        `commercial junk removal in ${cityState}`,
-        `business junk removal in ${city}`,
-        `office cleanout service in ${city}`,
-        `property management junk removal in ${city}`,
-        `commercial debris removal in ${city}`,
-        ...(siteConfig.offersDumpsterRental ? [`commercial dumpster rental in ${city}`, `roll-off dumpster rental in ${cityState}`] : []),
-    ];
-
-    const heroKeywords = commercialKeywords.slice(0, 3);
-
-    const heroProofItems = [
-        { Icon: CheckCircle, label: "Office and property cleanouts" },
-        { Icon: CreditCard, label: "Final price confirmed before work" },
-        { Icon: KeyRound, label: "Portal access when configured" },
-    ];
-
-    const faqs = [
-        {
-            q: `Do you offer commercial junk removal in ${cityState}?`,
-            a: `Yes. ${companyName} handles commercial junk removal for offices, retail spaces, property managers, contractors, warehouses, and other business customers across ${cityState}.`,
-        },
-        {
-            q: "What can commercial customers do in the customer portal?",
-            a: "Commercial customers can request jobs, use saved locations, track active work, view job history, review invoices, manage payment visibility, update account details, and request recurring service for approval.",
-        },
-        {
-            q: "Can property managers save multiple locations?",
-            a: "Yes. Commercial accounts can keep saved locations with building or unit details, access notes, and service instructions so repeat jobs are easier to request accurately.",
-        },
-        {
-            q: "How is commercial junk removal pricing calculated?",
-            a: "Commercial pricing depends on item volume, material type, building access, loading requirements, scheduling needs, and any approved recurring or account workflow details. The final price is confirmed before loading begins.",
-        },
-        ...(siteConfig.offersDumpsterRental ? [{
-            q: `Do you offer commercial dumpster rental in ${city}?`,
-            a: `${companyName} offers dumpster rental for eligible commercial cleanup, construction debris, remodel, and property cleanup needs in ${city}. Availability, container sizes, and accepted materials depend on the job details.`,
-        }] : []),
-    ];
-    const faqSchema = faqPageJsonLd(faqs, "/commercial");
-
     return (
         <>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify([serviceSchema, breadcrumbSchema, faqSchema]) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify([serviceSchema, breadcrumbSchema, faqPageJsonLd(faqs, "/commercial")]) }}
             />
 
-            <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 5rem", overflow: "hidden" }}>
-                <div data-image-grid style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: "2rem", alignItems: "center" }}>
-                    <div>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.4rem 1rem", borderRadius: "var(--btn-radius)", background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)", color: "var(--brand)", fontSize: "0.8rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "2rem" }}>
-                            <Building2 size={16} style={{ color: "var(--brand)" }} /> Commercial Junk Removal
-                        </span>
-                        <h1 style={{ fontSize: "clamp(2.35rem, 6vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.08, marginBottom: "1.5rem" }}>
-                            Commercial Junk Removal In <span style={{ color: "var(--brand)" }}>{cityState}</span>
-                        </h1>
-                        <p style={{ fontSize: "1.15rem", color: "var(--hero-muted)", maxWidth: 640, lineHeight: 1.65 }}>
-                            {companyName} helps businesses, property managers, contractors, retailers, and office teams remove bulky items, clear spaces, and plan approved commercial cleanouts{siteConfig.offersDumpsterRental ? " or dumpster rental needs" : ""}. Commercial account tools are available when configured.
-                        </p>
-                        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "2rem" }}>
-                            <Link href="/contact" className="btn-primary">
-                                Request Commercial Service <ArrowRight size={18} />
-                            </Link>
-                            <a href={telHref(phoneNumber)} className="btn-secondary" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-                                <Phone size={18} /> {formatPhone(phoneNumber)}
-                            </a>
+            <PageHero
+                crumbs={[
+                    { label: "Home", href: "/" },
+                    { label: "Commercial" },
+                ]}
+                eyebrow="Commercial service"
+                titleStart="Commercial junk removal "
+                titleAccent={`in ${cityState}.`}
+                lede={`${companyName} helps businesses, property managers, contractors, retailers, and office teams remove bulky items, clear spaces, and plan approved commercial cleanouts${siteConfig.offersDumpsterRental ? " or dumpster rental needs" : ""}.`}
+                primaryCta={{ label: "Request Commercial Service", href: "/contact" }}
+                media={{
+                    role: "commercialCleanout",
+                    src: siteConfig.commercialImageUrl,
+                    routeKey: "commercial",
+                    locationName: city,
+                    caption: "Commercial cleanout",
+                }}
+            />
+
+            <section className="dispatch-services bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
+                <div className="mx-auto" style={{ maxWidth: 1480 }}>
+                    <div className="mb-9 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(360px,0.48fr)] lg:items-end">
+                        <div>
+                            <div className="eyebrow">Business cleanouts</div>
+                            <h2 className="mt-3 font-display text-[clamp(36px,4.6vw,58px)] font-extrabold leading-[1.02] text-ink">
+                                Commercial service without a separate visual system.
+                            </h2>
                         </div>
-                        <div style={{ display: "flex", gap: "0.55rem", flexWrap: "wrap", marginTop: "1.35rem", maxWidth: 590 }}>
-                            {heroKeywords.map(keyword => (
-                                <span key={keyword} style={{ padding: "0.42rem 0.65rem", borderRadius: "999px", background: "rgba(255,255,255,0.055)", color: "var(--hero-muted)", border: "1px solid rgba(255,255,255,0.12)", fontSize: "0.74rem", fontWeight: 750, lineHeight: 1.25 }}>
-                                    {keyword}
+                        <p className="text-[16px] leading-[1.65] text-muted">
+                            These categories stay tied to enabled client capabilities. Dumpster rental links only appear
+                            when the dashboard says the client offers dumpster rental.
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        {commercialServices.map(({ Icon, title, desc }) => (
+                            <article key={title} className="dispatch-service-card rounded-[14px] border border-line bg-paper p-6">
+                                <span className="grid h-12 w-12 place-items-center rounded-[12px] bg-brand text-white">
+                                    <Icon className="h-6 w-6" aria-hidden="true" />
                                 </span>
-                            ))}
-                        </div>
+                                <h3 className="mt-5 font-display text-[23px] font-bold leading-tight text-ink">{title}</h3>
+                                <p className="mt-3 text-[14.5px] leading-[1.6] text-muted">{desc}</p>
+                            </article>
+                        ))}
                     </div>
-                    <div style={{ borderRadius: 20, padding: "0.75rem", background: "linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.035))", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 22px 70px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
-                        <div style={{ position: "relative", overflow: "hidden", borderRadius: 14, border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)" }}>
-                            <SafeImage
-                                src={commercialImage.src}
-                                fallbackSrc="/images/generated/commercial.png"
-                                alt={commercialImage.alt}
-                                collapseParentGrid
-                                loading="eager"
-                                style={{ width: "100%", display: "block", objectFit: "cover", objectPosition: focalPointToObjectPosition(commercialImage.focalPoint), aspectRatio: "16/10" }}
-                            />
-                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(5,15,31,0) 52%, rgba(5,15,31,0.28))", pointerEvents: "none" }} />
-                        </div>
+                </div>
+            </section>
 
-                        <div style={{ marginTop: "0.75rem", borderRadius: 14, background: "rgba(5,15,31,0.62)", border: "1px solid rgba(255,255,255,0.1)", padding: "1rem", display: "grid", gap: "0.7rem" }}>
-                            <p style={{ margin: 0, color: "rgba(255,255,255,0.56)", fontSize: "0.72rem", fontWeight: 850, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                                Commercial service details
+            <PageIntro
+                eyebrow="Commercial planning"
+                headline="Commercial jobs depend on access, timing, material limits, and account details."
+                body={
+                    <>
+                        <p>
+                            Commercial cleanouts are scoped around the business type, item volume, building access,
+                            approved pickup window, and any recurring or billing needs.
+                        </p>
+                        <p>
+                            The customer can request service online or by phone. The final price is confirmed before
+                            loading begins.
+                        </p>
+                    </>
+                }
+                rightEyebrow="Before scheduling"
+                rightHeading="Details that help the quote"
+                rightRows={commercialPlanning.slice(0, 4).map((item, index) => ({
+                    n: String(index + 1).padStart(2, "0"),
+                    t: item,
+                    d: index === 0 ? "Primary scope input" : "Reviewed before loading",
+                }))}
+            />
+
+            {portalConfigured && (
+                <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)] border-y border-line">
+                    <div className="mx-auto grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.62fr)] lg:items-start" style={{ maxWidth: 1280 }}>
+                        <div>
+                            <div className="eyebrow">Account support</div>
+                            <h2 className="mt-3 font-display text-[clamp(34px,4vw,50px)] font-extrabold leading-[1.04] text-ink">
+                                Portal support for commercial accounts.
+                            </h2>
+                            <p className="mt-4 max-w-[58ch] text-[16px] leading-[1.65] text-muted">
+                                Commercial account contacts can use portal access for saved locations, job records,
+                                invoices, account details, and recurring service requests when the deployed website is
+                                connected to the dashboard.
                             </p>
-                            {heroProofItems.map((item) => (
-                                <div key={item.label} style={{ display: "grid", gridTemplateColumns: "2rem 1fr", alignItems: "center", gap: "0.7rem", color: "var(--hero-text)", fontWeight: 780 }}>
-                                    <span style={{ width: "2rem", height: "2rem", borderRadius: 8, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(var(--brand-rgb), 0.14)", border: "1px solid rgba(var(--brand-rgb), 0.28)" }}>
-                                        <item.Icon size={17} style={{ color: "var(--brand)" }} />
+                            <div className="mt-7 flex flex-wrap gap-3">
+                                <Link href="/customer-portal" referrerPolicy="no-referrer" className="btn-primary">
+                                    Customer Portal <KeyRound className="h-4 w-4" aria-hidden="true" />
+                                </Link>
+                                <Link href="/contact" className="btn-secondary">
+                                    Request Account Service <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                                </Link>
+                            </div>
+                        </div>
+                        <div className="rounded-[14px] border border-line bg-paper p-6">
+                            {[
+                                { Icon: ClipboardList, label: "Saved locations and access notes" },
+                                { Icon: CreditCard, label: "Invoice and payment visibility" },
+                                { Icon: Building2, label: "Commercial job history" },
+                                ...(siteConfig.offersDumpsterRental ? [{ Icon: Truck, label: "Dumpster swaps, pickups, and extensions" }] : []),
+                            ].map(({ Icon, label }) => (
+                                <div key={label} className="grid grid-cols-[44px_1fr] gap-3 border-b border-line py-4 first:pt-0 last:border-b-0 last:pb-0">
+                                    <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-brand/10 text-brand">
+                                        <Icon className="h-5 w-5" aria-hidden="true" />
                                     </span>
-                                    <span>{item.label}</span>
+                                    <span className="self-center font-display text-[17px] font-bold leading-tight text-ink">{label}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
+                </section>
+            )}
+
+            <PricingTeaser />
+
+            <StaticFAQ
+                eyebrow="Commercial FAQ"
+                heading={`Commercial junk removal questions in ${cityState}.`}
+                items={faqs}
+            />
+
+            <section className="bg-paper-2 px-[clamp(20px,4vw,64px)] py-10">
+                <div className="mx-auto flex flex-wrap justify-center gap-3" style={{ maxWidth: 980 }}>
+                    <Link href="/services" className="btn-secondary">View Services</Link>
+                    <Link href="/pricing" className="btn-secondary">View Pricing</Link>
+                    <Link href="/locations" className="btn-secondary">Service Areas</Link>
+                    {siteConfig.offersDumpsterRental && <Link href="/dumpster-rental" className="btn-secondary">Dumpster Rental</Link>}
+                    {phoneNumber && (
+                        <a href={telHref(phoneNumber)} className="btn-secondary">
+                            <Phone className="h-4 w-4" aria-hidden="true" /> {formatPhone(phoneNumber)}
+                        </a>
+                    )}
                 </div>
             </section>
 
-            <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
-                <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-                    <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "0.75rem" }}>Commercial Junk Removal Services In {cityState}</h2>
-                        <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.7, maxWidth: 760, margin: "0 auto" }}>
-                            Commercial junk removal is planned around the business type, item volume, building access, and approved pickup window. These are core commercial cleanout categories this template supports.
-                        </p>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))", gap: "1rem" }}>
-                        {commercialServices.map((svc) => (
-                            <div key={svc.title} style={{ background: "var(--card)", borderRadius: 12, padding: "1.5rem", border: "1px solid var(--border)" }}>
-                                <svc.Icon size={26} color="var(--brand)" style={{ marginBottom: "0.85rem" }} />
-                                <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: "0.5rem" }}>{svc.title}</h3>
-                                <p style={{ color: "var(--muted)", fontSize: "0.92rem", lineHeight: 1.6 }}>{svc.desc}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: "2rem", alignItems: "center" }}>
-                    <div>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "1rem" }}>Portal Support For Commercial Accounts</h2>
-                        <p style={{ color: "var(--muted)", fontSize: "1.03rem", lineHeight: 1.7, marginBottom: "1.5rem" }}>
-                            After the hauling scope is clear, commercial account contacts may also need a way to manage service requests, job records, billing details, saved locations, and recurring service information.
-                        </p>
-                        <div style={{ display: "grid", gap: "0.8rem" }}>
-                            {[
-                                "Request one-time cleanouts or recurring commercial junk removal",
-                                "Track active jobs, completed jobs, uploaded job photos, and service history",
-                                "Review invoices, payment status, PDF records, receipts, and open balances",
-                                "Keep saved locations, access instructions, and PO details organized",
-                                ...(siteConfig.offersDumpsterRental ? ["Request dumpster swaps, pickups, and rental extensions when rentals are active"] : []),
-                            ].map((item) => (
-                                <div key={item} style={{ display: "flex", gap: "0.65rem", alignItems: "flex-start", color: "var(--foreground)", fontWeight: 700 }}>
-                                    <CheckCircle size={18} style={{ color: "var(--brand)", marginTop: 2, flexShrink: 0 }} />
-                                    <span>{item}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div style={{ background: "var(--background)", border: "1px solid var(--border)", borderRadius: 14, padding: "1.25rem", boxShadow: "var(--shadow-soft)" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", borderBottom: "1px solid var(--border)", paddingBottom: "1rem", gap: "1rem" }}>
-                            <div>
-                                <p style={{ fontSize: "0.78rem", color: "var(--muted)", textTransform: "uppercase", fontWeight: 800, letterSpacing: "0.05em", marginBottom: "0.25rem" }}>Customer Portal</p>
-                                <h3 style={{ fontSize: "1.15rem", fontWeight: 900 }}>{companyName}</h3>
-                            </div>
-                            <span style={{ padding: "0.35rem 0.7rem", borderRadius: "var(--btn-radius)", background: "rgba(var(--brand-rgb), 0.12)", color: "var(--brand)", fontSize: "0.78rem", fontWeight: 800 }}>Commercial</span>
-                        </div>
-                        <div style={{ display: "grid", gap: "0.75rem" }}>
-                            {[
-                                { label: "Next job", value: "Office cleanout request" },
-                                { label: "Saved location", value: `${city} commercial property` },
-                                { label: "Billing", value: "Open invoices and payment status" },
-                                { label: "History", value: "Past jobs and approved recurring service" },
-                                { label: "Account", value: "PO numbers and billing contact" },
-                            ].map((row) => (
-                                <div key={row.label} style={{ display: "grid", gridTemplateColumns: "minmax(88px, 120px) 1fr", gap: "1rem", padding: "0.8rem", border: "1px solid var(--border)", borderRadius: 10, background: "var(--card)" }}>
-                                    <span style={{ color: "var(--muted)", fontSize: "0.85rem", fontWeight: 700 }}>{row.label}</span>
-                                    <span style={{ color: "var(--foreground)", fontSize: "0.9rem", fontWeight: 800 }}>{row.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
-                <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-                    <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "0.75rem" }}>Commercial Pricing And Scheduling Factors</h2>
-                        <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.7, maxWidth: 760, margin: "0 auto" }}>
-                            Commercial junk removal pricing depends on the scope of work, access, material type, and timing requirements. The final price is confirmed before loading begins.
-                        </p>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))", gap: "1rem" }}>
-                        {commercialPlanning.map((item) => (
-                            <div key={item} style={{ background: "var(--card)", borderRadius: 12, padding: "1.25rem", border: "1px solid var(--border)", display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
-                                <CheckCircle size={20} color="var(--brand)" style={{ flexShrink: 0, marginTop: 2 }} />
-                                <p style={{ color: "var(--muted)", fontSize: "0.94rem", lineHeight: 1.65, margin: 0 }}>{item}</p>
-                            </div>
-                        ))}
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "center", gap: "0.85rem", flexWrap: "wrap", marginTop: "2rem" }}>
-                        <Link href="/services" className="btn-secondary">View Services</Link>
-                        <Link href="/pricing" className="btn-secondary">View Pricing</Link>
-                        <Link href="/locations" className="btn-secondary">Service Areas</Link>
-                        {siteConfig.offersDumpsterRental && <Link href="/dumpster-rental" className="btn-secondary">Dumpster Rental</Link>}
-                    </div>
-                </div>
-            </section>
-
-            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 960, margin: "0 auto" }}>
-                    <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-                        <h2 style={{ fontSize: "2rem", fontWeight: 800, marginBottom: "0.75rem" }}>Commercial Junk Removal FAQs</h2>
-                        <p style={{ color: "var(--muted)", fontSize: "1.02rem", lineHeight: 1.7 }}>
-                            Common questions from businesses comparing commercial junk removal, business cleanout, and{siteConfig.offersDumpsterRental ? " dumpster rental" : " debris pickup"} options in {cityState}.
-                        </p>
-                    </div>
-                    <div style={{ display: "grid", gap: "1rem" }}>
-                        {faqs.map((faq) => (
-                            <div key={faq.q} style={{ background: "var(--background)", border: "1px solid var(--border)", borderRadius: 12, padding: "1.25rem" }}>
-                                <h3 style={{ fontSize: "1rem", fontWeight: 850, marginBottom: "0.5rem" }}>{faq.q}</h3>
-                                <p style={{ color: "var(--muted)", fontSize: "0.95rem", lineHeight: 1.65 }}>{faq.a}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            <section style={{ background: "var(--brand)", padding: "4rem 1.5rem", textAlign: "center" }}>
-                <div style={{ maxWidth: 760, margin: "0 auto" }}>
-                    <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Need Commercial Junk Removal{siteConfig.offersDumpsterRental ? " Or Dumpster Rental" : ""} In {cityState}?</h2>
-                    <p style={{ color: "var(--hero-text)", fontSize: "1.1rem", marginBottom: "2rem", lineHeight: 1.65 }}>
-                        Request commercial service, discuss repeat pickup needs, or ask how customer portal access works for your commercial account{hasInsurance() ? " with an insured local provider" : ""}.
-                    </p>
-                    <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-                        <Link href="/contact" style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Mail size={18} /> Request a Quote</Link>
-                        <a href={telHref(phoneNumber)} style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><Phone size={18} /> {formatPhone(phoneNumber)}</a>
-                        {portalConfigured && (
-                            <Link href="/customer-portal" referrerPolicy="no-referrer" style={{ padding: "1rem 2rem", borderRadius: "var(--btn-radius)", border: "2px solid #fff", color: "var(--hero-text)", textDecoration: "none", fontWeight: 700, fontSize: "1rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}><KeyRound size={18} /> Customer Portal</Link>
-                        )}
-                    </div>
-                </div>
-            </section>
+            <CtaBand
+                heading={{
+                    lead: `Need commercial junk removal${siteConfig.offersDumpsterRental ? " or dumpster rental" : ""}?`,
+                    accent: `Request service in ${cityState}.`,
+                }}
+                lede={`Discuss a one-time cleanout, repeat pickup needs, or commercial account details${hasInsurance(siteConfig) ? " with an insured local provider" : ""}.`}
+            />
         </>
     );
 }

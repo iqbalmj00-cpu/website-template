@@ -35,10 +35,9 @@ export default function CtaBand({ heading, lede, config = siteConfig }: CtaBandP
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none opacity-55"
         style={{
-          background: `
-            radial-gradient(ellipse 80% 50% at 80% 30%, rgba(var(--brand-rgb), 0.32), transparent 60%),
-            radial-gradient(ellipse 60% 60% at 12% 90%, rgba(45, 106, 79, 0.28), transparent 60%)
-          `,
+          background:
+            "linear-gradient(90deg, rgba(var(--brand-rgb), 0.12) 1px, transparent 1px), linear-gradient(180deg, rgba(var(--brand-rgb), 0.12) 1px, transparent 1px)",
+          backgroundSize: "36px 36px",
         }}
       />
       <div
@@ -82,19 +81,14 @@ export default function CtaBand({ heading, lede, config = siteConfig }: CtaBandP
 
         <div className="flex flex-col gap-3.5">
           <div className="relative bg-brand text-white rounded-[14px] p-8 overflow-hidden flex flex-col gap-3.5">
-            <div
-              aria-hidden="true"
-              className="absolute -right-10 -top-10 w-[200px] h-[200px] rounded-full bg-white/10"
-              style={{ animation: "ctabBlip 4s ease-in-out infinite" }}
-            />
             <div className="relative grid place-items-center w-10 h-10 rounded-[12px] bg-white/20">
               <Calendar className="w-[22px] h-[22px]" strokeWidth={2} aria-hidden="true" />
             </div>
             <h4 className="relative font-display font-bold text-[24px] leading-[1.1]">
-              Book online — pick a 2-hour window
+              Book online with the job details
             </h4>
             <p className="relative text-[14px] opacity-90">
-              Free, no-obligation quotes. Confirmation in seconds.
+              Share the pickup address, item list, photos when available, and access notes.
             </p>
             <a
               href="/book"
@@ -108,7 +102,6 @@ export default function CtaBand({ heading, lede, config = siteConfig }: CtaBandP
 
       <style>{`
         @keyframes ctabSpin { to { transform: rotate(360deg); } }
-        @keyframes ctabBlip { 50% { transform: scale(1.15); } }
       `}</style>
     </section>
   )
