@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle, ClipboardList, Clock, MapPin, Scale, Truck } from "lucide-react";
+import { ArrowRight, CheckCircle, ClipboardList, MapPin, Truck } from "lucide-react";
 import PageHero from "@/components/redesign/PageHero";
-import PricingPreview from "@/components/redesign/PricingPreview";
 import StaticFAQ from "@/components/redesign/StaticFAQ";
 import CtaBand from "@/components/redesign/CtaBand";
+import { VisualEstimateFactors, VisualPricingScaleSection } from "@/components/redesign/VisualReplacementBlocks";
 import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
-import { fmt24to12, isSameDayEnabled, siteConfig } from "@/lib/siteConfig";
+import { siteConfig } from "@/lib/siteConfig";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
@@ -57,13 +57,6 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default function PricingPage() {
-    const enabledFactors = siteConfig.pricingConfigured
-        ? siteConfig.pricing.surcharges
-            .filter((surcharge) => surcharge.enabled)
-            .map((surcharge) => surcharge.label)
-        : [];
-    const cutoffLabel = siteConfig.sameDayCutoffTime ? fmt24to12(siteConfig.sameDayCutoffTime) : "";
-
     return (
         <>
             <script
@@ -80,12 +73,10 @@ export default function PricingPage() {
                 lede="Load-tier ranges give customers a planning guide. The booking wizard adds item details, access notes, and the pickup address so the estimate can match the actual job."
                 primaryCta={{ label: "Get an Instant Quote", href: "/book" }}
             />
-            <PricingPreview
+            <VisualPricingScaleSection
                 config={siteConfig}
-                limit={6}
-                showDetailsLink={false}
-                title="Junk removal pricing by load size"
-                subtitle="These ranges are planning guides. The final quote is confirmed before loading begins."
+                eyebrow="Pricing"
+                title="Pick the load that fits the job."
             />
 
             <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
@@ -115,49 +106,7 @@ export default function PricingPage() {
                 </div>
             </section>
 
-            <section className="bg-paper py-[90px] px-[clamp(20px,4vw,64px)] border-y border-line">
-                <div className="mx-auto grid grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.1fr]" style={{ maxWidth: 1280 }}>
-                    <div>
-                        <div className="eyebrow">Quote factors</div>
-                        <h2 className="mt-3 font-display text-[clamp(34px,4vw,50px)] font-extrabold leading-[1.04] tracking-normal text-ink">
-                            What can change an estimate.
-                        </h2>
-                        <p className="mt-4 max-w-[54ch] text-[16px] leading-[1.65] text-muted">
-                            The booking process collects the details needed for an estimate. The crew still confirms
-                            the final price before loading begins.
-                        </p>
-                        <Link href="/book" className="btn-primary mt-7">
-                            Get an Instant Quote <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                        </Link>
-                    </div>
-                    <div className="grid gap-3">
-                        {[
-                            { icon: Truck, text: "How much truck space the accepted items require." },
-                            { icon: Scale, text: "Heavy, dense, or specialty materials that change handling or disposal needs." },
-                            { icon: MapPin, text: "Pickup access, stairs, parking, gates, elevators, and carry distance." },
-                            { icon: Clock, text: isSameDayEnabled(siteConfig)
-                                ? `Same-day availability${cutoffLabel ? ` when booked by ${cutoffLabel}` : ""}.`
-                                : "Pickup timing and schedule availability." },
-                        ].map(({ icon: Icon, text }) => (
-                            <div key={text} className="flex gap-3 rounded-[14px] border border-line bg-paper-2 p-5">
-                                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
-                                <p className="text-[14.5px] leading-[1.6] text-muted">{text}</p>
-                            </div>
-                        ))}
-                        {enabledFactors.length > 0 && (
-                            <div className="rounded-[14px] border border-line bg-paper-2 p-5">
-                                <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
-                                    Additional pricing factors
-                                </div>
-                                <p className="mt-2 text-[14.5px] leading-[1.6] text-muted">
-                                    Additional factors may include: {enabledFactors.join(", ")}. Amounts are handled
-                                    inside the booking estimate and final quote process.
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </section>
+            <VisualEstimateFactors config={siteConfig} />
 
             <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
                 <div className="mx-auto grid grid-cols-1 gap-4 md:grid-cols-3" style={{ maxWidth: 1180 }}>

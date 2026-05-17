@@ -1,10 +1,5 @@
-import {
-  getPricingTiersForDisplay,
-  hasConfiguredPricing,
-  siteConfig,
-  type PricingTier,
-  type SiteConfig,
-} from "@/lib/siteConfig";
+import { VisualPricingScaleSection } from "@/components/redesign/VisualReplacementBlocks";
+import { siteConfig, type PricingTier, type SiteConfig } from "@/lib/siteConfig";
 
 type PricingTierCardsProps = {
   config?: SiteConfig;
@@ -28,25 +23,6 @@ export function formatPricingRange(tier: PricingTier): string {
 
 export default function PricingTierCards({
   config = siteConfig,
-  limit = 6,
-  className = "",
 }: PricingTierCardsProps = {}) {
-  const tiers = getPricingTiersForDisplay(limit, config);
-  if (!hasConfiguredPricing(config) || tiers.length === 0) return null;
-
-  return (
-    <div className={`load-card-grid ${className}`}>
-      {tiers.map((tier) => (
-        <article key={tier.id} className="load-card">
-          <small>{tier.fraction} load</small>
-          <h3>{tier.label}</h3>
-          <p>Planning range for this load size. Final quote is confirmed before loading begins.</p>
-          <div className="load-price">
-            <span>Planning range</span>
-            <strong>{formatPricingRange(tier)}</strong>
-          </div>
-        </article>
-      ))}
-    </div>
-  );
+  return <VisualPricingScaleSection config={config} />;
 }

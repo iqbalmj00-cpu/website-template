@@ -4,13 +4,18 @@ import {
     DispatchCardSection,
     DispatchFaqBoard,
     DispatchFinalCta,
-    DispatchInlinePills,
     DispatchIntroGrid,
-    DispatchLoadPricingCards,
     DispatchMetricStrip,
     DispatchPageHero,
     DispatchServiceMosaic,
 } from "@/components/redesign/DispatchBlocks";
+import {
+    VisualCommonProjects,
+    VisualPrepChecklist,
+    VisualPricingScaleSection,
+    VisualServiceItemsSection,
+    VisualWhoBooks,
+} from "@/components/redesign/VisualReplacementBlocks";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
 import { getClientServices, getServiceBySlug } from "@/lib/serviceData";
 import { siteConfig } from "@/lib/siteConfig";
@@ -106,9 +111,9 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                     label: svc.title,
                     caption: `${svc.title} details, accepted items, and quote factors.`,
                 }}
-                secondaryCta={{ label: "Review pricing factors", href: "#pricing" }}
+                secondaryCta={{ label: "View Pricing", href: "#pricing" }}
             />
-            <DispatchLoadPricingCards config={siteConfig} />
+            <VisualPricingScaleSection config={siteConfig} />
             <DispatchMetricStrip
                 items={[
                     { label: "Service area", value: siteConfig.city || "Local" },
@@ -131,35 +136,10 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
                 <p>{svc.serviceIntro}</p>
                 <p>{svc.fullDesc}</p>
             </DispatchIntroGrid>
-            <DispatchCardSection
-                eyebrow="Accepted categories"
-                heading={`Common ${svc.title.toLowerCase()} items and jobs.`}
-                body={`Review common ${svc.title.toLowerCase()} item types before booking. Hazardous or restricted materials are not accepted.`}
-                cards={svc.items.map((item) => ({ title: item.title, desc: item.desc }))}
-                alt
-            />
-            <DispatchCardSection
-                eyebrow="Common projects"
-                heading="When customers book this service."
-                body={`${svc.title} can help with one-item pickups, cleanouts, move-outs, and other approved hauling needs when the job scope is safe.`}
-                cards={svc.useCases.map((item) => ({ title: item.title, desc: item.desc }))}
-                variant="detail-grid"
-            />
-            <DispatchCardSection
-                eyebrow="Who this helps"
-                heading={`Who books ${svc.title.toLowerCase()}.`}
-                body={`This service is useful for customers who need the lifting, loading, hauling, and quote review handled in one scheduled pickup.`}
-                cards={svc.audience.map((item) => ({ title: item.title, desc: item.desc }))}
-                variant="coverage-cards"
-                alt
-            />
-            <section className="section tight">
-                <div className="copy-block">
-                    <span className="eyebrow">Preparation</span>
-                    <h2>A clearer quote starts with clearer details.</h2>
-                    <DispatchInlinePills items={svc.preparationTips} />
-                </div>
-            </section>
+            <VisualServiceItemsSection service={svc} />
+            <VisualCommonProjects service={svc} />
+            <VisualWhoBooks service={svc} />
+            <VisualPrepChecklist service={svc} />
             <DispatchCardSection
                 eyebrow="Service process"
                 heading={`How ${svc.title.toLowerCase()} works.`}

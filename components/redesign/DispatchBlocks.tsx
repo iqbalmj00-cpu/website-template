@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import SafeImage from "@/components/SafeImage";
 import ServiceAreaMap, { type MapFocus } from "@/components/redesign/ServiceAreaMap";
+import { VisualPricingScaleSection } from "@/components/redesign/VisualReplacementBlocks";
 import {
     formatPhone,
     getGoogleTestimonials,
@@ -371,58 +372,15 @@ export function DispatchWorkGrid({ config = siteConfig }: { config?: SiteConfig 
 
 export function DispatchPricingBoard({
     config = siteConfig,
-    eyebrow = "Pricing clarity",
-    heading = "Junk removal pricing starts with load size.",
-    body,
+    eyebrow = "Load pricing",
+    heading = "Pick the load that fits the job.",
 }: {
     config?: SiteConfig;
     eyebrow?: string;
     heading?: string;
     body?: string;
 } = {}) {
-    const rows = pricingRows(config);
-    const hasPricing = hasConfiguredPricing(config);
-    const factors = [
-        ["A", "Volume", "The amount of truck space used is usually the main pricing anchor."],
-        ["B", "Access", "Stairs, elevators, long carries, and tight paths can affect labor."],
-        ["C", "Materials", "Heavy, dense, or special-handling items can affect the quote."],
-        ["D", "Location", "Pickup address, route distance, and local fees may apply."],
-    ] as const;
-
-    return (
-        <section className="section" id="pricing">
-            <div className="section-head">
-                <div>
-                    <span className="eyebrow">{eyebrow}</span>
-                    <h2>{heading}</h2>
-                </div>
-                <p>{body || "Use the load ranges as a planning guide. The final quote is confirmed before loading begins."}</p>
-            </div>
-            <div className="pricing-grid">
-                <div>
-                    <div className="load-card-grid" aria-label="Starting load prices">
-                        {rows.map((row) => (
-                            <article className="load-card" key={`${row.label}-${row.price}`}>
-                                <small>{row.fraction} load</small>
-                                <h3>{row.label}</h3>
-                                <p>{row.desc}</p>
-                                <div className="load-price"><span>{hasPricing ? "Planning range" : "Quote review"}</span><strong>{row.price}</strong></div>
-                            </article>
-                        ))}
-                    </div>
-                    <p className="price-note">Final price is confirmed before loading and can change with access, heavy materials, distance, or applicable local fees.</p>
-                </div>
-                <div className="info-board price-factors">
-                    {factors.map(([n, title, desc]) => (
-                        <div className="factor" key={n}>
-                            <span>{n}</span>
-                            <div><strong>{title}</strong><small>{desc}</small></div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
+    return <VisualPricingScaleSection config={config} eyebrow={eyebrow} title={heading} />;
 }
 
 export function DispatchAreaSection({ config = siteConfig, focus }: { config?: SiteConfig; focus?: MapFocus } = {}) {
@@ -671,45 +629,7 @@ export function DispatchPageHero({
 }
 
 export function DispatchLoadPricingCards({ config = siteConfig, localLabel }: { config?: SiteConfig; localLabel?: string } = {}) {
-    const rows = pricingRows(config);
-    const hasPricing = hasConfiguredPricing(config);
-
-    return (
-        <section className="section alt border" id="pricing">
-            <div className="section-head">
-                <div>
-                    <span className="eyebrow">{localLabel ? "Local load pricing" : "Load pricing"}</span>
-                    <h2>{localLabel ? `Junk removal pricing for ${localLabel}.` : "Junk removal pricing by load size."}</h2>
-                </div>
-                <p>{hasPricing ? "These planning ranges help customers compare common load sizes before booking." : "The booking path collects the job details needed for quote review."}</p>
-            </div>
-            <div className="pricing-grid">
-                <div>
-                    <div className="load-card-grid" aria-label="Starting load prices">
-                        {rows.map((row) => (
-                            <article className="load-card" key={row.label}>
-                                <small>{row.fraction} load</small>
-                                <h3>{row.label}</h3>
-                                <p>{row.desc}</p>
-                                <div className="load-price"><span>{hasPricing ? "Planning range" : "Quote review"}</span><strong>{row.price}</strong></div>
-                            </article>
-                        ))}
-                    </div>
-                    <p className="price-note">Final price is confirmed before loading and can change with access, heavy materials, distance, or applicable local fees.</p>
-                </div>
-                <aside className="info-board">
-                    <span className="eyebrow">Final quote factors</span>
-                    <h2>What affects your final quote.</h2>
-                    <DispatchInfoRows rows={[
-                        { n: "A", title: "Volume", desc: "How much truck space is used" },
-                        { n: "B", title: "Access", desc: "Stairs, gates, elevators, carry distance" },
-                        { n: "C", title: "Weight", desc: "Heavy material changes the job" },
-                        { n: "D", title: "Handling", desc: "Disassembly, sorting, restricted items" },
-                    ]} />
-                </aside>
-            </div>
-        </section>
-    );
+    return <VisualPricingScaleSection config={config} localLabel={localLabel} />;
 }
 
 export function DispatchMetricStrip({ items }: { items: DispatchMetric[] }) {

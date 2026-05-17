@@ -7,21 +7,18 @@ import {
     CheckCircle2,
     Container,
     Phone,
-    Ruler,
-    Scale,
     Truck,
     type LucideIcon,
 } from "lucide-react";
 import {
     DispatchFaqBoard,
     DispatchFinalCta,
-    DispatchInfoRows,
     DispatchIntroGrid,
     DispatchMetricStrip,
     DispatchPageHero,
     type DispatchInfoRow,
 } from "@/components/redesign/DispatchBlocks";
-import ServiceIcon from "@/components/ServiceIcon";
+import { VisualAcceptedMaterials, VisualRentalPricing } from "@/components/redesign/VisualReplacementBlocks";
 import {
     formatDumpsterPrice,
     formatPhone,
@@ -59,13 +56,6 @@ const processRows: DispatchInfoRow[] = [
     { n: "02", title: "Container size", desc: "Select the container size that matches the project and debris volume." },
     { n: "03", title: "Rental details", desc: "Add debris type, placement notes, rental timing, and access details." },
     { n: "04", title: "Schedule and review", desc: "Pick a delivery window, review the quote, and submit the request." },
-];
-
-const planningRows: DispatchInfoRow[] = [
-    { n: "A", title: "Placement", desc: "Clear driveway, surface, street, or gate access before delivery." },
-    { n: "B", title: "Material type", desc: "Construction debris, roofing, yard waste, and mixed junk can price differently." },
-    { n: "C", title: "Weight", desc: "Heavy material and overages can affect the final rental total." },
-    { n: "D", title: "Local rules", desc: "Street placement may need city, HOA, or property approval." },
 ];
 
 const prohibitedItems = [
@@ -241,65 +231,9 @@ export default function DumpsterRentalPage() {
                 </div>
             </DispatchIntroGrid>
 
-            <section className="section">
-                <div className="section-head">
-                    <div>
-                        <span className="eyebrow">Project planning</span>
-                        <h2>Plan the container, placement, and material rules before delivery.</h2>
-                    </div>
-                    <p>Dumpster rental works best when the placement area is clear, the debris type is known, and the job fits the accepted material rules.</p>
-                </div>
-                <div className="dumpster-planning-grid">
-                    <article className="dumpster-feature-card large">
-                        <StatIcon Icon={Ruler} label="Placement planning" />
-                        <h3>Placement needs room for truck access.</h3>
-                        <p>Clear the driveway, jobsite, gate path, or approved surface before delivery. Street placement may need city, property, or HOA approval.</p>
-                    </article>
-                    <article className="dumpster-feature-card">
-                        <StatIcon Icon={Scale} label="Weight allowance" />
-                        <h3>Weight changes the quote.</h3>
-                        <p>Dense debris can create overage costs even when the container is not visually full.</p>
-                    </article>
-                    <article className="dumpster-feature-card">
-                        <StatIcon Icon={CalendarClock} label="Rental window" />
-                        <h3>Rental days are confirmed.</h3>
-                        <p>Included days, extension rates, and pickup timing come from the configured rental terms.</p>
-                    </article>
-                    <aside className="info-board dumpster-planning-board">
-                        <span className="eyebrow">Quote factors</span>
-                        <h2>What affects rental pricing.</h2>
-                        <DispatchInfoRows rows={planningRows} />
-                    </aside>
-                </div>
-            </section>
+            <VisualRentalPricing />
 
-            <section className="section alt border">
-                <div className="section-head">
-                    <div>
-                        <span className="eyebrow">Accepted debris</span>
-                        <h2>Common dumpster material categories.</h2>
-                    </div>
-                    <p>These categories help customers choose the closest debris type. Restricted items still need to be kept out of the container.</p>
-                </div>
-                <div className="dumpster-material-grid">
-                    {DEBRIS_TYPES.map((debris) => (
-                        <article className="dumpster-material-card" key={debris.id}>
-                            <ServiceIcon name={debris.icon} size={30} color="var(--brand)" />
-                            <h3>{debris.label}</h3>
-                        </article>
-                    ))}
-                </div>
-                <div className="restricted-board">
-                    <div>
-                        <StatIcon Icon={AlertTriangle} label="Restricted items" />
-                        <h3>Keep restricted material out of the dumpster.</h3>
-                        <p>Do not load hazardous, flammable, medical, or regulated materials. When in doubt, ask before booking.</p>
-                    </div>
-                    <ul>
-                        {prohibitedItems.map((item) => <li key={item}>{item}</li>)}
-                    </ul>
-                </div>
-            </section>
+            <VisualAcceptedMaterials accepted={DEBRIS_TYPES} restrictedItems={prohibitedItems} />
 
             <section className="section">
                 <div className="section-head">

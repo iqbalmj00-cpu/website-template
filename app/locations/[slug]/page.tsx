@@ -5,12 +5,14 @@ import {
     DispatchCardSection,
     DispatchFaqBoard,
     DispatchFinalCta,
-    DispatchIntroGrid,
-    DispatchLoadPricingCards,
     DispatchMetricStrip,
     DispatchPageHero,
     DispatchServiceMosaic,
 } from "@/components/redesign/DispatchBlocks";
+import {
+    VisualLocationOverview,
+    VisualPricingScaleSection,
+} from "@/components/redesign/VisualReplacementBlocks";
 import { getLocationBySlug, getLocations } from "@/lib/locationData.server";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, localBusinessJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/siteConfig";
@@ -95,7 +97,7 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
                 primaryCta={{ label: "Book Now", href: "/book" }}
                 secondaryCta={{ label: "View Pricing", href: "#pricing" }}
             />
-            <DispatchLoadPricingCards config={siteConfig} localLabel={location.name} />
+            <VisualPricingScaleSection config={siteConfig} localLabel={location.name} />
             <DispatchMetricStrip
                 items={[
                     { label: "Location", value: location.isMainCity ? "Main city" : "Service area" },
@@ -104,24 +106,14 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
                     { label: "Local details", value: location.hasSourcedLocalContent ? "Available" : "By request" },
                 ]}
             />
-            <DispatchIntroGrid
-                eyebrow="Local overview"
-                heading={`${siteConfig.companyName} serves approved junk removal jobs in ${location.name}.`}
-                boardEyebrow="Location details"
-                boardHeading={`Coverage around ${location.name}.`}
-                rows={[
-                    { n: "01", title: location.isMainCity ? "Main city" : "Service area", desc: `${location.name}, ${location.state}` },
-                    { n: "02", title: "Pickup address", desc: "Confirmed during booking" },
-                    { n: "03", title: "Nearby details", desc: location.hasSourcedLocalContent ? "Listed when available" : "Ask about exact coverage" },
-                    { n: "04", title: "Service match", desc: "Routes depend on job details" },
-                ]}
-            >
-                <p>{location.localInfo}</p>
-                <p>
-                    Use the booking flow with service type, load details, pickup address, access notes, schedule window,
-                    and quote review. The final price is confirmed before loading begins.
-                </p>
-            </DispatchIntroGrid>
+            <VisualLocationOverview
+                companyName={siteConfig.companyName}
+                locationName={location.name}
+                state={location.state}
+                localInfo={location.localInfo}
+                isMainCity={location.isMainCity}
+                hasSourcedLocalContent={location.hasSourcedLocalContent}
+            />
             <DispatchAreaSection config={siteConfig} focus={{ name: location.name, state: location.state }} />
             <DispatchServiceMosaic
                 config={siteConfig}
