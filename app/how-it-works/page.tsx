@@ -3,6 +3,7 @@ import PageHero from "@/components/redesign/PageHero";
 import PageIntro from "@/components/redesign/PageIntro";
 import ProcessSection from "@/components/redesign/ProcessSection";
 import GroupedFAQ from "@/components/redesign/GroupedFAQ";
+import StaticFAQ from "@/components/redesign/StaticFAQ";
 import CtaBand from "@/components/redesign/CtaBand";
 import { createPageMetadata, faqPageJsonLd, howToJsonLd } from "@/lib/seo";
 import { formatPhone, isSameDayEnabled, siteConfig } from "@/lib/siteConfig";
