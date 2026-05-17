@@ -2472,6 +2472,311 @@ a {
   line-height: 1.45;
 }
 
+.inline-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.dumpster-size-grid,
+.dumpster-material-grid,
+.dumpster-option-grid,
+.dumpster-planning-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.dumpster-size-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dumpster-material-grid,
+.dumpster-option-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dumpster-planning-grid {
+  grid-template-columns: minmax(0, 1.08fr) repeat(2, minmax(230px, 0.55fr));
+}
+
+.dumpster-planning-board {
+  grid-column: 2 / 4;
+}
+
+.dumpster-size-card,
+.dumpster-feature-card,
+.dumpster-material-card,
+.dumpster-option-card,
+.restricted-board {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  box-shadow: var(--soft-shadow);
+}
+
+.dumpster-size-card,
+.dumpster-feature-card,
+.dumpster-option-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.dumpster-size-card {
+  display: grid;
+  min-height: 430px;
+  padding: 22px;
+  background:
+    linear-gradient(150deg, color-mix(in oklch, var(--brand) 13%, transparent), transparent 52%),
+    var(--panel);
+}
+
+.dumpster-size-card::after {
+  content: "";
+  position: absolute;
+  right: -46px;
+  bottom: -46px;
+  width: 150px;
+  height: 150px;
+  border: 20px solid color-mix(in oklch, var(--brand) 18%, transparent);
+  border-radius: 50%;
+}
+
+.dumpster-size-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.dumpster-card-top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.dumpster-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+.dumpster-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dumpster-size-card small,
+.dumpster-price span,
+.dumpster-fit b,
+.dumpster-terms span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dumpster-size-card h3,
+.dumpster-feature-card h3,
+.dumpster-option-card h3 {
+  margin: 0;
+  font-family: var(--heading-font);
+  font-weight: 900;
+  letter-spacing: var(--display-tracking);
+  text-transform: var(--display-transform);
+  line-height: 0.98;
+}
+
+.dumpster-size-card h3 {
+  margin-top: 8px;
+  font-size: clamp(36px, 4.8vw, 62px);
+}
+
+.dumpster-size-card p,
+.dumpster-feature-card p,
+.dumpster-option-card p,
+.restricted-board p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.dumpster-price {
+  display: grid;
+  gap: 5px;
+  margin: 20px 0 14px;
+}
+
+.dumpster-price strong {
+  font-family: var(--heading-font);
+  font-size: clamp(28px, 3.7vw, 46px);
+  font-weight: 900;
+  letter-spacing: var(--display-tracking);
+  line-height: 0.96;
+  text-transform: var(--display-transform);
+}
+
+.dumpster-terms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.dumpster-terms span {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--panel) 76%, var(--brand) 10%);
+  letter-spacing: 0.08em;
+}
+
+.dumpster-fit {
+  align-self: end;
+  display: grid;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.dumpster-fit span {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.dumpster-feature-card,
+.dumpster-option-card,
+.dumpster-material-card {
+  padding: 24px;
+}
+
+.dumpster-feature-card.large {
+  grid-row: span 2;
+  min-height: 380px;
+  background:
+    linear-gradient(145deg, color-mix(in oklch, var(--brand) 18%, transparent), transparent 48%),
+    var(--inverse);
+  color: var(--inverse-text);
+}
+
+.dumpster-feature-card.large .dumpster-icon {
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+.dumpster-feature-card h3,
+.dumpster-option-card h3 {
+  margin-top: 18px;
+  font-size: clamp(28px, 3.6vw, 44px);
+}
+
+.dumpster-feature-card.large p {
+  color: color-mix(in oklch, var(--inverse-text) 82%, transparent);
+}
+
+.dumpster-material-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 104px;
+}
+
+.dumpster-material-card h3 {
+  margin: 0;
+  font-family: var(--heading-font);
+  font-size: clamp(22px, 2.8vw, 34px);
+  font-weight: 900;
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+  text-transform: var(--display-transform);
+}
+
+.restricted-board {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.72fr);
+  gap: 22px;
+  margin-top: 18px;
+  padding: clamp(24px, 4vw, 34px);
+  background:
+    linear-gradient(135deg, color-mix(in oklch, var(--warning) 20%, transparent), transparent 56%),
+    var(--panel);
+}
+
+.restricted-board h3 {
+  margin: 18px 0 10px;
+  font-family: var(--heading-font);
+  font-size: clamp(30px, 4vw, 52px);
+  font-weight: 900;
+  letter-spacing: var(--display-tracking);
+  line-height: 0.98;
+  text-transform: var(--display-transform);
+}
+
+.restricted-board ul {
+  display: grid;
+  gap: 10px;
+  align-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.restricted-board li {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in oklch, var(--panel) 82%, var(--warning) 12%);
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.dumpster-option-card {
+  display: grid;
+  align-content: start;
+  min-height: 285px;
+}
+
+.dumpster-option-card a {
+  align-self: end;
+  justify-self: start;
+  margin-top: 18px;
+  color: var(--brand);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.dumpster-trust-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.dumpster-trust-strip span,
+.dumpster-trust-strip a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.dumpster-trust-strip svg {
+  width: 16px;
+  height: 16px;
+  color: var(--brand);
+}
+
 .factor-list {
   display: grid;
   gap: 14px;
@@ -2900,8 +3205,15 @@ html[data-theme="editorial"] .final-cta,
   .booking-shell,
   .intro-grid,
   .location-grid,
-  .cta-band {
+  .cta-band,
+  .dumpster-size-grid,
+  .dumpster-planning-grid,
+  .restricted-board {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dumpster-planning-board {
+    grid-column: auto;
   }
 
   .hero-media {
@@ -2965,8 +3277,15 @@ html[data-theme="editorial"] .final-cta,
   .coverage-cards,
   .service-links,
   .fact-grid,
-  .detail-grid {
+  .detail-grid,
+  .dumpster-material-grid,
+  .dumpster-option-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dumpster-size-card,
+  .dumpster-option-card {
+    min-height: auto;
   }
 
   .action-strip {
