@@ -33,6 +33,11 @@ function displayArea(config: SiteConfig): string {
     return [config.city, config.state].filter(Boolean).join(", ") || "your service area";
 }
 
+function companyInitial(name: string): string {
+    const clean = name.trim();
+    return clean ? clean.charAt(0).toUpperCase() : "J";
+}
+
 function cleanSlug(value: string): string {
     return value
         .toLowerCase()
@@ -102,11 +107,12 @@ export function DispatchSiteFooter({ config = siteConfig, showReviews }: { confi
     const services = resolveServiceCatalogIds([...config.services]).slice(0, 6);
     const areas = areaNames(config, 6);
     const shouldShowReviews = showReviews ?? hasVerifiedGoogleReviews(config);
-    const hoursRows = config.businessHours ? groupBusinessHours(config.businessHours).slice(0, 3) : [];
+    const hoursRows = config.businessHours ? groupBusinessHours(config.businessHours) : [];
     const addressLines = [
         config.streetAddress,
         [config.city, config.state].filter(Boolean).join(", "),
     ].filter(Boolean);
+    const emailAddress = config.emailAddress;
     const companyLinks = [
         { label: "Home", href: "/" },
         { label: "About", href: "/about" },
@@ -121,39 +127,60 @@ export function DispatchSiteFooter({ config = siteConfig, showReviews }: { confi
 
     return (
         <footer className="site-footer">
-            <div className="footer-col">
-                <h4>{config.companyName}</h4>
-                <p>Professional junk removal, cleanouts, and hauling services.</p>
-                {addressLines.length > 0 && (
-                    <address>
-                        {addressLines.map((line) => <span key={line}>{line}</span>)}
-                    </address>
-                )}
-                {config.phoneNumber && <a href={telHref(config.phoneNumber)}>{formatPhone(config.phoneNumber)}</a>}
-                {hoursRows.length > 0 && (
-                    <div className="footer-hours" aria-label="Business hours">
-                        {hoursRows.map((row) => (
-                            <span key={row.days}>{row.days}: {row.label}</span>
-                        ))}
+            <div className="footer-main">
+                <div className="footer-brand">
+                    <Link className="footer-logo" href="/" aria-label={`${config.companyName} home`}>
+                        <span className="brand-mark">{companyInitial(config.companyName)}</span>
+                        <span>
+                            <strong>{config.companyName}</strong>
+                            <small>Hauling and cleanouts</small>
+                        </span>
+                    </Link>
+                    <p>Professional junk removal, cleanouts, and hauling services.</p>
+                </div>
+                <div className="footer-col">
+                    <h4>Pages</h4>
+                    {companyLinks.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
+                </div>
+                <div className="footer-col">
+                    <h4>Services</h4>
+                    {services.length > 0
+                        ? services.map((service) => <Link key={service.id} href={`/services/${service.id}`}>{service.name}</Link>)
+                        : <Link href="/services">Services</Link>}
+                </div>
+                <div className="footer-col">
+                    <h4>Locations</h4>
+                    {areas.length > 0
+                        ? areas.map((area) => <Link key={area} href={`/locations/${cleanSlug(area)}`}>{area}</Link>)
+                        : <Link href="/locations">Service areas</Link>}
+                    <Link href="/book">Book Now</Link>
+                </div>
+                <div className="footer-contact">
+                    <h4>Contact us</h4>
+                    <div className="footer-contact-list">
+                        {emailAddress && <a href={`mailto:${emailAddress}`}>{emailAddress}</a>}
+                        {config.phoneNumber && <a href={telHref(config.phoneNumber)}>{formatPhone(config.phoneNumber)}</a>}
+                        {addressLines.length > 0 && (
+                            <address>
+                                {addressLines.map((line) => <span key={line}>{line}</span>)}
+                            </address>
+                        )}
                     </div>
-                )}
+                    {hoursRows.length > 0 && (
+                        <div className="footer-hours" aria-label="Business hours">
+                            <strong>Business hours</strong>
+                            {hoursRows.map((row) => (
+                                <span key={row.days}><b>{row.days}</b>{row.label}</span>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
-            <div className="footer-col">
-                <h4>Pages</h4>
-                {companyLinks.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
-            </div>
-            <div className="footer-col">
-                <h4>Services</h4>
-                {services.length > 0
-                    ? services.map((service) => <Link key={service.id} href={`/services/${service.id}`}>{service.name}</Link>)
-                    : <Link href="/services">Services</Link>}
-            </div>
-            <div className="footer-col">
-                <h4>Locations</h4>
-                {areas.length > 0
-                    ? areas.map((area) => <Link key={area} href={`/locations/${cleanSlug(area)}`}>{area}</Link>)
-                    : <Link href="/locations">Service areas</Link>}
-                <Link href="/book">Book Now</Link>
+            <div className="footer-bottom">
+                <span>Copyright © {new Date().getFullYear()} {config.companyName}</span>
+                <span>
+                    All rights reserved | <Link href="/terms">Terms and Conditions</Link> | <Link href="/privacy">Privacy Policy</Link>
+                </span>
             </div>
         </footer>
     );

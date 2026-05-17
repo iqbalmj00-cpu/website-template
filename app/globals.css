@@ -2522,17 +2522,67 @@ a {
 
 .site-footer {
   display: grid;
-  grid-template-columns: 1.4fr repeat(3, minmax(0, 0.7fr));
-  gap: 28px;
-  padding-top: 48px;
-  padding-bottom: 48px;
+  gap: 34px;
+  padding-top: 56px;
+  padding-bottom: 28px;
   border-top: 1px solid var(--line);
   background: color-mix(in oklch, var(--paper-2) 80%, var(--brand) 20%);
+}
+
+.footer-main {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.25fr) repeat(3, minmax(120px, 0.62fr)) minmax(240px, 0.95fr);
+  gap: clamp(22px, 4vw, 54px);
+  align-items: start;
+}
+
+.footer-brand {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  max-width: 310px;
+}
+
+.footer-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.footer-logo span:last-child {
+  display: grid;
+  gap: 3px;
+}
+
+.footer-logo strong {
+  font-family: var(--heading-font);
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+  text-transform: var(--display-transform);
+}
+
+.footer-logo small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .footer-col {
   display: grid;
   gap: 9px;
+  align-content: start;
+}
+
+.footer-contact {
+  display: grid;
+  gap: 14px;
   align-content: start;
 }
 
@@ -2557,10 +2607,58 @@ a {
   font-style: normal;
 }
 
+.footer-contact-list {
+  display: grid;
+  gap: 9px;
+}
+
 .footer-hours {
   display: grid;
-  gap: 2px;
+  gap: 8px;
   margin-top: 2px;
+  padding: 14px;
+  border: 1px solid color-mix(in oklch, var(--line) 72%, var(--brand) 28%);
+  border-radius: var(--radius);
+  background: color-mix(in oklch, var(--panel) 88%, var(--brand) 12%);
+  box-shadow: var(--soft-shadow);
+}
+
+.footer-hours strong {
+  color: var(--ink);
+  font-family: var(--heading-font);
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: var(--display-transform);
+}
+
+.footer-hours span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.footer-hours span b {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.footer-bottom a {
+  display: inline;
+  color: var(--brand);
+  font-size: inherit;
+  line-height: inherit;
 }
 
 html[data-theme="industrial"] .action-strip,
@@ -2804,6 +2902,14 @@ html[data-theme="editorial"] .final-cta,
     min-height: 420px;
   }
 
+  .footer-main {
+    grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(150px, 0.7fr));
+  }
+
+  .footer-contact {
+    grid-column: 1 / -1;
+  }
+
   .media-shell img {
     min-height: 420px;
   }
@@ -2846,6 +2952,7 @@ html[data-theme="editorial"] .final-cta,
   .faq-board,
   .final-cta,
   .site-footer,
+  .footer-main,
   .metric-strip,
   .card-grid,
   .load-card-grid,
@@ -2882,6 +2989,15 @@ html[data-theme="editorial"] .final-cta,
 
   .cta-band .btn {
     justify-self: start;
+  }
+
+  .footer-bottom {
+    display: grid;
+  }
+
+  .footer-hours span {
+    display: grid;
+    gap: 2px;
   }
 
   .review-card {
