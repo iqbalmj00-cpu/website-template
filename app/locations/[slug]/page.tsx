@@ -91,6 +91,7 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
                 title={<>Junk removal in {location.name}, {location.state}.</>}
                 lede={location.heroDescription}
                 coverageMap
+                coverageMapFocus={{ name: location.name, state: location.state }}
                 primaryCta={{ label: "Book Now", href: "/book" }}
                 secondaryCta={{ label: "View Pricing", href: "#pricing" }}
             />
@@ -121,7 +122,7 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
                     and quote review. The final price is confirmed before loading begins.
                 </p>
             </DispatchIntroGrid>
-            <DispatchAreaSection config={siteConfig} />
+            <DispatchAreaSection config={siteConfig} focus={{ name: location.name, state: location.state }} />
             <DispatchServiceMosaic
                 config={siteConfig}
                 eyebrow="Available services"

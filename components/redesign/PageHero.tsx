@@ -1,6 +1,7 @@
 import { DispatchPageHero } from "@/components/redesign/DispatchBlocks";
 import { siteConfig, type SiteConfig } from "@/lib/siteConfig";
 import { type JunkRemovalImageRole } from "@/lib/templateAssets/junkRemoval";
+import { type MapFocus } from "@/components/redesign/ServiceAreaMap";
 
 export interface BreadcrumbItem {
   label: string;
@@ -16,6 +17,7 @@ interface PageHeroProps {
   primaryCta?: { label: string; href: string };
   hideTrustPanel?: boolean;
   coverageMap?: boolean;
+  coverageMapFocus?: MapFocus;
   media?: {
     role?: JunkRemovalImageRole;
     src?: string | null;
@@ -36,6 +38,7 @@ export default function PageHero({
   lede,
   primaryCta = { label: "Book Now", href: "/book" },
   coverageMap = false,
+  coverageMapFocus,
   media,
   config = siteConfig,
 }: PageHeroProps) {
@@ -48,6 +51,7 @@ export default function PageHero({
       lede={lede}
       media={media ? { ...media, label: media.caption || eyebrow, caption: media.caption } : undefined}
       coverageMap={coverageMap}
+      coverageMapFocus={coverageMapFocus}
       primaryCta={primaryCta}
       secondaryCta={{ label: "View Pricing", href: "/pricing" }}
     />

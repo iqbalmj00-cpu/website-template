@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import SafeImage from "@/components/SafeImage";
-import ServiceAreaMap from "@/components/redesign/ServiceAreaMap";
+import ServiceAreaMap, { type MapFocus } from "@/components/redesign/ServiceAreaMap";
 import {
     formatPhone,
     getGoogleTestimonials,
@@ -398,18 +398,22 @@ export function DispatchPricingBoard({
     );
 }
 
-export function DispatchAreaSection({ config = siteConfig }: { config?: SiteConfig } = {}) {
+export function DispatchAreaSection({ config = siteConfig, focus }: { config?: SiteConfig; focus?: MapFocus } = {}) {
     const areas = areaNames(config, 8);
     if (areas.length === 0) return null;
 
     return (
         <section className="section tight" id="areas">
             <div className="area-section">
-                <ServiceAreaMap config={config} />
+                <ServiceAreaMap config={config} focus={focus} />
                 <div className="area-copy">
                     <span className="eyebrow">Local coverage</span>
-                    <h2>Junk removal service areas near {config.city || "you"}.</h2>
-                    <p>{config.companyName} serves {displayArea(config)}. Address coverage is confirmed during booking.</p>
+                    <h2>{focus?.name ? `Junk removal coverage around ${focus.name}.` : `Junk removal service areas near ${config.city || "you"}.`}</h2>
+                    <p>
+                        {focus?.name
+                            ? `${config.companyName} highlights ${focus.name} on this location page. Exact pickup address coverage is confirmed during booking.`
+                            : `${config.companyName} serves ${displayArea(config)}. Address coverage is confirmed during booking.`}
+                    </p>
                     <div className="area-chips">
                         {areas.map((area) => <Link className="area-chip" href={`/locations/${cleanSlug(area)}`} key={area}>{area}</Link>)}
                     </div>
@@ -555,6 +559,7 @@ export function DispatchPageHero({
     lede,
     media,
     coverageMap = false,
+    coverageMapFocus,
     primaryCta = { label: "Book Now", href: "/book" },
     secondaryCta,
 }: {
@@ -574,6 +579,7 @@ export function DispatchPageHero({
         caption?: string;
     };
     coverageMap?: boolean;
+    coverageMapFocus?: MapFocus;
     primaryCta?: { label: string; href: string };
     secondaryCta?: { label: string; href: string };
 }) {
@@ -612,7 +618,7 @@ export function DispatchPageHero({
             {(coverageMap || image) && (
                 <div className="hero-media">
                     {coverageMap ? (
-                        <ServiceAreaMap config={config} />
+                        <ServiceAreaMap config={config} focus={coverageMapFocus} />
                     ) : image ? (
                     <div className="media-shell">
                         <SafeImage

@@ -11,10 +11,30 @@ type GoogleMapConstructor = new (element: HTMLElement, options: Record<string, u
 type GoogleCircleConstructor = new (options: Record<string, unknown>) => {
     getBounds: () => unknown;
 };
+type GoogleGeocoderConstructor = new () => {
+    geocode: (request: Record<string, unknown>) => Promise<{
+        results?: Array<{
+            geometry?: {
+                location?: {
+                    lat: () => number;
+                    lng: () => number;
+                };
+            };
+        }>;
+    }>;
+};
 
 type MapsLibrary = {
     Map: GoogleMapConstructor;
     Circle: GoogleCircleConstructor;
+};
+type GeocodingLibrary = {
+    Geocoder: GoogleGeocoderConstructor;
+};
+export type MapFocus = {
+    name: string;
+    state?: string;
+    radiusMiles?: number;
 };
 
 type MapStyle = Array<Record<string, unknown>>;
@@ -105,22 +125,55 @@ function milesToMeters(miles: number): number {
     return miles * 1609.344;
 }
 
+function locationRadiusMiles(config: SiteConfig, focus?: MapFocus): number {
+    if (focus?.radiusMiles && focus.radiusMiles > 0) return focus.radiusMiles;
+    if (config.maxRadius && config.maxRadius > 0) {
+        return Math.max(3, Math.min(8, Math.round(config.maxRadius / 6)));
+    }
+    return 5;
+}
+
+async function resolveMapCenter(config: SiteConfig, focus?: MapFocus): Promise<{ lat: number; lng: number; focused: boolean }> {
+    const fallback = config.centerLat !== null && config.centerLng !== null
+        ? { lat: config.centerLat, lng: config.centerLng }
+        : null;
+
+    if (!focus?.name.trim()) {
+        if (!fallback) throw new Error("Missing service area map center");
+        return { ...fallback, focused: false };
+    }
+
+    const { Geocoder } = await loadGoogleMapsLibrary<GeocodingLibrary>(config.googleMapsKey, "geocoding");
+    const geocoder = new Geocoder();
+    const state = focus.state || config.state;
+    const query = [focus.name, state, "USA"].filter(Boolean).join(", ");
+    const response = await geocoder.geocode({ address: query });
+    const location = response.results?.[0]?.geometry?.location;
+
+    if (!location) throw new Error("Unable to resolve map focus");
+    return { lat: location.lat(), lng: location.lng(), focused: true };
+}
+
 export default function ServiceAreaMap({
     config = siteConfig,
     className = "",
+    focus,
 }: {
     config?: SiteConfig;
     className?: string;
+    focus?: MapFocus;
 }) {
     const mapRef = useRef<HTMLDivElement>(null);
     const [failed, setFailed] = useState(false);
     const areas = useMemo(() => areaNames(config), [config]);
     const hasMapConfig = Boolean(
         config.googleMapsKey
-        && config.centerLat !== null
-        && config.centerLng !== null
         && config.maxRadius
-        && config.maxRadius > 0,
+        && config.maxRadius > 0
+        && (
+            (config.centerLat !== null && config.centerLng !== null)
+            || focus?.name.trim()
+        ),
     );
 
     useEffect(() => {
@@ -128,10 +181,14 @@ export default function ServiceAreaMap({
         let cancelled = false;
 
         loadGoogleMapsLibrary<MapsLibrary>(config.googleMapsKey, "maps")
-            .then(({ Map, Circle }) => {
-                if (cancelled || !mapRef.current || config.centerLat === null || config.centerLng === null || !config.maxRadius) return;
+            .then(async ({ Map, Circle }) => {
+                if (cancelled || !mapRef.current || !config.maxRadius) return;
 
-                const center = { lat: config.centerLat, lng: config.centerLng };
+                const resolved = await resolveMapCenter(config, focus);
+                if (cancelled || !mapRef.current) return;
+
+                const center = { lat: resolved.lat, lng: resolved.lng };
+                const radiusMiles = resolved.focused ? locationRadiusMiles(config, focus) : config.maxRadius;
                 const map = new Map(mapRef.current, {
                     center,
                     zoom: 10,
@@ -148,7 +205,7 @@ export default function ServiceAreaMap({
                 const circleColor = config.brandColor || "#ff6a00";
                 const circle = new Circle({
                     center,
-                    radius: milesToMeters(config.maxRadius),
+                    radius: milesToMeters(radiusMiles),
                     map,
                     strokeColor: circleColor,
                     strokeOpacity: 0.95,
@@ -166,7 +223,13 @@ export default function ServiceAreaMap({
         return () => {
             cancelled = true;
         };
-    }, [config.brandColor, config.centerLat, config.centerLng, config.googleMapsKey, config.maxRadius, config.theme, hasMapConfig]);
+    }, [
+        config,
+        focus?.name,
+        focus?.radiusMiles,
+        focus?.state,
+        hasMapConfig,
+    ]);
 
     if (!hasMapConfig || failed) {
         return (
@@ -192,11 +255,11 @@ export default function ServiceAreaMap({
     }
 
     return (
-        <div className={`service-area-map ${className}`} aria-label="Google map showing service area radius">
+        <div className={`service-area-map ${className}`} aria-label={focus?.name ? `Google map highlighting ${focus.name}` : "Google map showing service area radius"}>
             <div ref={mapRef} className="service-area-map-canvas" />
             <div className="map-radius-badge">
-                <span>Service radius</span>
-                <strong>{config.maxRadius} mi</strong>
+                <span>{focus?.name ? "Location focus" : "Service radius"}</span>
+                <strong>{focus?.name || `${config.maxRadius} mi`}</strong>
             </div>
         </div>
     );
