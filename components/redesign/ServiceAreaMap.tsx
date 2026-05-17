@@ -197,6 +197,7 @@ export default function ServiceAreaMap({
                     streetViewControl: false,
                     fullscreenControl: false,
                     clickableIcons: false,
+                    keyboardShortcuts: false,
                     gestureHandling: "cooperative",
                     zoomControl: false,
                     styles: mapStylesForTheme(config.theme),
