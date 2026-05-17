@@ -2533,7 +2533,7 @@ a {
   display: grid;
   grid-template-columns:
     minmax(255px, 1.35fr)
-    minmax(110px, 0.55fr)
+    minmax(145px, 0.62fr)
     minmax(180px, 0.84fr)
     minmax(150px, 0.7fr)
     minmax(230px, 0.92fr);
