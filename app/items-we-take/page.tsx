@@ -1,9 +1,11 @@
-import Link from "next/link";
-import { siteConfig, formatPhone, telHref, getVerifiableTrustSignals } from "@/lib/siteConfig";
 import type { Metadata } from "next";
-import { CalendarDays, CheckCircle } from "lucide-react";
+import PageHero from "@/components/redesign/PageHero";
+import StaticFAQ from "@/components/redesign/StaticFAQ";
+import CtaBand from "@/components/redesign/CtaBand";
+import { DispatchCardSection } from "@/components/redesign/DispatchBlocks";
 import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
 import { getClientServices } from "@/lib/serviceData";
+import { getVerifiableTrustSignals, siteConfig } from "@/lib/siteConfig";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 const FAQS = [
@@ -20,7 +22,6 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default function ItemsWeTakePage() {
-    const { phoneNumber } = siteConfig;
     const trustSignals = getVerifiableTrustSignals();
 
     const generalItems = [
@@ -43,6 +44,22 @@ export default function ItemsWeTakePage() {
         .filter(service => serviceDescriptions[service.slug])
         .slice(0, 4);
     const serviceLinks = prioritizedServiceLinks.length > 0 ? prioritizedServiceLinks : getClientServices().slice(0, 4);
+    const itemCards = generalItems.map((cat) => ({
+        eyebrow: "Accepted category",
+        title: cat.cat,
+        desc: cat.items.join(", "),
+    }));
+    const serviceCards = serviceLinks.map((service) => ({
+        eyebrow: "Related service",
+        title: service.title,
+        desc: serviceDescriptions[service.slug] || service.shortDesc,
+        href: `/services/${service.slug}`,
+    }));
+    const trustCards = trustSignals.map((signal, index) => ({
+        eyebrow: `Standard ${String(index + 1).padStart(2, "0")}`,
+        title: signal,
+        desc: "Shown only when this business has configured the matching trust detail.",
+    }));
 
     return (
         <>
@@ -50,109 +67,48 @@ export default function ItemsWeTakePage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd(FAQS, "/items-we-take")) }}
             />
-            {/* Hero */}
-            <section style={{ background: "var(--hero-bg)", padding: "9rem 1.5rem 4rem", textAlign: "center" }}>
-                <div style={{ maxWidth: 800, margin: "0 auto" }}>
-                    <h1 style={{ fontSize: "clamp(2.5rem, 6vw, 3.5rem)", fontWeight: 900, color: "var(--hero-text)", lineHeight: 1.1, marginBottom: "1rem" }}>
-                        Items We <span style={{ color: "var(--brand)" }}>Haul Away</span> in {siteConfig.city}
-                    </h1>
-                    <p style={{ fontSize: "1.1rem", color: "var(--hero-muted)", maxWidth: 550, margin: "0 auto" }}>
-                        If it fits in the truck and is not prohibited, we can probably haul it. We serve {cityState} with junk removal for homes, businesses, moves, and cleanouts.
-                    </p>
-                </div>
-            </section>
+            <PageHero
+                crumbs={[
+                    { label: "Home", href: "/" },
+                    { label: "Items We Take" },
+                ]}
+                eyebrow="Accepted items"
+                titleStart="Items we haul away "
+                titleAccent={`in ${siteConfig.city}.`}
+                lede={`Accepted items can be picked up from homes, businesses, moves, and cleanouts in ${cityState}. Restricted or unsafe materials should be reviewed before booking.`}
+                primaryCta={{ label: "Book Now", href: "/book" }}
+            />
 
-            {/* Items Grid */}
-            <section style={{ padding: "5rem 1.5rem", background: "var(--background)" }}>
-                <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", gap: "1.5rem" }}>
-                    {generalItems.map((cat) => (
-                        <div key={cat.cat} style={{ background: "var(--card)", borderRadius: 16, padding: "2rem", border: "1px solid var(--border)" }}>
-                            <h2 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "1rem", textTransform: "uppercase", letterSpacing: "0.03em" }}>{cat.cat}</h2>
-                            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                                {cat.items.map((item) => (
-                                    <li key={item} style={{ padding: "0.5rem 0", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--muted)", fontSize: "0.9rem" }}>
-                                        <span style={{ color: "var(--brand)" }}>✓</span> {item}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
-            </section>
+            <DispatchCardSection
+                eyebrow="Item categories"
+                heading="Common junk removal items."
+                body="These examples help customers understand what can usually be reviewed for pickup."
+                cards={itemCards}
+            />
 
-            {/* How Pickup Works */}
-            <section style={{ padding: "5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 1050, margin: "0 auto" }}>
-                    <div style={{ maxWidth: 760, marginBottom: "2.5rem" }}>
-                        <h2 style={{ fontSize: "clamp(1.6rem, 4vw, 2.4rem)", fontWeight: 900, marginBottom: "0.75rem" }}>How Item Pickup Works in {cityState}</h2>
-                        <p style={{ color: "var(--muted)", fontSize: "1.05rem", lineHeight: 1.7 }}>
-                            Accepted items can be picked up from inside, outside, curbside, garages, storage units, offices, and job sites when access is safe. The crew reviews the items, confirms the price, loads the approved junk, and hauls it away.
-                        </p>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: "1rem" }}>
-                        {serviceLinks.map((service) => (
-                            <Link key={service.slug} href={`/services/${service.slug}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
-                                <h3 style={{ fontSize: "1rem", fontWeight: 800, marginBottom: "0.5rem" }}>{service.title}</h3>
-                                <p style={{ color: "var(--muted)", fontSize: "0.92rem", lineHeight: 1.6 }}>{serviceDescriptions[service.slug] || service.shortDesc}</p>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </section>
+            <DispatchCardSection
+                eyebrow="Service match"
+                heading={`How item pickup works in ${cityState}.`}
+                body="The crew reviews the items, confirms the price before loading, loads approved junk, and hauls it away."
+                cards={serviceCards}
+                variant="service-links"
+                alt
+            />
 
-            {/* Note */}
-            <section style={{ padding: "3rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)", textAlign: "center" }}>
-                <div style={{ maxWidth: 600, margin: "0 auto" }}>
-                    <p style={{ color: "var(--muted)", lineHeight: 1.7 }}>
-                        <strong>Not sure if we can take it?</strong> Give us a call at{" "}
-                        <a href={telHref(phoneNumber)} style={{ color: "var(--brand)", fontWeight: 600 }}>{formatPhone(phoneNumber)}</a>{" "}
-                        and we&apos;ll review the item before you book. Heavy, oversized, or specialty items may need scope review, extra handling, or a different disposal path.
-                    </p>
-                    <Link href="/items-we-dont-take" style={{ display: "inline-block", marginTop: "1rem", color: "var(--brand)", fontWeight: 600, textDecoration: "none" }}>
-                        See items we don&apos;t take →
-                    </Link>
-                </div>
-            </section>
-
-            {/* Service Standards */}
-            {trustSignals.length > 0 && (
-                <section style={{ padding: "4rem 1.5rem", background: "var(--background)", borderTop: "1px solid var(--border)" }}>
-                    <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-                        <h2 style={{ fontSize: "clamp(1.5rem, 4vw, 2.2rem)", fontWeight: 900, textAlign: "center", marginBottom: "2rem" }}>Item Pickup Standards</h2>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: "1rem" }}>
-                            {trustSignals.map((signal) => (
-                                <div key={signal} className="card" style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-                                    <CheckCircle size={20} style={{ color: "var(--brand)", flexShrink: 0, marginTop: 2 }} />
-                                    <p style={{ color: "var(--muted)", lineHeight: 1.65 }}>{signal}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
+            {trustCards.length > 0 && (
+                <DispatchCardSection
+                    eyebrow="Standards"
+                    heading="Item pickup standards."
+                    cards={trustCards}
+                    variant="detail-grid"
+                />
             )}
 
-            {/* FAQs */}
-            <section style={{ padding: "4rem 1.5rem", background: "var(--background)", borderTop: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 760, margin: "0 auto" }}>
-                    <h2 style={{ fontSize: "clamp(1.5rem, 4vw, 2.2rem)", fontWeight: 900, textAlign: "center", marginBottom: "2rem" }}>Items We Take FAQ</h2>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                        {FAQS.map((faq) => (
-                            <details key={faq.q} style={{ border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", background: "var(--card)" }}>
-                                <summary style={{ padding: "1rem 1.5rem", fontWeight: 750, cursor: "pointer" }}>{faq.q}</summary>
-                                <div style={{ padding: "0 1.5rem 1rem", color: "var(--muted)", lineHeight: 1.7 }}>{faq.a}</div>
-                            </details>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA */}
-            <section style={{ background: "var(--brand)", padding: "4rem 1.5rem", textAlign: "center" }}>
-                <div style={{ maxWidth: 600, margin: "0 auto" }}>
-                    <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>Ready to Haul It Away?</h2>
-                    <Link href="/book" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "1rem 2rem", borderRadius: "var(--btn-radius)", background: "var(--card)", color: "var(--brand)", fontWeight: 700, fontSize: "1rem", textDecoration: "none" }}><CalendarDays size={18} /> Book Your Pickup</Link>
-                </div>
-            </section>
+            <StaticFAQ eyebrow="Items FAQ" heading="Items we take questions." items={FAQS} />
+            <CtaBand
+                heading={{ lead: "Ready to haul it away?", accent: "Start with item details." }}
+                lede={`Book online with item details, pickup address, access notes, schedule window, and quote review for ${cityState}.`}
+            />
         </>
     );
 }

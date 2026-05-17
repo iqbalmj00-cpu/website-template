@@ -90,26 +90,7 @@ export default function HowItWorksPage() {
                     d: index === 1 && isSameDayEnabled(siteConfig) ? "Same-day depends on capacity" : "Visible in the booking flow",
                 }))}
             />
-            <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
-                <div className="mx-auto" style={{ maxWidth: 980 }}>
-                    <div className="mb-7 text-center">
-                        <div className="eyebrow inline-flex">Process FAQ</div>
-                        <h2 className="mt-3 font-display text-[clamp(34px,4.5vw,52px)] font-extrabold leading-[1.03] tracking-normal text-ink">
-                            Questions about pickup day.
-                        </h2>
-                    </div>
-                    <div className="overflow-hidden rounded-[14px] border border-line bg-paper">
-                        {PROCESS_FAQS.map((faq) => (
-                            <details key={faq.q} className="border-b border-line last:border-b-0">
-                                <summary className="cursor-pointer px-6 py-5 font-display text-[19px] font-semibold text-ink">
-                                    {faq.q}
-                                </summary>
-                                <div className="px-6 pb-6 text-[15.5px] leading-[1.6] text-muted">{faq.a}</div>
-                            </details>
-                        ))}
-                    </div>
-                </div>
-            </section>
+            <StaticFAQ eyebrow="Process FAQ" heading="Questions about pickup day." items={PROCESS_FAQS} />
             <GroupedFAQ eyebrow="More questions" heading="More details before booking." />
             <CtaBand />
         </>

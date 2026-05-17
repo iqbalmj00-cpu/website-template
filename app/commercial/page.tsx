@@ -1,27 +1,14 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import {
-    ArrowRight,
-    Building,
-    Building2,
-    ClipboardList,
-    CreditCard,
-    KeyRound,
-    Phone,
-    Store,
-    Truck,
-} from "lucide-react";
 import PageHero from "@/components/redesign/PageHero";
 import PageIntro from "@/components/redesign/PageIntro";
 import PricingTeaser from "@/components/redesign/PricingTeaser";
 import StaticFAQ from "@/components/redesign/StaticFAQ";
 import CtaBand from "@/components/redesign/CtaBand";
+import { DispatchCardSection } from "@/components/redesign/DispatchBlocks";
 import { getServerConfig } from "@/lib/serverConfig";
 import {
-    formatPhone,
     hasInsurance,
     siteConfig,
-    telHref,
 } from "@/lib/siteConfig";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
 import { resolveJunkRemovalImage } from "@/lib/templateAssets/junkRemoval";
@@ -59,27 +46,22 @@ export const metadata: Metadata = {
 
 const commercialServices = [
     {
-        Icon: Building2,
         title: "Office Cleanouts",
         desc: `Office junk removal in ${cityState} for desks, chairs, cubicles, filing cabinets, electronics, and workspace cleanouts.`,
     },
     {
-        Icon: Store,
         title: "Retail & Restaurant Cleanouts",
         desc: "Fixtures, shelving, signage, seating, backroom junk, remodel debris, and bulky items from commercial spaces.",
     },
     {
-        Icon: Building,
         title: "Property Management Junk Removal",
         desc: "Tenant moveout junk, apartment bulk item pickup, storage area cleanouts, and multi-property service after access is approved.",
     },
     {
-        Icon: ClipboardList,
         title: "Construction Debris Pickup",
         desc: `Commercial debris removal in ${cityState} for renovation debris, contractor cleanup, and jobsite hauling within accepted material limits.`,
     },
     ...(siteConfig.offersDumpsterRental ? [{
-        Icon: Truck,
         title: "Commercial Dumpster Rental",
         desc: `Roll-off dumpster rental in ${cityState} for construction, property cleanup, retail remodels, and ongoing commercial disposal needs.`,
     }] : []),
@@ -117,9 +99,16 @@ const faqs = [
 ];
 
 export default function CommercialPage() {
-    const { companyName, phoneNumber, city } = siteConfig;
+    const { companyName, city } = siteConfig;
     const { dashboardUrl, siteToken } = getServerConfig();
     const portalConfigured = Boolean(dashboardUrl && siteToken);
+    const accountCards = [
+        { title: "Saved locations and access notes", desc: "Keep repeat business pickup details organized when commercial account access is available." },
+        { title: "Invoice and payment visibility", desc: "Review job records, invoice details, and payment history from the connected account workflow." },
+        { title: "Commercial job history", desc: "Track past cleanouts, repeat service requests, and job details for account contacts." },
+        ...(siteConfig.offersDumpsterRental ? [{ title: "Dumpster requests", desc: "Manage eligible dumpster swaps, pickups, and extension requests when the service is enabled." }] : []),
+        { title: "Manage Booking", desc: "Open the customer portal for account and booking management.", href: "/customer-portal", actionLabel: "Manage Booking" },
+    ];
 
     const serviceSchema = serviceJsonLd({
         service: {
@@ -161,33 +150,14 @@ export default function CommercialPage() {
                 }}
             />
 
-            <section className="dispatch-services bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
-                <div className="mx-auto" style={{ maxWidth: 1480 }}>
-                    <div className="mb-9 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(360px,0.48fr)] lg:items-end">
-                        <div>
-                            <div className="eyebrow">Business cleanouts</div>
-                            <h2 className="mt-3 font-display text-[clamp(36px,4.6vw,58px)] font-extrabold leading-[1.02] text-ink">
-                                Commercial junk removal for offices, retail spaces, and managed properties.
-                            </h2>
-                        </div>
-                        <p className="text-[16px] leading-[1.65] text-muted">
-                            Request one-time cleanouts, contractor debris pickup, property turnover hauling, or account
-                            support when the job fits the available commercial services.
-                        </p>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        {commercialServices.map(({ Icon, title, desc }) => (
-                            <article key={title} className="dispatch-service-card rounded-[14px] border border-line bg-paper p-6">
-                                <span className="grid h-12 w-12 place-items-center rounded-[12px] bg-brand text-white">
-                                    <Icon className="h-6 w-6" aria-hidden="true" />
-                                </span>
-                                <h3 className="mt-5 font-display text-[23px] font-bold leading-tight text-ink">{title}</h3>
-                                <p className="mt-3 text-[14.5px] leading-[1.6] text-muted">{desc}</p>
-                            </article>
-                        ))}
-                    </div>
-                </div>
-            </section>
+            <DispatchCardSection
+                eyebrow="Business cleanouts"
+                heading="Commercial junk removal for offices, retail spaces, and managed properties."
+                body="Request one-time cleanouts, contractor debris pickup, property turnover hauling, or account support when the job fits the available commercial services."
+                cards={commercialServices}
+                variant="detail-grid"
+                alt
+            />
 
             <PageIntro
                 eyebrow="Commercial planning"
@@ -214,45 +184,14 @@ export default function CommercialPage() {
             />
 
             {portalConfigured && (
-                <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)] border-y border-line">
-                    <div className="mx-auto grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.62fr)] lg:items-start" style={{ maxWidth: 1280 }}>
-                        <div>
-                            <div className="eyebrow">Account support</div>
-                            <h2 className="mt-3 font-display text-[clamp(34px,4vw,50px)] font-extrabold leading-[1.04] text-ink">
-                                Booking management for commercial accounts.
-                            </h2>
-                            <p className="mt-4 max-w-[58ch] text-[16px] leading-[1.65] text-muted">
-                                Commercial account contacts can manage saved locations, job records,
-                                invoices, account details, and recurring service requests when account access is available.
-                            </p>
-                            <div className="mt-7 flex flex-wrap gap-3">
-                                <Link href="/customer-portal" referrerPolicy="no-referrer" className="btn-primary">
-                                    Manage Booking <KeyRound className="h-4 w-4" aria-hidden="true" />
-                                </Link>
-                                {phoneNumber && (
-                                    <a href={telHref(phoneNumber)} className="btn-secondary">
-                                        Call Us <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                        <div className="rounded-[14px] border border-line bg-paper p-6">
-                            {[
-                                { Icon: ClipboardList, label: "Saved locations and access notes" },
-                                { Icon: CreditCard, label: "Invoice and payment visibility" },
-                                { Icon: Building2, label: "Commercial job history" },
-                                ...(siteConfig.offersDumpsterRental ? [{ Icon: Truck, label: "Dumpster swaps, pickups, and extensions" }] : []),
-                            ].map(({ Icon, label }) => (
-                                <div key={label} className="grid grid-cols-[44px_1fr] gap-3 border-b border-line py-4 first:pt-0 last:border-b-0 last:pb-0">
-                                    <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-brand/10 text-brand">
-                                        <Icon className="h-5 w-5" aria-hidden="true" />
-                                    </span>
-                                    <span className="self-center font-display text-[17px] font-bold leading-tight text-ink">{label}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
+                <DispatchCardSection
+                    eyebrow="Account support"
+                    heading="Booking management for commercial accounts."
+                    body="Commercial account contacts can manage saved locations, job records, invoices, account details, and recurring service requests when account access is available."
+                    cards={accountCards}
+                    variant="coverage-cards"
+                    alt
+                />
             )}
 
             <PricingTeaser />
@@ -262,18 +201,6 @@ export default function CommercialPage() {
                 heading={`Commercial junk removal questions in ${cityState}.`}
                 items={faqs}
             />
-
-            <section className="bg-paper-2 px-[clamp(20px,4vw,64px)] py-10">
-                <div className="mx-auto flex flex-wrap justify-center gap-3" style={{ maxWidth: 980 }}>
-                    <Link href="/book" className="btn-secondary">Book Now</Link>
-                    <Link href="/pricing" className="btn-secondary">View Pricing</Link>
-                    {phoneNumber && (
-                        <a href={telHref(phoneNumber)} className="btn-secondary">
-                            <Phone className="h-4 w-4" aria-hidden="true" /> Call Us
-                        </a>
-                    )}
-                </div>
-            </section>
 
             <CtaBand
                 heading={{

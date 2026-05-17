@@ -25,7 +25,7 @@ import {
 } from "@/lib/templateAssets/junkRemoval";
 
 export type DispatchFaq = { q: string; a: string };
-export type DispatchCard = { title: string; desc: string; eyebrow?: string; href?: string };
+export type DispatchCard = { title: string; desc: string; eyebrow?: string; href?: string; actionLabel?: string };
 export type DispatchMetric = { label: string; value: string };
 export type DispatchInfoRow = { n: string; title: string; desc: string };
 
@@ -603,7 +603,15 @@ export function DispatchPageHero({
             {(coverageMap || image) && (
                 <div className="hero-media">
                     {coverageMap ? (
-                        <ServiceAreaMap config={config} focus={coverageMapFocus} />
+                        <>
+                            <ServiceAreaMap config={config} focus={coverageMapFocus} />
+                            {coverageMapFocus?.name && (
+                                <div className="location-focus-card">
+                                    <span>Location focus</span>
+                                    <strong>{coverageMapFocus.name}</strong>
+                                </div>
+                            )}
+                        </>
                     ) : image ? (
                     <div className="media-shell">
                         <SafeImage
@@ -723,7 +731,7 @@ export function DispatchCardSection({
                             {card.eyebrow && <small>{card.eyebrow}</small>}
                             <h3>{card.title}</h3>
                             <p>{card.desc}</p>
-                            {card.href && <span className="btnline">View service -&gt;</span>}
+                            {card.href && <span className="btnline">{card.actionLabel || "View details"} -&gt;</span>}
                         </>
                     );
                     return card.href ? (

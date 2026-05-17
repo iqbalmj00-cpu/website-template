@@ -529,7 +529,7 @@ export function VisualLocationOverview({
                         <span className="syj-lo-eyebrow-rule" />
                         Local overview
                     </div>
-                    <h2 className="syj-lo-title">{companyName} serves approved junk removal jobs in {locationName}.</h2>
+                    <h2 className="syj-lo-title">Junk removal service in {locationName}.</h2>
                     <p className="syj-lo-lead">
                         <span className="syj-lo-lead-bar" aria-hidden="true" />
                         {localInfo}
@@ -554,7 +554,7 @@ export function VisualLocationOverview({
                         <span className="syj-lo-eyebrow-rule" />
                         Location details
                     </div>
-                    <h2 className="syj-lo-title">Coverage around {locationName}.</h2>
+                    <h2 className="syj-lo-title">Local coverage around {locationName}.</h2>
                     <dl className="syj-lo-spec">
                         {coverageRows.map((item, index) => (
                             <div className="syj-lo-spec-row syj-lo-anim" style={{ animationDelay: `${200 + index * 70}ms` }} key={item.title}>

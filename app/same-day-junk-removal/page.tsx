@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, CalendarClock, CheckCircle, Phone } from "lucide-react";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHero from "@/components/redesign/PageHero";
 import StaticFAQ from "@/components/redesign/StaticFAQ";
 import CtaBand from "@/components/redesign/CtaBand";
+import { DispatchCardSection } from "@/components/redesign/DispatchBlocks";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
-import { formatPhone, isSameDayEnabled, siteConfig, telHref } from "@/lib/siteConfig";
+import { formatPhone, isSameDayEnabled, siteConfig } from "@/lib/siteConfig";
 
 const pagePath = "/same-day-junk-removal";
 const breadcrumbs = [
@@ -30,11 +29,24 @@ export const metadata: Metadata = createPageMetadata({
 export default function SameDayJunkRemovalPage() {
     if (!isSameDayEnabled()) notFound();
 
-    const availabilityRules = [
-        "Availability depends on route capacity and booking time.",
-        "Load details and access notes help confirm the right truck space.",
-        "Final pricing is confirmed before the crew loads anything.",
-        "Hazardous or prohibited materials are not accepted.",
+    const availabilityCards = [
+        {
+            title: "Route capacity matters",
+            desc: "Same-day availability depends on the current schedule, route capacity, and when the request is submitted.",
+        },
+        {
+            title: "Job details help confirm space",
+            desc: "Load size, pickup address, access location, and special handling notes help the team review the request.",
+        },
+        {
+            title: "Final price is reviewed",
+            desc: "Pricing is still confirmed before loading begins, even when the appointment is requested for today.",
+        },
+        {
+            title: "Prohibited items still apply",
+            desc: "Hazardous, flammable, medical, and regulated materials are not accepted through standard service.",
+            href: "/items-we-dont-take",
+        },
     ];
 
     return (
@@ -56,43 +68,24 @@ export default function SameDayJunkRemovalPage() {
                     ]),
                 }}
             />
-            <Breadcrumbs items={breadcrumbs} />
-
-            <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem 4rem", textAlign: "center" }}>
-                <div style={{ maxWidth: 820, margin: "0 auto" }}>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.4rem 0.85rem", borderRadius: "var(--btn-radius)", background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)", color: "var(--brand)", fontSize: "0.78rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.25rem" }}>
-                        <CalendarClock size={15} /> Schedule-Dependent
-                    </span>
-                    <h1 style={{ fontSize: "clamp(2.2rem, 5vw, 4rem)", lineHeight: 1.05, fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
-                        Same-Day Junk Removal in {siteConfig.city}
-                    </h1>
-                    <p style={{ color: "var(--hero-muted)", fontSize: "1.13rem", lineHeight: 1.75, maxWidth: 680, margin: "0 auto" }}>
-                        {siteConfig.companyName} offers same-day pickup when schedule capacity is available. Use the booking flow or call to check today&apos;s open windows before crews are routed.
-                    </p>
-                    <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap", marginTop: "2rem" }}>
-                        <Link href="/book" className="btn-primary">
-                            Book Now <ArrowRight size={18} />
-                        </Link>
-                        <a href={telHref(siteConfig.phoneNumber)} className="btn-secondary" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-                            <Phone size={18} /> Call Us
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <section style={{ padding: "4.5rem 1.5rem", background: "var(--background)" }}>
-                <div style={{ maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: "1rem" }}>
-                    {availabilityRules.map((rule) => (
-                        <div key={rule} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10, padding: "1.25rem", display: "flex", gap: "0.8rem", alignItems: "flex-start" }}>
-                            <CheckCircle size={20} style={{ color: "var(--brand)", flexShrink: 0, marginTop: 2 }} />
-                            <p style={{ color: "var(--muted)", lineHeight: 1.6 }}>{rule}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
+            <PageHero
+                crumbs={breadcrumbs}
+                eyebrow="Schedule-dependent"
+                titleStart="Same-day junk removal"
+                titleAccent={` in ${siteConfig.city}.`}
+                lede={`${siteConfig.companyName} offers same-day pickup when schedule capacity is available. Use the booking flow or call to check today's open windows before crews are routed.`}
+                primaryCta={{ label: "Book Now", href: "/book" }}
+            />
+            <DispatchCardSection
+                eyebrow="Availability rules"
+                heading="Same-day service depends on real route capacity."
+                body="These checks keep the page accurate for clients that enable same-day pickup."
+                cards={availabilityCards}
+                variant="coverage-cards"
+            />
             <StaticFAQ eyebrow="Same-day FAQ" heading="Questions about same-day junk removal." items={SAME_DAY_FAQS} />
             <CtaBand
-                heading={{ lead: "Need junk removed today?", accent: "Book Now." }}
+                heading={{ lead: "Need junk removed", accent: "today?" }}
                 lede={`Use the booking flow or call ${formatPhone(siteConfig.phoneNumber)} to see whether a pickup window is available in ${siteConfig.city}.`}
             />
         </>

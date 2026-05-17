@@ -5,6 +5,7 @@ import Credentials from "@/components/redesign/Credentials";
 import Founder from "@/components/redesign/Founder";
 import ReviewAggregate from "@/components/redesign/ReviewAggregate";
 import Recycling from "@/components/redesign/Recycling";
+import StaticFAQ from "@/components/redesign/StaticFAQ";
 import CtaBand from "@/components/redesign/CtaBand";
 import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
 import { getCredentials, getReviewSummary, hasInsurance, hasLicense, hasVerifiedGoogleReviews, siteConfig } from "@/lib/siteConfig";
@@ -100,26 +101,7 @@ export default function AboutPage() {
             <Founder />
             <ReviewAggregate />
             <Recycling />
-            <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
-                <div className="mx-auto" style={{ maxWidth: 980 }}>
-                    <div className="mb-7 text-center">
-                        <div className="eyebrow inline-flex">Company questions</div>
-                        <h2 className="mt-3 font-display text-[clamp(34px,4.5vw,52px)] font-extrabold leading-[1.03] tracking-normal text-ink">
-                            Questions about the company.
-                        </h2>
-                    </div>
-                    <div className="overflow-hidden rounded-[14px] border border-line bg-paper">
-                        {ABOUT_FAQS.map((faq) => (
-                            <details key={faq.q} className="border-b border-line last:border-b-0">
-                                <summary className="cursor-pointer px-6 py-5 font-display text-[19px] font-semibold text-ink">
-                                    {faq.q}
-                                </summary>
-                                <div className="px-6 pb-6 text-[15.5px] leading-[1.6] text-muted">{faq.a}</div>
-                            </details>
-                        ))}
-                    </div>
-                </div>
-            </section>
+            <StaticFAQ eyebrow="Company questions" heading="Questions about the company." items={ABOUT_FAQS} />
             <CtaBand />
         </>
     );

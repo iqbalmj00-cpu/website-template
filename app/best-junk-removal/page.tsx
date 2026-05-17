@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, CheckCircle, ClipboardCheck, Phone } from "lucide-react";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import PageHero from "@/components/redesign/PageHero";
+import CtaBand from "@/components/redesign/CtaBand";
+import { DispatchCardSection } from "@/components/redesign/DispatchBlocks";
 import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
-import { getVerifiableTrustSignals, siteConfig, telHref } from "@/lib/siteConfig";
+import { getVerifiableTrustSignals, siteConfig } from "@/lib/siteConfig";
 import { hasVerifiedPublicReviews } from "@/lib/reviewData";
 
 const path = "/best-junk-removal";
@@ -21,13 +21,41 @@ export const metadata: Metadata = createPageMetadata({
 export default async function BestJunkRemovalPage() {
     const trustSignals = getVerifiableTrustSignals();
     const showReviews = await hasVerifiedPublicReviews();
-    const comparisonCriteria = [
-        "Clear, volume-based pricing before loading starts.",
-        "A published list of accepted and prohibited items.",
-        "Easy online booking or a phone path for urgent questions.",
-        "Real Google review data when it is available.",
-        "Insurance, licensing, or credentials shown only when the company provides them.",
-        "A straightforward explanation of disposal, donation, and recycling limitations.",
+    const comparisonCards = [
+        {
+            title: "Clear pricing process",
+            desc: "Look for load-based pricing, quote review, and final price confirmation before loading begins.",
+        },
+        {
+            title: "Published item rules",
+            desc: "A strong provider explains accepted items, restricted materials, and what details can affect a quote.",
+        },
+        {
+            title: "Easy booking path",
+            desc: "The booking flow should collect contact details, service type, job details, pickup address, access notes, schedule window, and quote review.",
+        },
+        {
+            title: "Verified reviews",
+            desc: "Real Google review data should appear only when it is available and connected to the business.",
+            href: showReviews ? "/reviews" : undefined,
+        },
+        {
+            title: "Configured credentials",
+            desc: "Insurance, licensing, or company credentials should be shown only when the business has provided them.",
+        },
+        {
+            title: "Responsible disposal limits",
+            desc: "Donation, recycling, landfill, and prohibited item language should be practical instead of overpromising.",
+        },
+    ];
+    const trustCards = trustSignals.map((signal) => ({
+        title: signal,
+        desc: `${siteConfig.companyName} displays this because it is configured for this business.`,
+    }));
+    const resourceCards = [
+        { title: "View pricing", desc: "Review load-based planning ranges before booking.", href: "/pricing" },
+        { title: "Check accepted items", desc: "See which junk removal items can be requested.", href: "/items-we-take" },
+        { title: "Review prohibited items", desc: "Check materials that cannot be hauled through standard service.", href: "/items-we-dont-take" },
     ];
 
     return (
@@ -36,78 +64,38 @@ export default async function BestJunkRemovalPage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(breadcrumbs.map(item => ({ name: item.label, path: item.href })))) }}
             />
-            <Breadcrumbs items={breadcrumbs} />
-
-            <section style={{ background: "var(--hero-bg)", padding: "5rem 1.5rem 4rem" }}>
-                <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", padding: "0.4rem 0.85rem", borderRadius: "var(--btn-radius)", background: "var(--hero-badge-bg)", border: "1px solid var(--hero-badge-border)", color: "var(--brand)", fontSize: "0.78rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.25rem" }}>
-                        <ClipboardCheck size={15} /> Comparison Guide
-                    </span>
-                    <h1 style={{ fontSize: "clamp(2.1rem, 5vw, 3.8rem)", lineHeight: 1.05, fontWeight: 900, color: "var(--hero-text)", marginBottom: "1rem" }}>
-                        How To Choose The Best Junk Removal Company in {siteConfig.city}
-                    </h1>
-                    <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem", lineHeight: 1.75, maxWidth: 720, margin: "0 auto" }}>
-                        This guide explains what to compare before booking junk removal, including pricing, accepted items, scheduling, and service expectations.
-                    </p>
-                </div>
-            </section>
-
-            <section style={{ padding: "4.5rem 1.5rem", background: "var(--background)" }}>
-                <div style={{ maxWidth: 980, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: "2rem" }}>
-                    <div>
-                        <h2 className="section-title" style={{ marginBottom: "1.2rem" }}>What To Compare</h2>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
-                            {comparisonCriteria.map((criterion) => (
-                                <div key={criterion} style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-                                    <CheckCircle size={19} style={{ color: "var(--brand)", flexShrink: 0, marginTop: 3 }} />
-                                    <p style={{ color: "var(--muted)", lineHeight: 1.65 }}>{criterion}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, padding: "1.5rem", height: "fit-content" }}>
-                        <h2 style={{ fontSize: "1.2rem", fontWeight: 850, marginBottom: "0.9rem" }}>{siteConfig.companyName} At A Glance</h2>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                            {trustSignals.map((signal) => (
-                                <div key={signal} style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
-                                    <CheckCircle size={17} style={{ color: "var(--brand)", flexShrink: 0 }} />
-                                    <span style={{ color: "var(--muted)", lineHeight: 1.5 }}>{signal}</span>
-                                </div>
-                            ))}
-                        </div>
-                        <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", marginTop: "1.4rem" }}>
-                            <Link href="/pricing" style={{ color: "var(--brand)", fontWeight: 800, textDecoration: "none" }}>
-                                View pricing <ArrowRight size={15} style={{ display: "inline", verticalAlign: "middle" }} />
-                            </Link>
-                            {showReviews && (
-                                <Link href="/reviews" style={{ color: "var(--brand)", fontWeight: 800, textDecoration: "none" }}>
-                                    View reviews <ArrowRight size={15} style={{ display: "inline", verticalAlign: "middle" }} />
-                                </Link>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section style={{ padding: "4.5rem 1.5rem", background: "var(--card)", borderTop: "1px solid var(--border)" }}>
-                <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
-                    <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.4rem)", fontWeight: 900, marginBottom: "1rem" }}>
-                        Ready To Compare A Real Quote?
-                    </h2>
-                    <p style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: "1.05rem", marginBottom: "2rem" }}>
-                        Enter service type, load details, pickup address, access notes, schedule window, and quote review.
-                    </p>
-                    <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
-                        <Link href="/book" className="btn-primary">
-                            Book Now <ArrowRight size={18} />
-                        </Link>
-                        <a href={telHref(siteConfig.phoneNumber)} className="btn-secondary" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-                            <Phone size={18} /> Call Us
-                        </a>
-                    </div>
-                </div>
-            </section>
+            <PageHero
+                crumbs={breadcrumbs}
+                eyebrow="Comparison guide"
+                titleStart="How to choose the best junk removal company"
+                titleAccent={` in ${siteConfig.city}.`}
+                lede="Compare pricing, accepted items, scheduling, reviews, credentials, and service expectations before booking a pickup."
+                primaryCta={{ label: "View Pricing", href: "/pricing" }}
+            />
+            <DispatchCardSection
+                eyebrow="What to compare"
+                heading="Use real service details, not generic claims."
+                body="The best junk removal choice depends on quote clarity, accepted item rules, schedule fit, and whether the company explains its limits."
+                cards={comparisonCards}
+                variant="detail-grid"
+            />
+            <DispatchCardSection
+                eyebrow="Company snapshot"
+                heading={`${siteConfig.companyName} at a glance.`}
+                cards={trustCards}
+                variant="fact-grid"
+                alt
+            />
+            <DispatchCardSection
+                eyebrow="Decision tools"
+                heading="Review the details before booking."
+                cards={resourceCards}
+                variant="service-links"
+            />
+            <CtaBand
+                heading={{ lead: "Ready to compare", accent: "a real quote?" }}
+                lede="Enter service type, load details, pickup address, access notes, schedule window, and quote review."
+            />
         </>
     );
 }

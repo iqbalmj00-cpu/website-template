@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, CheckCircle, ClipboardList, MapPin, Truck } from "lucide-react";
 import PageHero from "@/components/redesign/PageHero";
 import StaticFAQ from "@/components/redesign/StaticFAQ";
 import CtaBand from "@/components/redesign/CtaBand";
+import { DispatchCardSection } from "@/components/redesign/DispatchBlocks";
 import { VisualEstimateFactors, VisualPricingScaleSection } from "@/components/redesign/VisualReplacementBlocks";
 import { createPageMetadata, faqPageJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/siteConfig";
@@ -31,19 +30,16 @@ const PRICING_FAQS = [
 
 const ESTIMATE_STEPS = [
     {
-        icon: ClipboardList,
         label: "Step 01",
         title: "Choose service and load details",
         body: "Select the service type, load size, and job notes that best match the pickup.",
     },
     {
-        icon: MapPin,
         label: "Step 02",
         title: "Add access details",
         body: "Address, ZIP code, stairs, parking, gates, elevators, and carry distance can all affect the estimate.",
     },
     {
-        icon: Truck,
         label: "Step 03",
         title: "Review the estimate",
         body: "The booking wizard provides the estimate path, and the final price is confirmed before loading begins.",
@@ -57,6 +53,17 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default function PricingPage() {
+    const estimateCards = ESTIMATE_STEPS.map((step) => ({
+        eyebrow: step.label,
+        title: step.title,
+        desc: step.body,
+    }));
+    const promiseCards = [
+        { title: "Booking is the estimate entry point", desc: "The wizard collects the service, load, address, access, schedule, and quote details needed for a useful estimate." },
+        { title: "Final price before loading", desc: "The crew confirms the final price before loading begins, after job details and access are reviewed." },
+        { title: "Cleaner details, cleaner estimate", desc: "Access notes and load details reduce surprises before the quote review step." },
+    ];
+
     return (
         <>
             <script
@@ -78,59 +85,24 @@ export default function PricingPage() {
                 eyebrow="Pricing"
                 title="Pick the load that fits the job."
             />
-
-            <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
-                <div className="mx-auto" style={{ maxWidth: 1480 }}>
-                    <div className="mb-9 flex max-w-[46rem] flex-col gap-3">
-                        <div className="eyebrow">Estimate process</div>
-                        <h2 className="font-display text-[clamp(36px,4.5vw,56px)] font-extrabold leading-[1.02] tracking-normal text-ink">
-                            Pricing starts with load size and job details.
-                        </h2>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                        {ESTIMATE_STEPS.map(({ icon: Icon, label, title, body }) => (
-                            <article key={title} className="rounded-[14px] border border-line bg-paper p-6">
-                                <div className="flex items-center gap-3">
-                                    <span className="grid h-11 w-11 place-items-center rounded-[12px] bg-brand text-white">
-                                        <Icon className="h-5 w-5" aria-hidden="true" />
-                                    </span>
-                                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-brand">
-                                        {label}
-                                    </span>
-                                </div>
-                                <h3 className="mt-5 font-display text-[24px] font-bold leading-tight text-ink">{title}</h3>
-                                <p className="mt-3 text-[14.5px] leading-[1.6] text-muted">{body}</p>
-                            </article>
-                        ))}
-                    </div>
-                </div>
-            </section>
+            <DispatchCardSection
+                eyebrow="Estimate process"
+                heading="Pricing starts with load size and job details."
+                cards={estimateCards}
+                variant="detail-grid"
+                alt
+            />
 
             <VisualEstimateFactors config={siteConfig} />
-
-            <section className="bg-paper-2 py-[100px] px-[clamp(20px,4vw,64px)]">
-                <div className="mx-auto grid grid-cols-1 gap-4 md:grid-cols-3" style={{ maxWidth: 1180 }}>
-                    {[
-                        "The booking wizard is the estimate entry point.",
-                        "The final price is confirmed before loading begins.",
-                        "Access notes and load details help produce a cleaner estimate.",
-                    ].map((item) => (
-                        <div key={item} className="flex gap-3 rounded-[14px] border border-line bg-paper p-5">
-                            <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
-                            <p className="text-[14.5px] leading-[1.6] text-muted">{item}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
+            <DispatchCardSection
+                eyebrow="Quote rules"
+                heading="What customers should expect."
+                cards={promiseCards}
+                variant="coverage-cards"
+                alt
+            />
 
             <StaticFAQ eyebrow="Pricing FAQ" heading="Questions before you approve a quote." items={PRICING_FAQS} />
-            <section className="bg-paper-2 px-[clamp(20px,4vw,64px)] pb-[100px]">
-                <div className="mx-auto text-center" style={{ maxWidth: 760 }}>
-                    <Link href="/book" className="btn-primary">
-                        Get an Instant Quote <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </Link>
-                </div>
-            </section>
             <CtaBand />
         </>
     );

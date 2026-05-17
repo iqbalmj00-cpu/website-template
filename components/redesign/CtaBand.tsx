@@ -8,10 +8,11 @@ interface CtaBandProps {
 }
 
 export default function CtaBand({ heading, lede, config = siteConfig }: CtaBandProps = {}) {
+    const headingText = heading ? `${heading.lead} ${heading.accent}`.trim() : undefined;
     return (
         <DispatchFinalCta
             config={config}
-            heading={heading ? `${heading.lead} ${heading.accent}` : undefined}
+            heading={headingText}
             body={lede}
         />
     );
