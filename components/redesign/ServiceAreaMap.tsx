@@ -17,6 +17,65 @@ type MapsLibrary = {
     Circle: GoogleCircleConstructor;
 };
 
+type MapStyle = Array<Record<string, unknown>>;
+
+const MAP_STYLES: Record<string, MapStyle> = {
+    classic: [
+        { featureType: "all", elementType: "labels.text.fill", stylers: [{ color: "#41534a" }] },
+        { featureType: "all", elementType: "labels.text.stroke", stylers: [{ color: "#fbf4e8" }] },
+        { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#cdbca4" }] },
+        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#efe3cf" }] },
+        { featureType: "poi", stylers: [{ visibility: "off" }] },
+        { featureType: "road", elementType: "geometry", stylers: [{ color: "#fff8ec" }] },
+        { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#decbb0" }] },
+        { featureType: "transit", stylers: [{ visibility: "off" }] },
+        { featureType: "water", elementType: "geometry", stylers: [{ color: "#c9ddd8" }] },
+    ],
+    eco: [
+        { featureType: "all", elementType: "labels.text.fill", stylers: [{ color: "#2f5d39" }] },
+        { featureType: "all", elementType: "labels.text.stroke", stylers: [{ color: "#f7faf5" }] },
+        { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#a8c99b" }] },
+        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#e9f3e2" }] },
+        { featureType: "poi", stylers: [{ visibility: "off" }] },
+        { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#cfe7c6" }] },
+        { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+        { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#c8dfc1" }] },
+        { featureType: "transit", stylers: [{ visibility: "off" }] },
+        { featureType: "water", elementType: "geometry", stylers: [{ color: "#c5ddda" }] },
+    ],
+    editorial: [
+        { featureType: "all", elementType: "labels.text.fill", stylers: [{ color: "#3f3932" }] },
+        { featureType: "all", elementType: "labels.text.stroke", stylers: [{ color: "#faf6ef" }] },
+        { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#d7c8b2" }] },
+        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#f1eadf" }] },
+        { featureType: "poi", stylers: [{ visibility: "off" }] },
+        { featureType: "road", elementType: "geometry", stylers: [{ color: "#fffaf2" }] },
+        { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#dfd2bf" }] },
+        { featureType: "transit", stylers: [{ visibility: "off" }] },
+        { featureType: "water", elementType: "geometry", stylers: [{ color: "#d7dedc" }] },
+    ],
+    industrial: [
+        { featureType: "all", elementType: "labels.text.fill", stylers: [{ color: "#c9c6b8" }] },
+        { featureType: "all", elementType: "labels.text.stroke", stylers: [{ color: "#111111" }] },
+        { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#44413a" }] },
+        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#1b1b1b" }] },
+        { featureType: "poi", stylers: [{ visibility: "off" }] },
+        { featureType: "road", elementType: "geometry", stylers: [{ color: "#343434" }] },
+        { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#111111" }] },
+        { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#4b4637" }] },
+        { featureType: "transit", stylers: [{ visibility: "off" }] },
+        { featureType: "water", elementType: "geometry", stylers: [{ color: "#102526" }] },
+    ],
+};
+
+function mapStylesForTheme(theme: string): MapStyle {
+    return MAP_STYLES[theme] ?? MAP_STYLES.classic;
+}
+
+function circleOpacityForTheme(theme: string): number {
+    return theme === "industrial" ? 0.24 : 0.18;
+}
+
 function cleanSlug(value: string): string {
     return value
         .toLowerCase()
@@ -76,27 +135,26 @@ export default function ServiceAreaMap({
                 const map = new Map(mapRef.current, {
                     center,
                     zoom: 10,
+                    disableDefaultUI: true,
                     mapTypeControl: false,
                     streetViewControl: false,
                     fullscreenControl: false,
                     clickableIcons: false,
                     gestureHandling: "cooperative",
-                    zoomControl: true,
-                    styles: [
-                        { featureType: "poi", stylers: [{ visibility: "off" }] },
-                        { featureType: "transit", stylers: [{ visibility: "off" }] },
-                    ],
+                    zoomControl: false,
+                    styles: mapStylesForTheme(config.theme),
                 });
 
+                const circleColor = config.brandColor || "#ff6a00";
                 const circle = new Circle({
                     center,
                     radius: milesToMeters(config.maxRadius),
                     map,
-                    strokeColor: "#ff6a00",
+                    strokeColor: circleColor,
                     strokeOpacity: 0.95,
                     strokeWeight: 3,
-                    fillColor: "#ff6a00",
-                    fillOpacity: 0.18,
+                    fillColor: circleColor,
+                    fillOpacity: circleOpacityForTheme(config.theme),
                 });
 
                 map.fitBounds(circle.getBounds(), 32);
@@ -108,7 +166,7 @@ export default function ServiceAreaMap({
         return () => {
             cancelled = true;
         };
-    }, [config.centerLat, config.centerLng, config.googleMapsKey, config.maxRadius, hasMapConfig]);
+    }, [config.brandColor, config.centerLat, config.centerLng, config.googleMapsKey, config.maxRadius, config.theme, hasMapConfig]);
 
     if (!hasMapConfig || failed) {
         return (
