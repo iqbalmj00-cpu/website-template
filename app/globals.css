@@ -1677,6 +1677,20 @@ a {
   pointer-events: none;
 }
 
+.page-hero .media-shell::after {
+  display: none;
+}
+
+.service-area-map .gm-style-cc,
+.service-area-map .gm-style-cc *,
+.service-area-map a[href^="https://maps.google.com/maps"],
+.service-area-map a[href^="https://www.google.com/intl"],
+.service-area-map a[href*="terms_maps"],
+.service-area-map button[aria-label="Keyboard shortcuts"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
 .dispatch-overlay {
   position: absolute;
   left: 18px;
