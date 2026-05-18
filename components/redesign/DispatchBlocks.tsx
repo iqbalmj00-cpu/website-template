@@ -508,7 +508,7 @@ export function DispatchFinalCta({
                     <p>{body || `Start with the service type, load details, pickup address, access notes, and preferred schedule for ${displayArea(config)}.`}</p>
                 </div>
                 <div className="final-cta-actions">
-                    <Link className="btn brand" href="/book">Get an Instant Quote</Link>
+                    <Link className="btn brand" href="/book">Book Now</Link>
                     {config.phoneNumber && <a className="btn light" href={phoneHref}>Call Us</a>}
                 </div>
             </div>
