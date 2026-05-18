@@ -2674,6 +2674,12 @@ a {
   gap: clamp(20px, 2.4vw, 30px);
 }
 
+.final-cta-actions .btn {
+  min-height: 60px;
+  padding: 0 clamp(32px, 3vw, 42px);
+  font-size: 14px;
+}
+
 .metric-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
