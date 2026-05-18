@@ -2642,9 +2642,9 @@ a {
   display: grid;
   justify-items: center;
   text-align: center;
-  gap: clamp(18px, 2.6vw, 28px);
+  gap: clamp(32px, 4vw, 48px);
   align-items: center;
-  padding: clamp(32px, 4.6vw, 54px);
+  padding: clamp(50px, 6.4vw, 82px);
   background:
     linear-gradient(140deg, color-mix(in oklch, var(--brand) 22%, transparent), transparent 48%),
     var(--inverse);
@@ -2652,46 +2652,26 @@ a {
 }
 
 .final-cta h2 {
-  max-width: min(100%, 760px);
-  font-size: clamp(36px, 4.5vw, 62px);
-  line-height: 1;
+  max-width: min(100%, 780px);
+  font-size: clamp(42px, 6vw, 86px);
+  line-height: 0.96;
 }
 
 .final-cta p {
-  max-width: 68ch;
+  max-width: 760px;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .final-cta h2 + p {
-  margin-top: 14px;
+  margin-top: clamp(20px, 2.4vw, 30px);
 }
 
 .final-cta-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: clamp(14px, 2vw, 22px);
-}
-
-.final-cta-actions .btn {
-  min-height: 48px;
-  padding: 0 24px;
-}
-
-@media (min-width: 1180px) {
-  .final-cta {
-    grid-template-columns: minmax(0, 1fr) auto;
-    justify-items: start;
-    text-align: left;
-    gap: clamp(28px, 4vw, 64px);
-  }
-
-  .final-cta h2 {
-    max-width: min(100%, 16ch);
-  }
-
-  .final-cta-actions {
-    justify-content: flex-end;
-  }
+  gap: clamp(20px, 2.4vw, 30px);
 }
 
 .metric-strip {

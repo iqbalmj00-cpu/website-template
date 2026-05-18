@@ -500,14 +500,12 @@ export function DispatchFinalCta({
     body?: string;
 } = {}) {
     const phoneHref = telHref(config.phoneNumber);
-    const cityState = [config.city, config.state].filter(Boolean).join(", ");
-    const defaultBody = `Start with the service type, load details, pickup address, access notes, and preferred schedule${cityState ? ` for ${cityState}` : ""}.`;
     return (
         <section className="section tight">
             <div className="final-cta">
                 <div>
                     <h2>{heading}</h2>
-                    <p>{body || defaultBody}</p>
+                    <p>{body || `Start with the service type, load details, pickup address, access notes, and preferred schedule for ${displayArea(config)}.`}</p>
                 </div>
                 <div className="final-cta-actions">
                     <Link className="btn brand" href="/book">Get an Instant Quote</Link>
