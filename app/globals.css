@@ -2640,10 +2640,9 @@ a {
 
 .final-cta {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  justify-items: start;
-  text-align: left;
-  gap: clamp(22px, 4vw, 56px);
+  justify-items: center;
+  text-align: center;
+  gap: clamp(18px, 2.6vw, 28px);
   align-items: center;
   padding: clamp(32px, 4.6vw, 54px);
   background:
@@ -2669,13 +2668,26 @@ a {
 .final-cta-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: center;
   gap: clamp(14px, 2vw, 22px);
 }
 
 .final-cta-actions .btn {
   min-height: 48px;
   padding: 0 24px;
+}
+
+@media (min-width: 1180px) {
+  .final-cta {
+    grid-template-columns: minmax(0, 1fr) auto;
+    justify-items: start;
+    text-align: left;
+    gap: clamp(28px, 4vw, 64px);
+  }
+
+  .final-cta-actions {
+    justify-content: flex-end;
+  }
 }
 
 .metric-strip {
