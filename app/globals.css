@@ -2652,7 +2652,7 @@ a {
 }
 
 .final-cta h2 {
-  max-width: min(100%, 16ch);
+  max-width: min(100%, 760px);
   font-size: clamp(36px, 4.5vw, 62px);
   line-height: 1;
 }
@@ -2683,6 +2683,10 @@ a {
     justify-items: start;
     text-align: left;
     gap: clamp(28px, 4vw, 64px);
+  }
+
+  .final-cta h2 {
+    max-width: min(100%, 16ch);
   }
 
   .final-cta-actions {
