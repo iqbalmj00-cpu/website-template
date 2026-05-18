@@ -38,8 +38,8 @@ export default function ContactPage() {
                 titleAccent={`in ${siteConfig.city}.`}
                 lede={`Start a junk removal quote for ${cityState}. Use the booking flow for the cleanest pickup details, or call with questions before scheduling.`}
             />
-            <NapHours />
             <ContactForm />
+            <NapHours />
             <StaticFAQ eyebrow="Contact FAQ" heading="What to include before pickup." items={CONTACT_FAQS} tone="paper-2" />
             <CtaBand />
         </>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import SafeImage from "@/components/SafeImage";
 import ServiceAreaMap, { type MapFocus } from "@/components/redesign/ServiceAreaMap";
+import RichFAQ from "@/components/redesign/RichFAQ";
 import { VisualPricingScaleSection } from "@/components/redesign/VisualReplacementBlocks";
 import {
     formatPhone,
@@ -32,11 +33,6 @@ export type DispatchInfoRow = { n: string; title: string; desc: string };
 function displayArea(config: SiteConfig): string {
     if (config.serviceArea && config.serviceArea !== "your area") return config.serviceArea;
     return [config.city, config.state].filter(Boolean).join(", ") || "your service area";
-}
-
-function companyInitial(name: string): string {
-    const clean = name.trim();
-    return clean ? clean.charAt(0).toUpperCase() : "J";
 }
 
 function cleanSlug(value: string): string {
@@ -131,7 +127,6 @@ export function DispatchSiteFooter({ config = siteConfig, showReviews }: { confi
             <div className="footer-main">
                 <div className="footer-brand">
                     <Link className="footer-logo" href="/" aria-label={`${config.companyName} home`}>
-                        <span className="brand-mark">{companyInitial(config.companyName)}</span>
                         <span>
                             <strong>{config.companyName}</strong>
                             <small>Hauling and cleanouts</small>
@@ -460,7 +455,10 @@ export function DispatchBookingShell({ config = siteConfig }: { config?: SiteCon
                     <span className="eyebrow">Booking path</span>
                     <h2>Book junk removal online in {config.city || "your area"}.</h2>
                     <p>Use the booking form to enter contact information, job details, pickup address, access notes, schedule window, and quote review.</p>
-                    <Link className="btn brand" href="/book">Book Now</Link>
+                    <div className="booking-actions">
+                        <Link className="btn brand" href="/book">Book Now</Link>
+                        <Link className="btn light" href="#pricing">See Pricing</Link>
+                    </div>
                 </div>
                 <div className="booking-board wizard-board">
                     {steps.map(([n, title, desc, status]) => (
@@ -481,33 +479,15 @@ export function DispatchFaqBoard({
     eyebrow = "FAQ",
     heading = "Junk removal questions before booking.",
     body,
+    tone = "paper",
 }: {
     items: DispatchFaq[];
     eyebrow?: string;
     heading?: string;
     body?: string;
+    tone?: "paper" | "paper-2";
 }) {
-    if (items.length === 0) return null;
-
-    return (
-        <section className="section" id="faq">
-            <div className="section-head">
-                <div>
-                    <span className="eyebrow">{eyebrow}</span>
-                    <h2>{heading}</h2>
-                </div>
-                <p>{body || "Review pricing, scheduling, accepted items, service-area coverage, and what to expect before pickup."}</p>
-            </div>
-            <div className="faq-board">
-                {items.slice(0, 6).map((faq) => (
-                    <article className="faq-item" key={faq.q}>
-                        <h3>{faq.q}</h3>
-                        <p>{faq.a}</p>
-                    </article>
-                ))}
-            </div>
-        </section>
-    );
+    return <RichFAQ eyebrow={eyebrow} heading={heading} body={body} items={items} tone={tone} />;
 }
 
 export function DispatchFinalCta({

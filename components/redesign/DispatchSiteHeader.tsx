@@ -13,11 +13,6 @@ type HeaderNavItem = {
     dropdown?: "services" | "locations";
 };
 
-function initial(name: string): string {
-    const clean = name.trim();
-    return clean ? clean.charAt(0).toUpperCase() : "J";
-}
-
 function active(pathname: string | null, href: string): boolean {
     if (!pathname) return false;
     return pathname === href || pathname.startsWith(`${href}/`);
@@ -83,7 +78,6 @@ export default function DispatchSiteHeader({ config = siteConfig, showReviews }:
     return (
         <header className="site-header">
             <Link className="brand-lockup" href="/" aria-label={`${config.companyName} home`} onClick={() => setMenuOpen(false)}>
-                <span className="brand-mark">{initial(config.companyName)}</span>
                 <span className="brand-word">
                     <strong>{config.companyName}</strong>
                     <span>Hauling and cleanouts</span>

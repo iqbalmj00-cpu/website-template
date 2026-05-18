@@ -215,7 +215,6 @@ export function VisualCommonProjects({
                                 <span aria-hidden="true" className="syj-cp-ghost-num">{String(index + 1).padStart(2, "0")}</span>
                                 <div className="syj-cp-card-top">
                                     <span className="syj-cp-card-icon"><Icon aria-hidden="true" /></span>
-                                    <span className="syj-cp-card-idx">{String(index + 1).padStart(2, "0")}</span>
                                 </div>
                                 <h3 className="syj-cp-card-name">{project.title}</h3>
                                 <p className="syj-cp-card-detail">{project.desc}</p>

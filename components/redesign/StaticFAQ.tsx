@@ -16,6 +16,7 @@ export default function StaticFAQ({
     eyebrow = "FAQ",
     heading,
     items,
+    tone = "paper",
 }: StaticFAQProps) {
-    return <DispatchFaqBoard eyebrow={eyebrow} heading={heading} items={items} />;
+    return <DispatchFaqBoard eyebrow={eyebrow} heading={heading} items={items} tone={tone} />;
 }

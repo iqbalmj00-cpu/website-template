@@ -1175,9 +1175,9 @@ a {
   top: 0;
   z-index: 40;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(220px, auto) minmax(0, 1fr) auto;
   align-items: center;
-  gap: 28px;
+  gap: clamp(16px, 2vw, 28px);
   min-height: 82px;
   border-bottom: 1px solid var(--line);
   background: color-mix(in oklch, var(--paper) 92%, var(--brand) 8%);
@@ -1186,22 +1186,8 @@ a {
 
 .brand-lockup {
   min-width: 0;
-  gap: 12px;
+  gap: 0;
   text-decoration: none;
-}
-
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius);
-  background: var(--brand);
-  color: var(--brand-ink);
-  box-shadow: 0 12px 26px color-mix(in oklch, var(--brand) 30%, transparent);
-  font-family: var(--heading-font);
-  font-size: 27px;
-  font-weight: 900;
 }
 
 .brand-word {
@@ -1231,7 +1217,7 @@ a {
 
 .nav-links {
   justify-content: center;
-  gap: clamp(10px, 1.35vw, 22px);
+  gap: clamp(8px, 1vw, 16px);
   min-width: 0;
 }
 
@@ -1246,6 +1232,7 @@ a {
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .nav-links a::after,
@@ -1325,7 +1312,7 @@ a {
 
 .nav-ctas {
   justify-content: end;
-  gap: 12px;
+  gap: clamp(16px, 2vw, 28px);
 }
 
 .phone-link {
@@ -1398,14 +1385,14 @@ a {
   align-items: center;
   justify-content: center;
   gap: 9px;
-  min-height: 46px;
-  padding: 0 20px;
+  min-height: 48px;
+  padding: 0 22px;
   border: 1px solid color-mix(in oklch, var(--ink) 18%, transparent);
   border-radius: var(--radius-button);
   background: var(--ink);
   color: var(--paper);
   text-decoration: none;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 900;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -1452,8 +1439,8 @@ a {
 }
 
 .page-hero {
-  min-height: clamp(560px, 58vw, 680px);
-  padding: clamp(54px, 7vw, 92px) clamp(18px, 4vw, 58px);
+  min-height: clamp(590px, 60vw, 720px);
+  padding: clamp(64px, 7.4vw, 104px) clamp(18px, 4vw, 58px);
 }
 
 .hero::before,
@@ -1535,10 +1522,10 @@ a {
 }
 
 .page-hero h1 {
-  max-width: 13ch;
-  margin-bottom: clamp(24px, 3vw, 34px);
-  font-size: clamp(58px, 7vw, 112px);
-  line-height: 0.96;
+  max-width: 14ch;
+  margin-bottom: clamp(26px, 3.3vw, 40px);
+  font-size: clamp(64px, 7.3vw, 122px);
+  line-height: 0.95;
 }
 
 .hero p,
@@ -1555,7 +1542,8 @@ a {
 
 .page-hero p {
   margin: 0;
-  font-size: 18px;
+  color: color-mix(in oklch, var(--ink) 82%, transparent);
+  font-size: clamp(19px, 1.6vw, 22px);
 }
 
 .page-hero.no-media {
@@ -1576,10 +1564,26 @@ a {
   max-width: min(100%, 900px);
 }
 
+.page-hero .crumbs {
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.page-hero .crumbs + .eyebrow {
+  margin-bottom: clamp(22px, 2.8vw, 32px);
+}
+
 .hero-actions {
   flex-wrap: wrap;
-  gap: 12px;
+  gap: clamp(16px, 2vw, 24px);
   margin-top: clamp(28px, 3.8vw, 42px);
+}
+
+.hero-actions .btn,
+.booking-actions .btn,
+.final-cta-actions .btn {
+  min-height: 52px;
+  padding: 0 26px;
 }
 
 .trust-line {
@@ -1762,7 +1766,7 @@ a {
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: -30px clamp(18px, 4vw, 58px) 0;
+  margin: -22px clamp(18px, 4vw, 58px) 0;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: color-mix(in oklch, var(--panel) 94%, var(--brand) 6%);
@@ -1773,10 +1777,10 @@ a {
 .action-item {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 14px;
+  gap: 12px;
   align-items: start;
-  min-height: 146px;
-  padding: 24px;
+  min-height: 118px;
+  padding: 18px;
   border-right: 1px solid var(--line);
 }
 
@@ -1787,8 +1791,8 @@ a {
 .icon-box {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: var(--radius);
   background: var(--brand);
   color: var(--brand-ink);
@@ -1796,8 +1800,8 @@ a {
 }
 
 .action-item h3 {
-  font-size: 28px;
-  line-height: 0.96;
+  font-size: clamp(22px, 2.4vw, 26px);
+  line-height: 1;
 }
 
 .action-item p {
@@ -2015,7 +2019,7 @@ a {
 
 .work-grid {
   grid-template-columns: minmax(420px, 0.86fr) minmax(0, 1.14fr);
-  align-items: stretch;
+  align-items: start;
 }
 
 .work-panel,
@@ -2080,12 +2084,13 @@ a {
 .route-board {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-self: start;
   overflow: hidden;
 }
 
 .route-step {
   display: flex;
-  min-height: 250px;
+  min-height: 218px;
   flex-direction: column;
   align-items: flex-start;
   padding: clamp(24px, 3vw, 34px);
@@ -2118,13 +2123,13 @@ a {
 
 .route-step h3 {
   margin-bottom: 12px;
-  font-size: clamp(30px, 3.4vw, 44px);
+  font-size: clamp(28px, 3.2vw, 40px);
   line-height: 1.02;
 }
 
 .route-step p {
   margin: 0;
-  color: var(--muted);
+  color: var(--ink);
   line-height: 1.56;
 }
 
@@ -2290,6 +2295,11 @@ a {
   line-height: 1.64;
 }
 
+.copy-block p,
+.info-board p {
+  color: var(--ink);
+}
+
 .area-chips,
 .inline-list {
   display: flex;
@@ -2382,13 +2392,19 @@ a {
 }
 
 .booking-shell {
-  grid-template-columns: minmax(420px, 0.85fr) minmax(0, 1.15fr);
+  grid-template-columns: minmax(420px, 0.95fr) minmax(0, 1.05fr);
 }
 
 .booking-board h2 {
-  max-width: 14ch;
+  max-width: min(100%, 820px);
   font-size: clamp(42px, 5.4vw, 74px);
   line-height: 1;
+}
+
+.booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
 }
 
 .wizard-board {
@@ -2448,15 +2464,182 @@ a {
   max-width: 22ch;
   font-size: clamp(25px, 3vw, 38px);
   line-height: 1.12;
+  text-align: center;
+}
+
+.rich-faq-shell {
+  max-width: min(1480px, 100%);
+  margin: 0 auto;
+}
+
+.rich-faq-head {
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(280px, 0.46fr) auto;
+  gap: clamp(18px, 3vw, 36px);
+  align-items: end;
+  margin-bottom: clamp(24px, 3vw, 34px);
+}
+
+.rich-faq-head h2 {
+  max-width: min(100%, 780px);
+  margin: 0;
+  font-family: var(--heading-font);
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 900;
+  letter-spacing: var(--display-tracking);
+  line-height: 1.02;
+  text-transform: var(--display-transform);
+}
+
+.rich-faq-head p {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--ink);
+  font-size: 15.5px;
+  line-height: 1.65;
+}
+
+.rich-faq-count {
+  justify-self: end;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.rich-faq-board {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  box-shadow: var(--soft-shadow);
+}
+
+.rich-faq-section--paper-2 .rich-faq-board {
+  background: var(--paper-2);
+}
+
+.rich-faq-row {
+  border-bottom: 1px solid var(--line);
+}
+
+.rich-faq-row:last-child {
+  border-bottom: 0;
+}
+
+.rich-faq-trigger {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 38px;
+  gap: clamp(14px, 2vw, 22px);
+  align-items: center;
+  width: 100%;
+  min-height: 78px;
+  padding: clamp(18px, 2.6vw, 26px);
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: background 180ms ease;
+}
+
+.rich-faq-trigger:hover,
+.rich-faq-trigger:focus-visible {
+  background: color-mix(in oklch, var(--brand) 8%, transparent);
+}
+
+.rich-faq-number {
+  color: var(--brand);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.rich-faq-question {
+  font-family: var(--heading-font);
+  font-size: clamp(21px, 2.35vw, 32px);
+  font-weight: 900;
+  letter-spacing: var(--display-tracking);
+  line-height: 1.12;
+  text-transform: var(--display-transform);
+}
+
+.rich-faq-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  justify-self: end;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--brand);
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.rich-faq-trigger[aria-expanded="true"] .rich-faq-icon {
+  transform: rotate(45deg);
+  border-color: var(--brand);
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+.rich-faq-answer {
+  padding: 0 clamp(24px, 4vw, 72px) clamp(24px, 3vw, 34px) clamp(54px, 7vw, 106px);
+}
+
+.rich-faq-answer p {
+  max-width: 76ch;
+  margin: 0;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.rich-faq-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 20px;
+  padding: 18px clamp(20px, 3vw, 28px);
+  border-radius: var(--radius-card);
+  background: var(--inverse);
+  color: var(--inverse-text);
+}
+
+.rich-faq-footer div {
+  display: grid;
+  gap: 5px;
+}
+
+.rich-faq-footer strong {
+  font-family: var(--heading-font);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+  text-transform: var(--display-transform);
+}
+
+.rich-faq-footer span {
+  color: color-mix(in oklch, currentColor 76%, transparent);
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .final-cta {
   display: grid;
   justify-items: center;
   text-align: center;
-  gap: 22px;
+  gap: clamp(24px, 3vw, 34px);
   align-items: center;
-  padding: clamp(26px, 5vw, 46px);
+  padding: clamp(44px, 6vw, 72px);
   background:
     linear-gradient(140deg, color-mix(in oklch, var(--brand) 22%, transparent), transparent 48%),
     var(--inverse);
@@ -2479,7 +2662,7 @@ a {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px;
+  gap: clamp(14px, 2vw, 22px);
 }
 
 .metric-strip {
@@ -2491,9 +2674,12 @@ a {
 }
 
 .stat {
+  display: grid;
+  place-items: center;
   min-height: 126px;
   padding: 22px;
   border-right: 1px solid var(--line);
+  text-align: center;
 }
 
 .stat:last-child {
@@ -3510,7 +3696,6 @@ a {
 
 .syj-hi-item-idx,
 .syj-hi-detail-tag,
-.syj-cp-card-idx,
 .syj-wb-row-tag,
 .syj-hi-detail-row dt {
   color: var(--muted);
@@ -3676,7 +3861,7 @@ a {
 .syj-cp-card-detail {
   position: relative;
   margin: auto 0 0;
-  color: var(--muted);
+  color: var(--ink);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -4650,7 +4835,7 @@ a {
 .footer-logo {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 0;
   color: var(--ink);
   text-decoration: none;
 }
@@ -4782,6 +4967,8 @@ html[data-theme="industrial"] .booking-board,
 [data-theme="industrial"] .booking-board,
 html[data-theme="industrial"] .faq-board,
 [data-theme="industrial"] .faq-board,
+html[data-theme="industrial"] .rich-faq-board,
+[data-theme="industrial"] .rich-faq-board,
 html[data-theme="industrial"] .final-cta,
 [data-theme="industrial"] .final-cta,
 html[data-theme="industrial"] .service-area-map,
@@ -4855,6 +5042,8 @@ html[data-theme="eco"] .booking-board,
 [data-theme="eco"] .booking-board,
 html[data-theme="eco"] .faq-board,
 [data-theme="eco"] .faq-board,
+html[data-theme="eco"] .rich-faq-board,
+[data-theme="eco"] .rich-faq-board,
 html[data-theme="eco"] .final-cta,
 [data-theme="eco"] .final-cta {
   border-radius: calc(var(--radius-card) + 14px);
@@ -4889,11 +5078,6 @@ html[data-theme="editorial"] .site-header,
 [data-theme="editorial"] .site-header {
   min-height: 96px;
   background: var(--paper);
-}
-
-html[data-theme="editorial"] .brand-mark,
-[data-theme="editorial"] .brand-mark {
-  display: none;
 }
 
 html[data-theme="editorial"] .hero,
@@ -4970,6 +5154,8 @@ html[data-theme="editorial"] .booking-board,
 [data-theme="editorial"] .booking-board,
 html[data-theme="editorial"] .faq-board,
 [data-theme="editorial"] .faq-board,
+html[data-theme="editorial"] .rich-faq-board,
+[data-theme="editorial"] .rich-faq-board,
 html[data-theme="editorial"] .final-cta,
 [data-theme="editorial"] .final-cta {
   box-shadow: none;
@@ -5148,6 +5334,41 @@ html[data-theme="editorial"] .final-cta,
   }
 
   .faq-item:last-child {
+    border-bottom: 0;
+  }
+
+  .rich-faq-head {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .rich-faq-count {
+    justify-self: start;
+  }
+
+  .rich-faq-trigger {
+    grid-template-columns: minmax(0, 1fr) 38px;
+    padding: 20px;
+  }
+
+  .rich-faq-number {
+    grid-column: 1 / -1;
+  }
+
+  .rich-faq-answer {
+    padding: 0 20px 24px;
+  }
+
+  .rich-faq-footer {
+    align-items: flex-start;
+  }
+
+  .stat {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .stat:last-child {
     border-bottom: 0;
   }
 

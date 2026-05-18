@@ -239,7 +239,7 @@ export default function GroupedFAQ({
                   className="overflow-hidden transition-[max-height] duration-400 ease-out"
                   style={{ maxHeight: isOpen ? "480px" : 0 }}
                 >
-                  <div className="pl-[60px] pr-6 pb-6 text-[15.5px] leading-[1.6] text-muted max-w-[70ch]">
+                  <div className="pl-[60px] pr-6 pb-6 text-[15.5px] leading-[1.6] text-ink max-w-[70ch]">
                     {resolved}
                   </div>
                 </div>
