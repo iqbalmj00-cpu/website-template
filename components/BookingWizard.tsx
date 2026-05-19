@@ -364,9 +364,8 @@ export default function BookingWizard() {
     const [error, setError] = useState("");
     const [leadCaptured, setLeadCaptured] = useState(saved?.leadCaptured ?? false);
 
-    /* ── Terms & consent state ── */
+    /* ── Terms state ── */
     const [termsAccepted, setTermsAccepted] = useState(saved?.termsAccepted ?? false);
-    const [smsConsent, setSmsConsent] = useState(saved?.smsConsent ?? false);
 
     /* ── Dumpster rental state ── */
     const [serviceType, setServiceType] = useState<ServiceType | null>(saved?.serviceType ?? (siteConfig.offersDumpsterRental ? null : "junk"));
@@ -420,14 +419,14 @@ export default function BookingWizard() {
             step, tierIndex, edgeCases, volume, location,
             selectedDate: selectedDate?.toISOString() ?? null,
             selectedTime, contact, distanceSurcharge, distanceMiles, leadCaptured,
-            termsAccepted, smsConsent, serviceType, containerSize, debrisType,
+            termsAccepted, serviceType, containerSize, debrisType,
             rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference,
             addressConfirmed,
         };
         try { sessionStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(data)); } catch {}
     }, [step, tierIndex, edgeCases, volume, location,
         selectedDate, selectedTime, contact, distanceSurcharge, distanceMiles, leadCaptured,
-        termsAccepted, smsConsent, serviceType, containerSize, debrisType,
+        termsAccepted, serviceType, containerSize, debrisType,
         rentalDuration, promoCode, promoInputOpen, promoInputValue, paymentPreference,
         addressConfirmed]);
 
@@ -656,7 +655,7 @@ export default function BookingWizard() {
     };
 
     /* ── SMS consent text (shown verbatim to the customer) ─────────── */
-    const SMS_CONSENT_TEXT = `I agree to receive SMS and email communications from ${siteConfig.companyName} about my booking, including confirmations, reminders, and updates. Msg frequency varies. Msg & data rates may apply. Reply STOP to cancel, HELP for help.`;
+    const SMS_CONSENT_TEXT = "By proceeding to the next step you agree to marketing and booking related SMS and Email communications.";
 
     /* ── Capture lead on Step 0 completion ─────────────────────────── */
     const captureLead = useCallback(async () => {
@@ -674,8 +673,8 @@ export default function BookingWizard() {
                     address: contact.address,
                     description: contact.notes || "Website booking started",
                     source: bookingSource,
-                    smsOptIn: smsConsent,
-                    ...(smsConsent ? { consentText: SMS_CONSENT_TEXT } : {}),
+                    smsOptIn: true,
+                    consentText: SMS_CONSENT_TEXT,
                     metadata: {
                         customerType: contact.customerType,
                     },
@@ -697,7 +696,7 @@ export default function BookingWizard() {
         } finally {
             setSubmitting(false);
         }
-    }, [contact, leadCaptured, smsConsent, SMS_CONSENT_TEXT, bookingSource, goNext]);
+    }, [contact, leadCaptured, SMS_CONSENT_TEXT, bookingSource, goNext]);
 
     /* ── Final booking submit ─────────────────────────────────────── */
     const handleSubmit = useCallback(async () => {
@@ -739,8 +738,8 @@ export default function BookingWizard() {
                     name: contact.name, phone: contact.phone, email: contact.email, address: contact.address,
                     description, requestedDate: selectedDate?.toISOString().split("T")[0],
                     value: minPrice || undefined, notes: contact.notes || "",
-                    smsOptIn: smsConsent,
-                    ...(smsConsent ? { consentText: SMS_CONSENT_TEXT } : {}),
+                    smsOptIn: true,
+                    consentText: SMS_CONSENT_TEXT,
                     metadata: {
                         serviceType: "junk_removal",
                         customerType: contact.customerType,
@@ -812,8 +811,8 @@ export default function BookingWizard() {
                     name: contact.name, phone: contact.phone, email: contact.email, address: contact.address,
                     description, requestedDate: selectedDate?.toISOString().split("T")[0],
                     notes: contact.notes || "",
-                    smsOptIn: smsConsent,
-                    ...(smsConsent ? { consentText: SMS_CONSENT_TEXT } : {}),
+                    smsOptIn: true,
+                    consentText: SMS_CONSENT_TEXT,
                     metadata: {
                         serviceType: "dumpster_rental",
                         customerType: contact.customerType,
@@ -1137,14 +1136,12 @@ export default function BookingWizard() {
                             </div>
                         </div>
 
-                        {/* SMS + Email Consent (optional, TCPA-compliant) */}
-                        <label style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 18px", borderRadius: 12, border: `2px solid ${smsConsent ? "var(--brand)" : "var(--border, #E2E8F0)"}`, background: smsConsent ? "#FFF7ED" : "var(--card)", cursor: "pointer", transition: "all 0.15s", marginTop: 20 }}>
-                            <input type="checkbox" checked={smsConsent} onChange={(e) => setSmsConsent(e.target.checked)}
-                                style={{ width: 20, height: 20, accentColor: "var(--brand)", flexShrink: 0, marginTop: 1 }} />
+                        {/* SMS + Email Disclosure */}
+                        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 18px", borderRadius: 12, border: "1px solid var(--border, #E2E8F0)", background: "var(--card)", marginTop: 20 }}>
                             <span style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.5 }}>
-                                I agree to receive SMS and email communications from {siteConfig.companyName} about my booking, including confirmations, reminders, and updates. Msg frequency varies. Msg &amp; data rates may apply. Reply STOP to cancel, HELP for help. View our <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "var(--brand)", fontWeight: 600 }}>Privacy Policy</a>.
+                                {SMS_CONSENT_TEXT}
                             </span>
-                        </label>
+                        </div>
 
                         {error && (
                             <div style={{ marginTop: 16, padding: "12px 18px", borderRadius: 12, background: "#FEF2F2", border: "1px solid #FECACA", fontSize: 14, color: "#DC2626" }}>
