@@ -140,6 +140,10 @@ function previewStyle(config: SiteConfig): CSSProperties {
         "--brand": config.brandColor,
         "--brand-dark": adjustHexColor(config.brandColor, -15),
         "--brand-rgb": hexToRgb(config.brandColor),
+        backgroundColor: "var(--background)",
+        color: "var(--foreground)",
+        fontFamily: "var(--body-font)",
+        minHeight: "100vh",
     } as CSSProperties;
 }
 
