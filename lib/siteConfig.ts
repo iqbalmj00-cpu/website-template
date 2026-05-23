@@ -33,7 +33,7 @@ export const WEBSITE_FONT_PAIR_VALUES = [
 
 export type WebsiteFontPair = (typeof WEBSITE_FONT_PAIR_VALUES)[number];
 export type WebsiteDesignConfig = {
-    homepageStyle: "conversion" | "editorial" | "bold" | "local";
+    homepageStyle: "conversion";
     cornerRadius: "square" | "balanced" | "rounded";
     navStyle: "solid" | "transparent";
     showTrustBar: boolean;
@@ -190,9 +190,7 @@ export function normalizeWebsiteDesignConfig(input: unknown): WebsiteDesignConfi
 
     const raw = input as Record<string, unknown>;
     return {
-        homepageStyle: ["conversion", "editorial", "bold", "local"].includes(String(raw.homepageStyle))
-            ? raw.homepageStyle as WebsiteDesignConfig["homepageStyle"]
-            : DEFAULT_WEBSITE_DESIGN_CONFIG.homepageStyle,
+        homepageStyle: DEFAULT_WEBSITE_DESIGN_CONFIG.homepageStyle,
         cornerRadius: ["square", "balanced", "rounded"].includes(String(raw.cornerRadius))
             ? raw.cornerRadius as WebsiteDesignConfig["cornerRadius"]
             : DEFAULT_WEBSITE_DESIGN_CONFIG.cornerRadius,
