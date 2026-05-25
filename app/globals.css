@@ -1513,6 +1513,7 @@ a {
   font-weight: 900;
   letter-spacing: var(--display-tracking);
   text-transform: var(--display-transform);
+  overflow-wrap: anywhere;
 }
 
 .hero h1 {
@@ -1999,6 +2000,7 @@ a {
 .service-copy h3 {
   font-size: clamp(30px, 4vw, 58px);
   line-height: 0.96;
+  overflow-wrap: anywhere;
 }
 
 .service-copy p {
@@ -2653,6 +2655,8 @@ a {
 
 .final-cta h2 {
   max-width: min(100%, 780px);
+  margin-right: auto;
+  margin-left: auto;
   font-size: clamp(42px, 6vw, 86px);
   line-height: 0.96;
 }
@@ -4909,6 +4913,8 @@ a {
 
 .footer-col a {
   max-width: 20ch;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .site-footer address {
@@ -5220,6 +5226,22 @@ html[data-theme="editorial"] .final-cta,
     grid-template-columns: minmax(0, 1fr);
   }
 
+  html[data-theme="editorial"] .section-head,
+  [data-theme="editorial"] .section-head,
+  html[data-theme="editorial"] .work-grid,
+  [data-theme="editorial"] .work-grid,
+  html[data-theme="editorial"] .pricing-grid,
+  [data-theme="editorial"] .pricing-grid,
+  html[data-theme="editorial"] .area-section,
+  [data-theme="editorial"] .area-section,
+  html[data-theme="editorial"] .review-layout,
+  [data-theme="editorial"] .review-layout,
+  html[data-theme="editorial"] .booking-shell,
+  [data-theme="editorial"] .booking-shell {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: auto;
+  }
+
   .dumpster-planning-board {
     grid-column: auto;
   }
@@ -5245,6 +5267,16 @@ html[data-theme="editorial"] .final-cta,
 
   .hero,
   .page-hero {
+    min-height: auto;
+  }
+
+  html[data-theme="industrial"] .hero,
+  [data-theme="industrial"] .hero,
+  html[data-theme="eco"] .hero,
+  [data-theme="eco"] .hero,
+  html[data-theme="editorial"] .hero,
+  [data-theme="editorial"] .hero {
+    grid-template-columns: minmax(0, 1fr);
     min-height: auto;
   }
 
@@ -5280,6 +5312,10 @@ html[data-theme="editorial"] .final-cta,
 
   .brand-word strong {
     white-space: normal;
+  }
+
+  .brand-word span {
+    display: none;
   }
 
   .hero,
@@ -5350,6 +5386,26 @@ html[data-theme="editorial"] .final-cta,
 
   .service-tile.large,
   .service-tile.wide {
+    grid-column: span 1;
+    grid-row: span 1;
+    min-height: 280px;
+  }
+
+  html[data-theme="industrial"] .service-mosaic,
+  [data-theme="industrial"] .service-mosaic,
+  html[data-theme="eco"] .service-mosaic,
+  [data-theme="eco"] .service-mosaic {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-theme="industrial"] .service-tile.large,
+  [data-theme="industrial"] .service-tile.large,
+  html[data-theme="industrial"] .service-tile.wide,
+  [data-theme="industrial"] .service-tile.wide,
+  html[data-theme="eco"] .service-tile.large,
+  [data-theme="eco"] .service-tile.large,
+  html[data-theme="eco"] .service-tile.wide,
+  [data-theme="eco"] .service-tile.wide {
     grid-column: span 1;
     grid-row: span 1;
     min-height: 280px;
