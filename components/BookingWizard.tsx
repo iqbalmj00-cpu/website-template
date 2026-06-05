@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, ChevronLeft, CreditCard, Lock, Truck, CalendarDays, AlertTriangle, LockKeyhole, Hand, Wrench, Box, FileText, Home, Building2 } from "lucide-react";
 import ServiceIcon from "@/components/ServiceIcon";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import { VolumeEstimator } from "@/components/booking/VolumeEstimator";
 import { haversineDistance } from "@/lib/haversine";
 import { siteConfig, formatDumpsterPrice, roundTo5 } from "@/lib/siteConfig";
 import {
@@ -18,53 +18,10 @@ import {
     type ServiceType, type WizardPhase, type DynamicSlot,
 } from "@/lib/wizardData";
 import { loadStripe, type Stripe, type StripeCardElement } from "@stripe/stripe-js";
-import type { DumpTrailerLoadKey, DumpTrailerLoadVisualizerProps, TrailerDimensions } from "@/components/booking/DumpTrailerLoadVisualizer";
 
 /* ── Types ─────────────────────────────────────────────────────────────── */
 
 type ContactInfo = { name: string; phone: string; email: string; address: string; notes: string; customerType: "residential" | "commercial" };
-
-const DumpTrailerLoadVisualizer = dynamic<DumpTrailerLoadVisualizerProps>(
-    () => import("@/components/booking/DumpTrailerLoadVisualizer").then((mod) => mod.DumpTrailerLoadVisualizer),
-    {
-        ssr: false,
-        loading: () => (
-            <div className="dtv-root dtv-root--booking" aria-hidden="true">
-                <div className="dtv-loading">
-                    <span>Loading trailer</span>
-                </div>
-            </div>
-        ),
-    },
-);
-
-const DUMP_TRAILER_MODEL_URL = "/booking/dump-trailer/dump-trailer-load-visualizer.glb";
-const DUMP_TRAILER_DRACO_PATH = "/booking/dump-trailer/draco/";
-
-const BOOKING_TRAILER_DIMENSIONS: TrailerDimensions = {
-    length: "16 ft",
-    width: "7 ft",
-    height: "4 ft",
-};
-
-function mapVolumeIdToTrailerLoad(volumeId: string): DumpTrailerLoadKey {
-    switch (volumeId) {
-        case "few":
-            return "eighth";
-        case "quarter":
-            return "quarter";
-        case "half":
-            return "half";
-        case "three_quarter":
-            return "threeQuarter";
-        case "full":
-            return "full";
-        case "multi":
-            return "multi";
-        default:
-            return "quarter";
-    }
-}
 
 /* ── Analytics: typed gtag wrapper ─────────────────────────────────────────
  * Safe no-op when GA isn't loaded (gaTrackingId not configured in siteConfig).
@@ -115,125 +72,6 @@ function AnimatedPrice({ value, fontSize = 28 }: { value: number; fontSize?: num
     );
 }
 
-
-/* ── V2: 6-Node Step Slider ───────────────────────────────────────────── */
-function StepSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-    const trackRef = useRef<HTMLDivElement>(null);
-    const [dragging, setDragging] = useState(false);
-    const steps = 6;
-    const prevStep = useRef(value);
-    const haptic = () => { try { if (navigator.vibrate) navigator.vibrate(10); } catch {} };
-    const setWithHaptic = useCallback((v: number) => {
-        const c = Math.max(0, Math.min(steps-1, v));
-        if (c !== prevStep.current) { haptic(); prevStep.current = c; }
-        onChange(c);
-    }, [onChange]);
-    const getStep = useCallback((clientX: number) => {
-        if (!trackRef.current) return value;
-        const rect = trackRef.current.getBoundingClientRect();
-        return Math.round(Math.max(0, Math.min(1, (clientX-rect.left)/rect.width)) * (steps-1));
-    }, [value]);
-    const onStart = (x: number) => { setDragging(true); setWithHaptic(getStep(x)); };
-    useEffect(() => {
-        if (!dragging) return;
-        const move = (e: MouseEvent | TouchEvent) => setWithHaptic(getStep((e as TouchEvent).touches ? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).clientX));
-        const end = () => setDragging(false);
-        window.addEventListener("mousemove", move);
-        window.addEventListener("mouseup", end);
-        window.addEventListener("touchmove", move, { passive: true });
-        window.addEventListener("touchend", end);
-        return () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", end); window.removeEventListener("touchmove", move); window.removeEventListener("touchend", end); };
-    }, [dragging, getStep, setWithHaptic]);
-    const onKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key==="ArrowRight"||e.key==="ArrowUp") { e.preventDefault(); setWithHaptic(value+1); }
-        if (e.key==="ArrowLeft"||e.key==="ArrowDown") { e.preventDefault(); setWithHaptic(value-1); }
-    };
-    const pct = (value/(steps-1))*100;
-    return (
-        <div style={{ padding: "0 20px" }}>
-            <div ref={trackRef} role="slider" aria-valuemin={0} aria-valuemax={5} aria-valuenow={value}
-                aria-label="Load size" tabIndex={0} onKeyDown={onKeyDown}
-                style={{ position:"relative", height:50, cursor:"pointer", touchAction:"none", userSelect:"none", outline:"none" }}
-                onMouseDown={e=>onStart(e.clientX)} onTouchStart={e=>onStart(e.touches[0].clientX)}>
-                <div style={{ position:"absolute", top:21, left:0, right:0, height:8, borderRadius:4, background:"var(--border, #e2e8f0)" }}/>
-                <div style={{
-                    position:"absolute", top:21, left:0, height:8, borderRadius:4,
-                    width:`${pct}%`, background:`linear-gradient(90deg, var(--brand), var(--brand-dark))`,
-                    boxShadow:"0 2px 8px rgba(var(--brand-rgb, 249,115,22),0.2)",
-                    transition: dragging ? "none" : "width 0.35s cubic-bezier(0.16,1,0.3,1)",
-                }}/>
-                {Array.from({length:steps}).map((_,i)=>{
-                    const left=(i/(steps-1))*100;
-                    const cur=i===value, past=i<value;
-                    return (
-                        <div key={i} style={{
-                            position:"absolute", top:cur?13:18, left:`${left}%`, transform:"translateX(-50%)",
-                            width:cur?24:past?12:10, height:cur?24:past?12:10,
-                            borderRadius:"50%", background:cur?"var(--card, #fff)":past?"var(--brand)":"var(--border, #cbd5e1)",
-                            border:cur?"4px solid var(--brand)":"none",
-                            boxShadow:cur?"0 0 0 4px rgba(var(--brand-rgb, 249,115,22),0.13), 0 2px 10px rgba(var(--brand-rgb, 249,115,22),0.25)":"none",
-                            transition: dragging ? "none" : "all 0.3s cubic-bezier(0.16,1,0.3,1)",
-                            zIndex:cur?3:1,
-                        }}/>
-                    );
-                })}
-            </div>
-            <div style={{ display:"flex", justifyContent:"space-between", gap: 6 }}>
-                {LOAD_TIERS.map((t,i)=>(
-                    <span key={i} style={{
-                        fontSize:13, fontWeight:i===value?700:500,
-                        color:i===value?"var(--brand)":"var(--muted, #b0b8c4)",
-                        fontFamily:"var(--heading-font)",
-                        textAlign:"center", flex:1, minWidth: 0, lineHeight: 1.25, transition:"all 0.2s",
-                    }}>{t.label}</span>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-/* ── V2: Compare All Grid ────────────────────────────────────────────── */
-function CompareGrid({ currentStep, onChange, pricing }: { currentStep: number; onChange: (i: number) => void; pricing: typeof siteConfig.pricing }) {
-    return (
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:8, padding:"0 12px" }}>
-            {LOAD_TIERS.map((t,i)=>{
-                const active = i===currentStep;
-                const priceTier = pricing.tiers.find(pt => pt.id === t.volumeId);
-                return (
-                    <button key={i} onClick={()=>onChange(i)} style={{
-                        padding:"12px 10px", borderRadius: "var(--card-radius, 12px)", cursor:"pointer", textAlign:"center",
-                        border: active ? "2px solid var(--brand)" : "1.5px solid var(--border, #e2e8f0)",
-                        background: active ? "rgba(var(--brand-rgb, 249,115,22),0.06)" : "var(--card, #fff)",
-                        transition:"all 0.2s", position:"relative", fontFamily: "inherit",
-                    }}>
-                        {t.popular&&(
-                            <div style={{
-                                position:"absolute", top:-7, left:"50%", transform:"translateX(-50%)",
-                                fontSize:8, fontWeight:700, color:"#fff", background:"var(--brand)",
-                                padding:"1px 6px", borderRadius:999, letterSpacing:0.3,
-                                textTransform:"uppercase", whiteSpace:"nowrap",
-                            }}>Standard option</div>
-                        )}
-                        <div style={{ fontSize:11, fontWeight:700, color:active?"var(--brand)":"var(--foreground)", fontFamily:"var(--heading-font)" }}>
-                            {t.label}
-                        </div>
-                        <div style={{ fontSize:9.5, color:"var(--muted)", marginTop:3, lineHeight:1.3, minHeight:28 }}>{t.title}</div>
-                        <div style={{ fontFamily:"var(--heading-font)", fontSize:13, fontWeight:800, color:"var(--foreground)", marginTop:6, letterSpacing:-0.3 }}>
-                            {priceTier ? `$${roundTo5(priceTier.min)} – $${roundTo5(priceTier.max)}` : "—"}
-                        </div>
-                        <div style={{ fontSize:9, color:"var(--muted)", marginTop:2 }}>{t.bags}</div>
-                        <div style={{
-                            width:14, height:14, borderRadius:"50%", margin:"8px auto 0",
-                            border: active ? "4px solid var(--brand)" : "2px solid var(--border, #cbd5e1)",
-                            background:"var(--card, #fff)", boxSizing:"border-box",
-                            transition:"all 0.15s",
-                        }}/>
-                    </button>
-                );
-            })}
-        </div>
-    );
-}
 
 /* ── V2: Edge Case Toggle ────────────────────────────────────────────── */
 function EdgeToggle({ item, checked, onChange }: { item: typeof EDGE_CASES[number]; checked: boolean; onChange: () => void }) {
@@ -338,12 +176,12 @@ function loadSavedWizard() {
 export default function BookingWizard() {
     const router = useRouter();
     const saved = useRef(loadSavedWizard()).current;
+    const initialTierIndex = Math.max(0, Math.min(4, saved?.tierIndex ?? 1));
 
     const [step, setStep] = useState(saved?.step ?? 0);
-    const [tierIndex, setTierIndex] = useState<number>(saved?.tierIndex ?? 1);
+    const [tierIndex, setTierIndex] = useState<number>(initialTierIndex);
     const [edgeCases, setEdgeCases] = useState<Record<string, boolean>>(saved?.edgeCases ?? {});
-    const [viewMode, setViewMode] = useState<"slider" | "compare">("slider");
-    const [volume, setVolume] = useState<string | null>(saved?.volume ?? null);
+    const [volume, setVolume] = useState<string | null>(LOAD_TIERS[initialTierIndex].volumeId);
     const [location, setLocation] = useState<string | null>(saved?.location ?? null);
     const [selectedDate, setSelectedDate] = useState<Date | null>(saved?.selectedDate ? new Date(saved.selectedDate) : null);
     const [selectedTime, setSelectedTime] = useState<string | null>(() => {
@@ -725,19 +563,21 @@ export default function BookingWizard() {
             const sendJunkBooking = async () => {
                 const loadTier = LOAD_TIERS[tierIndex];
                 const edgeCaseIds = Object.entries(edgeCases).filter(([, v]) => v).map(([k]) => k);
-                const description = `${loadTier.title} junk removal${edgeCaseIds.length ? ` (${edgeCaseIds.join(", ")})` : ""}`;
+                const description = isOnSiteEstimate
+                    ? `${loadTier.title} — on-site estimate${edgeCaseIds.length ? ` (${edgeCaseIds.join(", ")})` : ""}`
+                    : `${loadTier.title} junk removal${edgeCaseIds.length ? ` (${edgeCaseIds.join(", ")})` : ""}`;
                 const volumeOption = VOLUME_OPTIONS.find(v => v.id === volume);
                 const locationOption = LOCATION_OPTIONS.find(l => l.id === location);
                 const minPrice = tierData ? roundTo5(tierData.min + totalAdj) : 0;
                 const maxPrice = tierData ? roundTo5(tierData.max + totalAdj) : 0;
-                const quoteRangeStr = tierData ? `$${minPrice} – $${maxPrice}` : "";
+                const quoteRangeStr = isOnSiteEstimate ? "On-Site Estimate" : (tierData ? `$${minPrice} – $${maxPrice}` : "");
                 const stairsAccessLabel = locationOption?.label || "Ground Floor";
 
                 const payload: Record<string, unknown> = {
                     type: "booking", status: "booked", serviceType: "junk_removal",
                     name: contact.name, phone: contact.phone, email: contact.email, address: contact.address,
                     description, requestedDate: selectedDate?.toISOString().split("T")[0],
-                    value: minPrice || undefined, notes: contact.notes || "",
+                    value: isOnSiteEstimate ? undefined : (minPrice || undefined), notes: contact.notes || "",
                     smsOptIn: true,
                     consentText: SMS_CONSENT_TEXT,
                     metadata: {
@@ -749,8 +589,8 @@ export default function BookingWizard() {
                         junkLocation: locationOption?.label || "", stairsAccess: stairsAccessLabel,
                         specialConditions: edgeCaseIds,
                         isOnSiteEstimate,
-                        edgeCaseNote: hasSpecialConditions ? `Flagged: ${edgeCaseIds.join(", ")}` : "",
-                        priceRange: tierData ? [minPrice, maxPrice] : null,
+                        edgeCaseNote: isOnSiteEstimate ? "On-site estimate — customer unsure of load" : (hasSpecialConditions ? `Flagged: ${edgeCaseIds.join(", ")}` : ""),
+                        priceRange: isOnSiteEstimate ? null : (tierData ? [minPrice, maxPrice] : null),
                         surcharges: [
                             ...(accessAmount > 0 ? [{ id: "access", label: accessSurcharge?.label || "Access surcharge", amount: accessAmount, location: location || undefined }] : []),
                             ...(distanceSurcharge > 0 ? [{ id: "distance", label: "Distance surcharge", amount: distanceSurcharge }] : []),
@@ -905,7 +745,7 @@ export default function BookingWizard() {
             // Conversion event — fire BEFORE the redirect so GA captures it
             // even if the destination page is unloaded quickly.
             const conversionLeadId = typeof window !== "undefined" ? localStorage.getItem("syjLeadId") : null;
-            const conversionMinPrice = tierData ? roundTo5(tierData.min + totalAdj) : 0;
+            const conversionMinPrice = isOnSiteEstimate ? 0 : (tierData ? roundTo5(tierData.min + totalAdj) : 0);
             trackEvent("booking_complete", {
                 currency: "USD",
                 value: conversionMinPrice,
@@ -920,7 +760,7 @@ export default function BookingWizard() {
         } finally {
             setSubmitting(false);
         }
-    }, [contact, tierIndex, edgeCases, volume, location, selectedDate, selectedTime, tierData, accessAmount, distanceSurcharge, totalAdj, accessSurcharge, heavySurcharge, applianceSurcharge, heavyAmount, applianceAmount, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret, promoCode, paymentPreference]);
+    }, [contact, tierIndex, edgeCases, volume, location, selectedDate, selectedTime, tierData, accessAmount, distanceSurcharge, totalAdj, accessSurcharge, heavySurcharge, applianceSurcharge, heavyAmount, applianceAmount, router, serviceType, containerSize, debrisType, rentalDuration, setupClientSecret, promoCode, paymentPreference, bookingSource, isOnSiteEstimate, hasSpecialConditions]);
 
     const formatPhone = (val: string) => {
         const digits = val.replace(/\D/g, "").slice(0, 10);
@@ -1205,46 +1045,17 @@ export default function BookingWizard() {
                             <h1 style={{ fontFamily: "var(--heading-font)", fontSize: 24, fontWeight: 700, color: "var(--foreground)", margin: "0 0 4px", letterSpacing: -0.3 }}>
                                 How much junk are we hauling?
                             </h1>
-                            <p style={{ fontSize: 14, color: "var(--muted)", margin: 0 }}>Drag the slider — watch the truck fill up.</p>
+                            <p style={{ fontSize: 14, color: "var(--muted)", margin: 0 }}>Pick the closest real-world load size before we price the visit.</p>
                         </div>
 
-                        {/* View toggle */}
-                        <div style={{ display: "flex", justifyContent: "flex-end", padding: "0 12px", marginBottom: 10 }}>
-                            <div style={{ display: "inline-flex", background: "var(--border, #f1f5f9)", borderRadius: 8, padding: 2 }}>
-                                {([{ key: "slider" as const, label: "Slider" }, { key: "compare" as const, label: "Compare all" }]).map(v => (
-                                    <button key={v.key} onClick={() => setViewMode(v.key)} style={{
-                                        padding: "5px 12px", borderRadius: 6, border: "none", cursor: "pointer",
-                                        fontSize: 11, fontWeight: 600, fontFamily: "inherit",
-                                        background: viewMode === v.key ? "var(--card, #fff)" : "transparent",
-                                        color: viewMode === v.key ? "var(--foreground)" : "var(--muted)",
-                                        boxShadow: viewMode === v.key ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
-                                        transition: "all 0.15s",
-                                    }}>{v.label}</button>
-                                ))}
-                            </div>
+                        <div style={{ margin: "0 12px" }}>
+                            <VolumeEstimator
+                                levels={LOAD_TIERS}
+                                value={tierIndex}
+                                onChange={setTierIndex}
+                                brandColor={siteConfig.brandColor}
+                            />
                         </div>
-
-                        {/* Truck + Slider OR Compare Grid */}
-                        {viewMode === "slider" ? (
-                            <>
-                                <div style={{ margin: "0 -8px", overflow: "visible", background: "transparent" }}>
-                                    <DumpTrailerLoadVisualizer
-                                        selectedLoad={mapVolumeIdToTrailerLoad(LOAD_TIERS[tierIndex].volumeId)}
-                                        companyName={siteConfig.companyName}
-                                        brandColor={siteConfig.brandColor}
-                                        textColor="#fff7ea"
-                                        trailerDimensions={BOOKING_TRAILER_DIMENSIONS}
-                                        modelUrl={DUMP_TRAILER_MODEL_URL}
-                                        dracoDecoderPath={DUMP_TRAILER_DRACO_PATH}
-                                        multiLoadBadgeText="1+ Load"
-                                        className="dtv-root--booking"
-                                    />
-                                </div>
-                                <div style={{ marginTop: 20 }}><StepSlider value={tierIndex} onChange={setTierIndex} /></div>
-                            </>
-                        ) : (
-                            <CompareGrid currentStep={tierIndex} onChange={setTierIndex} pricing={pricing} />
-                        )}
 
                         {/* Tier Title + Description (price moved to bottom of phase) */}
                         <div style={{ margin: "20px 12px 0", padding: "20px 24px", background: "var(--card, #fff)", borderRadius: "var(--card-radius, 16px)", border: "1px solid var(--border, #e2e8f0)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
