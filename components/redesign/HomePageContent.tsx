@@ -16,6 +16,7 @@ import {
     DispatchServiceMosaic,
     DispatchWorkGrid,
 } from "@/components/redesign/DispatchBlocks";
+import Credentials from "@/components/redesign/Credentials";
 
 const HOME_FAQ_IDS = [
     "sched-how-fast",
@@ -76,6 +77,7 @@ export default function HomePageContent({ config = siteConfig }: HomePageContent
     return (
         <>
             <DispatchHomeHero config={config} />
+            <Credentials config={config} />
             <DispatchActionStrip config={config} />
             <DispatchServiceMosaic
                 config={config}

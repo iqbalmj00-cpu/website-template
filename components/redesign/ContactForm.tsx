@@ -151,15 +151,26 @@ export default function ContactForm({ config = siteConfig }: { config?: SiteConf
             fetch("/api/crm", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
+              // The receiver requires `name` and `phone`, and reads the message
+              // as `description`. This form sent firstName/lastName/message, so
+              // `name` was always absent and EVERY submission was rejected with
+              // "name and phone are required when creating a new lead". Nothing
+              // was captured — no lead, no email, no trace.
               body: JSON.stringify({
-                firstName: data.get("fname"),
-                lastName: data.get("lname"),
+                name: [data.get("fname"), data.get("lname")]
+                  .map((v) => String(v ?? "").trim())
+                  .filter(Boolean)
+                  .join(" "),
                 email: data.get("email"),
                 phone: data.get("phone"),
                 zip: data.get("zip"),
                 serviceType: data.get("serviceType"),
-                message: data.get("msg"),
+                description: data.get("msg"),
                 source: "contact",
+                metadata: {
+                  formType: "contact",
+                  ...(data.get("serviceType") ? { serviceType: String(data.get("serviceType")) } : {}),
+                },
               }),
             })
               .then((res) => {

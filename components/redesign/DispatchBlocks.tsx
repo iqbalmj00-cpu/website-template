@@ -18,6 +18,7 @@ import {
     type SiteConfig,
 } from "@/lib/siteConfig";
 import { resolveServiceCatalogIds } from "@/lib/catalogs/services";
+import { shouldRenderContactPage } from "@/lib/visibility";
 import {
     focalPointToObjectPosition,
     getServiceImageRole,
@@ -116,7 +117,7 @@ export function DispatchSiteFooter({ config = siteConfig, showReviews }: { confi
         { label: "Pricing", href: "/pricing" },
         ...(shouldShowReviews ? [{ label: "Reviews", href: "/reviews" }] : []),
         ...(config.enableBlog ? [{ label: "Blog", href: "/blog" }] : []),
-        { label: "Contact", href: "/contact" },
+        ...(shouldRenderContactPage(config) ? [{ label: "Contact", href: "/contact" }] : []),
         { label: "Manage Booking", href: "/customer-portal" },
         { label: "Privacy", href: "/privacy" },
         { label: "Terms", href: "/terms" },
@@ -203,7 +204,7 @@ export function DispatchHomeHero({ config = siteConfig }: { config?: SiteConfig 
                     <Link className="btn brand" href="/book">Book Now</Link>
                     <Link className="btn light" href="/customer-portal" prefetch={false}>Manage Booking</Link>
                 </div>
-                {reviewSummary && (
+                {config.designConfig.showTrustBar && reviewSummary && (
                     <div className="trust-line">
                         <span className="stars">★★★★★</span>
                         <strong>{reviewSummary.averageRating.toFixed(1)} average rating</strong>

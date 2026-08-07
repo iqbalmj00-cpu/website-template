@@ -4,8 +4,10 @@ import ContactForm from "@/components/redesign/ContactForm";
 import NapHours from "@/components/redesign/NapHours";
 import StaticFAQ from "@/components/redesign/StaticFAQ";
 import CtaBand from "@/components/redesign/CtaBand";
+import { notFound } from "next/navigation";
 import { createPageMetadata, faqPageJsonLd, localBusinessJsonLd } from "@/lib/seo";
 import { formatPhone, siteConfig } from "@/lib/siteConfig";
+import { shouldRenderContactPage } from "@/lib/visibility";
 
 const cityState = siteConfig.state ? `${siteConfig.city}, ${siteConfig.state}` : siteConfig.city;
 
@@ -23,6 +25,10 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default function ContactPage() {
+    // No connected mailbox means no destination for a message. 404 rather than
+    // render a form whose submissions nobody will ever see.
+    if (!shouldRenderContactPage()) notFound();
+
     return (
         <>
             <script

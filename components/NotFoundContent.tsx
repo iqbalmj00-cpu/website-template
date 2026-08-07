@@ -2,7 +2,21 @@ import Link from "next/link";
 import { ArrowRight, Home, Search } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
 
-export default function NotFound() {
+/**
+ * The branded 404 body.
+ *
+ * Rendered through `app/(site)/not-found.tsx`, which the catch-all at
+ * `app/(site)/[...notFound]/page.tsx` reaches by calling `notFound()`.
+ *
+ * Known limitation: Next renders a 404 in a bare error document
+ * (`<html id="__next_error__">`), so this gets the brand colours, the company
+ * name and links back to the site, but NOT the header and footer. With two root
+ * layouts and no `app/layout.tsx` there is no layout Next can pick, and nesting
+ * the boundary deeper does not change it — that was tried. Rendering this as an
+ * ordinary page would restore the chrome but return HTTP 200, which is worse:
+ * search engines would index every mistyped URL.
+ */
+export default function NotFoundContent() {
     return (
         <section style={{ minHeight: "70vh", background: "var(--hero-bg)", padding: "9rem 1.5rem 5rem", display: "flex", alignItems: "center" }}>
             <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>

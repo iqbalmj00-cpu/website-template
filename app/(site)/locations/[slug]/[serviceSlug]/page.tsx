@@ -8,6 +8,7 @@ import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } fr
 import { hasConfiguredPricing, siteConfig } from "@/lib/siteConfig";
 import { getClientServices, getServiceSynonyms } from "@/lib/serviceData";
 import { getIndexableLocations, getLocationBySlug } from "@/lib/locationData.server";
+import { getServiceImageRole } from "@/lib/templateAssets/junkRemoval";
 
 type PageProps = {
     params: {
@@ -63,6 +64,9 @@ export default function ServiceLocationPage({ params }: PageProps) {
     const minPrice = siteConfig.pricing.tiers[0]?.min;
     const maxPrice = siteConfig.pricing.tiers[Math.min(2, siteConfig.pricing.tiers.length - 1)]?.max;
     const path = `/locations/${location.slug}/${service.slug}`;
+    const serviceImageSrc = siteConfig.serviceImages[service.slug] || "";
+    const locationImageSrc = serviceImageSrc ? "" : siteConfig.locationImages[location.slug] || "";
+    const heroImageSrc = serviceImageSrc || locationImageSrc;
     const breadcrumbs = [
         { label: "Home", href: "/" },
         { label: "Locations", href: "/locations" },
@@ -130,8 +134,16 @@ export default function ServiceLocationPage({ params }: PageProps) {
                 titleStart={service.title}
                 titleAccent={` in ${location.name}.`}
                 lede={`${siteConfig.companyName} provides ${service.title.toLowerCase()} for customers in ${location.name}. Use the booking flow with service type, load details, pickup address, access notes, schedule window, and quote review.`}
-                coverageMap
+                coverageMap={!heroImageSrc}
                 coverageMapFocus={{ name: location.name, state: location.state }}
+                media={heroImageSrc ? {
+                    role: serviceImageSrc ? getServiceImageRole(service.slug) : "locationNeighborhood",
+                    src: heroImageSrc,
+                    routeKey: `location-service-${location.slug}-${service.slug}`,
+                    serviceTitle: service.title,
+                    locationName: location.name,
+                    caption: serviceImageSrc ? service.title : "Location coverage",
+                } : undefined}
                 primaryCta={{ label: "Book Now", href: "/book" }}
             />
             <DispatchCardSection

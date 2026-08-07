@@ -54,6 +54,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 export default function LocationDetailPage({ params }: { params: { slug: string } }) {
     const location = getLocationBySlug(params.slug);
     if (!location) notFound();
+    const locationImageSrc = siteConfig.locationImages?.[location.slug] || "";
 
     const breadcrumbs = [
         { label: "Home", href: "/" },
@@ -92,8 +93,15 @@ export default function LocationDetailPage({ params }: { params: { slug: string 
                 eyebrow="Location overview"
                 title={<>Junk removal in {location.name}, {location.state}.</>}
                 lede={location.heroDescription}
-                coverageMap
+                coverageMap={!locationImageSrc}
                 coverageMapFocus={{ name: location.name, state: location.state }}
+                media={locationImageSrc ? {
+                    role: "locationNeighborhood",
+                    src: locationImageSrc,
+                    routeKey: `location-${location.slug}`,
+                    locationName: location.name,
+                    caption: "Location coverage",
+                } : undefined}
                 primaryCta={{ label: "Book Now", href: "/book" }}
                 secondaryCta={{ label: "View Pricing", href: "#pricing" }}
             />

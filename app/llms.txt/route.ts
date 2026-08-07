@@ -4,6 +4,7 @@ import { getIndexableLocations } from "@/lib/locationData.server";
 import { getClientServices } from "@/lib/serviceData";
 import { canExposePublicSite } from "@/lib/publicSiteGuard";
 import { hasVerifiedPublicReviews } from "@/lib/reviewData";
+import { shouldRenderContactPage } from "@/lib/visibility";
 
 export const dynamic = "force-static";
 
@@ -41,7 +42,7 @@ export async function GET() {
         ["Items we do not take", "/items-we-dont-take"],
         ["How it works", "/how-it-works"],
         ["Commercial junk removal", "/commercial"],
-        ["Contact", "/contact"],
+        ...(shouldRenderContactPage() ? [["Contact", "/contact"] as const] : []),
         ["About", "/about"],
         ...(showReviews ? [["Reviews", "/reviews"] as const] : []),
         ["Best junk removal guide", "/best-junk-removal"],

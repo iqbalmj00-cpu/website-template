@@ -61,7 +61,16 @@ export type Surcharge = {
 };
 export type DistanceTier = { id: string; maxMiles: number; additionalCost: number };
 export type PricingConfig = { truckSize: string; fullLoadPrice?: number; tiers: PricingTier[]; distanceTiers?: DistanceTier[]; surcharges: Surcharge[] };
-export type BusinessDayHours = { start: string; end: string; closed?: boolean };
+export type BusinessDayHours = {
+    start: string;
+    end: string;
+    closed?: boolean;
+    /** Legacy keys as the dashboard actually stores them. `normalizeBusinessHours`
+     *  folds these into start/end at intake; they are declared here so the
+     *  defensive reads in wizardData.ts don't need a cast. */
+    open?: string;
+    close?: string;
+};
 export type BusinessHoursConfig = Record<string, BusinessDayHours>;
 export type SameDayDisplayConfig = {
     enabled: boolean;
@@ -440,6 +449,11 @@ export const siteConfig = {
     sameDaySurchargeType: cleanConfigText(process.env.NEXT_PUBLIC_SAME_DAY_SURCHARGE_TYPE),
     sameDaySurchargeAmount: parseOptionalNumber(process.env.NEXT_PUBLIC_SAME_DAY_SURCHARGE_AMOUNT),
     enableBlog: parseBoolean(process.env.NEXT_PUBLIC_ENABLE_BLOG),
+    // True only when the operator has connected a Gmail mailbox in the dashboard.
+    // The contact page is hidden entirely without it: a submission has nowhere to
+    // go, so showing the form would collect messages nobody ever reads.
+    // Defaults false — an operator with no flag gets no contact page.
+    mailboxConnected: parseBoolean(process.env.NEXT_PUBLIC_MAILBOX_CONNECTED),
     legalEffectiveDate: process.env.NEXT_PUBLIC_LEGAL_EFFECTIVE_DATE ?? "",
 
     // Pricing
@@ -507,6 +521,18 @@ function getRecordStringArray(record: Record<string, unknown>, key: string, fall
     return cleaned.length > 0 ? Array.from(new Set(cleaned)) : [...fallback];
 }
 
+function getRecordStringMap(record: Record<string, unknown>, key: string, fallback: Record<string, string>): Record<string, string> {
+    const value = record[key];
+    if (!isRecord(value)) return { ...fallback };
+    const result: Record<string, string> = {};
+    for (const [itemKey, itemValue] of Object.entries(value)) {
+        const cleanKey = cleanUnknownText(itemKey);
+        const cleanValue = cleanUnknownText(itemValue);
+        if (cleanKey && cleanValue) result[cleanKey] = cleanValue;
+    }
+    return Object.keys(result).length > 0 ? result : { ...fallback };
+}
+
 function normalizePreviewPricing(input: unknown, fallback: SiteConfig): { pricing: PricingConfig; configured: boolean } {
     const normalized = normalizePricingConfig(input);
     if (!normalized) {
@@ -559,6 +585,12 @@ export function createSiteConfigFromPublicConfig(input: unknown, fallback: SiteC
         brandColor: normalizeBrandColor(input.brandColor, fallback.brandColor),
         fontPair: normalizeFontPair(input.fontPair ?? fallback.fontPair),
         designConfig: normalizeWebsiteDesignConfig(input.designConfig ?? fallback.designConfig),
+        logoUrl: getRecordText(input, "logoUrl") || fallback.logoUrl,
+        heroImageUrl: getRecordText(input, "heroImageUrl") || fallback.heroImageUrl,
+        aboutImageUrl: getRecordText(input, "aboutImageUrl") || fallback.aboutImageUrl,
+        commercialImageUrl: getRecordText(input, "commercialImageUrl") || fallback.commercialImageUrl,
+        serviceImages: getRecordStringMap(input, "serviceImages", fallback.serviceImages),
+        locationImages: getRecordStringMap(input, "locationImages", fallback.locationImages),
         services: getRecordStringArray(input, "services", fallback.services),
         googleReviews: previewReviews.length > 0 ? previewReviews : fallback.googleReviews,
         reviewStats: previewStats ?? fallback.reviewStats,
@@ -570,6 +602,7 @@ export function createSiteConfigFromPublicConfig(input: unknown, fallback: SiteC
         sameDayCutoffTime: getRecordText(input, "sameDayCutoffTime") || fallback.sameDayCutoffTime,
         sameDaySurchargeType: getRecordText(input, "sameDaySurchargeType") || fallback.sameDaySurchargeType,
         sameDaySurchargeAmount: getRecordNumber(input, "sameDaySurchargeAmount") ?? fallback.sameDaySurchargeAmount,
+        mailboxConnected: getRecordBoolean(input, "mailboxConnected", fallback.mailboxConnected),
     };
 }
 

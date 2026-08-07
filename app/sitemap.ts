@@ -6,6 +6,7 @@ import { getCostGuides } from "@/lib/costData";
 import { SEO_CONTENT_LAST_MODIFIED } from "@/lib/seo";
 import { canExposePublicSite } from "@/lib/publicSiteGuard";
 import { hasVerifiedPublicReviews } from "@/lib/reviewData";
+import { shouldRenderContactPage } from "@/lib/visibility";
 import type { MetadataRoute } from "next";
 
 /**
@@ -57,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.6, lastModified: CONTENT_VERSION },
         { url: absoluteUrl("/how-it-works"), changeFrequency: "monthly", priority: 0.7, lastModified: CONTENT_VERSION },
         { url: absoluteUrl("/faq"), changeFrequency: "monthly", priority: 0.6, lastModified: CONTENT_VERSION },
-        { url: absoluteUrl("/contact"), changeFrequency: "monthly", priority: 0.7, lastModified: CONTENT_VERSION },
+        ...(shouldRenderContactPage() ? [{ url: absoluteUrl("/contact"), changeFrequency: "monthly" as const, priority: 0.7, lastModified: CONTENT_VERSION }] : []),
         { url: absoluteUrl("/commercial"), changeFrequency: "monthly", priority: 0.7, lastModified: CONTENT_VERSION },
         { url: absoluteUrl("/items-we-take"), changeFrequency: "monthly", priority: 0.5, lastModified: CONTENT_VERSION },
         { url: absoluteUrl("/items-we-dont-take"), changeFrequency: "monthly", priority: 0.4, lastModified: CONTENT_VERSION },

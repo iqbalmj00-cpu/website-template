@@ -227,9 +227,19 @@ export function getPhaseLabel(phase: WizardPhase): string {
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
-function parseHour24(time: string): number {
-    const [h] = time.split(":").map(Number);
-    return h;
+/**
+ * Parse the hour out of an "HH:MM" string.
+ *
+ * Total by construction: returns null for a missing field, a non-string, or an
+ * unparseable value, so a caller can fail open to the full slot list instead of
+ * throwing. Kept identical to the copy in booking-widget/src/lib/wizardData.ts —
+ * the widget's version of this function threw on the dashboard's `{open,close}`
+ * shape and unmounted the whole booking form.
+ */
+function parseHour24(time: unknown): number | null {
+    if (typeof time !== "string") return null;
+    const h = Number.parseInt(time.split(":")[0], 10);
+    return Number.isFinite(h) && h >= 0 && h <= 24 ? h : null;
 }
 
 /** Check if a specific date falls on a closed business day */
@@ -257,10 +267,58 @@ export function getAvailableTimeSlots(
     if (!dayHours) return TIME_SLOTS;
     if (dayHours.closed) return []; // explicitly closed day
 
-    const openHour = parseHour24(dayHours.start);
-    const closeHour = parseHour24(dayHours.end);
+    // `?? .open` / `?? .close` are a second line of defence: config normally
+    // arrives already normalised from siteConfig.ts, but these functions are
+    // exported and could be handed a raw dashboard object.
+    const openHour = parseHour24(dayHours.start ?? dayHours.open);
+    const closeHour = parseHour24(dayHours.end ?? dayHours.close);
+
+    // Unusable hours fail open to the default slots rather than showing the
+    // customer an empty day.
+    if (openHour === null || closeHour === null) return TIME_SLOTS;
 
     return TIME_SLOTS.filter(
         (slot) => slot.startHour >= openHour && slot.startHour < closeHour,
     );
+}
+
+/* ── Service address composition ───────────────────────────────────────── */
+
+/** Prefixes a customer might already have typed, so "Apt 4B" doesn't become "Unit Apt 4B". */
+// Keep in step with booking-widget/src/lib/wizardData.ts and _UNIT_PREFIXES in
+// phone-agent/agent/handlers.py. "building" was missing here, so a customer who
+// typed "Building C" got "Unit Building C" on the web and plain "Building C" by
+// phone — the same convention recorded two different ways.
+const UNIT_PREFIXES = ["apt", "apartment", "unit", "ste", "suite", "#", "fl", "floor", "rm", "room", "bldg", "building", "lot", "trlr"];
+
+/**
+ * Fold an apartment/suite/unit value into a street address.
+ *
+ * Google's `formattedAddress` never carries a unit number, and selecting an
+ * autocomplete suggestion overwrites whatever the customer typed — so before
+ * this existed, someone in apartment 4B could not have both a *confirmed*
+ * address and their unit number. The unit is captured in its own field (which
+ * deliberately never touches `addressConfirmed`) and folded in here.
+ *
+ * The unit goes before the first comma, which is where a US address expects it:
+ *   "1234 Main St, Springfield, IL 62704"
+ *   → "1234 Main St Unit 4B, Springfield, IL 62704"
+ *
+ * Keep this identical in website-template/lib/wizardData.ts and
+ * booking-widget/src/lib/wizardData.ts.
+ */
+export function composeAddress(address: string | null | undefined, unit?: string | null): string {
+    const street = (address ?? "").trim();
+    const clean = (unit ?? "").trim();
+    if (!clean) return street;
+
+    const hasPrefix = UNIT_PREFIXES.some((p) => clean.toLowerCase().startsWith(p));
+    const suffix = hasPrefix ? clean : `Unit ${clean}`;
+
+    // Customer typed the unit into the address box as well — don't repeat it.
+    if (street.toLowerCase().includes(suffix.toLowerCase())) return street;
+
+    const comma = street.indexOf(",");
+    if (comma === -1) return `${street} ${suffix}`.trim();
+    return `${street.slice(0, comma)} ${suffix}${street.slice(comma)}`;
 }

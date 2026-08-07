@@ -157,6 +157,18 @@ export function shouldShowHeroRating(config: SiteConfig = siteConfig): boolean {
   return Boolean(summary && summary.totalCount >= 5 && getGoogleTestimonials(1, config).length > 0)
 }
 
+/** Contact page and every link to it.
+ *
+ *  Hidden unless the operator has connected a Gmail mailbox in the dashboard.
+ *  A submission has nowhere to go without one — the message would be stored as a
+ *  lead and never reach a person — so the page is removed rather than shown
+ *  collecting messages nobody reads. Same rule as everywhere else here: nothing
+ *  is offered to a customer that the operator cannot actually deliver.
+ */
+export function shouldRenderContactPage(config: SiteConfig = siteConfig): boolean {
+  return config.mailboxConnected
+}
+
 /** Is the site ready to be indexed publicly?
  *  (Identity + at least one verifiable trust signal.) */
 export function shouldAllowIndexing(): boolean {

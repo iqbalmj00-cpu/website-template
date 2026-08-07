@@ -5,3 +5,8 @@ node_modules/
 .env.local
 .DS_Store
 *.tsbuildinfo
+
+# Blender sources and raw renders for the volume estimator (1.4GB, five files
+# over GitHub's 100MB hard limit). Provenance for the shipped images in
+# public/booking-volume-assets — keep them on disk, out of git.
+assets/

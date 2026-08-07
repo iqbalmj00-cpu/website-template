@@ -6,6 +6,7 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { buildLocationNavItems, buildServiceNavItems, type NavItem } from "@/lib/navItems";
 import { formatPhone, hasVerifiedGoogleReviews, siteConfig, telHref, type SiteConfig } from "@/lib/siteConfig";
+import { shouldRenderContactPage } from "@/lib/visibility";
 
 type HeaderNavItem = {
     href: string;
@@ -27,7 +28,7 @@ function navItems(config: SiteConfig, showReviews: boolean): HeaderNavItem[] {
         ...(config.offersDumpsterRental ? [{ href: "/dumpster-rental", label: "Dumpster Rental" }] : []),
         { href: "/how-it-works", label: "How it works" },
         { href: "/about", label: "About" },
-        { href: "/contact", label: "Contact" },
+        ...(shouldRenderContactPage(config) ? [{ href: "/contact", label: "Contact" }] : []),
         ...(showReviews ? [{ href: "/reviews", label: "Reviews" }] : []),
     ];
 }
