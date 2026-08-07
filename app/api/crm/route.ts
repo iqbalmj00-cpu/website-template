@@ -5,8 +5,15 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
 
-        // Honeypot check
-        if (body._hp) {
+        // Honeypot. The field name must match the one the dashboard validates
+        // (`website_honeypot`) — three different names were in use across the
+        // form, this proxy and the receiver, so no two ever agreed and only the
+        // browser-side check ever fired. A bot posting straight to this route
+        // walked through.
+        //
+        // The field is forwarded below as well as checked here, so the
+        // receiver's own check still applies to anything posted directly to it.
+        if (typeof body.website_honeypot === "string" && body.website_honeypot.trim()) {
             return NextResponse.json({ ok: true, leadId: "hp" });
         }
 
@@ -23,7 +30,10 @@ export async function POST(req: Request) {
 
         // Build payload – forward all fields, apply source default for new leads
         const payload: Record<string, unknown> = { ...body };
-        if (!body.leadId) payload.source = payload.source || "WEBSITE";
+        // "WEBSITE" is invisible in the dashboard's own attribution report — its
+        // source filter is case-sensitive and matches lowercase tokens. Default
+        // to the one the booking wizard already sends.
+        if (!body.leadId) payload.source = payload.source || "website_form";
 
 
         const response = await fetch(crmEndpoint, {

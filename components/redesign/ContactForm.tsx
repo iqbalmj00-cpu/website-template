@@ -146,7 +146,7 @@ export default function ContactForm({ config = siteConfig }: { config?: SiteConf
             e.preventDefault()
             const form = e.currentTarget
             const data = new FormData(form)
-            if (String(data.get("company") ?? "").trim()) return
+            if (String(data.get("website_honeypot") ?? "").trim()) return
             setStatus("sending")
             fetch("/api/crm", {
               method: "POST",
@@ -167,6 +167,9 @@ export default function ContactForm({ config = siteConfig }: { config?: SiteConf
                 serviceType: data.get("serviceType"),
                 description: data.get("msg"),
                 source: "contact",
+                // Forwarded so the receiver's own honeypot check applies to
+                // anything posted directly to it, bypassing this form.
+                website_honeypot: data.get("website_honeypot") ?? "",
                 metadata: {
                   formType: "contact",
                   ...(data.get("serviceType") ? { serviceType: String(data.get("serviceType")) } : {}),
@@ -223,9 +226,12 @@ export default function ContactForm({ config = siteConfig }: { config?: SiteConf
             </div>
           )}
           <Field label="Tell us what you've got" name="msg" multiline />
-          <label className="hidden">
+          {/* Honeypot. Named to match what the dashboard receiver validates,
+              so the browser check, the proxy check and the server check finally
+              agree. aria-hidden keeps it away from screen readers. */}
+          <label className="hidden" aria-hidden="true">
             Company
-            <input name="company" tabIndex={-1} autoComplete="off" />
+            <input name="website_honeypot" tabIndex={-1} autoComplete="off" />
           </label>
           <button type="submit" className="btn-primary self-start mt-2" disabled={status === "sending"}>
             {status === "sending" ? "Sending..." : "Send message"} <ArrowRight className="w-4 h-4" strokeWidth={2.4} aria-hidden="true" />
