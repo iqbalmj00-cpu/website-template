@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, Check, ChevronLeft, Truck } from "lucide-react";
 import { VolumeEstimator } from "@/components/booking/VolumeEstimator";
 import { roundTo5, siteConfig } from "@/lib/siteConfig";
+import { MULTI_LOAD_EDGE_CASE_ID } from "@/lib/bookingLogic";
 import { EDGE_CASES, LOAD_TIERS, LOCATION_OPTIONS } from "@/lib/wizardData";
 
 function EdgeToggle({
@@ -89,7 +90,7 @@ export default function VolumeEstimatorPreviewClient() {
         ? applianceSurcharge.amount
         : 0;
     const totalAdj = accessAmount + heavyAmount + applianceAmount;
-    const isOnSiteEstimate = !!edgeCases.unknown || volume === "multi";
+    const isOnSiteEstimate = !!edgeCases.unknown || !!edgeCases[MULTI_LOAD_EDGE_CASE_ID] || volume === "multi";
     const canProceed = !!edgeCases.unknown || location !== null;
 
     const toggleEdge = (id: string) => {

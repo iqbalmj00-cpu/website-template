@@ -10,3 +10,6 @@ node_modules/
 # over GitHub's 100MB hard limit). Provenance for the shipped images in
 # public/booking-volume-assets — keep them on disk, out of git.
 assets/
+
+# Test runner output
+.test-out/
