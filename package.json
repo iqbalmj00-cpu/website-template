@@ -11,6 +11,7 @@
     "start": "node ./node_modules/next/dist/bin/next start",
     "lint": "node ./scripts/run-with-heartbeat.mjs \"ESLint\" -- node ./node_modules/eslint/bin/eslint.js app components lib --ext .ts,.tsx",
     "typecheck": "node ./node_modules/typescript/bin/tsc --noEmit --pretty false --incremental false",
+    "test": "node ./scripts/run-tests.mjs",
     "seo:audit": "node ./scripts/seo-release-audit.mjs",
     "location:content": "node ./scripts/generate-sourced-location-content.mjs",
     "check:node": "node ./scripts/check-node-version.mjs",

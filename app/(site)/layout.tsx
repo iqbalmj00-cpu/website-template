@@ -7,6 +7,7 @@ import { hasVerifiedPublicReviews } from "@/lib/reviewData";
 import { brandStyleCss, faviconDataUrl, fontStylesheetHref, htmlThemeAttributes } from "@/lib/documentHead";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AnalyticsPageView from "@/components/AnalyticsPageView";
 
 /**
  * Root layout for the public marketing site.
@@ -53,7 +54,11 @@ export default async function SiteLayout({
                 <link rel="stylesheet" href={fontStylesheetHref} />
                 {/* Inject brand color override from onboarding */}
                 <style>{brandStyleCss}</style>
-                {/* Google Analytics */}
+                {/* Google Analytics.
+                    `send_page_view: false` because the automatic page_view reports
+                    `window.location.href` verbatim, and nothing here has looked at
+                    it. AnalyticsPageView sends the one page_view instead, with a
+                    location we built — see lib/analytics.ts. */}
                 {siteConfig.gaTrackingId && (
                     <>
                         <script
@@ -62,13 +67,14 @@ export default async function SiteLayout({
                         />
                         <script
                             dangerouslySetInnerHTML={{
-                                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${siteConfig.gaTrackingId}');`,
+                                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${siteConfig.gaTrackingId}',{send_page_view:false});`,
                             }}
                         />
                     </>
                 )}
             </head>
             <body>
+                {siteConfig.gaTrackingId && <AnalyticsPageView />}
                 {/* JSON-LD LocalBusiness schema for local SEO */}
                 {renderPublicSite && (
                     <script
