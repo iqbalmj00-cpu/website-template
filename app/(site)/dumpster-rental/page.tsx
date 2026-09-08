@@ -1,3 +1,4 @@
+import { getContainerSizes } from "@/lib/containerCatalog";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -29,7 +30,7 @@ import {
     telHref,
     type DumpsterPriceTier,
 } from "@/lib/siteConfig";
-import { CONTAINER_SIZES, DEBRIS_TYPES } from "@/lib/wizardData";
+import { DEBRIS_TYPES } from "@/lib/wizardData";
 import { breadcrumbJsonLd, createPageMetadata, faqPageJsonLd, serviceJsonLd } from "@/lib/seo";
 
 const path = "/dumpster-rental";
@@ -179,8 +180,9 @@ export default function DumpsterRentalPage() {
                     </div>
                     <p>Use these container cards as a planning guide. Availability, rental period, delivery address, material type, and final terms are confirmed through the booking flow.</p>
                 </div>
+                {getContainerSizes(siteConfig.dumpsterPricing).length === 0 && <p>Container sizes are being updated. Contact us to confirm options and pricing.</p>}
                 <div className="dumpster-size-grid">
-                    {CONTAINER_SIZES.map((container) => {
+                    {getContainerSizes(siteConfig.dumpsterPricing).map((container) => {
                         const tier = tierForSize(container.id);
                         const hasPrice = hasTierPrice(tier);
                         return (

@@ -19,8 +19,7 @@ import {
   hasVerifiedGoogleReviews,
   getReviewSummary,
 } from "@/lib/siteConfig"
-import { resolveServiceCatalogIds } from "@/lib/catalogs/services"
-import { buildLocationNavItems } from "@/lib/navItems"
+import { buildLocationNavItems, buildServiceNavItems } from "@/lib/navItems"
 
 function splitWordmark(name: string): { lead: string; tail: string } {
   const t = name.trim()
@@ -97,12 +96,7 @@ export default function SiteFooter({ config = siteConfig }: { config?: SiteConfi
   }
   const licenseValue = credentials.find((c) => c.label === "License")?.value ?? ""
 
-  // Match dashboard service names to catalog entries for tidy display labels.
-  const catalogServices = resolveServiceCatalogIds(services).slice(0, 8)
-  const serviceLabels =
-    catalogServices.length > 0
-      ? catalogServices.map((s) => ({ label: s.name, slug: s.id }))
-      : services.slice(0, 8).map((s) => ({ label: s, slug: s.toLowerCase().replace(/\s+/g, "-") }))
+  const serviceLabels = buildServiceNavItems(config, 8)
   const locationLinks = buildLocationNavItems(config, 10)
 
   const addressLines: string[] = []
@@ -208,7 +202,7 @@ export default function SiteFooter({ config = siteConfig }: { config?: SiteConfi
           {serviceLabels.length > 0 && (
             <FooterCol
               heading="Services"
-              items={serviceLabels.map((s) => ({ label: s.label, href: `/services/${s.slug}` }))}
+              items={serviceLabels}
             />
           )}
 

@@ -81,8 +81,8 @@ export default function HomePageContent({ config = siteConfig }: HomePageContent
             <DispatchActionStrip config={config} />
             <DispatchServiceMosaic
                 config={config}
-                heading={`Junk removal services people book in ${config.city || "your area"}.`}
-                body="Start with the service that matches the job: furniture, appliances, cleanouts, debris, or general junk removal."
+                heading={`${config.offersDumpsterRental ? "Services" : "Junk removal services"} people book in ${config.city || "your area"}.`}
+                body={config.offersDumpsterRental ? "Choose junk removal for a crew to haul your items, or dumpster rental for a container delivered to your project." : "Start with the service that matches the job: furniture, appliances, cleanouts, debris, or general junk removal."}
             />
             <DispatchWorkGrid config={config} />
             <DispatchPricingBoard config={config} />

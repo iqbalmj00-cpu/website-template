@@ -1,5 +1,4 @@
 import type { SiteConfig } from "@/lib/siteConfig";
-import { resolveServiceCatalogIds } from "@/lib/catalogs/services";
 
 export type NavItem = {
     label: string;
@@ -67,17 +66,7 @@ function serviceAreaNames(config: SiteConfig): string[] {
     return uniqueByLabel([city, ...parts]).filter(Boolean);
 }
 
-export function buildServiceNavItems(config: SiteConfig, limit = 10): NavItem[] {
-    const catalogServices = resolveServiceCatalogIds([...config.services]);
-    const services = catalogServices.length > 0
-        ? catalogServices.map((service) => ({ label: service.name, href: `/services/${service.id}` }))
-        : [...config.services]
-            .map((service) => service.trim())
-            .filter(Boolean)
-            .map((service) => ({ label: service, href: `/services/${toSlug(service)}` }));
-
-    return services.slice(0, limit);
-}
+export { buildServiceNavItems } from "./serviceNavigation";
 
 export function buildLocationNavItems(config: SiteConfig, limit = 10): NavItem[] {
     return serviceAreaNames(config)

@@ -34,15 +34,15 @@ export default function ServicesPage() {
                     { label: "Home", href: "/" },
                     { label: "Services" },
                 ]}
-                titleStart="Everything we haul, "
+                titleStart="Our services, "
                 titleAccent="in one place."
-                lede={`${services.length > 0 ? `${services.length} junk removal service categories.` : "Junk removal service categories."} One booking flow for approved item removal, cleanouts, debris hauling, and junk removal projects in ${cityState}.`}
+                lede={siteConfig.offersDumpsterRental ? `Explore available hauling services and dumpster rental in ${cityState}. Choose a service below to review the details and book.` : `${services.length} junk removal service categories in ${cityState}. Choose a service below to review the details and book.`}
             />
             <RelatedSvc
-                eyebrow="Junk removal services"
+                eyebrow="Available services"
                 heading="Choose the closest match for the job."
                 tone="paper-2"
-                limit={Math.max(services.length, 6)}
+                limit={Math.max(services.length + (siteConfig.offersDumpsterRental ? 1 : 0), 6)}
             />
             <PageIntro
                 eyebrow="How to choose"

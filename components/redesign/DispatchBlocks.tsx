@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { buildServiceNavItems } from "@/lib/serviceNavigation";
 import type { ReactNode } from "react";
 import SafeImage from "@/components/SafeImage";
 import ServiceAreaMap, { type MapFocus } from "@/components/redesign/ServiceAreaMap";
@@ -102,7 +103,7 @@ function pricingRows(config: SiteConfig): Array<{ label: string; desc: string; f
 }
 
 export function DispatchSiteFooter({ config = siteConfig, showReviews }: { config?: SiteConfig; showReviews?: boolean } = {}) {
-    const services = resolveServiceCatalogIds([...config.services]).slice(0, 6);
+    const services = buildServiceNavItems(config, 6);
     const areas = areaNames(config, 6);
     const shouldShowReviews = showReviews ?? hasVerifiedGoogleReviews(config);
     const hoursRows = config.businessHours ? groupBusinessHours(config.businessHours) : [];
@@ -142,7 +143,7 @@ export function DispatchSiteFooter({ config = siteConfig, showReviews }: { confi
                 <div className="footer-col">
                     <h4>Services</h4>
                     {services.length > 0
-                        ? services.map((service) => <Link key={service.id} href={`/services/${service.id}`}>{service.name}</Link>)
+                        ? services.map((service) => <Link key={service.href} href={service.href}>{service.label}</Link>)
                         : <Link href="/services">Services</Link>}
                 </div>
                 <div className="footer-col">
@@ -271,7 +272,7 @@ export function DispatchActionStrip({ config = siteConfig }: { config?: SiteConf
 
 export function DispatchServiceMosaic({
     config = siteConfig,
-    eyebrow = "Junk removal services",
+    eyebrow = "Available services",
     heading,
     body,
     limit = 5,
@@ -284,9 +285,18 @@ export function DispatchServiceMosaic({
     limit?: number;
     currentServiceId?: string;
 } = {}) {
-    const services = resolveServiceCatalogIds([...config.services])
-        .filter((service) => service.id !== currentServiceId)
-        .slice(0, limit);
+    const catalog = resolveServiceCatalogIds([...config.services]);
+    const entries = buildServiceNavItems({ ...config,
+        services: config.services.filter(name => !resolveServiceCatalogIds([name]).some(service => service.id === currentServiceId)),
+        offersDumpsterRental: config.offersDumpsterRental && currentServiceId !== "dumpster-rental",
+    }, limit);
+    const services = entries.map(entry => {
+        const id = entry.href.split("/").pop()!;
+        const known = catalog.find(service => service.id === id);
+        return { id, name: entry.label, href: entry.href,
+            audience: known?.audience || (id === "dumpster-rental" ? "Dumpster rental" : "Services"),
+            blurb: known?.blurb || (id === "dumpster-rental" ? "Choose an offered container size, review rental terms, and arrange delivery and pickup." : "Review service details and discuss your project with the team.") };
+    }).filter(service => service.id !== currentServiceId).slice(0, limit);
     if (services.length === 0) return null;
     const area = displayArea(config);
 
@@ -313,7 +323,7 @@ export function DispatchServiceMosaic({
                     if (index === 3) className.push("wide");
 
                     return (
-                        <Link href={`/services/${service.id}`} className={className.join(" ")} key={service.id}>
+                        <Link href={service.href} className={className.join(" ")} key={service.id}>
                             <SafeImage
                                 src={image.src}
                                 fallbackSrc="/images/default-hero.png"
