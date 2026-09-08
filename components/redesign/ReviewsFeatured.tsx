@@ -1,3 +1,4 @@
+import { hasEligibleReviews, type ReviewsResponse } from "@/lib/reviewData"
 /**
  * ReviewsFeatured — mosaic grid of Google reviews with two hero tiles
  * (longest quotes) and 3-5 secondary tiles.
@@ -79,11 +80,11 @@ function getInitial(name: string): string {
   return t.length > 0 ? t.charAt(0).toUpperCase() : "·"
 }
 
-export default function ReviewsFeatured({ config = siteConfig }: { config?: SiteConfig } = {}) {
-  if (!shouldRenderFeaturedReviews(config)) return null
+export default function ReviewsFeatured({ config = siteConfig, data }: { config?: SiteConfig; data?: ReviewsResponse } = {}) {
+  if (data ? !hasEligibleReviews(data) : !shouldRenderFeaturedReviews(config)) return null
 
   const { city } = config
-  const items = getGoogleTestimonials(7, config)
+  const items = data?.reviews.slice(0, 7) ?? getGoogleTestimonials(7, config)
 
   // Promote the two longest quotes into the hero slots — short quotes look
   // anemic in the big tiles.

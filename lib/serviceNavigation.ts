@@ -1,7 +1,8 @@
 import { resolveServiceCatalogIds } from "./catalogs/services";
-export type ServiceNavigationConfig = { services: readonly string[]; offersDumpsterRental: boolean };
+export type ServiceNavigationConfig = { services: readonly string[]; offersDumpsterRental: boolean; companyMode?: string };
 export function buildServiceNavItems(config: ServiceNavigationConfig, limit = 10): { label: string; href: string }[] {
     const count = Math.max(0, Math.floor(limit));
+    if (config.companyMode === "dumpster_rental") return config.offersDumpsterRental && count > 0 ? [{ label: "Dumpster Rental", href: "/dumpster-rental" }] : [];
     const selected = config.services.filter(service => !/^dumpster[ -]rental$/i.test(service.trim()));
     const catalog = resolveServiceCatalogIds([...selected]);
     const services = catalog.length > 0

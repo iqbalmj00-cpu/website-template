@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import PageHero from "@/components/redesign/PageHero";
 import StaticFAQ from "@/components/redesign/StaticFAQ";
@@ -53,6 +54,7 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default function PricingPage() {
+    if (siteConfig.companyMode === "dumpster_rental") redirect("/dumpster-rental");
     const estimateCards = ESTIMATE_STEPS.map((step) => ({
         eyebrow: step.label,
         title: step.title,

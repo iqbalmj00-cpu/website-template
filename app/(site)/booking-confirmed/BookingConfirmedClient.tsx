@@ -30,11 +30,9 @@ function ConfirmationContent({ data }: { data: BookingConfirmation }) {
         : st === "dumpster" ? "Dumpster Rental"
         : "Junk Removal";
 
-    // Determine heading and message based on service type + auto-booking result
-    const getHeading = () => {
-        if (hasDumpster && !hasJunk && !autoBooked) return (<>Request <span style={{ color: "var(--brand)" }}>Received!</span></>);
-        return (<>Booking <span style={{ color: "var(--brand)" }}>Confirmed!</span></>);
-    };
+    const getHeading = () => hasJunk || !autoBooked
+        ? <>Request <span style={{ color: "var(--brand)" }}>Received</span></>
+        : <>Rental <span style={{ color: "var(--brand)" }}>Confirmed</span></>;
 
     // On a combined booking the junk leg can succeed while the dumpster leg
     // fails; the wizard records that as `dumpsterError`. Without it this page
@@ -50,13 +48,9 @@ function ConfirmationContent({ data }: { data: BookingConfirmation }) {
         : null;
 
     const getMessage = () => {
-        if (st === "both" && autoBooked) return `Thanks, ${name}! Your junk removal is scheduled and your dumpster is confirmed for delivery on ${date}!`;
-        if (st === "both") return dumpsterError
-            ? `Thanks, ${name}! Your junk removal is scheduled. ${dumpsterNote}`
-            : `Thanks, ${name}! Your junk removal is scheduled. We'll confirm dumpster availability shortly.`;
-        if (hasDumpster && autoBooked) return `Thanks, ${name}! Your dumpster is confirmed for delivery on ${date}! We'll notify you when the crew is en route.`;
-        if (hasDumpster) return `Thanks, ${name}! We've received your dumpster rental request. We'll confirm availability and reach out shortly.`;
-        return `Thanks, ${name}! Your junk removal has been scheduled.`;
+        if (hasJunk) return `Thanks, ${name}! Your junk removal request was received. Scheduling still needs confirmation.${hasDumpster ? autoBooked ? " Your dumpster is confirmed for delivery." : ` ${dumpsterNote || "Your rental request needs availability confirmation."}` : ""}`;
+        if (autoBooked) return `Thanks, ${name}! Your dumpster is confirmed for delivery on ${date}.`;
+        return `Thanks, ${name}! Your dumpster rental request was received. Availability still needs confirmation.`;
     };
 
     return (
@@ -83,7 +77,7 @@ function ConfirmationContent({ data }: { data: BookingConfirmation }) {
             <section style={{ padding: "3rem 1.5rem", background: "var(--card)" }}>
                 <div style={{ maxWidth: 500, margin: "0 auto" }}>
                     <div style={{ background: "var(--background)", border: "1px solid var(--border)", borderRadius: 16, padding: "2rem", marginBottom: "2rem" }}>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem" }}>Booking Details</h2>
+                        <h2 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.5rem" }}>Request Details</h2>
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                                 <Truck size={20} style={{ color: "var(--brand)", flexShrink: 0 }} />
@@ -129,6 +123,7 @@ function ConfirmationContent({ data }: { data: BookingConfirmation }) {
                         </div>
                     </div>
 
+                    <p style={{ fontSize: "0.9rem", marginBottom: "1.5rem" }}>Prices above are estimates shown before submission. The accepted total and any charges have not been confirmed here.{data.promoRequested ? " Promo eligibility can change; if the code was unavailable, regular pricing applies. Please call to confirm the accepted amount." : ""}</p>
                     {cardNotice && (
                         <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.6, marginBottom: "2rem", textAlign: "center" }}>
                             {cardNotice}
@@ -167,8 +162,7 @@ function NoConfirmation() {
                     </h1>
                     <p style={{ color: "var(--hero-muted)", fontSize: "1.1rem" }}>
                         Your confirmation is only shown in the tab where you booked. If you&apos;ve already
-                        booked with us, you&apos;re all set — we&apos;ll confirm by text and email. Otherwise,
-                        you can book below.
+                        submitted a request, please contact us to check its status before booking again.
                     </p>
                 </div>
             </section>

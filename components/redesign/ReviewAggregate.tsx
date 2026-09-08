@@ -1,3 +1,4 @@
+import { hasEligibleReviews, type ReviewsResponse } from "@/lib/reviewData"
 /**
  * ReviewAggregate — big Google rating summary. Left side has the
  * giant numeric rating + headline; right side shows a customer-category
@@ -10,12 +11,12 @@ import { Star } from "lucide-react"
 import { siteConfig, getReviewSummary, getGoogleTestimonials, type SiteConfig } from "@/lib/siteConfig"
 import { shouldRenderReviewAggregate } from "@/lib/visibility"
 
-export default function ReviewAggregate({ config = siteConfig }: { config?: SiteConfig } = {}) {
-  if (!shouldRenderReviewAggregate(config)) return null
+export default function ReviewAggregate({ config = siteConfig, data }: { config?: SiteConfig; data?: ReviewsResponse } = {}) {
+  if (data ? !hasEligibleReviews(data) : !shouldRenderReviewAggregate(config)) return null
 
   const { gbpUrl, city } = config
-  const summary = getReviewSummary(config)
-  const testimonials = getGoogleTestimonials(4, config)
+  const summary = data?.stats ?? getReviewSummary(config)
+  const testimonials = data?.reviews ?? getGoogleTestimonials(4, config)
   if (!summary) return null
 
   const distributionRows = [5, 4, 3, 2, 1]

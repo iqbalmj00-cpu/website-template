@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import PageHero from "@/components/redesign/PageHero";
 import PageIntro from "@/components/redesign/PageIntro";
@@ -24,6 +25,7 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default function ServicesPage() {
+    if (siteConfig.companyMode === "dumpster_rental") redirect("/dumpster-rental");
     const services = getClientServices();
 
     return (

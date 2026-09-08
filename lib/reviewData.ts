@@ -6,8 +6,6 @@
 import {
     getGoogleTestimonials,
     getReviewSummary,
-    hasVerifiedGoogleReviews,
-    siteConfig,
 } from "./siteConfig";
 import { getServerConfig } from "./serverConfig";
 
@@ -73,8 +71,10 @@ export async function fetchReviews(limit = 15): Promise<ReviewsResponse> {
     }
 }
 
+export function hasEligibleReviews({ reviews, stats }: ReviewsResponse): boolean {
+    return reviews.length > 0 && Boolean(stats && stats.totalCount > 0 && stats.averageRating > 0);
+}
+
 export async function hasVerifiedPublicReviews(): Promise<boolean> {
-    if (hasVerifiedGoogleReviews()) return true;
-    const { reviews, stats } = await fetchReviews(5);
-    return reviews.length > 0 && Boolean(stats?.totalCount);
+    return hasEligibleReviews(await fetchReviews(5));
 }

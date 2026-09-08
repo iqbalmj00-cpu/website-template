@@ -25,6 +25,8 @@ const full = {
     debrisType: "Household Junk",
     rentalDuration: "About a week",
     autoBooked: true,
+    pricingUnconfirmed: true,
+    promoRequested: "",
     dumpsterError: "",
     cardIssue: "already_on_file",
 };
@@ -39,6 +41,7 @@ assert.deepStrictEqual(
     {
         name: "", date: "", time: "", price: "", serviceType: "junk",
         address: "", dumpsterPrice: "", debrisType: "", rentalDuration: "",
+        pricingUnconfirmed: true, promoRequested: "",
         autoBooked: false, dumpsterError: "", cardIssue: "",
     },
 );

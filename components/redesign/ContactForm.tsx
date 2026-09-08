@@ -25,9 +25,10 @@ interface FieldProps {
   name: string
   maxLength?: number
   multiline?: boolean
+  required?: boolean
 }
 
-function Field({ label, type = "text", name, maxLength, multiline }: FieldProps) {
+function Field({ label, type = "text", name, maxLength, multiline, required }: FieldProps) {
   const [val, setVal] = useState("")
   const [focus, setFocus] = useState(false)
   const lifted = focus || val.length > 0
@@ -57,6 +58,7 @@ function Field({ label, type = "text", name, maxLength, multiline }: FieldProps)
       ) : (
         <input
           type={type}
+          required={required}
           name={name}
           maxLength={maxLength}
           value={val}
@@ -72,6 +74,7 @@ function Field({ label, type = "text", name, maxLength, multiline }: FieldProps)
 
 export default function ContactForm({ config = siteConfig }: { config?: SiteConfig } = {}) {
   const { services, phoneNumber, businessHours } = config
+  const [error, setError] = useState("")
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle")
 
   // Service-type chips: derived from the dashboard's configured services so
@@ -147,20 +150,21 @@ export default function ContactForm({ config = siteConfig }: { config?: SiteConf
             const form = e.currentTarget
             const data = new FormData(form)
             if (String(data.get("website_honeypot") ?? "").trim()) return
+            const name = [data.get("fname"), data.get("lname")].map(v => String(v ?? "").trim()).filter(Boolean).join(" ")
+            if (!name || !String(data.get("phone") ?? "").trim()) {
+              setError("Enter your name (first or last) and phone number so we can reply.")
+              setStatus("error")
+              const field = form.elements.namedItem(!name ? "fname" : "phone")
+              if (field instanceof HTMLElement) field.focus()
+              return
+            }
+            setError("")
             setStatus("sending")
             fetch("/api/crm", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              // The receiver requires `name` and `phone`, and reads the message
-              // as `description`. This form sent firstName/lastName/message, so
-              // `name` was always absent and EVERY submission was rejected with
-              // "name and phone are required when creating a new lead". Nothing
-              // was captured — no lead, no email, no trace.
               body: JSON.stringify({
-                name: [data.get("fname"), data.get("lname")]
-                  .map((v) => String(v ?? "").trim())
-                  .filter(Boolean)
-                  .join(" "),
+                name,
                 email: data.get("email"),
                 phone: data.get("phone"),
                 zip: data.get("zip"),
@@ -176,22 +180,28 @@ export default function ContactForm({ config = siteConfig }: { config?: SiteConf
                 },
               }),
             })
-              .then((res) => {
-                if (!res.ok) throw new Error("Contact request failed")
+              .then(async (res) => {
+                if (!res.ok) {
+                  await res.json().catch(() => null)
+                  setError(res.status === 400 ? "Check your name, phone number and email, then try again." : res.status === 429 ? "Please wait a few minutes before sending again." : "We couldn't confirm your message was received. Please try again or call us.")
+                  setStatus("error")
+                  return
+                }
                 form.reset()
                 setStatus("sent")
               })
-              .catch(() => setStatus("error"))
+              .catch(() => { setError("We couldn't confirm your message was received. Check your connection or call us before sending again."); setStatus("error") })
           }}
-          className="bg-paper-2 border border-line rounded-[14px] p-9 flex flex-col gap-3.5"
+          className="bg-paper-2 border border-line rounded-[14px] p-5 sm:p-9 flex flex-col gap-3.5"
         >
-          <div className="grid grid-cols-2 gap-3.5">
+          <p className="text-sm text-muted">Name (first or last) and phone are required. Other fields are optional.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <Field label="First name" name="fname" />
             <Field label="Last name" name="lname" />
           </div>
-          <div className="grid grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <Field label="Email" name="email" type="email" />
-            <Field label="Phone" name="phone" type="tel" />
+            <Field label="Phone (required)" name="phone" type="tel" required />
           </div>
           <Field label="ZIP code" name="zip" maxLength={5} />
           {allChips.length > 1 && (
@@ -240,7 +250,7 @@ export default function ContactForm({ config = siteConfig }: { config?: SiteConf
             <p className="text-[13px] font-semibold text-green">Message received. We will follow up soon.</p>
           )}
           {status === "error" && (
-            <p className="text-[13px] font-semibold text-red">The message could not be sent. Please call instead.</p>
+            <p role="alert" className="text-[13px] font-semibold text-red">{error}</p>
           )}
         </form>
       </div>

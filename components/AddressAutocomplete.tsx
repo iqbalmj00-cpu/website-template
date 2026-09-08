@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useId } from "react";
 import { MapPin, AlertTriangle } from "lucide-react";
 import { siteConfig } from "@/lib/siteConfig";
 import { loadGoogleMapsLibrary } from "@/lib/googleMapsLoader";
@@ -21,6 +21,7 @@ type PlaceResult = {
 };
 
 type Props = {
+    id?: string;
     value: string;
     onChange: (value: string) => void;
     onPlaceSelect: (place: PlaceResult) => void;
@@ -41,7 +42,10 @@ const MAX_SUGGESTIONS = 5;
 const MIN_INPUT_LENGTH = 3;
 
 /* ── Component ─────────────────────────────────────────────────────────── */
-export default function AddressAutocomplete({ value, onChange, onPlaceSelect, placeholder }: Props) {
+export default function AddressAutocomplete({ value, onChange, onPlaceSelect, placeholder, id }: Props) {
+    const generatedId = useId();
+    const inputId = id || generatedId;
+    const listId = `${inputId}-suggestions`;
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -166,7 +170,7 @@ export default function AddressAutocomplete({ value, onChange, onPlaceSelect, pl
             const zips = siteConfig.serviceAreaZips;
             if (zips.length > 0 && zip && !zips.includes(zip)) {
                 setServiceAreaError(
-                    `Sorry, we don't currently service this area. Please call us at ${siteConfig.phoneNumber} for assistance.`
+                    `This ZIP is outside our listed area. You can continue to request service; coverage needs review.`
                 );
             } else {
                 setServiceAreaError(null);
@@ -207,6 +211,9 @@ export default function AddressAutocomplete({ value, onChange, onPlaceSelect, pl
         return (
             <div>
                 <input
+                    id={inputId}
+                    aria-label="Service address"
+                    required
                     className="input"
                     placeholder={placeholder || "1234 Main St, City, State"}
                     value={value}
@@ -228,6 +235,14 @@ export default function AddressAutocomplete({ value, onChange, onPlaceSelect, pl
                     zIndex: 1,
                 }} />
                 <input
+                    id={inputId}
+                    aria-label="Service address"
+                    required
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded={suggestions.length > 0}
+                    aria-controls={suggestions.length > 0 ? listId : undefined}
+                    aria-activedescendant={suggestions.length > 0 && highlightedIndex >= 0 ? `${listId}-${highlightedIndex}` : undefined}
                     ref={inputRef}
                     className="input"
                     placeholder={placeholder || "Start typing your address..."}
@@ -239,6 +254,8 @@ export default function AddressAutocomplete({ value, onChange, onPlaceSelect, pl
                 />
                 {suggestions.length > 0 && (
                     <ul
+                        id={listId}
+                        aria-label="Address suggestions"
                         role="listbox"
                         style={{
                             position: "absolute", top: "100%", left: 0, right: 0,
@@ -253,6 +270,7 @@ export default function AddressAutocomplete({ value, onChange, onPlaceSelect, pl
                         {suggestions.map((s, i) => (
                             <li
                                 key={s.placeId || i}
+                                id={`${listId}-${i}`}
                                 role="option"
                                 aria-selected={i === highlightedIndex}
                                 onMouseDown={(e) => { e.preventDefault(); handleSuggestionClick(s); }}

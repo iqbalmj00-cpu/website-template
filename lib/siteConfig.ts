@@ -1,3 +1,4 @@
+import { companyMode } from "./bookingFlow";
 /**
  * siteConfig.ts — Single source of truth for all client-specific values.
  * Every value comes from environment variables injected at deploy time
@@ -95,10 +96,10 @@ export type DumpsterPriceTier = {
 /** Round to nearest $5 */
 export function roundTo5(n: number): number { return Math.round(n / 5) * 5; }
 
-/** Format dumpster price as range or "Starting at", rounded to nearest $5 */
+/** Format dumpster price as range or "Starting at", preserving the configured amount */
 export function formatDumpsterPrice(tier: DumpsterPriceTier): string {
-    const min = roundTo5(tier.baseRateMin ?? tier.baseRate);
-    const max = tier.baseRateMax ? roundTo5(tier.baseRateMax) : null;
+    const min = tier.baseRateMin ?? tier.baseRate;
+    const max = tier.baseRateMax ?? null;
     if (max && max > min) return `$${min} – $${max}`;
     return `Starting at $${min}`;
 }
@@ -421,7 +422,7 @@ export const siteConfig = {
     serviceImages: parseJSON<Record<string, string>>(process.env.NEXT_PUBLIC_SERVICE_IMAGES, {}),
 
     // Dynamic content
-    services: parseJSON<ServiceItem[]>(process.env.NEXT_PUBLIC_SERVICES, [
+    services: companyMode(process.env.NEXT_PUBLIC_COMPANY_MODE, process.env.NEXT_PUBLIC_OFFERS_DUMPSTER_RENTAL === "true") === "dumpster_rental" ? ["Dumpster Rental"] : parseJSON<ServiceItem[]>(process.env.NEXT_PUBLIC_SERVICES, [
         "Furniture Removal",
         "Appliance Disposal",
         "Yard Waste",
@@ -464,7 +465,8 @@ export const siteConfig = {
     tier: (process.env.NEXT_PUBLIC_TIER ?? "starter") as "starter" | "growth",
 
     // Dumpster rental (enabled per client during onboarding)
-    offersDumpsterRental: (process.env.NEXT_PUBLIC_OFFERS_DUMPSTER_RENTAL ?? "false") === "true",
+    companyMode: companyMode(process.env.NEXT_PUBLIC_COMPANY_MODE, process.env.NEXT_PUBLIC_OFFERS_DUMPSTER_RENTAL === "true"),
+    offersDumpsterRental: companyMode(process.env.NEXT_PUBLIC_COMPANY_MODE, process.env.NEXT_PUBLIC_OFFERS_DUMPSTER_RENTAL === "true") !== "junk_removal",
 
     // Dumpster rental pricing (provisioned from DumpsterPriceTier table)
     dumpsterPricing: parseJSON<DumpsterPricingConfig | null>(process.env.NEXT_PUBLIC_DUMPSTER_PRICING, null),
@@ -591,7 +593,9 @@ export function createSiteConfigFromPublicConfig(input: unknown, fallback: SiteC
         commercialImageUrl: getRecordText(input, "commercialImageUrl") || fallback.commercialImageUrl,
         serviceImages: getRecordStringMap(input, "serviceImages", fallback.serviceImages),
         locationImages: getRecordStringMap(input, "locationImages", fallback.locationImages),
-        services: getRecordStringArray(input, "services", fallback.services),
+        companyMode: companyMode(input.companyMode ?? fallback.companyMode, fallback.offersDumpsterRental),
+        offersDumpsterRental: companyMode(input.companyMode ?? fallback.companyMode, fallback.offersDumpsterRental) !== "junk_removal",
+        services: companyMode(input.companyMode ?? fallback.companyMode, fallback.offersDumpsterRental) === "dumpster_rental" ? ["Dumpster Rental"] : getRecordStringArray(input, "services", fallback.services),
         googleReviews: previewReviews.length > 0 ? previewReviews : fallback.googleReviews,
         reviewStats: previewStats ?? fallback.reviewStats,
         pricing: previewPricing.pricing,

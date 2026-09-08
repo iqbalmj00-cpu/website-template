@@ -25,6 +25,8 @@ export type BookingConfirmation = {
     debrisType?: string;
     rentalDuration?: string;
     autoBooked?: boolean;
+    pricingUnconfirmed?: boolean;
+    promoRequested?: string;
     dumpsterError?: string;
     /** A CardConfirmation other than "saved"; absent when the card saved. */
     cardIssue?: string;
@@ -67,6 +69,8 @@ export function parseBookingConfirmation(raw: string | null | undefined): Bookin
         debrisType: str(o.debrisType),
         rentalDuration: str(o.rentalDuration),
         autoBooked: o.autoBooked === true,
+        pricingUnconfirmed: true,
+        promoRequested: str(o.promoRequested),
         dumpsterError: str(o.dumpsterError),
         cardIssue: str(o.cardIssue),
     };

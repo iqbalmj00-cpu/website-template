@@ -795,6 +795,7 @@ export function nameToSlug(name: string): string {
 
 /** Get the services the client selected (matched against the master catalog) */
 export function getClientServices(services: readonly string[] = siteConfig.services): ServiceDetail[] {
+    if (siteConfig.companyMode === "dumpster_rental") return [];
     const selected = services;
     const matchedServices = ALL_SERVICES.filter((svc) =>
         svc.names.some((n) =>

@@ -19,7 +19,7 @@ export default async function BlogPage() {
     const blogs = await fetchBlogs();
     const { companyName, city } = siteConfig;
 
-    if (!siteConfig.enableBlog || blogs.length === 0) notFound();
+    if (!siteConfig.enableBlog) notFound();
 
     const blogCards = blogs.map((post) => ({
         eyebrow: [post.category, post.readTime].filter(Boolean).join(" / ") || (post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Guide"),
@@ -39,13 +39,13 @@ export default async function BlogPage() {
                 lede={`Tips, guides, and junk removal insights from ${city} service experts.`}
                 primaryCta={{ label: "Book Now", href: "/book" }}
             />
-            <DispatchCardSection
+            {blogs.length === 0 ? <p className="mx-auto max-w-3xl px-5 py-12">No articles are available right now. Please check back later.</p> : <DispatchCardSection
                 eyebrow="Published guides"
                 heading="Junk removal articles and planning resources."
                 body="Blog posts appear only when the client has enabled and published dashboard-backed content."
                 cards={blogCards}
                 variant="service-links"
-            />
+            />}
         </>
     );
 }

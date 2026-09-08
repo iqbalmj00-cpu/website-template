@@ -84,7 +84,7 @@ export const SERVICE_CATALOG: ServiceCatalogEntry[] = [
   {
     id: 'yard-waste-removal',
     name: 'Yard Waste Removal',
-    aliases: ['Yard Debris', 'Storm Cleanup', 'Branches'],
+    aliases: ['Yard Waste', 'Yard Debris', 'Storm Cleanup', 'Branches'],
     blurb: 'Storm cleanup, branches, soil, sod, fence panels.',
     Icon: Trees,
     audience: 'residential',

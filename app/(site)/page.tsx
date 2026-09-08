@@ -14,8 +14,8 @@ const homeMetaImage = resolveJunkRemovalImage({
 });
 
 export const metadata: Metadata = createPageMetadata({
-    title: `Junk Removal in ${cityState}`,
-    description: `${siteConfig.companyName} provides junk removal in ${cityState}: furniture, appliances, yard waste, cleanouts, construction debris, and more.`,
+    title: `${siteConfig.companyMode === "dumpster_rental" ? "Dumpster Rental" : "Junk Removal"} in ${cityState}`,
+    description: siteConfig.companyMode === "dumpster_rental" ? `${siteConfig.companyName} offers dumpster rental in ${cityState}. Review container sizes, rental terms and delivery requests.` : `${siteConfig.companyName} provides junk removal in ${cityState}: furniture, appliances, yard waste, cleanouts, construction debris, and more.`,
     path: "/",
     image: homeMetaImage.src,
 });

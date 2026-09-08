@@ -1,3 +1,4 @@
+import { configuredLocationNames, locationSlug as toSlug, locationSlug } from "./locationNames";
 /**
  * locationData.ts — Builds location page data from dashboard-provided config
  * plus optional source-backed local facts.
@@ -41,13 +42,6 @@ export interface LocationData {
     hasSourcedLocalContent: boolean;
 }
 
-function toSlug(name: string): string {
-    return name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
-}
-
 function unique(values: string[]): string[] {
     const seen = new Set<string>();
     const result: string[] = [];
@@ -63,42 +57,8 @@ function unique(values: string[]): string[] {
     return result;
 }
 
-function isQualityLocationName(name: string, mainCity: string): boolean {
-    const normalized = name.trim().toLowerCase();
-    if (!normalized || normalized === mainCity.trim().toLowerCase()) return false;
-    if (normalized.length < 3 || normalized.length > 80) return false;
-
-    const genericAreaNames = new Set([
-        "your area",
-        "near me",
-        "nearby",
-        "surrounding areas",
-        "surrounding communities",
-        "greater area",
-        "metro area",
-        "service area",
-        "all areas",
-        "all neighborhoods",
-        "countywide",
-        "citywide",
-    ]);
-
-    if (genericAreaNames.has(normalized)) return false;
-    if (/^(north|south|east|west|central|downtown)\s+city$/.test(normalized)) return false;
-
-    return true;
-}
-
 function getConfiguredServiceAreaLocations(): string[] {
-    const { serviceArea, city } = siteConfig;
-    if (!serviceArea || (!serviceArea.includes(",") && !serviceArea.includes(";"))) return [];
-
-    return unique(
-        serviceArea
-            .split(/[,;]+/)
-            .map((area) => area.trim())
-            .filter((area) => isQualityLocationName(area, city)),
-    );
+    return configuredLocationNames(siteConfig).filter(name => locationSlug(name) !== locationSlug(siteConfig.city));
 }
 
 export function getExplicitServiceAreaLocations(): string[] {

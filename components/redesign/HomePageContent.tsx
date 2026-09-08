@@ -11,6 +11,7 @@ import {
     DispatchFaqBoard,
     DispatchFinalCta,
     DispatchHomeHero,
+    DispatchPageHero,
     DispatchPricingBoard,
     DispatchReviewRail,
     DispatchServiceMosaic,
@@ -62,6 +63,10 @@ function faqTokens(config: SiteConfig): Record<string, string | number | null> {
 }
 
 export function buildHomeFaqs(config: SiteConfig = siteConfig) {
+    if (config.companyMode === "dumpster_rental") return [
+        { q: "How do I request a dumpster?", a: "Choose a configured container size, describe the debris, and request a delivery date and window. Availability and rental terms need confirmation." },
+        { q: "What is included in the rental price?", a: "Check the dumpster rental page for the configured base rates, included days, weight allowances, and extra charges." },
+    ];
     const tokens = faqTokens(config);
     return homeFaqItems(config).map((item) => ({
         q: item.question,
@@ -74,6 +79,16 @@ type HomePageContentProps = {
 };
 
 export default function HomePageContent({ config = siteConfig }: HomePageContentProps) {
+    if (config.companyMode === "dumpster_rental") return (
+        <>
+            <DispatchPageHero config={config} crumbs={[]} eyebrow="Dumpster rental" title={`Dumpster rental in ${config.city || "your area"}`} lede="Choose a container, review the rental terms, and request delivery for your project." primaryCta={{ label: "Request a dumpster", href: "/book" }} secondaryCta={{ label: "Sizes and rental prices", href: "/dumpster-rental" }} />
+            <Credentials config={config} />
+            <DispatchServiceMosaic config={config} heading="Dumpster sizes and rental details" body="Review the available containers, accepted materials, and rental terms." />
+            <DispatchReviewRail config={config} />
+            <DispatchFaqBoard items={buildHomeFaqs(config)} heading="Dumpster rental questions" />
+            <DispatchFinalCta config={config} heading="Ready to request a container?" body="Choose a container size, describe your debris, and request a delivery window." />
+        </>
+    );
     return (
         <>
             <DispatchHomeHero config={config} />
