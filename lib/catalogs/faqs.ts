@@ -40,7 +40,7 @@ export const FAQ_POOL: FaqItem[] = [
     category: 'pricing',
     question: 'How is the price calculated?',
     answer:
-      'Pricing is confirmed from the configured price book, job size, item type, access, distance, and any enabled surcharges that apply.',
+      'Pricing depends on job size, item type, access, distance, and any applicable surcharges. The crew confirms the final price before loading.',
   },
   {
     id: 'pricing-fixed-quote',
@@ -54,14 +54,14 @@ export const FAQ_POOL: FaqItem[] = [
     category: 'pricing',
     question: 'Are there hidden fees?',
     answer:
-      'Any configured surcharges should be reviewed before loading starts, including item, access, distance, or scheduling charges when they apply.',
+      'Any applicable surcharges are reviewed before loading starts, including item, access, distance, or scheduling charges.',
   },
   {
     id: 'pricing-minimum',
     category: 'pricing',
     question: 'Do you have a minimum?',
     answer:
-      'Minimums depend on the configured price book for this business. The final quote is confirmed before loading begins.',
+      'A minimum service charge may apply. Request a quote for your items; the final price is confirmed before loading begins.',
   },
   {
     id: 'pricing-payment',

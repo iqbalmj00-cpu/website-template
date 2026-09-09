@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useSelectableTabs } from "./useSelectableTabs";
 import {
     Armchair,
     Bed,
@@ -59,7 +59,8 @@ export default function VisualServiceItemsClient({
     intro: string;
     items: VisualServiceItem[];
 }) {
-    const [active, setActive] = useState(0);
+    const tabs = useSelectableTabs(items.length, 0, "vertical");
+    const { active } = tabs;
     const current = items[active] || items[0];
     if (!current) return null;
     const CurrentIcon = iconForItem(current.name, active);
@@ -79,7 +80,7 @@ export default function VisualServiceItemsClient({
                 </header>
 
                 <div className="syj-hi-body">
-                    <div className="syj-hi-list" role="tablist" aria-label="Accepted item types">
+                    <div className="syj-hi-list" role="tablist" aria-label="Accepted item types" aria-orientation="vertical">
                         {items.map((item, index) => {
                             const Icon = iconForItem(item.name, index);
                             const isActive = index === active;
@@ -88,9 +89,8 @@ export default function VisualServiceItemsClient({
                                     key={item.name}
                                     type="button"
                                     role="tab"
-                                    aria-selected={isActive}
+                                    {...tabs.tabProps(index)}
                                     className={`syj-hi-item${isActive ? " is-active" : ""}`}
-                                    onClick={() => setActive(index)}
                                 >
                                     <span className="syj-hi-item-icon">
                                         <Icon aria-hidden="true" />
@@ -102,7 +102,7 @@ export default function VisualServiceItemsClient({
                         })}
                     </div>
 
-                    <div className="syj-hi-detail" key={current.name}>
+                    <div className="syj-hi-detail" key={current.name} role="tabpanel" id={tabs.panelId} aria-labelledby={tabs.tabId(active)} tabIndex={0}>
                         <span aria-hidden="true" className="syj-hi-detail-watermark">
                             <CurrentIcon />
                         </span>

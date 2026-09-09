@@ -15,6 +15,7 @@ interface PageHeroProps {
   lede: string;
   eyebrow?: string;
   primaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string } | null;
   hideTrustPanel?: boolean;
   coverageMap?: boolean;
   coverageMapFocus?: MapFocus;
@@ -37,6 +38,7 @@ export default function PageHero({
   titleAccent,
   lede,
   primaryCta = { label: "Book Now", href: "/book" },
+  secondaryCta = { label: "View Pricing", href: "/pricing" },
   coverageMap = false,
   coverageMapFocus,
   media,
@@ -53,7 +55,7 @@ export default function PageHero({
       coverageMap={coverageMap}
       coverageMapFocus={coverageMapFocus}
       primaryCta={primaryCta}
-      secondaryCta={{ label: "View Pricing", href: "/pricing" }}
+      secondaryCta={secondaryCta && secondaryCta.href !== primaryCta.href ? secondaryCta : undefined}
     />
   );
 }

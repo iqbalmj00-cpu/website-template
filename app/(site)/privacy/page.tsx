@@ -1,3 +1,5 @@
+import { shouldRenderContactPage } from "@/lib/visibility";
+import Link from "next/link";
 import { siteConfig } from "@/lib/siteConfig";
 import type { Metadata } from "next";
 import { createPageMetadata } from "@/lib/seo";
@@ -18,7 +20,7 @@ export default function PrivacyPolicyPage() {
     const { companyName, phoneNumber } = siteConfig;
 
     return (
-        <main style={{ padding: "9rem 1.5rem 4rem" }}>
+        <div style={{ padding: "9rem 1.5rem 4rem" }}>
             <div style={{ maxWidth: 800, margin: "0 auto" }}>
                 <h1 style={{ fontSize: "2.5rem", fontWeight: 900, marginBottom: "3rem" }}>Privacy Policy</h1>
 
@@ -114,10 +116,10 @@ export default function PrivacyPolicyPage() {
                     {/* ── Contact ── */}
                     <h2 style={h2Style}>Contact Us</h2>
                     <p style={pStyle}>
-                        For privacy-related questions or to exercise your data rights, contact us at {phoneNumber} or through our Contact page.
+                        For privacy-related questions or to exercise your data rights, contact us at {phoneNumber}{shouldRenderContactPage() && <> or through our <Link href="/contact" style={{ color: "var(--brand)", textDecoration: "underline" }}>Contact page</Link></>}.
                     </p>
                 </div>
             </div>
-        </main>
+        </div>
     );
 }
