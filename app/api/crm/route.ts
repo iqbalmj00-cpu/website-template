@@ -48,12 +48,13 @@ export async function POST(req: Request) {
 
         const { data, parseError } = await safeJson(response, "crm");
 
-        if (parseError || !response.ok) {
-            console.error("CRM proxy error:", data);
-            return NextResponse.json({ error: (data as Record<string, unknown>).error || "CRM error" }, { status: response.ok ? 502 : response.status });
+        const headers: Record<string, string> = { "Cache-Control": "no-store" };
+        for (const name of ["Retry-After", "X-RateLimit-Remaining"]) {
+            const value = response.headers.get(name);
+            if (value) headers[name] = value;
         }
-
-        return NextResponse.json(data);
+        if (parseError) return NextResponse.json({ error: "Unreadable booking response" }, { status: response.ok && response.status !== 202 ? 502 : response.status, headers });
+        return NextResponse.json(data, { status: response.status, headers });
     } catch (err) {
         console.error("CRM proxy exception:", err);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });

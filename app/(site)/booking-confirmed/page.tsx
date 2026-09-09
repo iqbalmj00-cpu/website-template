@@ -3,8 +3,8 @@ import { siteConfig } from "@/lib/siteConfig";
 import BookingConfirmedClient from "./BookingConfirmedClient";
 
 export const metadata: Metadata = {
-    title: `Booking Confirmed | ${siteConfig.companyName}`,
-    description: `Your junk removal booking with ${siteConfig.companyName} has been confirmed.`,
+    title: `Booking Receipt | ${siteConfig.companyName}`,
+    description: `Review the saved service responses for your request with ${siteConfig.companyName}.`,
     robots: { index: false, follow: false },
 };
 

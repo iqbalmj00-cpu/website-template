@@ -450,10 +450,9 @@ export const siteConfig = {
     sameDaySurchargeType: cleanConfigText(process.env.NEXT_PUBLIC_SAME_DAY_SURCHARGE_TYPE),
     sameDaySurchargeAmount: parseOptionalNumber(process.env.NEXT_PUBLIC_SAME_DAY_SURCHARGE_AMOUNT),
     enableBlog: parseBoolean(process.env.NEXT_PUBLIC_ENABLE_BLOG),
-    // True only when the operator has connected a Gmail mailbox in the dashboard.
-    // The contact page is hidden entirely without it: a submission has nowhere to
-    // go, so showing the form would collect messages nobody ever reads.
-    // Defaults false — an operator with no flag gets no contact page.
+    // Intake stores messages in the lead pipeline independently of Gmail.
+    // Missing capability configuration remains disabled.
+    contactEnabled: parseBoolean(process.env.NEXT_PUBLIC_CONTACT_ENABLED),
     mailboxConnected: parseBoolean(process.env.NEXT_PUBLIC_MAILBOX_CONNECTED),
     legalEffectiveDate: process.env.NEXT_PUBLIC_LEGAL_EFFECTIVE_DATE ?? "",
 
@@ -606,6 +605,7 @@ export function createSiteConfigFromPublicConfig(input: unknown, fallback: SiteC
         sameDayCutoffTime: getRecordText(input, "sameDayCutoffTime") || fallback.sameDayCutoffTime,
         sameDaySurchargeType: getRecordText(input, "sameDaySurchargeType") || fallback.sameDaySurchargeType,
         sameDaySurchargeAmount: getRecordNumber(input, "sameDaySurchargeAmount") ?? fallback.sameDaySurchargeAmount,
+        contactEnabled: getRecordBoolean(input, "contactEnabled", fallback.contactEnabled),
         mailboxConnected: getRecordBoolean(input, "mailboxConnected", fallback.mailboxConnected),
     };
 }

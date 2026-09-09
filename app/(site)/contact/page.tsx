@@ -25,8 +25,7 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default function ContactPage() {
-    // No connected mailbox means no destination for a message. 404 rather than
-    // render a form whose submissions nobody will ever see.
+    // The intake capability supplies the lead-pipeline destination.
     if (!shouldRenderContactPage()) notFound();
 
     return (

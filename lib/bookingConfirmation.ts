@@ -1,3 +1,4 @@
+import { readSavedOutcomes, type BookingOutcome, type ServiceLeg } from "./bookingIntent";
 /**
  * bookingConfirmation.ts — handover of the confirmation payload from the
  * wizard to /booking-confirmed.
@@ -9,12 +10,12 @@
  * operator's GA property. sessionStorage is per-tab, never leaves the browser,
  * and survives the reload the customer is most likely to perform.
  *
- * The widget has no equivalent problem: it hands the same fields to its own
- * confirmation view in memory (see booking-widget/src/components/Widget.tsx).
+ * The widget uses tenant-scoped per-tab storage for the same recovery guarantee.
  */
 
 /** Same shape as the widget's BookingCompleteData, minus its React plumbing. */
 export type BookingConfirmation = {
+    outcomes?: Partial<Record<ServiceLeg, BookingOutcome>>;
     name: string;
     date: string;
     time: string;
@@ -69,7 +70,8 @@ export function parseBookingConfirmation(raw: string | null | undefined): Bookin
         debrisType: str(o.debrisType),
         rentalDuration: str(o.rentalDuration),
         autoBooked: o.autoBooked === true,
-        pricingUnconfirmed: true,
+        pricingUnconfirmed: o.pricingUnconfirmed !== false,
+        ...(o.outcomes ? { outcomes: readSavedOutcomes(o.outcomes) } : {}),
         promoRequested: str(o.promoRequested),
         dumpsterError: str(o.dumpsterError),
         cardIssue: str(o.cardIssue),
@@ -77,13 +79,14 @@ export function parseBookingConfirmation(raw: string | null | undefined): Bookin
 }
 
 /** Written by the wizard immediately before the redirect. */
-export function storeBookingConfirmation(data: BookingConfirmation): void {
-    if (typeof window === "undefined") return;
+export function storeBookingConfirmation(data: BookingConfirmation): boolean {
+    if (typeof window === "undefined") return false;
     // A storage failure (private mode, quota) must not lose a booking that has
     // already been accepted — the confirmation page degrades on its own.
     try {
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch {}
+        return true;
+    } catch { return false; }
 }
 
 /**
