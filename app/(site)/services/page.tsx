@@ -38,7 +38,7 @@ export default function ServicesPage() {
                 ]}
                 titleStart="Our services, "
                 titleAccent="in one place."
-                lede={siteConfig.offersDumpsterRental ? `Explore available hauling services and dumpster rental in ${cityState}. Choose a service below to review the details and book.` : `${services.length} junk removal service categories in ${cityState}. Choose a service below to review the details and book.`}
+                lede={siteConfig.offersDumpsterRental ? `Explore available hauling services and dumpster rental in ${cityState}. Choose a service below to review the details and book.` : `Explore available junk removal services in ${cityState}. Choose a service below to review the details and book.`}
             />
             <RelatedSvc
                 eyebrow="Available services"

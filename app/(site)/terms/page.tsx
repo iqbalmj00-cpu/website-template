@@ -1,3 +1,5 @@
+import { shouldRenderContactPage } from "@/lib/visibility";
+import Link from "next/link";
 import { hasInsurance, hasLicense, siteConfig } from "@/lib/siteConfig";
 import type { Metadata } from "next";
 import { createPageMetadata } from "@/lib/seo";
@@ -18,7 +20,7 @@ export default function TermsOfServicePage() {
     const { companyName, city, state, phoneNumber } = siteConfig;
 
     return (
-        <main style={{ padding: "9rem 1.5rem 4rem" }}>
+        <div style={{ padding: "9rem 1.5rem 4rem" }}>
             <div style={{ maxWidth: 800, margin: "0 auto" }}>
                 <h1 style={{ fontSize: "2.5rem", fontWeight: 900, marginBottom: "3rem" }}>Terms of Service</h1>
 
@@ -90,7 +92,7 @@ export default function TermsOfServicePage() {
                     {/* ── Prohibited Items ── */}
                     <h2 style={h2Style}>Prohibited Items</h2>
                     <p style={pStyle}>
-                        We cannot haul hazardous materials, asbestos, medical waste, explosives, or other regulated substances. See our Items We Don&apos;t Take page for details.
+                        We cannot haul hazardous materials, asbestos, medical waste, explosives, or other regulated substances. See our <Link href="/items-we-dont-take" style={{ color: "var(--brand)", textDecoration: "underline" }}>Items We Don&apos;t Take page</Link> for details.
                     </p>
 
                     {/* ── Liability ── */}
@@ -119,10 +121,10 @@ export default function TermsOfServicePage() {
                     {/* ── Contact ── */}
                     <h2 style={h2Style}>Contact Us</h2>
                     <p style={pStyle}>
-                        If you have questions about these Terms of Service, contact us at {phoneNumber} or through our Contact page.
+                        If you have questions about these Terms of Service, contact us at {phoneNumber}{shouldRenderContactPage() && <> or through our <Link href="/contact" style={{ color: "var(--brand)", textDecoration: "underline" }}>Contact page</Link></>}.
                     </p>
                 </div>
             </div>
-        </main>
+        </div>
     );
 }

@@ -9,7 +9,7 @@ import { configuredLocationNames, locationSlug as toSlug, locationSlug } from ".
  * rendered only when they include source URLs in the validated data.
  */
 
-import { hasConfiguredPricing, isSameDayEnabled, siteConfig } from "./siteConfig";
+import { hasConfiguredPricing, isSameDayEnabled, siteConfig, type PricingTier } from "./siteConfig";
 
 export type LocationSourcedContent = {
     intro?: string;
@@ -84,13 +84,21 @@ function serviceSummary(locationName: string): string {
     return `Services available in ${locationName} include ${formatShortList(services, "junk removal")} and other approved item pickups listed on this site.`;
 }
 
+/** Open-ended or unpriced tiers cannot establish an upper price limit. */
+export function locationPricingSummary(tiers: PricingTier[], configured: boolean): string {
+    if (!configured || !tiers.length || tiers.some(tier => !Number.isFinite(tier.min) || tier.min <= 0)) return "";
+    const format = (value: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
+    const minimum = Math.min(...tiers.map(tier => tier.min));
+    const bounded = tiers.every(tier => Number.isFinite(tier.max) && tier.max >= tier.min);
+    const maximum = bounded ? Math.max(...tiers.map(tier => tier.max)) : null;
+    return maximum !== null && maximum > minimum
+        ? ` Published load pricing ranges from ${format(minimum)} to ${format(maximum)} before applicable surcharges.`
+        : ` Published load pricing starts at ${format(minimum)} before applicable surcharges. Larger loads require a quote.`;
+}
+
 function buildSafeFaqs(locationName: string, state: string): { q: string; a: string }[] {
     const locationLabel = formatLocation(locationName, state);
-    const firstTier = siteConfig.pricing?.tiers?.[0];
-    const lastTier = siteConfig.pricing?.tiers?.[siteConfig.pricing.tiers.length - 1];
-    const priceRange = hasConfiguredPricing() && firstTier && lastTier
-        ? ` Published pricing currently starts around $${firstTier.min} and larger loads can reach $${lastTier.max} before any enabled surcharges.`
-        : "";
+    const priceRange = locationPricingSummary(siteConfig.pricing.tiers, hasConfiguredPricing());
 
     return [
         {

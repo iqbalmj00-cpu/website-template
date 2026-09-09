@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { type CSSProperties } from "react";
+import { useSelectableTabs } from "./useSelectableTabs";
 
 export type VisualPricingTier = {
     tag: string;
@@ -35,7 +36,8 @@ export default function VisualPricingScaleClient({
     factorsEyebrow?: string;
     factorsTitle?: string;
 }) {
-    const [active, setActive] = useState(Math.max(0, tiers.length - 1));
+    const tabs = useSelectableTabs(tiers.length, Math.max(0, tiers.length - 1));
+    const { active, select: setActive } = tabs;
     const tier = tiers[active] || tiers[0];
     if (!tier) return null;
     const progress = tiers.length > 1 ? (active / (tiers.length - 1)) * 100 : 100;
@@ -63,9 +65,8 @@ export default function VisualPricingScaleClient({
                                         key={`${row.name}-${row.range}`}
                                         type="button"
                                         role="tab"
-                                        aria-selected={isActive}
+                                        {...tabs.tabProps(index)}
                                         className={`syj-ps-node${isActive ? " is-active" : ""}${isPassed ? " is-passed" : ""}`}
-                                        onClick={() => setActive(index)}
                                     >
                                         <span className="syj-ps-node-dot">
                                             <span
@@ -80,7 +81,7 @@ export default function VisualPricingScaleClient({
                         </div>
                     </div>
 
-                    <div className="syj-ps-readout" key={tier.name}>
+                    <div className="syj-ps-readout" key={tier.name} role="tabpanel" id={tabs.panelId} aria-labelledby={tabs.tabId(active)} tabIndex={0}>
                         <div className="syj-ps-readout-head">
                             <div>
                                 <span className="syj-ps-readout-tag">{tier.tag}</span>

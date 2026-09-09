@@ -160,7 +160,7 @@ export function DispatchSiteFooter({ config = siteConfig, showReviews }: { confi
                         {config.phoneNumber && <a href={telHref(config.phoneNumber)}>{formatPhone(config.phoneNumber)}</a>}
                         {addressLines.length > 0 && (
                             <address>
-                                {addressLines.map((line) => <span key={line}>{line}</span>)}
+                                {addressLines.map((line, index) => <span key={line}>{index > 0 && <br />}{line}</span>)}
                             </address>
                         )}
                     </div>
@@ -294,7 +294,7 @@ export function DispatchServiceMosaic({
         const id = entry.href.split("/").pop()!;
         const known = catalog.find(service => service.id === id);
         return { id, name: entry.label, href: entry.href,
-            audience: known?.audience || (id === "dumpster-rental" ? "Dumpster rental" : "Services"),
+            audience: known?.audience === "both" ? "Residential & commercial" : known?.audience || (id === "dumpster-rental" ? "Dumpster rental" : "Services"),
             blurb: known?.blurb || (id === "dumpster-rental" ? "Choose an offered container size, review rental terms, and arrange delivery and pickup." : "Review service details and discuss your project with the team.") };
     }).filter(service => service.id !== currentServiceId).slice(0, limit);
     if (services.length === 0) return null;

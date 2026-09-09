@@ -52,7 +52,7 @@ export default function LocationsPage() {
             <DispatchCardSection
                 eyebrow="Service areas"
                 heading="Choose the closest service area."
-                body="Location pages are generated for public service areas that are safe to show. Exact address coverage is confirmed during booking."
+                body="Explore the areas we serve. Enter your pickup address during booking to confirm coverage."
                 cards={locationCards}
                 variant="service-links"
                 alt

@@ -94,8 +94,8 @@ export default function AboutPage() {
                         </p>
                     </>
                 }
-                rightEyebrow="Verified details"
-                rightHeading={`${siteConfig.companyName} at a glance`}
+                rightEyebrow={rows.length > 0 ? "Verified details" : "Booking steps"}
+                rightHeading={rows.length > 0 ? `${siteConfig.companyName} at a glance` : "Plan your pickup"}
                 rightRows={rows.length > 0 ? rows : undefined}
             />
             <Founder />

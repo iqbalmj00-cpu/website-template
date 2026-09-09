@@ -81,6 +81,7 @@ export default function PricingPage() {
                 titleAccent={`through booking.`}
                 lede="Load-tier ranges give customers a planning guide. The booking wizard adds item details, access notes, and the pickup address so the estimate can match the actual job."
                 primaryCta={{ label: "Get an Instant Quote", href: "/book" }}
+                secondaryCta={null}
             />
             <VisualPricingScaleSection
                 config={siteConfig}
