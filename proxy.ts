@@ -16,7 +16,7 @@ import { NextResponse, type NextRequest } from "next/server";
  *     `x-template-preview-route: 1` to a request and render the site without the
  *     "Website Setup Required" gate.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const response = request.nextUrl.pathname === "/__preview"
         ? NextResponse.rewrite(new URL(`/preview${request.nextUrl.search}`, request.url))
         : NextResponse.next();

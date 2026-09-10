@@ -11,10 +11,10 @@ import { getIndexableLocations, getLocationBySlug } from "@/lib/locationData.ser
 import { getServiceImageRole } from "@/lib/templateAssets/junkRemoval";
 
 type PageProps = {
-    params: {
+    params: Promise<{
         slug: string;
         serviceSlug: string;
-    };
+    }>;
 };
 
 export const dynamicParams = false;
@@ -28,7 +28,8 @@ export function generateStaticParams() {
     );
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
+export async function generateMetadata({ params: pendingParams }: PageProps): Promise<Metadata> {
+    const params = await pendingParams;
     const location = getIndexableLocations().find((entry) => entry.slug === params.slug);
     const service = getClientServices().find((entry) => entry.slug === params.serviceSlug);
 
@@ -51,7 +52,8 @@ export function generateMetadata({ params }: PageProps): Metadata {
     });
 }
 
-export default function ServiceLocationPage({ params }: PageProps) {
+export default async function ServiceLocationPage({ params: pendingParams }: PageProps) {
+    const params = await pendingParams;
     const location = getIndexableLocations().find((entry) => entry.slug === params.slug);
     const service = getClientServices().find((entry) => entry.slug === params.serviceSlug);
 

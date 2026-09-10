@@ -10,9 +10,9 @@ import { siteConfig } from "@/lib/siteConfig";
 import { getClientServices } from "@/lib/serviceData";
 
 type PageProps = {
-    params: {
+    params: Promise<{
         itemSlug: string;
-    };
+    }>;
 };
 
 export const dynamicParams = false;
@@ -21,7 +21,8 @@ export function generateStaticParams() {
     return getCostGuides().map((item) => ({ itemSlug: item.slug }));
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
+export async function generateMetadata({ params: pendingParams }: PageProps): Promise<Metadata> {
+    const params = await pendingParams;
     const guide = getCostGuideBySlug(params.itemSlug);
     if (!guide) {
         return createPageMetadata({
@@ -39,7 +40,8 @@ export function generateMetadata({ params }: PageProps): Metadata {
     });
 }
 
-export default function CostGuidePage({ params }: PageProps) {
+export default async function CostGuidePage({ params: pendingParams }: PageProps) {
+    const params = await pendingParams;
     const guide = getCostGuideBySlug(params.itemSlug);
     if (!guide) notFound();
 

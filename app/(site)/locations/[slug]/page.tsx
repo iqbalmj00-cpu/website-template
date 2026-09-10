@@ -22,7 +22,8 @@ export async function generateStaticParams() {
     return getLocations().map((loc) => ({ slug: loc.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+export async function generateMetadata({ params: pendingParams }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const params = await pendingParams;
     const loc = getLocationBySlug(params.slug);
     if (!loc) {
         return createPageMetadata({
@@ -51,7 +52,8 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     });
 }
 
-export default function LocationDetailPage({ params }: { params: { slug: string } }) {
+export default async function LocationDetailPage({ params: pendingParams }: { params: Promise<{ slug: string }> }) {
+    const params = await pendingParams;
     const location = getLocationBySlug(params.slug);
     if (!location) notFound();
     const locationImageSrc = siteConfig.locationImages?.[location.slug] || "";

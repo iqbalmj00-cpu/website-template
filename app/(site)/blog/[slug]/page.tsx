@@ -15,7 +15,8 @@ export async function generateStaticParams() {
     return blogs.map((b) => ({ slug: b.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params: pendingParams }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const params = await pendingParams;
     const post = await fetchBlogBySlug(params.slug);
     if (!post) {
         return createPageMetadata({
@@ -35,7 +36,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     });
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage({ params: pendingParams }: { params: Promise<{ slug: string }> }) {
+    const params = await pendingParams;
     const post = await fetchBlogBySlug(params.slug);
     if (!post) notFound();
 

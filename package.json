@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "node ./node_modules/next/dist/bin/next dev",
     "build": "node ./scripts/run-with-heartbeat.mjs \"Next production build\" -- node ./node_modules/next/dist/bin/next build",
     "start": "node ./node_modules/next/dist/bin/next start",
-    "lint": "node ./scripts/run-with-heartbeat.mjs \"ESLint\" -- node ./node_modules/eslint/bin/eslint.js app components lib --ext .ts,.tsx",
-    "typecheck": "node ./node_modules/typescript/bin/tsc --noEmit --pretty false --incremental false",
+    "lint": "node ./scripts/run-with-heartbeat.mjs \"ESLint\" -- node ./node_modules/eslint/bin/eslint.js app components lib",
+    "typecheck": "node ./node_modules/next/dist/bin/next typegen && node ./node_modules/typescript/bin/tsc --noEmit --pretty false --incremental false",
     "test": "node ./scripts/run-tests.mjs",
     "test:booking": "node ./tests/booking-regressions.cjs",
     "seo:audit": "node ./scripts/seo-release-audit.mjs",
@@ -20,28 +20,35 @@
     "check:lint": "npm run check:node && npm run lint",
     "check:build": "npm run check:node && npm run build",
     "check:seo-audit": "npm run check:node && npm run seo:audit",
-    "verify:seo": "npm run check:node && node ./scripts/verify-seo.mjs"
+    "verify:seo": "npm run check:node && node ./scripts/verify-seo.mjs",
+    "test:rental": "node tests/rental-pricing.cjs",
+    "test:website": "node tests/qa-confirmed-web-issues.cjs",
+    "test:runtime": "node tests/runtime-regressions.mjs",
+    "predev": "npm run check:node",
+    "prestart": "npm run check:node",
+    "prebuild": "npm run check:node",
+    "pretest": "npm run check:node"
   },
   "dependencies": {
-    "@stripe/react-stripe-js": "^2.7.0",
     "@stripe/stripe-js": "^4.0.0",
     "@types/three": "^0.160.0",
     "lucide-react": "^0.400.0",
-    "next": "14.2.29",
-    "react": "^18",
-    "react-dom": "^18",
+    "next": "16.3.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "stripe": "^16.0.0",
     "three": "^0.160.1"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/node": "^24",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.29",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.4",
     "postcss": "^8",
     "tailwindcss": "^3",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "npm@11.19.0"
 }

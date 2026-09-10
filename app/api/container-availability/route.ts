@@ -6,6 +6,9 @@ import { safeJson } from "@/lib/safeJson";
  * Proxy to dashboard's container-availability endpoint.
  * Adds x-api-key + x-site-token headers for auth.
  */
+// Availability and promo decisions must always use current backend state.
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
     try {
         const siteToken = process.env.SITE_TOKEN;
@@ -30,6 +33,7 @@ export async function GET(req: NextRequest) {
         const response = await fetch(
             `${dashboardUrl}/api/booking/container-availability?${qs.toString()}`,
             {
+                cache: "no-store",
                 headers: {
                     "x-api-key": ingestApiKey,
                     "x-site-token": siteToken,

@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import { unstable_noStore as noStore } from "next/cache";
+import { connection } from "next/server";
 import {
     adjustHexColor,
     createSiteConfigFromPublicConfig,
@@ -31,9 +31,9 @@ export const metadata: Metadata = {
 };
 
 type PreviewPageProps = {
-    searchParams?: {
+    searchParams?: Promise<{
         token?: string | string[];
-    };
+    }>;
 };
 
 type PreviewSessionResponse = {
@@ -86,7 +86,7 @@ function previewFallbackConfig(): SiteConfig {
     };
 }
 
-function getToken(searchParams: PreviewPageProps["searchParams"]): string {
+function getToken(searchParams: Awaited<PreviewPageProps["searchParams"]>): string {
     const raw = searchParams?.token;
     const token = Array.isArray(raw) ? raw[0] : raw;
     return typeof token === "string" ? token.trim() : "";
@@ -148,9 +148,9 @@ function previewStyle(config: SiteConfig): CSSProperties {
 }
 
 export default async function PreviewPage({ searchParams }: PreviewPageProps) {
-    noStore();
+    await connection();
 
-    const config = await loadPreviewConfig(getToken(searchParams));
+    const config = await loadPreviewConfig(getToken(await searchParams));
     if (!config) {
         return (
             <PreviewClickGuard>

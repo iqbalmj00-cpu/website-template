@@ -27,7 +27,8 @@ export async function generateStaticParams() {
 
 export const dynamicParams = false;
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+export async function generateMetadata({ params: pendingParams }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const params = await pendingParams;
     const svc = getClientServices().find((service) => service.slug === params.slug);
     if (!svc) {
         return createPageMetadata({
@@ -64,7 +65,8 @@ function resolveServiceTemplateImage(slug: string, title: string) {
     });
 }
 
-export default function ServiceDetailPage({ params }: { params: { slug: string } }) {
+export default async function ServiceDetailPage({ params: pendingParams }: { params: Promise<{ slug: string }> }) {
+    const params = await pendingParams;
     const enabledServices = getClientServices();
     const svc = enabledServices.find((service) => service.slug === params.slug) || getServiceBySlug(params.slug);
     if (!svc || !enabledServices.some((service) => service.slug === svc.slug)) notFound();

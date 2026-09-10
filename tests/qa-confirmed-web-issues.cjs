@@ -29,7 +29,7 @@ function loader(mocks = {}, globals = {}) {
             if (Object.hasOwn(mocks, name)) return mocks[name];
             if (name === 'server-only') return {}; // Next boundary marker; fixture env stays empty.
             if(name === 'lucide-react') return new Proxy({}, { get:(_, key)=>key==='__esModule'?true:()=>null });
-            if(name === 'next/link') return {__esModule:true,default:({href,children,...props})=>React.createElement('a',{...props,href},children)};
+            if(name === 'next/link') return {__esModule:true,default:({href,children,prefetch,...props})=>React.createElement('a',{...props,href},children)};
             if(name === 'next/image') return {__esModule:true,default:()=>null};
             if(name === 'next/navigation') return {usePathname:()=>'/about',redirect:()=>{throw Error('Unexpected redirect')},notFound:()=>{throw Error('Unexpected notFound')}};
             if (name.startsWith('.') || name.startsWith('@/')) {
@@ -125,7 +125,7 @@ async function main() {
         h.mount(()=>component(props));let focused=-1,prevented=0;
         const tabs=()=>nodes(h.tree).filter(n=>n.props.role==='tab');
         const assertSelection=i=>{const t=tabs(),panel=nodes(h.tree).find(n=>n.props.role==='tabpanel');assert.equal(t.filter(n=>n.props.tabIndex===0).length,1);assert.equal(t[i].props['aria-selected'],true);assert.equal(panel.props['aria-labelledby'],t[i].props.id);assert.equal(t[i].props['aria-controls'],panel.props.id);};
-        const key=async(k)=>{const t=tabs();t.forEach((n,i)=>n.ref({focus:()=>{focused=i;}}));const index=t.findIndex(n=>n.props['aria-selected']);t[index].props.onKeyDown({key:k,preventDefault:()=>prevented++});await h.flush();};
+        const key=async(k)=>{const t=tabs();t.forEach((n,i)=>n.props.ref({focus:()=>{focused=i;}}));const index=t.findIndex(n=>n.props['aria-selected']);t[index].props.onKeyDown({key:k,preventDefault:()=>prevented++});await h.flush();};
         assertSelection(vertical?0:2);await key('Home');assertSelection(0);assert.equal(focused,0);
         await key(vertical?'ArrowUp':'ArrowLeft');assertSelection(2);assert.equal(focused,2);
         await key(vertical?'ArrowDown':'ArrowRight');assertSelection(0);assert.equal(focused,0);
