@@ -1,4 +1,5 @@
 import {
+    getHomeAreaSummary,
     isSameDayEnabled,
     siteConfig,
     type SiteConfig,
@@ -56,7 +57,7 @@ function faqTokens(config: SiteConfig): Record<string, string | number | null> {
     return {
         city: config.city || "your area",
         state: config.state,
-        serviceArea: config.serviceArea || (config.city ? `Greater ${config.city}` : "your area"),
+        serviceArea: getHomeAreaSummary(config),
         maxRadius: config.maxRadius ?? "",
         phone: config.phoneNumber,
     };
@@ -64,8 +65,8 @@ function faqTokens(config: SiteConfig): Record<string, string | number | null> {
 
 export function buildHomeFaqs(config: SiteConfig = siteConfig) {
     if (config.companyMode === "dumpster_rental") return [
-        { q: "How do I request a dumpster?", a: "Choose a configured container size, describe the debris, and request a delivery date and window. Availability and rental terms need confirmation." },
-        { q: "What is included in the rental price?", a: "Check the dumpster rental page for the configured base rates, included days, weight allowances, and extra charges." },
+        { q: "How do I request a dumpster?", a: "Choose a listed container size, describe the debris, and request a delivery date and window. Availability and rental terms need confirmation." },
+        { q: "What is included in the rental price?", a: "Check the dumpster rental page for the listed base rates, included days, weight allowances, and extra charges." },
     ];
     const tokens = faqTokens(config);
     return homeFaqItems(config).map((item) => ({

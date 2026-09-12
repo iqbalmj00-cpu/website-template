@@ -7,6 +7,8 @@ import RichFAQ from "@/components/redesign/RichFAQ";
 import { VisualPricingScaleSection } from "@/components/redesign/VisualReplacementBlocks";
 import {
     formatPhone,
+    getHomeAreaSummary,
+    getHomeHeroTagline,
     getGoogleTestimonials,
     getPricingTiersForDisplay,
     getReviewSummary,
@@ -192,7 +194,6 @@ export function DispatchHomeHero({ config = siteConfig }: { config?: SiteConfig 
         overrideSrc: config.heroImageUrl,
     });
     const reviewSummary = hasVerifiedGoogleReviews(config) ? getReviewSummary(config) : null;
-    const area = displayArea(config);
     const headline = [config.heroHeadline, config.heroAccentText].filter(Boolean).join(" ");
 
     return (
@@ -200,7 +201,7 @@ export function DispatchHomeHero({ config = siteConfig }: { config?: SiteConfig 
             <div className="hero-copy">
                 <span className="eyebrow">Local crew dispatch</span>
                 <h1>{headline}</h1>
-                <p>{config.tagline || `Book professional junk removal in ${area}. Pricing is based on load size, access, and job details.`}</p>
+                <p>{getHomeHeroTagline(config)}</p>
                 <div className="hero-actions">
                     <Link className="btn brand" href="/book">Book Now</Link>
                     <Link className="btn light" href="/customer-portal" prefetch={false}>Manage Booking</Link>
@@ -403,10 +404,11 @@ export function DispatchAreaSection({ config = siteConfig, focus }: { config?: S
                     <p>
                         {focus?.name
                             ? `${config.companyName} highlights ${focus.name} on this location page. Exact pickup address coverage is confirmed during booking.`
-                            : `${config.companyName} serves ${displayArea(config)}. Address coverage is confirmed during booking.`}
+                            : `${config.companyName} serves ${getHomeAreaSummary(config)}. Address coverage is confirmed during booking.`}
                     </p>
                     <div className="area-chips">
                         {areas.map((area) => <Link className="area-chip" href={`/locations/${cleanSlug(area)}`} key={area}>{area}</Link>)}
+                        <Link className="area-chip" href="/locations">View all service areas</Link>
                     </div>
                 </div>
             </div>
@@ -516,7 +518,7 @@ export function DispatchFinalCta({
             <div className="final-cta">
                 <div>
                     <h2>{heading}</h2>
-                    <p>{body || `Start with the service type, load details, pickup address, access notes, and preferred schedule for ${displayArea(config)}.`}</p>
+                    <p>{body || `Start with the service type, load details, pickup address, access notes, and preferred schedule for ${getHomeAreaSummary(config)}.`}</p>
                 </div>
                 <div className="final-cta-actions">
                     <Link className="btn brand" href="/book">Book Now</Link>

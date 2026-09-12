@@ -551,6 +551,10 @@ export function createSiteConfigFromPublicConfig(input: unknown, fallback: SiteC
 
     const city = getRecordText(input, "displayCity") || getRecordText(input, "city") || fallback.city;
     const state = getRecordText(input, "displayState") || getRecordText(input, "state") || fallback.state;
+    const serviceArea = getRecordText(input, "displayServiceArea") || getRecordText(input, "serviceArea") || fallback.serviceArea;
+    // Classify inherited generated text against its original location before merging.
+    const inheritedTagline = fallback.tagline === legacyHomeHeroTagline(fallback) ? "" : fallback.tagline;
+    const tagline = typeof input.tagline === "string" && input.tagline.trim() ? input.tagline : inheritedTagline;
     const pricingInput = input.pricing ?? input.pricingConfig;
     const previewPricing = normalizePreviewPricing(pricingInput, fallback);
     const previewReviews = normalizeGoogleReviews(input.googleReviews ?? input.reviews ?? input.testimonials);
@@ -565,17 +569,14 @@ export function createSiteConfigFromPublicConfig(input: unknown, fallback: SiteC
             || fallback.companyName,
         city,
         state,
-        serviceArea:
-            getRecordText(input, "displayServiceArea")
-            || getRecordText(input, "serviceArea")
-            || fallback.serviceArea,
+        serviceArea,
         phoneNumber:
             getRecordText(input, "phoneNumber")
             || getRecordText(input, "displayPhoneNumber")
             || getRecordText(input, "phone")
             || fallback.phoneNumber,
         emailAddress: getRecordText(input, "emailAddress") || fallback.emailAddress,
-        tagline: getRecordText(input, "tagline") || fallback.tagline,
+        tagline: getHomeHeroTagline({ city, state, serviceArea, tagline }),
         heroHeadline:
             getRecordText(input, "heroHeadline")
             || defaultHeroHeadline(city),
@@ -607,6 +608,34 @@ export function createSiteConfigFromPublicConfig(input: unknown, fallback: SiteC
         contactEnabled: getRecordBoolean(input, "contactEnabled", fallback.contactEnabled),
         mailboxConnected: getRecordBoolean(input, "mailboxConnected", fallback.mailboxConnected),
     };
+}
+
+type HomeCopyLocation = Pick<SiteConfig, "city" | "state" | "serviceArea">;
+
+/** Short presentation copy only; the full service area remains authoritative data. */
+export function getHomeAreaSummary(config: HomeCopyLocation): string {
+    const meaningful = (value: string) => {
+        const text = value.trim();
+        return text && !["your city", "your area", "your service area", "service area", "surrounding areas", "near me", "nearby"].includes(text.toLowerCase())
+            && !/^\d{5}(?:-\d{4})?$/.test(text) ? text : "";
+    };
+    const city = meaningful(config.city);
+    if (city) return `${[city, config.state.trim()].filter(Boolean).join(", ")} and nearby communities`;
+    const areas = config.serviceArea.split(/[,;]/).map(meaningful).filter(Boolean);
+    return areas.length === 1 ? `${areas[0]} and nearby communities` : "your area";
+}
+
+function legacyHomeHeroTagline(config: HomeCopyLocation): string {
+    // Match the exact old displayArea/template pair, never arbitrary custom text.
+    const area = config.serviceArea && config.serviceArea !== "your area"
+        ? config.serviceArea
+        : [config.city, config.state].filter(Boolean).join(", ") || "your service area";
+    return `Book professional junk removal in ${area}. Pricing is based on load size, access, and job details.`;
+}
+
+export function getHomeHeroTagline(config: HomeCopyLocation & Pick<SiteConfig, "tagline">): string {
+    if (config.tagline && config.tagline !== legacyHomeHeroTagline(config)) return config.tagline;
+    return `Book professional junk removal in ${getHomeAreaSummary(config)}. Pricing is based on load size, access, and job details.`;
 }
 
 /** Format a phone number for display: +16186934498 → (618) 693-4498 */

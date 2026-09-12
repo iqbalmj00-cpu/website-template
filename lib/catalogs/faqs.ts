@@ -77,7 +77,7 @@ export const FAQ_POOL: FaqItem[] = [
     category: 'items',
     question: 'What can you take?',
     answer:
-      'The services page lists the item categories configured for this business. Common categories can include furniture, appliances, yard waste, cleanouts, and construction debris when selected.',
+      'See our Services page for the items and cleanouts we handle. Tell us what you need removed when you book.',
   },
   {
     id: 'items-what-not',
