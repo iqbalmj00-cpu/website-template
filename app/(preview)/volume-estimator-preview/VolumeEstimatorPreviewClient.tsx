@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AlertTriangle, Check, ChevronLeft, Truck } from "lucide-react";
-import { VolumeEstimator } from "@/components/booking/VolumeEstimator";
+import { VolumeEstimator, type VolumeImageStyle } from "@/components/booking/VolumeEstimator";
 import { roundTo5, siteConfig } from "@/lib/siteConfig";
 import { MULTI_LOAD_EDGE_CASE_ID } from "@/lib/bookingLogic";
 import { EDGE_CASES, LOAD_TIERS, LOCATION_OPTIONS } from "@/lib/wizardData";
@@ -64,6 +64,8 @@ function EdgeToggle({
 
 export default function VolumeEstimatorPreviewClient() {
     const [tierIndex, setTierIndex] = useState(1);
+    const [imageStyle, setImageStyle] = useState<VolumeImageStyle>("realistic");
+    const [showSelection, setShowSelection] = useState(false);
     const [location, setLocation] = useState<string | null>(null);
     const [edgeCases, setEdgeCases] = useState<Record<string, boolean>>({});
 
@@ -93,6 +95,11 @@ export default function VolumeEstimatorPreviewClient() {
     const isOnSiteEstimate = !!edgeCases.unknown || !!edgeCases[MULTI_LOAD_EDGE_CASE_ID] || volume === "multi";
     const canProceed = !!edgeCases.unknown || location !== null;
 
+    const selectLoadTier = (index: number) => {
+        setTierIndex(index);
+        setEdgeCases(prev => ({ ...prev, [MULTI_LOAD_EDGE_CASE_ID]: LOAD_TIERS[index].volumeId === "multi" }));
+    };
+
     const toggleEdge = (id: string) => {
         setEdgeCases(prev => {
             const next = { ...prev, [id]: !prev[id] };
@@ -103,6 +110,23 @@ export default function VolumeEstimatorPreviewClient() {
 
     return (
         <div style={{ minHeight: "100vh", background: "var(--background)", paddingBottom: 96 }}>
+            <aside aria-label="Artwork comparison" style={{ borderBottom: "1px solid #dedfd7", background: "#f3f4ef", padding: "18px 20px" }}>
+                <div style={{ maxWidth: 856, margin: "0 auto", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 14 }}>
+                    <div>
+                        <strong style={{ display: "block", fontSize: 13 }}>Load size · Design review</strong>
+                        <p style={{ margin: "4px 0 0", fontSize: 11, color: "#626b64" }}>Compare the artwork at the same tier. Truck dimensions show an illustrative 15-yard cargo bed. This preview submits no bookings.</p>
+                    </div>
+                    <div role="group" aria-label="Reference image style" style={{ display: "flex", padding: 3, background: "#e3e6dd", borderRadius: 10, gap: 3 }}>
+                        {(["blender", "realistic"] as const).map(style => (
+                            <button key={style} type="button" aria-pressed={imageStyle === style} onClick={() => setImageStyle(style)}
+                                style={{ padding: "10px 14px", borderRadius: 7, border: "1px solid transparent", background: imageStyle === style ? "#fff" : "transparent", color: "#24302b", fontSize: 12, fontWeight: 650, cursor: "pointer" }}>
+                                {style === "blender" ? "Blender renders" : "Realistic images"}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <p style={{ maxWidth: 856, margin: "12px auto 0", fontSize: 11, color: "#626b64" }}>Blender uses measured objects and checked loading arrangements. AI images are appearance concepts and may alter details. Brush represents loose volume; actual vehicle and loaded-job comparison remain to be confirmed.</p>
+            </aside>
             <div style={{ maxWidth: 720, margin: "0 auto", padding: "28px 20px 0", display: "flex", gap: 6 }}>
                 {[0, 1, 2, 3, 4].map(i => (
                     <div
@@ -136,7 +160,7 @@ export default function VolumeEstimatorPreviewClient() {
                             How much junk are we hauling?
                         </h1>
                         <p style={{ fontSize: 14, color: "var(--muted)", margin: 0 }}>
-                            Pick the closest real-world load size before we price the visit.
+                            Choose a load size, then compare it with the examples.
                         </p>
                     </div>
 
@@ -144,28 +168,10 @@ export default function VolumeEstimatorPreviewClient() {
                         <VolumeEstimator
                             levels={LOAD_TIERS}
                             value={tierIndex}
-                            onChange={setTierIndex}
+                            onChange={selectLoadTier}
                             brandColor={siteConfig.brandColor}
+                            imageStyle={imageStyle}
                         />
-                    </div>
-
-                    <div style={{ margin: "20px 12px 0", padding: "20px 24px", background: "var(--card, #fff)", borderRadius: "var(--card-radius, 16px)", border: "1px solid var(--border, #e2e8f0)", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                            <div style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 10, background: "rgba(var(--brand-rgb, 249,115,22),0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <Truck size={20} color="var(--brand)" />
-                            </div>
-                            <div style={{ fontFamily: "var(--heading-font)", fontSize: 22, fontWeight: 700, color: "var(--foreground)", lineHeight: 1.2 }}>
-                                {LOAD_TIERS[tierIndex].title}
-                                {LOAD_TIERS[tierIndex].popular && (
-                                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--brand)", background: "rgba(var(--brand-rgb, 249,115,22),0.06)", padding: "2px 8px", borderRadius: 999, marginLeft: 8, verticalAlign: "middle", letterSpacing: 0.3, textTransform: "uppercase" }}>
-                                        Standard option
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                        <p style={{ fontSize: 14, color: "var(--muted)", margin: 0, lineHeight: 1.55, paddingLeft: 52 }}>
-                            {LOAD_TIERS[tierIndex].desc}
-                        </p>
                     </div>
 
                     <div style={{ margin: "12px 12px 0", padding: "12px 16px", background: "#f0fdf4", borderRadius: 12, border: "1px solid #bbf7d0", display: "flex", alignItems: "center", gap: 10 }}>
@@ -212,7 +218,7 @@ export default function VolumeEstimatorPreviewClient() {
                         <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 12 }}>
                             These may require a custom quote.
                         </div>
-                        {EDGE_CASES.map((item, index) => (
+                        {EDGE_CASES.filter(item => item.id !== MULTI_LOAD_EDGE_CASE_ID).map((item, index) => (
                             <div key={item.id}>
                                 {index > 0 && <div style={{ height: 1, background: "var(--border, #f1f5f9)" }} />}
                                 <EdgeToggle item={item} checked={!!edgeCases[item.id]} onChange={() => toggleEdge(item.id)} />
@@ -271,13 +277,22 @@ export default function VolumeEstimatorPreviewClient() {
                 </div>
             </div>
 
+            {showSelection && (
+                <div role="status" style={{ position: "fixed", bottom: 88, left: 20, right: 20, maxWidth: 680, margin: "0 auto", zIndex: 60, padding: 20, border: "1px solid #c7d1c3", borderRadius: 12, background: "#f3f8ef", boxShadow: "0 8px 30px #0002" }}>
+                    <strong>Selection ready for the next booking step</strong>
+                    <p style={{ fontSize: 13, margin: "8px 0" }}>Load: {volume}. Access: {location || "on-site assessment"}. More than one load: {edgeCases.multi_load ? "yes" : "no"}. Unsure: {edgeCases.unknown ? "yes" : "no"}.</p>
+                    <p style={{ fontSize: 12 }}>The artwork choice stays in this preview. Nothing has been sent.</p>
+                    <button type="button" onClick={() => setShowSelection(false)} style={{ marginTop: 10, textDecoration: "underline", background: "none", border: 0, cursor: "pointer" }}>Keep comparing</button>
+                </div>
+            )}
             <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "var(--card)", borderTop: "1px solid var(--border, #E2E8F0)", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 50 }}>
                 <button type="button" style={{ border: "none", background: "none", fontSize: 15, color: "var(--muted)", fontWeight: 600, cursor: "default", display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
-                    <ChevronLeft size={18} /> Back
+                    <ChevronLeft size={18} /> Preview
                 </button>
                 <button
                     type="button"
                     disabled={!canProceed}
+                    onClick={() => setShowSelection(true)}
                     style={{
                         padding: "14px 44px",
                         borderRadius: "var(--btn-radius)",

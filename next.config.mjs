@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    localPatterns: [
+      { pathname: "/**", search: "" },
+      { pathname: "/booking-volume-review/**", search: "?v=20260914b" },
+    ],
     remotePatterns: [
       { protocol: "https", hostname: "**" },
     ],
