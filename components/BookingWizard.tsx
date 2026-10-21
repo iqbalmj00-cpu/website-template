@@ -1,6 +1,6 @@
 "use client";
 import { readRentalTerms, rentalDaysForSelection, rentalTermsLines, rentalQuoteBase, rentalQuoteSubtotal, rentalMoney, rentalInclusionLines } from "@/lib/rentalPricing";
-import { canReviseCapture, readWizardDraft, restoreIntent, saveIntent, hasAttempts, canResume, freezeAttempts, resumeIntent, intentOutcomes, resolvedOutcome, readOutcome, acceptedPriceLabel, STORAGE_MESSAGE, type ServiceLeg, type BookingEnvelope } from "@/lib/bookingIntent";
+import { canReviseCapture, readWizardDraft, restoreIntent, saveIntent, hasAttempts, canResume, freezeAttempts, resumeIntent, reopenTurnedAwayRental, intentOutcomes, resolvedOutcome, readOutcome, acceptedPriceLabel, STORAGE_MESSAGE, type ServiceLeg, type BookingEnvelope } from "@/lib/bookingIntent";
 import BookingReceipt from "@/components/BookingReceipt";
 
 import { getContainerSizes, validContainerSelection } from "@/lib/containerCatalog";
@@ -170,6 +170,7 @@ function Calendar({ selected, onSelect, isDisabled }: { selected: Date | null; o
 
 /* ── Session persistence helpers ────────────────────────────────────────── */
 const WIZARD_STORAGE_KEY = "syjBookingWizard";
+const TURNED_AWAY_MESSAGE = "No dumpster of that size is free for your date, so nothing was booked. Pick the next free date or another size below, then submit again.";
 
 function loadSavedWizard() {
     if (typeof window === "undefined") return null;
@@ -376,6 +377,9 @@ export default function BookingWizard() {
         })();
         return () => { cancelled = true; };
     }, [containerSize, selectedDate, rentalDuration, availabilityKey]);
+    useEffect(() => {
+        if (availabilityState === "available") setError(e => e === TURNED_AWAY_MESSAGE ? "" : e);
+    }, [availabilityState]);
 
     // Results belong to a single date. An empty successful list is a refusal;
     // transport/shape failure uses the existing static fallback policy.
@@ -845,6 +849,18 @@ export default function BookingWizard() {
             }
             await resumeIntent(intent, sendBooking, persistIntent, changedIntent);
             if (intent.leadId) rememberLead(intent.leadId);
+            // No dumpster free at submit: show the dashboard's alternatives on the
+            // date step and let the customer pick again (same booking session).
+            const turnedAway = reopenTurnedAwayRental(intent, persistIntent);
+            if (turnedAway) {
+                setContainerAvailability({ available: false, nextAvailableDate: turnedAway.nextAvailableDate ?? undefined, alternativeSizes: turnedAway.alternativeSizes });
+                setAvailabilityState("unavailable");
+                setCheckedAvailabilityKey(availabilityKey);
+                setStep(phases.indexOf("schedule"));
+                retryCard();
+                setError(TURNED_AWAY_MESSAGE);
+                return;
+            }
             const outcomes = intentOutcomes(intent);
             // Card recovery uses the saved method and customer; no new SetupIntent on replay.
             if (intent.paymentMethodId) {
