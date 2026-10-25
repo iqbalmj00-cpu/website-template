@@ -18,7 +18,7 @@ const deny = () => { throw new Error('Unexpected outbound fetch'); };
 
 function loader(mocks = {}, globals = {}) {
     const cache = new Map();
-    const context = vm.createContext({ console, crypto:require("node:crypto").webcrypto, URL, URLSearchParams, Date:FixtureDate, Intl, Promise, setTimeout, clearTimeout, performance: { getEntriesByType: () => [{ type: 'reload' }] }, process: { env: {} }, fetch: deny, ...globals });
+    const context = vm.createContext({ console, crypto:require("node:crypto").webcrypto, URL, URLSearchParams, AbortSignal, Date:FixtureDate, Intl, Promise, setTimeout, clearTimeout, performance: { getEntriesByType: () => [{ type: 'reload' }] }, process: { env: {} }, fetch: deny, ...globals });
     function load(file) {
         file = path.resolve(file);
         if (mocks[file]) return mocks[file];
@@ -321,6 +321,31 @@ async function main(mainOptions = {}) {
         assert.match(renderToStaticMarkup(page), /A useful review/); // Render actual fallback components too.
         const blog=loader({[path.join(source,'components/redesign/PageHero.tsx')]:{__esModule:true,default:()=>null},[path.join(source,'components/redesign/DispatchBlocks.tsx')]:{DispatchCardSection:()=>null},'next/navigation':{notFound:()=>{throw new Error('Unexpected 404');}},[path.join(source,'lib/blogData.ts')]:{fetchBlogs:async()=>[]},[path.join(source,'lib/siteConfig.ts')]:{...configModule,siteConfig:{...config,enableBlog:true}}});
         const blogPage=await blog.load(path.join(source,'app/(site)/blog/page.tsx')).default();assert.match(text(blogPage),/No articles are available/);
+    }
+    if (!widget) {
+        // Rental-bearing submissions never use the old bare setup or generic save.
+        let bareConfirmations = 0, genericSaves = 0;
+        const active = [];
+        const card = { stripeReady: true, cardComplete: false, cardError: '', setupError: '', retryCard: () => {}, setupClientSecret: 'old-bare-fixture', stripeRef: { current: { confirmCardSetup: async () => { bareConfirmations++; return { setupIntent: { payment_method: 'pm_old' } }; } } }, cardRef: { current: {} }, cardMountRef: () => {}, active: value => active.push(value) };
+        const rental = wizardFixture({ ...defaultSaved, step: 6, paymentPreference: 'card' }, { config: { stripePublishableKey: 'pk_fixture' }, card, confirmCard: () => { genericSaves++; return { ok: true, status: 200, json: async () => ({ success: true }) }; } });
+        await rental.h.flush();
+        button(rental.h.tree, 'Confirm & Book').props.onClick(); await rental.h.flush();
+        assert.equal(bareConfirmations, 0); assert.equal(genericSaves, 0); assert.ok(active.every(value => value === false));
+        assert.equal(rental.calls.filter(call => call.body?.intent === 'submit').length, 2);
+        rental.h.unmount();
+        // Exercise the actual hyphenated route with strict authority-only forwarding.
+        const authority = 'eyJhbGciOiJIUzI1NiJ9.eyJmaXh0dXJlIjp0cnVlfQ.signature';
+        let forwards = 0;
+        const proxy = loader({ 'next/server': { NextResponse: { json: (data, options) => ({ data, status: options?.status ?? 200, headers: options?.headers }) } } }, {
+            process: { env: { DASHBOARD_URL: 'https://dashboard.fixture.invalid', SITE_TOKEN: 'never-forward', INGEST_API_KEY: 'never-forward' } },
+            fetch: async (url, init) => { forwards++; assert.equal(url, 'https://dashboard.fixture.invalid/api/booking/rental-card'); assert.deepEqual(Object.keys(init.headers), ['Content-Type']); assert.equal(init.redirect, 'error'); assert.equal(init.cache, 'no-store'); assert.ok(init.signal instanceof AbortSignal); return { status: 409, headers: { get: () => null }, json: async () => ({ error: 'Fresh review required' }) }; },
+        }).load(path.join(source, 'app/api/booking-rental-card/route.ts'));
+        let res = await proxy.POST({ text: async () => JSON.stringify({ action: 'review', grant: authority }) });
+        assert.equal(res.status, 409); assert.equal(res.headers['Cache-Control'], 'no-store'); assert.equal(forwards, 1);
+        for (const command of [{ action: 'review', grant: authority, customerId: 'raw-id' }, { action: 'status', grant: authority }, { action: 'confirm', grant: authority, consent: false }]) {
+            res = await proxy.POST({ text: async () => JSON.stringify(command) }); assert.equal(res.status, 400);
+        }
+        assert.equal(forwards, 1);
     }
     console.log(`${widget?'Widget':'Website'} booking regressions passed (isolated source + mocked effects/requests; no provider runtime).`);
 }

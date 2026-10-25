@@ -112,4 +112,7 @@ assert.strictEqual(analyticsPageLocation("http://localhost:3000/book?x=1"), "htt
 // An unparseable value is returned as-is rather than throwing inside analytics.
 assert.strictEqual(analyticsPageLocation("not a url"), "not a url");
 
+// A malformed payment recovery must fail closed instead of losing its original proof.
+assert.strictEqual(parseBookingConfirmation(JSON.stringify({ serviceType: "dumpster", rentalPayment: { version: 1, stage: "invented", clientSecret: "never-store" } })), null);
+assert.ok(parseBookingConfirmation(JSON.stringify({ serviceType: "dumpster", name: "Legacy saved receipt" })), "legacy receipts remain readable without payment authority");
 console.log("bookingConfirmation: all assertions passed");

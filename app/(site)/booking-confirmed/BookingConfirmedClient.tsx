@@ -2,18 +2,47 @@
 
 import Link from "next/link";
 import { siteConfig, telHref } from "@/lib/siteConfig";
+import RentalBasePaymentPanel from "@/components/booking/RentalBasePaymentPanel";
+import type { RentalPaymentRecovery } from "@/lib/bookingRentalPayment";
 import BookingReceipt from "@/components/BookingReceipt";
-import type { ServiceLeg } from "@/lib/bookingIntent";
-import { readBookingConfirmation, type BookingConfirmation } from "@/lib/bookingConfirmation";
+import { restoreIntent, saveIntent, refreshRentalApproval, type ServiceLeg } from "@/lib/bookingIntent";
+import { readBookingConfirmation, storeBookingConfirmation, type BookingConfirmation } from "@/lib/bookingConfirmation";
 import { Phone } from "lucide-react";
 import { useEffect, useState } from "react";
 
-function ConfirmationContent({ data }: { data: BookingConfirmation }) {
+function ConfirmationContent({ data, onUpdate }: { data: BookingConfirmation; onUpdate: (data: BookingConfirmation) => void }) {
+    const saveRentalPayment = (next: RentalPaymentRecovery) => {
+        try {
+            const raw = sessionStorage.getItem("syjBookingWizard");
+            if (raw) {
+                const intent = restoreIntent(JSON.parse(raw));
+                if (intent.blocked || intent.attempts.dumpster?.acknowledgement?.rentalId !== next.rentalId) return false;
+                intent.rentalPayment = next;
+                if (!saveIntent("syjBookingWizard", intent)) return false;
+            }
+            const receipt = { ...data, rentalPayment: next };
+            if (!storeBookingConfirmation(receipt)) return false;
+            onUpdate(receipt); return true;
+        } catch { return false; }
+    };
+    const checkRentalApproval = async () => {
+        const raw = sessionStorage.getItem("syjBookingWizard");
+        if (!raw) throw new Error("Use the authenticated customer portal to review this rental.");
+        const intent = restoreIntent(JSON.parse(raw));
+        const outcome = await refreshRentalApproval(intent, async payload => {
+            const res = await fetch("/api/crm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+            return { status: res.status, data: await res.json(), retryAfter: res.headers.get("Retry-After") };
+        }, () => saveIntent("syjBookingWizard", intent));
+        const receipt = { ...data, outcomes: { ...data.outcomes, dumpster: outcome } };
+        if (!storeBookingConfirmation(receipt)) throw new Error("Keep this tab open and contact us to check approval.");
+        onUpdate(receipt);
+    };
     const services: ServiceLeg[] = data.serviceType === "both" ? ["junk", "dumpster"] : data.serviceType === "dumpster" ? ["dumpster"] : ["junk"];
     return <main style={{ maxWidth: 680, margin: "48px auto", padding: 24 }}>
         <h1 style={{ fontSize: 32, marginBottom: 16 }}>Your booking receipt</h1>
         <p style={{ marginBottom: 24 }}>Thank you{data.name ? `, ${data.name}` : ""}. These are the saved responses for each service.</p>
-        <BookingReceipt outcomes={data.outcomes || {}} services={services} requestedDate={data.date} requestedTime={data.time} phone={siteConfig.phoneNumber} cardIssue={data.cardIssue} />
+        <BookingReceipt outcomes={data.outcomes || {}} services={services} requestedDate={data.date} requestedTime={data.time} phone={siteConfig.phoneNumber} cardIssue={data.cardIssue} rentalPayment={data.rentalPayment} />
+        {services.includes("dumpster") && <RentalBasePaymentPanel key={`${data.outcomes?.dumpster?.rentalId}:${data.outcomes?.dumpster?.rentalCard?.status}`} outcome={data.outcomes?.dumpster} recovery={data.rentalPayment} publishableKey={siteConfig.stripePublishableKey} onChange={saveRentalPayment} onCheckApproval={checkRentalApproval} />}
         {data.address && <p style={{ marginTop: 16 }}>{data.address}</p>}
         {data.debrisType && <p>Debris: {data.debrisType}</p>}
         {data.rentalDuration && <p>Requested duration: {data.rentalDuration}</p>}
@@ -66,5 +95,5 @@ export default function BookingConfirmedClient() {
 
     if (data === undefined) return <div style={{ minHeight: "50vh" }} />;
     if (data === null) return <NoConfirmation />;
-    return <ConfirmationContent data={data} />;
+    return <ConfirmationContent data={data} onUpdate={setData} />;
 }
