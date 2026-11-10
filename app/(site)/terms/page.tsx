@@ -59,9 +59,11 @@ export default function TermsOfServicePage() {
                     </p>
                     <ul style={{ marginBottom: "1rem", paddingLeft: "1.5rem" }}>
                         <li style={{ marginBottom: "0.5rem" }}>Booking and appointment confirmations</li>
-                        <li style={{ marginBottom: "0.5rem" }}>Appointment reminders and scheduling updates</li>
+                        <li style={{ marginBottom: "0.5rem" }}>Appointment reminders, scheduling updates, and crew arrival updates</li>
+                        <li style={{ marginBottom: "0.5rem" }}>Invoices and payment reminders</li>
                         <li style={{ marginBottom: "0.5rem" }}>Links to our online booking and estimating tools</li>
-                        <li style={{ marginBottom: "0.5rem" }}>Service follow-up messages</li>
+                        <li style={{ marginBottom: "0.5rem" }}>A follow-up about a quote or booking you started</li>
+                        <li style={{ marginBottom: "0.5rem" }}>Service follow-up messages, including a request for feedback after your job</li>
                     </ul>
 
                     <h3 style={h3Style}>Opting Out</h3>

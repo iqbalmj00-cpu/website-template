@@ -68,10 +68,10 @@ export default function PrivacyPolicyPage() {
                     {/* ── SMS / Text Messaging ── */}
                     <h2 style={h2Style}>SMS / Text Messaging</h2>
                     <p style={pStyle}>
-                        If you opt in to receive text messages from {companyName}, we may send you SMS messages related to your service, including booking confirmations, appointment reminders, follow-up messages, and links to our online booking platform.
+                        If you opt in to receive text messages from {companyName}, we may send you SMS messages related to your service, including booking confirmations, appointment reminders, crew updates, invoices, a follow-up about a quote you started, feedback requests, and links to our online booking platform. Message frequency varies based on your service activity. Message and data rates may apply.
                     </p>
                     <p style={pStyle}>
-                        <strong>Your mobile phone number will not be shared with third parties for marketing or promotional purposes.</strong> We do not sell, rent, or share your mobile number with any third-party entity for their own marketing use.
+                        <strong>Your mobile phone number will not be shared with third parties for marketing or promotional purposes.</strong> We do not sell, rent, or share your mobile number, text messaging opt-in data, or consent with any third parties or affiliates for marketing or promotional purposes.
                     </p>
                     <p style={pStyle}>
                         SMS messaging services for {companyName} are powered by <strong>ScaleYourJunk</strong>, our technology platform provider. ScaleYourJunk facilitates the sending and receiving of text messages on our behalf but does not use your phone number for any purpose other than providing this service.
