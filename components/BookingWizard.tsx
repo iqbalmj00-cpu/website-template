@@ -495,6 +495,8 @@ export default function BookingWizard() {
         if (top === undefined) return;
         const header = document.querySelector("header");
         const headerHeight = header && ["sticky", "fixed"].includes(getComputedStyle(header).position) ? header.getBoundingClientRect().height : 0;
+        // The booking page's "#booking-wizard" link has to clear the header too.
+        document.getElementById("booking-wizard")?.style.setProperty("scroll-margin-top", `${headerHeight}px`);
         window.scrollTo({ top: window.scrollY + top - headerHeight, behavior: "instant" });
     }, [currentStep, hydrated]);
     // Back/Forward between steps would otherwise have the browser restore the
